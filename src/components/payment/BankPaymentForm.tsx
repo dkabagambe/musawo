@@ -38,12 +38,12 @@ export default function BankPaymentForm({
   const [bankName, setBankName] = useState("");
   const [bankRef, setBankRef] = useState("");
   const [discountCode, setDiscountCode] = useState("");
-  const [amount, setAmount] = useState(fullFeeUgx);
+  const [amount, _setAmount] = useState(fullFeeUgx);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
-  const [paymentId, setPaymentId] = useState("");
+  const [_paymentId, setPaymentId] = useState("");
 
   const firstInstalmentAmount =
     planType === "INSTALMENT" ? Math.ceil(fullFeeUgx / instalmentCount) : fullFeeUgx;

@@ -15,8 +15,13 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum UserRole {
-  STUDENT
+  SUPERADMIN
+  SYSTEM_IT
+  REGISTRAR
+  BURSAR
   TUTOR
+  STUDENT
+  // Legacy alias kept for transition; treat as REGISTRAR in code
   ADMIN
   SPONSOR
   EMPLOYER
@@ -132,6 +137,34 @@ enum AuditAction {
   EXAM_STARTED
   EXAM_SUBMITTED
   SETTINGS_CHANGED
+  ROLE_CHANGED
+  ACCOUNT_SUSPENDED
+  BULK_EXPORT
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
+  BREAK_GLASS_GRANTED
+  BREAK_GLASS_EXPIRED
+  TOTP_ENABLED
+  TOTP_DISABLED
+  ACCESS_REVIEW_COMPLETED
+}
+
+enum ApprovalRequestType {
+  REFUND
+  WAIVER
+  FEE_CHANGE
+  SCHOLARSHIP_AWARD
+  STAFF_ACCOUNT_CREATE
+  STAFF_ACCOUNT_SUSPEND
+  STAFF_ACCOUNT_ROLE_CHANGE
+}
+
+enum ApprovalRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
 }
 
 // ─────────────────────────────────────────────
@@ -153,6 +186,14 @@ model User {
   dataConsentAt     DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+
+  // TOTP / 2FA — required for SUPERADMIN, optional for staff
+  totpSecret        String?     // encrypted at app layer
+  totpEnabled       Boolean     @default(false)
+  totpVerifiedAt    DateTime?   // last successful TOTP verification in session
+
+  // Access review
+  lastAccessReviewAt DateTime?
 
   // Auth.js
   accounts          Account[]
@@ -197,6 +238,13 @@ model User {
 
   // OTPs
   otpCodes          OtpCode[]
+
+  // Approvals
+  approvalRequestsInitiated ApprovalRequest[] @relation("ApprovalInitiator")
+  approvalRequestsDecided   ApprovalRequest[] @relation("ApprovalDecider")
+
+  // Break-glass
+  breakGlassGrants  BreakGlassGrant[]
 
   @@map("users")
 }
@@ -960,4 +1008,78 @@ model AuditLog {
   actor User? @relation("ActorAuditLog", fields: [actorId], references: [id])
 
   @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────────
+// APPROVAL REQUESTS
+// Separation of duties: initiator ≠ approver.
+// Only SUPERADMIN can approve.
+// ─────────────────────────────────────────────
+
+model ApprovalRequest {
+  id           String                @id @default(cuid())
+  type         ApprovalRequestType
+  status       ApprovalRequestStatus @default(PENDING)
+  initiatorId  String
+  // Subject entity references (all optional; use whichever applies)
+  studentId    String?
+  enrolmentId  String?
+  paymentId    String?
+  staffUserId  String?               // for staff account actions
+  // Request details
+  amount       Int?                  // for REFUND / WAIVER / FEE_CHANGE (UGX)
+  reason       String                @db.Text
+  evidence     String?               // S3 key or URL to supporting doc
+  // Decision
+  decidedById  String?
+  decidedAt    DateTime?
+  decisionNote String?               @db.Text
+  // Secure approval link
+  approvalToken        String?       @unique
+  approvalTokenExpires DateTime?
+  // Timestamps
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  initiator  User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
+  decidedBy  User? @relation("ApprovalDecider",   fields: [decidedById], references: [id])
+
+  @@map("approval_requests")
+}
+
+// ─────────────────────────────────────────────
+// BREAK-GLASS ACCESS
+// SYSTEM_IT requesting temporary data access;
+// requires SUPERADMIN approval.
+// ─────────────────────────────────────────────
+
+model BreakGlassGrant {
+  id          String    @id @default(cuid())
+  requesterId String
+  reason      String    @db.Text
+  scope       String                // e.g. "student_payments", "personal_data"
+  grantedById String?
+  grantedAt   DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  accessedAt  DateTime?             // when requester first used the grant
+  createdAt   DateTime  @default(now())
+
+  requester User  @relation(fields: [requesterId], references: [id])
+
+  @@map("break_glass_grants")
+}
+
+// ─────────────────────────────────────────────
+// QUARTERLY ACCESS REVIEW
+// ─────────────────────────────────────────────
+
+model AccessReview {
+  id           String   @id @default(cuid())
+  reviewedById String
+  quarter      String   // e.g. "2026-Q4"
+  notes        String?  @db.Text
+  completedAt  DateTime @default(now())
+
+  @@map("access_reviews")
 }

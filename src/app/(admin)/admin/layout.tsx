@@ -23,7 +23,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
+  if (!session?.user || !["SUPERADMIN","REGISTRAR","ADMIN"].includes(session.user.role)) {
     redirect("/dashboard");
   }
 
@@ -32,7 +32,7 @@ export default async function AdminLayout({
       <header className="bg-primary text-white h-14 flex items-center px-4 gap-4 z-40 shadow-md">
         <Link href="/admin" className="flex items-center gap-2 no-underline">
           <Image
-            src="/assets/musawo-logo-1-20151b00.webp"
+            src="/assets/logo.webp"
             alt="MTC Admin"
             width={80}
             height={24}

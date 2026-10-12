@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound as _notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -58,7 +58,7 @@ export default async function VerifyCertificatePage({ params }: Props) {
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Image
-            src="/assets/musawo-logo-1-20151b00.webp"
+            src="/assets/logo.webp"
             alt="Musawo Training Center"
             width={100}
             height={30}

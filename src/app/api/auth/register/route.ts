@@ -4,6 +4,8 @@ import { hashPassword } from "@/lib/auth/password";
 import { sendEmail } from "@/lib/email";
 import { z } from "zod";
 
+export const runtime = "nodejs";
+
 const RegisterSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email().optional(),

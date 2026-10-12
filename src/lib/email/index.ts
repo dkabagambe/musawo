@@ -1,7 +1,12 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.EMAIL_FROM ?? "MTC <noreply@musawotraining.ug>";
+
+function getResend(): Resend {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY is not set");
+  return new Resend(key);
+}
 
 type EmailTemplate =
   | "welcome"
@@ -10,7 +15,8 @@ type EmailTemplate =
   | "exam-result"
   | "certificate-issued"
   | "password-reset"
-  | "otp";
+  | "otp"
+  | "approval-request";
 
 interface SendEmailParams {
   to: string;
@@ -69,6 +75,18 @@ function renderTemplate(
       <p>Your Musawo Training Center one-time code is: <strong>{{code}}</strong></p>
       <p>Valid for 5 minutes. Do not share this code.</p>
     `,
+    "approval-request": `
+      <h2>Action required: {{type}}</h2>
+      <p>Dear {{name}},</p>
+      <p><strong>{{requester}}</strong> has submitted an approval request that requires your decision.</p>
+      <table style="border-collapse:collapse;width:100%;margin:16px 0;">
+        <tr><td style="padding:6px 0;color:#6B7280;">Type</td><td style="padding:6px 0;font-weight:600;">{{type}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Amount</td><td style="padding:6px 0;">{{amount}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Reason</td><td style="padding:6px 0;">{{reason}}</td></tr>
+      </table>
+      <p><a href="{{approvalUrl}}" style="background:#FF6900;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Review &amp; Decide</a></p>
+      <p style="font-size:12px;color:#9CA3AF;">This link expires in {{expiresIn}}. Login with your Director account and 2FA is required.</p>
+    `,
   };
 
   let html = templates[template];
@@ -102,6 +120,7 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
   const html = renderTemplate(params.template, params.variables);
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: FROM,
       to: params.to,

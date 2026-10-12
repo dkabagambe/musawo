@@ -6,7 +6,7 @@ export const metadata = { title: "Site Settings" };
 
 export default async function SettingsPage() {
   const settings = await getAllSettings();
-  const allSettings = await db.siteSetting.findMany({
+  await db.siteSetting.findMany({
     orderBy: { key: "asc" },
   });
 

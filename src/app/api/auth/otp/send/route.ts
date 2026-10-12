@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { sendSms } from "@/lib/sms";
 import { z } from "zod";
 
+export const runtime = "nodejs";
+
 const Schema = z.object({
   phone: z.string().min(9).max(20),
   purpose: z.enum(["LOGIN", "REGISTER", "RESET"]),

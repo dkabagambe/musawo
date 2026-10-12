@@ -3,6 +3,8 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
 
+
+
   // Security headers
   async headers() {
     return [
@@ -64,9 +66,34 @@ const nextConfig = {
   },
 
   experimental: {
+    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma"],
     serverActions: {
       allowedOrigins: ["localhost:3000", "learn.musawotraining.ug"],
     },
+  },
+
+  webpack(config, { isServer }) {
+    if (isServer) {
+      // argon2 uses native bindings; keep it as an external for the server bundle
+      const existing = config.externals ?? [];
+      config.externals = [
+        ...(Array.isArray(existing) ? existing : [existing]),
+        "argon2",
+      ];
+    } else {
+      // Prevent webpack from trying to bundle Node built-ins for the browser
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        "node:crypto": false,
+        "node:buffer": false,
+        "node:stream": false,
+        "node:util": false,
+        "node:path": false,
+        "node:fs": false,
+        "node:os": false,
+      };
+    }
+    return config;
   },
 };
 

@@ -4,6 +4,8 @@ import { sendEmail } from "@/lib/email";
 import { randomBytes } from "crypto";
 import { z } from "zod";
 
+export const runtime = "nodejs";
+
 const Schema = z.object({
   email: z.string().email(),
 });

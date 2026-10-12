@@ -1,6 +1,13 @@
 # Musawo Training Center — Docker Compose
-# Production: docker compose -f docker-compose.yml up -d
-# Development: docker compose -f docker-compose.dev.yml up -d
+#
+# Production:  docker compose up -d
+# Development: docker compose up -d postgres redis   (then run Next.js locally)
+#
+# PRODUCTION SECURITY NOTES:
+#   - Set POSTGRES_PASSWORD to a long random value (openssl rand -base64 32).
+#   - Remove or firewall the postgres/redis port mappings below.
+#   - Never commit real secrets to version control.
+#   - Docker Compose will refuse to start if POSTGRES_PASSWORD is empty.
 
 services:
   app:
@@ -9,7 +16,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://mtc_user:${POSTGRES_PASSWORD}@postgres:5432/mtc_db
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
       REDIS_URL: redis://redis:6379
       NEXTAUTH_URL: ${NEXTAUTH_URL:-https://learn.musawotraining.ug}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
@@ -45,13 +52,17 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: mtc_db
-      POSTGRES_USER: mtc_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env — use a long random value in production}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # Expose to host for local development (prisma migrate, db seed, Prisma Studio).
+    # In production: remove this port mapping and firewall port 5432.
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mtc_user -d mtc_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mtc} -d ${POSTGRES_DB:-mtc_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,6 +75,10 @@ services:
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
+    # Expose to host for local development.
+    # In production: remove this port mapping and firewall port 6379.
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -94,8 +109,8 @@ services:
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: postgres
-      POSTGRES_DB: mtc_db
-      POSTGRES_USER: mtc_user
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
       S3_ENDPOINT: ${S3_ENDPOINT:-}
       S3_BUCKET: ${S3_BUCKET:-mtc-files}
     volumes:

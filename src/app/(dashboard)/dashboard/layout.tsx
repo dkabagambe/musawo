@@ -32,7 +32,7 @@ export default async function DashboardLayout({
       <header className="bg-primary text-white h-14 flex items-center px-4 gap-4 z-40 shadow-md">
         <Link href="/" className="flex items-center gap-2 no-underline mr-4">
           <Image
-            src="/assets/musawo-logo-1-20151b00.webp"
+            src="/assets/logo.webp"
             alt="Musawo Training Center"
             width={100}
             height={30}

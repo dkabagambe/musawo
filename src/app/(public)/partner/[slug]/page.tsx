@@ -43,7 +43,7 @@ export default async function PartnerPage({ params }: Props) {
       <header className="bg-primary text-white py-4 px-6">
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           <Image
-            src="/assets/musawo-logo-1-20151b00.webp"
+            src="/assets/logo.webp"
             alt="Musawo Training Center"
             width={100}
             height={30}

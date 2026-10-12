@@ -1,8 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jakarta",
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -37,7 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#111A3F",
+  themeColor: "#0B6B5D",
 };
 
 export default function RootLayout({
@@ -46,12 +51,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={jakarta.variable}>
       <head>
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+        <link rel="apple-touch-icon" href="/assets/logo.webp" />
       </head>
-      <body className="bg-white text-body-text antialiased">{children}</body>
+      <body className="bg-white text-body-text antialiased font-sans">{children}</body>
     </html>
   );
 }

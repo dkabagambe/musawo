@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
 import { sendSms } from "@/lib/sms";
-import type { Enrolment, Payment, User, Course } from "@prisma/client";
+import type { Enrolment, User, Course } from "@prisma/client";
 
 /**
  * Called after a payment webhook confirms a successful payment.

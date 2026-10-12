@@ -9,42 +9,51 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Musawo brand colours extracted from musawo.ug
+        // ── Brand palette ─────────────────────────────────────────────
+        // Primary: deep teal-navy (sampled from musawo.ug)
         primary: {
-          DEFAULT: "#111A3F",
-          50: "#E8EAEF",
-          100: "#C7CCE0",
-          200: "#8895C0",
-          300: "#4A5EA0",
-          400: "#1F3080",
-          500: "#111A3F",
-          600: "#0D1430",
-          700: "#090E22",
-          800: "#050913",
-          900: "#020305",
+          DEFAULT: "#0B6B5D",
+          50:  "#E6F4F2",
+          100: "#C2E4DE",
+          200: "#85C9BA",
+          300: "#48AE96",
+          400: "#1A9278",
+          500: "#0B6B5D",
+          600: "#095549",
+          700: "#073F36",
+          800: "#042A24",
+          900: "#021512",
         },
+        // Accent: warm amber
         accent: {
-          DEFAULT: "#FF6900",
-          50: "#FFF0E5",
-          100: "#FFD9B8",
-          200: "#FFB57A",
-          300: "#FF913C",
-          400: "#FF7B0F",
-          500: "#FF6900",
-          600: "#CC5400",
-          700: "#993F00",
-          800: "#662A00",
-          900: "#331500",
+          DEFAULT: "#F2A32E",
+          50:  "#FEF7EA",
+          100: "#FCE9C1",
+          200: "#F9D38A",
+          300: "#F6BC52",
+          400: "#F4AB38",
+          500: "#F2A32E",
+          600: "#D88A18",
+          700: "#A86B12",
+          800: "#784C0D",
+          900: "#482D07",
         },
-        success: "#00D084",
-        warning: "#FCB900",
-        danger: "#FE2D2D",
-        "body-text": "#313131",
-        surface: "#F5F7FA",
-        border: "#E5E7EB",
+        // Supporting
+        success: "#00C47A",
+        warning: "#F59E0B",
+        danger:  "#EF4444",
+        "body-text": "#1F2937",
+        surface:     "#F8FAF9",
+        border:      "#E4EAE8",
+        // Legacy aliases kept so existing pages don't break
+        teal: {
+          DEFAULT: "#0B6B5D",
+        },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans:    ["var(--font-jakarta)", "Inter", "system-ui", "sans-serif"],
+        heading: ["var(--font-jakarta)", "Inter", "system-ui", "sans-serif"],
+        mono:    ["JetBrains Mono", "Fira Code", "monospace"],
       },
       screens: {
         xs: "375px",
@@ -52,6 +61,27 @@ const config: Config = {
       borderRadius: {
         "2xl": "1rem",
         "3xl": "1.5rem",
+      },
+      boxShadow: {
+        card: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)",
+        "card-hover": "0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06)",
+        cta: "0 8px 24px -4px rgb(242 163 46 / 0.40)",
+        "primary-glow": "0 8px 24px -4px rgb(11 107 93 / 0.35)",
+      },
+      animation: {
+        "fade-up": "fadeUp 0.5s ease-out both",
+        "fade-in": "fadeIn 0.4s ease-out both",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
+      },
+      keyframes: {
+        fadeUp: {
+          "0%":   { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeIn: {
+          "0%":   { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
       },
     },
   },

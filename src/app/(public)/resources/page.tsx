@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { getPresignedDownloadUrl } from "@/lib/s3";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
