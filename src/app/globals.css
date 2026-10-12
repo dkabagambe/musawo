@@ -2,22 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-primary: #111A3F;
+    --color-accent: #FF6900;
+    --color-success: #00D084;
+    --color-warning: #FCB900;
+    --color-danger: #FE2D2D;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply text-body-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-primary font-semibold;
+  }
+
+  a {
+    @apply text-accent underline-offset-4 hover:underline;
+  }
+
+  /* Focus visible for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-600 focus-visible:outline-accent;
+  }
+
+  .btn-secondary {
+    @apply btn bg-primary text-white hover:bg-primary-600 focus-visible:outline-primary;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-accent text-accent hover:bg-accent hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply btn text-primary hover:bg-surface;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-border p-6;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-body-text mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-success/10 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/10 text-amber-800;
+  }
+
+  .badge-danger {
+    @apply badge bg-danger/10 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-primary/10 text-primary;
+  }
+
+  /* Skip navigation link for accessibility */
+  .skip-nav {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg btn-primary;
+  }
 }
 
 @layer utilities {

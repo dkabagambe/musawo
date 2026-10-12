@@ -1,0 +1,963 @@
+// Musawo Training Center — Prisma Schema
+// Version 1.0
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  TUTOR
+  ADMIN
+  SPONSOR
+  EMPLOYER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  VIDEO
+  NOTES
+  QUIZ
+}
+
+enum QuestionType {
+  MCQ
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+enum EnrolmentStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  COMPLETED
+  SUSPENDED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PENDING_APPROVAL   // bank transfer uploaded, waiting admin approval
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentGateway {
+  PESAPAL
+  FLUTTERWAVE
+  MANUAL
+}
+
+enum PaymentMethod {
+  MTN_MOMO
+  AIRTEL_MONEY
+  CARD
+  BANK_TRANSFER
+  MANUAL
+  SCHOLARSHIP
+}
+
+enum DiscountCodeType {
+  SCHOLARSHIP
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum LedgerEntryType {
+  PAYMENT
+  REFUND
+  ADJUSTMENT
+  SCHOLARSHIP
+}
+
+enum LiveClassStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ExamStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  MARKED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  IN_APP
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PAYMENT_INITIATED
+  PAYMENT_CONFIRMED
+  PAYMENT_REFUNDED
+  CERTIFICATE_ISSUED
+  CERTIFICATE_REVOKED
+  ENROLMENT_CREATED
+  ENROLMENT_SUSPENDED
+  EXAM_STARTED
+  EXAM_SUBMITTED
+  SETTINGS_CHANGED
+}
+
+// ─────────────────────────────────────────────
+// USER & AUTH
+// ─────────────────────────────────────────────
+
+model User {
+  id                String      @id @default(cuid())
+  studentNumber     String?     @unique  // MTC-2026-00042
+  name              String
+  email             String?     @unique
+  phone             String?     @unique
+  emailVerified     DateTime?
+  phoneVerified     DateTime?
+  passwordHash      String?
+  role              UserRole    @default(STUDENT)
+  status            UserStatus  @default(PENDING_VERIFICATION)
+  avatarUrl         String?
+  dataConsentAt     DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Auth.js
+  accounts          Account[]
+  sessions          Session[]
+
+  // Learning
+  enrolments        Enrolment[]
+  lessonProgress    LessonProgress[]
+  examAttempts      ExamAttempt[]
+  attendance        Attendance[]
+  certificates      Certificate[]
+  notifications     Notification[]
+  notificationPrefs NotificationPref[]
+
+  // Staff
+  taughtCourses     Course[]          @relation("CourseMainTutor")
+  coTaughtCourses   CoTutor[]
+  liveClasses       LiveClass[]
+  shortAnswerReviews ShortAnswerReview[]
+
+  // Assignments
+  assignmentSubmissions AssignmentSubmission[]
+  gradedSubmissions     AssignmentSubmission[] @relation("GraderSubmissions")
+
+  // Announcements & forum
+  announcements     Announcement[]
+  forumThreads      ForumThread[]
+  forumReplies      ForumReply[]
+
+  // Support
+  supportTickets    SupportTicket[]
+  assignedTickets   SupportTicket[] @relation("AssignedTickets")
+  supportReplies    SupportReply[]
+
+  // Grades
+  gradeEntries      GradeEntry[]
+
+  // Admin
+  auditLogs         AuditLog[]        @relation("ActorAuditLog")
+  settingsUpdated   SiteSetting[]
+  resources         Resource[]
+
+  // OTPs
+  otpCodes          OtpCode[]
+
+  @@map("users")
+}
+
+// Auth.js required tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model OtpCode {
+  id        String    @id @default(cuid())
+  userId    String
+  code      String
+  purpose   String    // "LOGIN" | "REGISTER" | "RESET"
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otp_codes")
+}
+
+// ─────────────────────────────────────────────
+// COURSES
+// ─────────────────────────────────────────────
+
+model Course {
+  id                 String       @id @default(cuid())
+  title              String
+  slug               String       @unique
+  description        String       @db.Text
+  shortDescription   String?
+  thumbnailUrl       String?
+  status             CourseStatus @default(DRAFT)
+  freePreviewPercent Int          @default(12)
+  fullFeeUgx         Int          // in shillings
+  instalmentCount    Int          @default(1)
+  durationWeeks      Int?
+  accreditationText  String?
+  tutorId            String
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  tutor        User         @relation("CourseMainTutor", fields: [tutorId], references: [id])
+  coTutors     CoTutor[]
+  blocks       Block[]
+  intakes      Intake[]
+  enrolments   Enrolment[]
+  exams        Exam[]
+  liveClasses  LiveClass[]
+  certificates Certificate[]
+  assignments  Assignment[]
+  announcements Announcement[]
+  forumThreads ForumThread[]
+  gradeEntries GradeEntry[]
+
+  @@map("courses")
+}
+
+model CoTutor {
+  id       String @id @default(cuid())
+  courseId String
+  tutorId  String
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tutor  User   @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, tutorId])
+  @@map("co_tutors")
+}
+
+model Block {
+  id                    String   @id @default(cuid())
+  courseId              String
+  order                 Int
+  title                 String
+  description           String?  @db.Text
+  prerequisiteBlockOrder Int?    // must complete exam in this block order first (null = no gate)
+  createdAt             DateTime @default(now())
+
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  instalments Instalment[]
+  liveClasses LiveClass[]
+  exams       Exam[]
+  assignments Assignment[]
+
+  @@unique([courseId, order])
+  @@map("blocks")
+}
+
+model Lesson {
+  id            String     @id @default(cuid())
+  blockId       String
+  order         Int
+  title         String
+  type          LessonType
+  bunnyVideoId  String?    // Bunny Stream video GUID
+  notesS3Key    String?    // S3 object key
+  isFree        Boolean    @default(false)
+  durationSec   Int?
+  transcript    String?    @db.Text
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  block          Block            @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  progress       LessonProgress[]
+  quizQuestions  QuizQuestion[]
+
+  @@unique([blockId, order])
+  @@map("lessons")
+}
+
+model QuizQuestion {
+  id            String       @id @default(cuid())
+  lessonId      String?
+  examId        String?
+  text          String       @db.Text
+  type          QuestionType
+  options       Json?        // [{id, text}] for MCQ
+  correctAnswer String?      // option id or "true"/"false"
+  points        Int          @default(1)
+  explanation   String?      @db.Text
+  createdAt     DateTime     @default(now())
+
+  lesson          Lesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exam            Exam?              @relation(fields: [examId], references: [id], onDelete: Cascade)
+  shortAnswerReviews ShortAnswerReview[]
+
+  @@map("quiz_questions")
+}
+
+model LessonProgress {
+  id           String    @id @default(cuid())
+  userId       String
+  lessonId     String
+  completedAt  DateTime?
+  watchPercent Int       @default(0)
+  updatedAt    DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+// ─────────────────────────────────────────────
+// INTAKES
+// ─────────────────────────────────────────────
+
+model Intake {
+  id               String   @id @default(cuid())
+  courseId         String
+  label            String   // e.g. "January 2026 Cohort"
+  startDate        DateTime
+  endDate          DateTime
+  seats            Int
+  scholarshipSeats Int      @default(0)
+  isOpen           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolments Enrolment[]
+
+  @@map("intakes")
+}
+
+// ─────────────────────────────────────────────
+// ENROLMENT & PAYMENTS
+// ─────────────────────────────────────────────
+
+model Enrolment {
+  id              String          @id @default(cuid())
+  userId          String
+  courseId        String
+  intakeId        String?
+  status          EnrolmentStatus @default(PENDING_PAYMENT)
+  planType        String          @default("FULL") // "FULL" | "INSTALMENT"
+  totalAmountUgx  Int
+  paidAmountUgx   Int             @default(0)
+  discountCodeId  String?
+  discountAmountUgx Int           @default(0)
+  unlockedBlockOrder Int          @default(0) // highest block order unlocked
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  course       Course        @relation(fields: [courseId], references: [id])
+  intake       Intake?       @relation(fields: [intakeId], references: [id])
+  discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  payments     Payment[]
+  instalments  Instalment[]
+  ledger       LedgerEntry[]
+
+  @@unique([userId, courseId])
+  @@map("enrolments")
+}
+
+model DiscountCode {
+  id         String           @id @default(cuid())
+  code       String           @unique
+  type       DiscountCodeType
+  value      Int              // percentage (0-100) or fixed amount in UGX
+  uses       Int              @default(0)
+  maxUses    Int?
+  courseId   String?          // null = valid for all courses
+  expiresAt  DateTime?
+  createdAt  DateTime         @default(now())
+  createdBy  String?
+
+  enrolments Enrolment[]
+
+  @@map("discount_codes")
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  enrolmentId      String
+  amount           Int            // UGX
+  currency         String         @default("UGX")
+  method           PaymentMethod
+  gateway          PaymentGateway
+  gatewayRef       String?        @unique
+  gatewayOrderId   String?
+  status           PaymentStatus  @default(PENDING)
+  paidAt           DateTime?
+  receiptS3Key     String?        // generated receipt PDF
+  // Bank transfer fields
+  bankReceiptS3Key String?        // student-uploaded bank receipt image/PDF
+  bankTransferRef  String?        // student-provided bank reference number
+  bankName         String?        // bank name e.g. "Stanbic", "Centenary"
+  bankApprovedBy   String?        // admin user ID who approved
+  bankApprovedAt   DateTime?
+  bankRejectedAt   DateTime?
+  bankRejectedReason String?
+  //
+  failureReason    String?
+  refundedAt       DateTime?
+  refundedBy       String?
+  notes            String?        // admin internal notes
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  enrolment  Enrolment    @relation(fields: [enrolmentId], references: [id])
+  instalment Instalment?
+
+  @@map("payments")
+}
+
+model Instalment {
+  id             String    @id @default(cuid())
+  enrolmentId    String
+  number         Int
+  amount         Int
+  dueDate        DateTime?
+  paidAt         DateTime?
+  unlocksBlockId String?
+  paymentId      String?   @unique
+  createdAt      DateTime  @default(now())
+
+  enrolment     Enrolment @relation(fields: [enrolmentId], references: [id], onDelete: Cascade)
+  unlocksBlock  Block?    @relation(fields: [unlocksBlockId], references: [id])
+  payment       Payment?  @relation(fields: [paymentId], references: [id])
+
+  @@unique([enrolmentId, number])
+  @@map("instalments")
+}
+
+model LedgerEntry {
+  id           String          @id @default(cuid())
+  enrolmentId  String
+  type         LedgerEntryType
+  amount       Int
+  balanceAfter Int
+  description  String
+  paymentId    String?
+  createdAt    DateTime        @default(now())
+
+  enrolment Enrolment @relation(fields: [enrolmentId], references: [id])
+
+  @@map("ledger_entries")
+}
+
+// ─────────────────────────────────────────────
+// LIVE CLASSES
+// ─────────────────────────────────────────────
+
+model LiveClass {
+  id            String          @id @default(cuid())
+  courseId      String
+  blockId       String?
+  tutorId       String
+  title         String
+  description   String?
+  scheduledAt   DateTime
+  durationMin   Int             @default(60)
+  joinUrl       String
+  recordingUrl  String?
+  platform      String          @default("google_meet") // google_meet|zoom|jitsi
+  status        LiveClassStatus @default(SCHEDULED)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  course     Course       @relation(fields: [courseId], references: [id])
+  block      Block?       @relation(fields: [blockId], references: [id])
+  tutor      User         @relation(fields: [tutorId], references: [id])
+  attendance Attendance[]
+
+  @@map("live_classes")
+}
+
+model Attendance {
+  id           String    @id @default(cuid())
+  liveClassId  String
+  userId       String
+  joinedAt     DateTime?
+  markedPresent Boolean  @default(false)
+  createdAt    DateTime  @default(now())
+
+  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([liveClassId, userId])
+  @@map("attendance")
+}
+
+// ─────────────────────────────────────────────
+// EXAMS
+// ─────────────────────────────────────────────
+
+model Exam {
+  id             String     @id @default(cuid())
+  courseId       String
+  blockId        String?
+  title          String
+  instructions   String?    @db.Text
+  timeLimitMin   Int?
+  attemptLimit   Int        @default(2)
+  passPercent    Int        @default(60)
+  shuffleQuestions Boolean  @default(true)
+  status         ExamStatus @default(DRAFT)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  course    Course         @relation(fields: [courseId], references: [id])
+  block     Block?         @relation(fields: [blockId], references: [id])
+  questions QuizQuestion[]
+  attempts  ExamAttempt[]
+
+  @@map("exams")
+}
+
+model ExamAttempt {
+  id           String        @id @default(cuid())
+  examId       String
+  userId       String
+  number       Int
+  status       AttemptStatus @default(IN_PROGRESS)
+  startedAt    DateTime      @default(now())
+  submittedAt  DateTime?
+  timeLimitEndsAt DateTime?
+  score        Int?
+  maxScore     Int?
+  passed       Boolean?
+  tabSwitches  Int           @default(0)
+  answers      Json          // {questionId: answer}
+  createdAt    DateTime      @default(now())
+
+  exam              Exam               @relation(fields: [examId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
+  shortAnswerReviews ShortAnswerReview[]
+
+  @@unique([examId, userId, number])
+  @@map("exam_attempts")
+}
+
+model ShortAnswerReview {
+  id         String   @id @default(cuid())
+  attemptId  String
+  questionId String
+  tutorId    String
+  score      Int
+  feedback   String?  @db.Text
+  reviewedAt DateTime @default(now())
+
+  attempt  ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [questionId], references: [id])
+  tutor    User         @relation(fields: [tutorId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@map("short_answer_reviews")
+}
+
+// ─────────────────────────────────────────────
+// CERTIFICATES
+// ─────────────────────────────────────────────
+
+model Certificate {
+  id            String    @id @default(cuid())
+  userId        String
+  courseId      String
+  uniqueId      String    @unique // e.g. MTC-2026-CNA-00042
+  issuedAt      DateTime  @default(now())
+  fileS3Key     String?
+  revokedAt     DateTime?
+  revokedReason String?
+  revokedBy     String?
+
+  user          User          @relation(fields: [userId], references: [id])
+  course        Course        @relation(fields: [courseId], references: [id])
+  verifications CertVerification[]
+
+  @@map("certificates")
+}
+
+model CertVerification {
+  id            String   @id @default(cuid())
+  certificateId String
+  checkedAt     DateTime @default(now())
+  ipAddress     String?
+  userAgent     String?
+
+  certificate Certificate @relation(fields: [certificateId], references: [id])
+
+  @@map("cert_verifications")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  channel   NotificationChannel @default(IN_APP)
+  type      String              // e.g. PAYMENT_RECEIPT, CLASS_REMINDER
+  subject   String?
+  body      String              @db.Text
+  metadata  Json?
+  readAt    DateTime?
+  sentAt    DateTime?
+  createdAt DateTime            @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model NotificationPref {
+  id      String              @id @default(cuid())
+  userId  String
+  channel NotificationChannel
+  type    String
+  enabled Boolean             @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel, type])
+  @@map("notification_prefs")
+}
+
+// ─────────────────────────────────────────────
+// RESOURCES
+// ─────────────────────────────────────────────
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  s3Key       String
+  mimeType    String   @default("application/pdf")
+  category    String?
+  isPublic    Boolean  @default(true)
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  uploader User @relation(fields: [uploadedBy], references: [id])
+
+  @@map("resources")
+}
+
+// ─────────────────────────────────────────────
+// PARTNER PAGES
+// ─────────────────────────────────────────────
+
+model PartnerPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  partnerName String
+  logoS3Key   String?
+  heading     String
+  body        String   @db.Text
+  ctaText     String   @default("Enrol Now")
+  ctaUrl      String   @default("/auth/register")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("partner_pages")
+}
+
+// ─────────────────────────────────────────────
+// SITE SETTINGS
+// ─────────────────────────────────────────────
+
+model SiteSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  updatedBy User? @relation(fields: [updatedById], references: [id])
+
+  @@map("site_settings")
+}
+
+// ─────────────────────────────────────────────
+// GRADEBOOK (materialised summary per student per course)
+// Updated by triggers / background jobs after each exam/assignment
+// ─────────────────────────────────────────────
+
+model GradeEntry {
+  id           String    @id @default(cuid())
+  userId       String
+  courseId     String
+  itemType     String    // "EXAM" | "ASSIGNMENT"
+  itemId       String    // examId or assignmentId
+  itemTitle    String
+  score        Int?
+  maxScore     Int?
+  percentage   Float?
+  passed       Boolean?
+  gradedAt     DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId, itemType, itemId])
+  @@map("grade_entries")
+}
+
+// ─────────────────────────────────────────────
+// ASSIGNMENTS
+// ─────────────────────────────────────────────
+
+model Assignment {
+  id            String           @id @default(cuid())
+  courseId      String
+  blockId       String?
+  title         String
+  instructions  String           @db.Text
+  dueDate       DateTime?
+  maxPoints     Int              @default(100)
+  status        AssignmentStatus @default(DRAFT)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  course      Course             @relation(fields: [courseId], references: [id])
+  block       Block?             @relation(fields: [blockId], references: [id])
+  submissions AssignmentSubmission[]
+
+  @@map("assignments")
+}
+
+enum AssignmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+model AssignmentSubmission {
+  id           String           @id @default(cuid())
+  assignmentId String
+  userId       String
+  fileS3Key    String?          // uploaded file
+  textBody     String?          @db.Text
+  submittedAt  DateTime         @default(now())
+  status       SubmissionStatus @default(SUBMITTED)
+  grade        Int?
+  feedback     String?          @db.Text
+  gradedBy     String?
+  gradedAt     DateTime?
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+  grader     User?      @relation("GraderSubmissions", fields: [gradedBy], references: [id])
+
+  @@unique([assignmentId, userId])
+  @@map("assignment_submissions")
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+  RETURNED
+  LATE
+}
+
+// ─────────────────────────────────────────────
+// ANNOUNCEMENTS
+// ─────────────────────────────────────────────
+
+model Announcement {
+  id        String   @id @default(cuid())
+  courseId  String?  // null = site-wide
+  authorId  String
+  title     String
+  body      String   @db.Text
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course  Course? @relation(fields: [courseId], references: [id])
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@map("announcements")
+}
+
+// ─────────────────────────────────────────────
+// DISCUSSION FORUM
+// ─────────────────────────────────────────────
+
+model ForumThread {
+  id        String   @id @default(cuid())
+  courseId  String
+  authorId  String
+  title     String
+  body      String   @db.Text
+  pinned    Boolean  @default(false)
+  locked    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course  Course      @relation(fields: [courseId], references: [id])
+  author  User        @relation(fields: [authorId], references: [id])
+  replies ForumReply[]
+
+  @@map("forum_threads")
+}
+
+model ForumReply {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id])
+
+  @@map("forum_replies")
+}
+
+// ─────────────────────────────────────────────
+// SUPPORT TICKETS
+// ─────────────────────────────────────────────
+
+model SupportTicket {
+  id          String        @id @default(cuid())
+  userId      String
+  subject     String
+  body        String        @db.Text
+  status      TicketStatus  @default(OPEN)
+  priority    TicketPriority @default(NORMAL)
+  assignedTo  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user     User              @relation(fields: [userId], references: [id])
+  assignee User?             @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  replies  SupportReply[]
+
+  @@map("support_tickets")
+}
+
+model SupportReply {
+  id       String   @id @default(cuid())
+  ticketId String
+  authorId String
+  body     String   @db.Text
+  isStaff  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User          @relation(fields: [authorId], references: [id])
+
+  @@map("support_replies")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// ─────────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  actorId    String?
+  action     AuditAction
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+
+  actor User? @relation("ActorAuditLog", fields: [actorId], references: [id])
+
+  @@map("audit_logs")
+}
