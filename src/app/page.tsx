@@ -51,9 +51,9 @@ const FAQS = [
 ];
 
 const PLACEHOLDER_COURSES = [
-  { title: "Certified Nursing Care Assistant (CNA)", desc: "Our flagship certification for nursing care assistants across Uganda.", slug: "cna", weeks: 12, fee: 850000, img: "/assets/images/cna-course.png", instalments: 1 },
-  { title: "Basic Nursing Care Assistant", desc: "An accessible entry point with a strong foundation in patient care.", slug: "basic-nursing-care", weeks: 8, fee: 550000, img: "/assets/images/basic-nursing.png", instalments: 1 },
-  { title: "Babysitting, Child Care & Safety Management", desc: "Child care, first aid, and emergency response for child safety workers.", slug: "child-care-safety", weeks: 6, fee: 420000, img: "/assets/images/first-aid-child-safety.jpg", instalments: 1 },
+  { title: "Certified Nursing Care Assistant (CNA)", desc: "Our flagship certification for nursing care assistants across Uganda.", slug: "cna", weeks: 12 as number | null, fee: 850000, img: "/assets/images/cna-course.png", instalments: 1 },
+  { title: "Basic Nursing Care Assistant", desc: "An accessible entry point with a strong foundation in patient care.", slug: "basic-nursing-care", weeks: 8 as number | null, fee: 550000, img: "/assets/images/basic-nursing.png", instalments: 1 },
+  { title: "Babysitting, Child Care & Safety Management", desc: "Child care, first aid, and emergency response for child safety workers.", slug: "child-care-safety", weeks: 6 as number | null, fee: 420000, img: "/assets/images/first-aid-child-safety.jpg", instalments: 1 },
 ];
 
 export default async function HomePage() {

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { processConfirmedPayment } from "@/lib/payments";
 import { audit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
+import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { z } from "zod";
 
 const ApproveSchema = z.object({
@@ -18,9 +19,9 @@ const ApproveSchema = z.object({
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { requirePermission(session.user.role, "payments.view"); }
+  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
 
   let body: z.infer<typeof ApproveSchema>;
   try {

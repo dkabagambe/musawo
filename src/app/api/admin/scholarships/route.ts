@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { z } from "zod";
 
 const Schema = z.object({
@@ -14,18 +15,18 @@ const Schema = z.object({
 
 export async function GET(_req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { requirePermission(session.user.role, "scholarships.initiate"); }
+  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
   const codes = await db.discountCode.findMany({ orderBy: { createdAt: "desc" } });
   return NextResponse.json({ codes });
 }
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { requirePermission(session.user.role, "scholarships.initiate"); }
+  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
 
   // Support both JSON and form POST
   let body: Record<string, unknown>;

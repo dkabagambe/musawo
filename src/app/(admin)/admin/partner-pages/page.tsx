@@ -1,12 +1,13 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 
 export const metadata = { title: "Partner Pages — Admin" };
 
 export default async function AdminPartnerPagesPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "partner_pages.edit")) redirect("/dashboard");
 
   const pages = await db.partnerPage.findMany({ orderBy: { createdAt: "desc" } });
 

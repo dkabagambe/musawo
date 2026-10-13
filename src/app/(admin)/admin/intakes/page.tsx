@@ -1,12 +1,13 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 
 export const metadata = { title: "Intakes — Admin" };
 
 export default async function AdminIntakesPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "courses.view")) redirect("/dashboard");
 
   const courses = await db.course.findMany({
     where: { status: "PUBLISHED" },

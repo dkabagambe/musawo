@@ -109,7 +109,9 @@ function renderTemplate(
       <hr style="margin-top: 32px; border-color: #E5E7EB;" />
       <p style="font-size: 12px; color: #6B7280;">
         Musawo Training Center — Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda<br />
-        <a href="mailto:training@musawo.ug">training@musawo.ug</a>
+        <a href="mailto:info@musawo.ug">info@musawo.ug</a> ·
+        <a href="tel:+256785423523">+256 785 423 523</a> ·
+        <a href="https://wa.me/256785423523">WhatsApp</a>
       </p>
     </body>
     </html>

@@ -1,11 +1,12 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 export const metadata = { title: "Scholarships & Discounts — Admin" };
 
 export default async function AdminScholarshipsPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "scholarships.initiate")) redirect("/dashboard");
 
   const codes = await db.discountCode.findMany({
     orderBy: { createdAt: "desc" },

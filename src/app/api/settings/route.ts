@@ -3,13 +3,14 @@ import { auth } from "@/lib/auth";
 import { setSetting } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { UpdateSettingSchema } from "@/lib/validators";
+import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { z } from "zod";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { requirePermission(session.user.role, "settings.edit"); }
+  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
 
   let body: z.infer<typeof UpdateSettingSchema>;
   try {

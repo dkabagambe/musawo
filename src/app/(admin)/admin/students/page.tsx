@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import Link from "next/link";
 
 export const metadata = { title: "Students — Admin" };
@@ -11,7 +12,7 @@ interface Props {
 
 export default async function AdminStudentsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "students.view")) redirect("/dashboard");
 
   const q = searchParams.q?.trim() ?? "";
   const page = Math.max(1, Number(searchParams.page ?? 1));

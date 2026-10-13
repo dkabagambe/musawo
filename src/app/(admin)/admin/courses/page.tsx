@@ -1,13 +1,14 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import Link from "next/link";
 
 export const metadata = { title: "Courses — Admin" };
 
 export default async function AdminCoursesPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "ADMIN") redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "courses.view")) redirect("/dashboard");
 
   const courses = await db.course.findMany({
     orderBy: { createdAt: "desc" },
