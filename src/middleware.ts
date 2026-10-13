@@ -35,6 +35,7 @@ const PUBLIC_PATHS = [
   "/approval",
   "/_rbac_redirect", // kept for backward compat — page now redirects server-side
   "/403",
+  "/invite",
 ];
 
 const AUTH_ONLY_PAGES = ["/login", "/register", "/otp", "/forgot-password"];

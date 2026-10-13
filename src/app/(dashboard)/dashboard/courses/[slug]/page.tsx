@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getBunnySignedUrl } from "@/lib/bunny";
 import { getPresignedDownloadUrl } from "@/lib/s3";
+import { canAccessLesson, getAccessLevel } from "@/lib/enrolment/access";
 import CoursePlayerClient from "./CoursePlayerClient";
 
 interface Props {
@@ -42,12 +43,23 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
 
   if (!course) notFound();
 
-  // Check enrolment
+  // Check enrolment — allow PREVIEW access (show locked state)
   const enrolment = await db.enrolment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId: course.id } },
   });
 
-  if (!enrolment || enrolment.status === "PENDING_PAYMENT") {
+  const accessInfo = enrolment ? {
+    status: enrolment.status,
+    unlockedBlockOrder: enrolment.unlockedBlockOrder,
+    provisionalUntil: enrolment.provisionalUntil,
+    graceUntil: enrolment.graceUntil,
+    overdueSince: enrolment.overdueSince,
+  } : null;
+
+  const level = getAccessLevel(accessInfo);
+
+  // PENDING with no provisional access — redirect to course public page
+  if (!enrolment || level === "PENDING") {
     redirect(`/courses/${course.slug}`);
   }
 
@@ -67,14 +79,13 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
   let videoUrl: string | null = null;
   let notesUrl: string | null = null;
 
-  if (activeLesson) {
-    const isUnlocked =
-      activeLesson.isFree ||
-      activeBlock
-        ? (activeBlock!.order <= enrolment.unlockedBlockOrder || enrolment.unlockedBlockOrder >= 9999)
-        : false;
-
-    if (isUnlocked) {
+  if (activeLesson && activeBlock) {
+    const accessible = canAccessLesson(
+      { isFree: activeLesson.isFree, isFreePreview: activeLesson.isFreePreview },
+      { order: activeBlock.order },
+      accessInfo
+    );
+    if (accessible) {
       if (activeLesson.type === "VIDEO" && activeLesson.bunnyVideoId) {
         videoUrl = getBunnySignedUrl(activeLesson.bunnyVideoId, 3600);
       }

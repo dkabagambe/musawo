@@ -6,8 +6,14 @@ import type { Enrolment, User, Course } from "@prisma/client";
 
 /**
  * Called after a payment webhook confirms a successful payment.
- * Handles: ledger entry, instalment unlocking, enrolment activation,
- * receipt email, and SMS confirmation.
+ * Idempotent — safe to call multiple times for the same payment.
+ *
+ * State machine transitions:
+ *   PENDING_PAYMENT → ACTIVE (full payment)
+ *   PENDING_PAYMENT → PARTIALLY_PAID (first instalment)
+ *   PARTIALLY_PAID  → PARTIALLY_PAID (mid instalment)
+ *   PARTIALLY_PAID  → ACTIVE (final instalment)
+ *   OVERDUE         → PARTIALLY_PAID or ACTIVE (catch-up payment)
  */
 export async function processConfirmedPayment(paymentId: string): Promise<void> {
   const payment = await db.payment.findUnique({
@@ -39,13 +45,13 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
     }>;
   };
 
-  // Mark payment completed
+  // 1. Mark payment completed
   await db.payment.update({
     where: { id: paymentId },
     data: { status: "COMPLETED", paidAt: new Date() },
   });
 
-  // Update ledger
+  // 2. Update ledger
   const newPaid = enrolment.paidAmountUgx + payment.amount;
   await db.ledgerEntry.create({
     data: {
@@ -53,7 +59,7 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       type: "PAYMENT",
       amount: payment.amount,
       balanceAfter: enrolment.totalAmountUgx - newPaid,
-      description: `Payment via ${payment.gateway} — ref ${payment.gatewayRef}`,
+      description: `Payment via ${payment.gateway} — ref ${payment.gatewayRef ?? payment.id}`,
       paymentId: payment.id,
     },
   });
@@ -63,38 +69,63 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
     data: { paidAmountUgx: newPaid },
   });
 
-  // Instalment: mark the corresponding instalment paid and unlock next block
+  // 3. Instalment: mark paid, unlock block
   const unpaidInstalment = instalments.find((i) => i.paidAt === null);
+  let newUnlockedBlockOrder = enrolment.unlockedBlockOrder;
+
   if (unpaidInstalment) {
     await db.instalment.update({
       where: { id: unpaidInstalment.id },
       data: { paidAt: new Date(), paymentId: payment.id },
     });
 
-    // Unlock block
     if (unpaidInstalment.unlocksBlockId) {
-      const block = await db.block.findUnique({
-        where: { id: unpaidInstalment.unlocksBlockId },
-      });
+      const block = await db.block.findUnique({ where: { id: unpaidInstalment.unlocksBlockId } });
       if (block) {
+        newUnlockedBlockOrder = Math.max(enrolment.unlockedBlockOrder, block.order);
         await db.enrolment.update({
           where: { id: enrolment.id },
-          data: { unlockedBlockOrder: Math.max(enrolment.unlockedBlockOrder, block.order) },
+          data: { unlockedBlockOrder: newUnlockedBlockOrder },
         });
       }
     }
   }
 
-  // Full payment or all instalments paid → activate enrolment, unlock everything
-  if (newPaid >= enrolment.totalAmountUgx) {
+  // 4. Determine new enrolment status
+  const fullyPaid = newPaid >= enrolment.totalAmountUgx;
+  const remainingInstalments = instalments.filter((i) => i.id !== unpaidInstalment?.id && i.paidAt === null);
+
+  let newStatus: string;
+  if (fullyPaid) {
+    newStatus = "ACTIVE";
     await db.enrolment.update({
       where: { id: enrolment.id },
-      data: { status: "ACTIVE", unlockedBlockOrder: 9999 },
+      data: {
+        status: "ACTIVE",
+        unlockedBlockOrder: 9999,
+        overdueSince: null,
+        graceUntil: null,
+        provisionalUntil: null,
+      },
     });
-  } else if (enrolment.status === "PENDING_PAYMENT") {
+  } else if (enrolment.status === "PENDING_PAYMENT" || enrolment.status === "OVERDUE") {
+    // First instalment or catch-up — move to PARTIALLY_PAID
+    newStatus = remainingInstalments.length > 0 ? "PARTIALLY_PAID" : "ACTIVE";
     await db.enrolment.update({
       where: { id: enrolment.id },
-      data: { status: "ACTIVE" },
+      data: {
+        status: newStatus as never,
+        unlockedBlockOrder: newUnlockedBlockOrder,
+        overdueSince: null,
+        graceUntil: null,
+      },
+    });
+  } else {
+    // Already PARTIALLY_PAID, another instalment came in
+    newStatus = "PARTIALLY_PAID";
+    await db.enrolment.update({
+      where: { id: enrolment.id },
+      data: { status: "PARTIALLY_PAID", unlockedBlockOrder: newUnlockedBlockOrder },
     });
   }
 
@@ -107,10 +138,12 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       amount: payment.amount,
       gateway: payment.gateway,
       course: course.title,
+      newStatus,
+      unlockedBlockOrder: newUnlockedBlockOrder,
     },
   });
 
-  // Email receipt
+  // 5. Notifications
   if (user.email) {
     await sendEmail({
       to: user.email,
@@ -122,15 +155,15 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
         amount: `UGX ${payment.amount.toLocaleString()}`,
         date: new Date().toLocaleDateString("en-UG"),
         paymentRef: payment.gatewayRef ?? payment.id,
+        portalUrl: `${process.env.NEXTAUTH_URL}/dashboard/enrolled/${enrolment.id}`,
       },
     });
   }
 
-  // SMS confirmation
   if (user.phone) {
     await sendSms({
       to: user.phone,
-      message: `MTC: Payment of UGX ${payment.amount.toLocaleString()} received for ${course.title}. Ref: ${payment.gatewayRef ?? payment.id}. Thank you!`,
+      message: `MTC: Payment of UGX ${payment.amount.toLocaleString()} received for ${course.title}. Ref: ${payment.gatewayRef ?? payment.id}. Log in to start learning: ${process.env.NEXTAUTH_URL}/dashboard`,
     });
   }
 }
@@ -160,4 +193,47 @@ export async function applyDiscountCode(
     discountType: discount.type,
     discountValue: discount.value,
   };
+}
+
+/**
+ * Mark an enrolment as OVERDUE after a missed instalment due date.
+ * Called by a scheduled job / cron. Idempotent.
+ */
+export async function markEnrolmentOverdue(
+  enrolmentId: string,
+  gracePeriodDays: number = 7
+): Promise<void> {
+  const enrolment = await db.enrolment.findUnique({ where: { id: enrolmentId } });
+  if (!enrolment || enrolment.status !== "PARTIALLY_PAID") return;
+
+  const now = new Date();
+  const graceUntil = new Date(now.getTime() + gracePeriodDays * 24 * 60 * 60 * 1000);
+
+  await db.enrolment.update({
+    where: { id: enrolmentId },
+    data: { status: "OVERDUE", overdueSince: now, graceUntil },
+  });
+
+  await audit({
+    actorId: undefined,
+    action: "ENROLMENT_SUSPENDED",
+    entityType: "Enrolment",
+    entityId: enrolmentId,
+    metadata: { reason: "Missed instalment", gracePeriodDays, graceUntil },
+  });
+}
+
+/**
+ * Grant provisional access for a bank-transfer pending enrolment.
+ * Called by admin when provisionalAccessHours setting > 0.
+ */
+export async function grantProvisionalAccess(
+  enrolmentId: string,
+  hours: number
+): Promise<void> {
+  const provisionalUntil = new Date(Date.now() + hours * 60 * 60 * 1000);
+  await db.enrolment.update({
+    where: { id: enrolmentId },
+    data: { provisionalUntil, unlockedBlockOrder: 1 },
+  });
 }

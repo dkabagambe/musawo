@@ -65,24 +65,32 @@ export default async function MyCoursesPage() {
             0
           );
 
-          const statusLabel = {
+          const statusLabel: Record<string, string> = {
             PENDING_PAYMENT: "Pending payment",
             ACTIVE: "Active",
+            PARTIALLY_PAID: "Partially paid",
+            OVERDUE: "Overdue",
+            SPONSORED: "Sponsored",
             COMPLETED: "Completed",
             SUSPENDED: "Suspended",
             REFUNDED: "Refunded",
-          }[enr.status];
+            CANCELLED: "Cancelled",
+          };
 
-          const statusClass = {
+          const statusClass: Record<string, string> = {
             PENDING_PAYMENT: "badge-warning",
             ACTIVE: "badge-info",
+            PARTIALLY_PAID: "badge-warning",
+            OVERDUE: "badge-danger",
+            SPONSORED: "badge-success",
             COMPLETED: "badge-success",
             SUSPENDED: "badge-danger",
             REFUNDED: "badge-danger",
-          }[enr.status];
+            CANCELLED: "badge-danger",
+          };
 
           const canAccess =
-            enr.status === "ACTIVE" || enr.status === "COMPLETED";
+            ["ACTIVE", "PARTIALLY_PAID", "OVERDUE", "SPONSORED", "COMPLETED"].includes(enr.status);
 
           return (
             <div key={enr.id} className="card flex flex-col">
@@ -104,8 +112,8 @@ export default async function MyCoursesPage() {
                 <h2 className="font-semibold leading-tight flex-1 mr-2">
                   {enr.course.title}
                 </h2>
-                <span className={`badge ${statusClass} flex-shrink-0`}>
-                  {statusLabel}
+                <span className={`badge ${statusClass[enr.status] ?? "badge"} flex-shrink-0`}>
+                  {statusLabel[enr.status] ?? enr.status}
                 </span>
               </div>
 

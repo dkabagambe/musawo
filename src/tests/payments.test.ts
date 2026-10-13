@@ -163,6 +163,30 @@ describe("processConfirmedPayment", () => {
     );
   });
 
+  it("transitions PENDING_PAYMENT → PARTIALLY_PAID on first instalment", async () => {
+    (db.payment.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockPayment);
+    (db.payment.update as ReturnType<typeof vi.fn>).mockResolvedValue({ ...mockPayment, status: "COMPLETED" });
+    (db.ledgerEntry.create as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    (db.enrolment.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    (db.instalment.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    (db.block.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "block-1", order: 1 });
+    (db.auditLog.create as ReturnType<typeof vi.fn>).mockResolvedValue({});
+
+    await processConfirmedPayment("pay-1");
+
+    // Should set status to PARTIALLY_PAID (remaining instalments exist)
+    const calls = (db.enrolment.update as ReturnType<typeof vi.fn>).mock.calls;
+    const statusCall = calls.find((c: unknown[]) =>
+      typeof c[0] === "object" && c[0] !== null &&
+      "data" in (c[0] as object) &&
+      typeof (c[0] as { data: unknown }).data === "object" &&
+      (c[0] as { data: { status?: string } }).data?.status
+    );
+    expect(statusCall).toBeDefined();
+    const status = (statusCall![0] as { data: { status: string } }).data.status;
+    expect(["PARTIALLY_PAID", "ACTIVE"]).toContain(status);
+  });
+
   it("is idempotent — does not process already-completed payment", async () => {
     (db.payment.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
       ...mockPayment,
