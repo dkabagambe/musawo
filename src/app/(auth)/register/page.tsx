@@ -57,9 +57,15 @@ export default function RegisterPage() {
         }),
       });
 
+      const data = await res.json() as { id?: string; studentNumber?: string; emailSent?: boolean; error?: string };
       if (!res.ok) {
-        const data = await res.json();
         setError(data.error ?? "Registration failed. Please try again.");
+        return;
+      }
+
+      // If they provided an email, send them to the "check your inbox" page
+      if (form.email.trim() && data.emailSent) {
+        router.push("/check-email");
         return;
       }
 

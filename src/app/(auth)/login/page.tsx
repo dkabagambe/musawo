@@ -75,6 +75,33 @@ export default function LoginPage() {
         Sign in to your Musawo Training Center account
       </p>
 
+      {/* Email verified success banner */}
+      {params.get("verified") === "1" && (
+        <div role="status" className="bg-success/10 border border-success/20 text-success text-sm rounded-xl px-4 py-3 mb-4">
+          ✓ Your email has been verified. You can now sign in.
+        </div>
+      )}
+
+      {/* Verification error banner */}
+      {params.get("verifyError") && (
+        <div role="alert" className="bg-danger/10 border border-danger/20 text-danger text-sm rounded-xl px-4 py-3 mb-4">
+          {params.get("verifyError") === "expired"
+            ? "Your verification link has expired. "
+            : "This verification link is invalid. "}
+          <Link href="/resend-verification" className="underline font-medium">
+            Request a new one
+          </Link>
+          .
+        </div>
+      )}
+
+      {/* Registered (phone-only, no email) banner */}
+      {params.get("registered") === "1" && (
+        <div role="status" className="bg-success/10 border border-success/20 text-success text-sm rounded-xl px-4 py-3 mb-4">
+          ✓ Account created. You can now sign in.
+        </div>
+      )}
+
       {/* Mode toggle */}
       {step === "credentials" && (
         <div className="flex rounded-xl border border-border overflow-hidden mb-6">

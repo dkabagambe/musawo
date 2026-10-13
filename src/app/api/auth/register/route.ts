@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { sendEmail } from "@/lib/email";
+import { createEmailVerificationToken, sendVerificationEmail } from "@/lib/auth/email-verify";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Send welcome email if email provided
+  // Send welcome email + verification if email provided
   if (user.email) {
     await sendEmail({
       to: user.email,
@@ -80,7 +81,14 @@ export async function POST(req: NextRequest) {
         loginUrl: `${process.env.NEXTAUTH_URL}/login`,
       },
     });
+
+    // Send email verification
+    const token = await createEmailVerificationToken(user.email);
+    await sendVerificationEmail(user.email, user.name, token);
   }
 
-  return NextResponse.json({ id: user.id, studentNumber }, { status: 201 });
+  return NextResponse.json(
+    { id: user.id, studentNumber, emailSent: !!user.email },
+    { status: 201 }
+  );
 }

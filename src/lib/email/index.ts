@@ -10,6 +10,7 @@ function getResend(): Resend {
 
 type EmailTemplate =
   | "welcome"
+  | "email-verification"
   | "payment-receipt"
   | "class-reminder"
   | "exam-result"
@@ -35,6 +36,19 @@ function renderTemplate(
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
       <p>If you have any questions, email us at training@musawo.ug.</p>
+    `,
+    "email-verification": `
+      <h2>Verify your email address</h2>
+      <p>Hi {{name}},</p>
+      <p>Thanks for registering with Musawo Training Center. Please verify your email address by clicking the button below.</p>
+      <p style="margin: 24px 0;">
+        <a href="{{verifyUrl}}" style="background:#FF6900;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">
+          Verify email address
+        </a>
+      </p>
+      <p>Or copy and paste this link into your browser:</p>
+      <p style="word-break:break-all;font-size:13px;color:#6B7280;">{{verifyUrl}}</p>
+      <p style="font-size:13px;color:#6B7280;">This link expires in {{expiresIn}}. If you did not create an account, you can safely ignore this email.</p>
     `,
     "payment-receipt": `
       <h2>Payment Received — {{courseName}}</h2>
