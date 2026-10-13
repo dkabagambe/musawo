@@ -45,17 +45,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const valid = await verifyPassword(password, user.passwordHash);
         if (!valid) return null;
 
-        // SUPERADMIN: TOTP is mandatory
-        if (user.role === "SUPERADMIN") {
-          if (!user.totpEnabled || !user.totpSecret) return null;
+        // ── TOTP enforcement ─────────────────────────────────────────
+        // Any user with totpEnabled=true must supply a valid code.
+        // SUPERADMIN accounts that have NOT yet set up TOTP (totpEnabled=false)
+        // are allowed through — this covers freshly-seeded demo accounts and
+        // the brief window between account creation and /2fa-setup completion.
+        // Once a SUPERADMIN enables TOTP it becomes mandatory on every login.
+        if (user.totpEnabled && user.totpSecret) {
           if (!totpCode) return null;
-          const secret = decryptSecret(user.totpSecret);
-          const ok     = await verifyTotp(secret, totpCode);
-          if (!ok) return null;
-        }
-
-        // Other staff with TOTP enabled: verify code when provided
-        if (user.totpEnabled && user.totpSecret && user.role !== "SUPERADMIN" && totpCode) {
           const secret = decryptSecret(user.totpSecret);
           const ok     = await verifyTotp(secret, totpCode);
           if (!ok) return null;
