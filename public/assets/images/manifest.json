@@ -1,51 +1,86 @@
 [
   {
-    "url": "https://musawo.ug/wp-content/uploads/2026/08/DSC08758-copy-1.jpg",
-    "file": "hero-training.jpg",
-    "alt": "Musawo Training Center students in a hands-on nursing session",
-    "description": "Training / CNA course hero — PLACEHOLDER, replace with final photo",
-    "status": "downloaded"
+    "name": "hero-courses",
+    "file": "hero-courses.webp",
+    "alt": "Healthcare students in a classroom at Musawo Training Center",
+    "status": "downloaded",
+    "sizeKb": 34
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/yootheme/cache/d5/DSC_0506-1-d52d3bfc.png",
-    "file": "cna-course.png",
-    "alt": "Certified Nursing Care Assistant course participants",
-    "description": "CNA course card image — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-resources",
+    "file": "hero-resources.webp",
+    "alt": "Musawo Training Center healthcare services and resources",
+    "status": "downloaded",
+    "sizeKb": 99
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/yootheme/cache/e6/DSC_0506-e615acf3.png",
-    "file": "basic-nursing.png",
-    "alt": "Basic Nursing Care Assistant course participants",
-    "description": "Basic Nursing Care Assistant card — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-contact",
+    "file": "hero-contact.webp",
+    "alt": "Musawo Training Center Lungujja clinic and offices",
+    "status": "downloaded",
+    "sizeKb": 58
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/yootheme/cache/23/adfa-dental-230a48d4.jpg",
-    "file": "graduates-clinic.jpg",
-    "alt": "ADFA clinic — Musawo graduates at work in a community health setting",
-    "description": "Graduates / what happens after section — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-about",
+    "file": "hero-about.webp",
+    "alt": "ADFA team collage — Musawo Training Center staff and community work",
+    "status": "downloaded",
+    "sizeKb": 78
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/2026/05/DSC_0506-6.jpg",
-    "file": "community-care.jpg",
-    "alt": "Community care and placement — Musawo graduates serving households",
-    "description": "Community care / placement section — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-faq-scholarships",
+    "file": "hero-faq-scholarships.webp",
+    "alt": "ADFA community outreach event in Uganda",
+    "status": "downloaded",
+    "sizeKb": 105
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/2026/02/First-aid-training-city-Ambulance-Uganda.jpg",
-    "file": "first-aid-child-safety.jpg",
-    "alt": "First aid and child safety training in Kampala",
-    "description": "Child care and safety course card — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-login",
+    "file": "hero-login.webp",
+    "alt": "Healthcare worker performing a blood check — Musawo Training Center",
+    "status": "downloaded",
+    "sizeKb": 54
   },
   {
-    "url": "https://musawo.ug/wp-content/uploads/yootheme/cache/7f/musawo-logo-1-7fbde093.png",
-    "file": "musawo-logo-source.png",
-    "alt": "Musawo Training Center logo",
-    "description": "Source logo for favicon/header — PLACEHOLDER",
-    "status": "downloaded"
+    "name": "hero-register",
+    "file": "hero-register.webp",
+    "alt": "Community health training — Musawo Training Center Uganda",
+    "status": "downloaded",
+    "sizeKb": 111
+  },
+  {
+    "name": "course-cna",
+    "file": "course-cna.webp",
+    "alt": "Certified Nursing Care Assistant training at Musawo Training Center",
+    "status": "downloaded",
+    "sizeKb": 68
+  },
+  {
+    "name": "course-basic-nursing",
+    "file": "course-basic-nursing.webp",
+    "alt": "Basic nursing care training session",
+    "status": "downloaded",
+    "sizeKb": 46
+  },
+  {
+    "name": "course-child-safety",
+    "file": "course-child-safety.webp",
+    "alt": "First aid and child safety training in Uganda",
+    "status": "downloaded",
+    "sizeKb": 37
+  },
+  {
+    "name": "graduates-field",
+    "file": "graduates-field.webp",
+    "alt": "Musawo Training Center graduates working in healthcare",
+    "status": "downloaded",
+    "sizeKb": 200
+  },
+  {
+    "name": "mobile-care",
+    "file": "mobile-care.webp",
+    "alt": "Mobile healthcare worker providing community care in Uganda",
+    "status": "downloaded",
+    "sizeKb": 54
   }
 ]

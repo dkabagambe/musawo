@@ -84,6 +84,31 @@
            cursor-pointer;
   }
 
+  /* ── Auth-specific card and button ─────────────────────────────── */
+  /* Wider padding, softer shadow — used by all (auth) pages */
+  .auth-card {
+    @apply bg-white rounded-2xl shadow-card border border-border/60 p-10;
+  }
+
+  /* Teal primary button for auth pages (spec: amber only for "Enrol now" CTA) */
+  .auth-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 w-full rounded-xl
+           bg-primary text-white text-sm font-semibold h-12 px-5
+           hover:bg-primary-600 transition-all duration-150 shadow-primary-glow
+           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
+           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none;
+  }
+
+  /* Success / error inline banners for auth pages */
+  .auth-banner-success {
+    @apply flex items-center gap-2 bg-success/8 border border-success/25 text-green-800
+           text-sm rounded-xl px-4 py-3;
+  }
+  .auth-banner-error {
+    @apply flex items-start gap-2 bg-danger/5 border border-danger/20 text-red-800
+           text-sm rounded-xl px-4 py-3;
+  }
+
   /* ── Form ──────────────────────────────────────────────────────── */
   .input {
     @apply w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm
@@ -179,14 +204,10 @@
     @apply text-gray-500 text-base sm:text-lg leading-relaxed max-w-2xl;
   }
 
-  /* ── Hero gradient overlays ────────────────────────────────────── */
-  .hero-overlay {
-    @apply absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/75 to-primary/30;
-  }
-
-  .hero-overlay-center {
-    @apply absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/60 to-primary/85;
-  }
+  /* ── Hero gradient overlays — REMOVED
+     Old .hero-overlay and .hero-overlay-center are no longer used.
+     Photos render at full brightness; text sits in a solid panel.
+  ────────────────────────────────────────────────────────────────── */
 }
 
 @layer utilities {
@@ -204,4 +225,34 @@
   .animate-on-scroll.is-visible {
     @apply opacity-100 translate-y-0;
   }
+}
+
+/* ── Global keyframes ──────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Hero content box: slides in from the anchor side */
+@keyframes heroBoxIn {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Slow photo zoom: scale 1 → 1.05 over 12 s */
+@keyframes heroZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes heroBoxIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes heroZoom  { from { transform: none; } to { transform: none; } }
+  @keyframes fadeUp    { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
 }

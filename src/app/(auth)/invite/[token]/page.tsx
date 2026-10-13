@@ -11,9 +11,5 @@ export default async function AcceptInvitePage({ params }: { params: { token: st
     notFound();
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4 py-12">
-      <AcceptInviteForm token={params.token} email={invite.email} role={invite.role} />
-    </div>
-  );
+  return <AcceptInviteForm token={params.token} email={invite.email} role={invite.role} />;
 }

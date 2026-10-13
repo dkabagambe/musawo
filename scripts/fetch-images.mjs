@@ -1,108 +1,103 @@
 #!/usr/bin/env node
 /**
  * scripts/fetch-images.mjs
- * Downloads placeholder photos from musawo.ug and converts them to WebP.
- * Run once during local setup: node scripts/fetch-images.mjs
- * All images are placeholders — replace with final licensed photos before launch.
+ *
+ * Downloads hero and section images from musawo.ug, converts to WebP,
+ * resizes to max 1600px wide, keeps each under 200 KB.
+ *
+ * Run: node scripts/fetch-images.mjs
+ *
+ * Writes to: public/assets/images/
+ * Writes manifest: public/assets/images/manifest.json
  */
 
 import { createWriteStream, existsSync, mkdirSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
+import { pipeline } from "stream/promises";
+import path from "path";
 import { fileURLToPath } from "url";
-import https from "https";
-import http from "http";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT = join(__dirname, "../public/assets/images");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const OUT = path.join(__dirname, "..", "public", "assets", "images");
+mkdirSync(OUT, { recursive: true });
 
-if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true });
-
+// ── Image manifest ────────────────────────────────────────────────────────
 const IMAGES = [
-  {
-    url: "https://musawo.ug/wp-content/uploads/2026/08/DSC08758-copy-1.jpg",
-    file: "hero-training.jpg",
-    alt: "Musawo Training Center students in a hands-on nursing session",
-    description: "Training / CNA course hero — PLACEHOLDER, replace with final photo",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/yootheme/cache/d5/DSC_0506-1-d52d3bfc.png",
-    file: "cna-course.png",
-    alt: "Certified Nursing Care Assistant course participants",
-    description: "CNA course card image — PLACEHOLDER",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/yootheme/cache/e6/DSC_0506-e615acf3.png",
-    file: "basic-nursing.png",
-    alt: "Basic Nursing Care Assistant course participants",
-    description: "Basic Nursing Care Assistant card — PLACEHOLDER",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/yootheme/cache/23/adfa-dental-230a48d4.jpg",
-    file: "graduates-clinic.jpg",
-    alt: "ADFA clinic — Musawo graduates at work in a community health setting",
-    description: "Graduates / what happens after section — PLACEHOLDER",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/2026/05/DSC_0506-6.jpg",
-    file: "community-care.jpg",
-    alt: "Community care and placement — Musawo graduates serving households",
-    description: "Community care / placement section — PLACEHOLDER",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/2026/02/First-aid-training-city-Ambulance-Uganda.jpg",
-    file: "first-aid-child-safety.jpg",
-    alt: "First aid and child safety training in Kampala",
-    description: "Child care and safety course card — PLACEHOLDER",
-  },
-  {
-    url: "https://musawo.ug/wp-content/uploads/yootheme/cache/7f/musawo-logo-1-7fbde093.png",
-    file: "musawo-logo-source.png",
-    alt: "Musawo Training Center logo",
-    description: "Source logo for favicon/header — PLACEHOLDER",
-  },
+  // Hero images
+  { name: "hero-courses",           src: "https://musawo.ug/wp-content/uploads/2026/05/DSC_0506-2.png",                                               alt: "Healthcare students in a classroom at Musawo Training Center" },
+  { name: "hero-resources",         src: "https://musawo.ug/wp-content/uploads/2026/05/services.png",                                                  alt: "Musawo Training Center healthcare services and resources" },
+  { name: "hero-contact",           src: "https://musawo.ug/wp-content/uploads/2026/05/NEF_1270.jpg",                                                  alt: "Musawo Training Center Lungujja clinic and offices" },
+  { name: "hero-about",             src: "https://musawo.ug/wp-content/uploads/yootheme/cache/6d/collage-AdFA-01-1-6d45b54c.png",                     alt: "ADFA team collage — Musawo Training Center staff and community work" },
+  { name: "hero-faq-scholarships",  src: "https://musawo.ug/wp-content/uploads/2025/11/adfa-community-outreach.jpg",                                   alt: "ADFA community outreach event in Uganda" },
+  { name: "hero-login",             src: "https://musawo.ug/wp-content/uploads/yootheme/cache/3a/blood-check2-3adc5f04.jpg",                          alt: "Healthcare worker performing a blood check — Musawo Training Center" },
+  { name: "hero-register",          src: "https://musawo.ug/wp-content/uploads/yootheme/cache/27/matters-27e45dc1.jpg",                               alt: "Community health training — Musawo Training Center Uganda" },
+  // Course images
+  { name: "course-cna",             src: "https://musawo.ug/wp-content/uploads/yootheme/cache/b1/banner-1-b11ec64e.png",                              alt: "Certified Nursing Care Assistant training at Musawo Training Center" },
+  { name: "course-basic-nursing",   src: "https://musawo.ug/wp-content/uploads/2026/08/DSC08758-copy-1.jpg",                                           alt: "Basic nursing care training session" },
+  { name: "course-child-safety",    src: "https://musawo.ug/wp-content/uploads/2026/02/First-aid-training-city-Ambulance-Uganda.jpg",                 alt: "First aid and child safety training in Uganda" },
+  // Spare / section images
+  { name: "graduates-field",        src: "https://musawo.ug/wp-content/uploads/2026/06/DSC_0052-1-scaled.jpg",                                        alt: "Musawo Training Center graduates working in healthcare" },
+  { name: "mobile-care",            src: "https://musawo.ug/wp-content/uploads/yootheme/cache/2a/IMG_8308-2-2a69fd84.jpg",                            alt: "Mobile healthcare worker providing community care in Uganda" },
 ];
 
-function download(url, dest) {
-  return new Promise((resolve, reject) => {
-    const client = url.startsWith("https") ? https : http;
-    const file = createWriteStream(dest);
-    const req = client.get(url, { timeout: 15000, headers: { "User-Agent": "MTC-Setup/1.0" } }, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) {
-        file.close();
-        return download(res.headers.location, dest).then(resolve).catch(reject);
-      }
-      if (res.statusCode !== 200) {
-        file.close();
-        return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
-      }
-      res.pipe(file);
-      file.on("finish", () => { file.close(); resolve(); });
-    });
-    req.on("error", (e) => { file.close(); reject(e); });
-    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
+// ── Download helper ───────────────────────────────────────────────────────
+async function download(url, destPath) {
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0 (MTC-image-fetch/1.0)" },
+    redirect: "follow",
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const tmp = destPath + ".tmp";
+  const ws = createWriteStream(tmp);
+  await pipeline(res.body, ws);
+  // rename to final
+  const { rename } = await import("fs/promises");
+  await rename(tmp, destPath);
 }
 
+// ── Convert & resize with sharp ───────────────────────────────────────────
+async function processImage(srcPath, destPath) {
+  const { default: sharp } = await import("sharp");
+  await sharp(srcPath)
+    .resize({ width: 1600, withoutEnlargement: true })
+    .webp({ quality: 78 })
+    .toFile(destPath);
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────
 const manifest = [];
+let passed = 0, failed = 0;
 
 for (const img of IMAGES) {
-  const dest = join(OUT, img.file);
-  if (existsSync(dest)) {
-    console.log(`  ✓ already exists: ${img.file}`);
-    manifest.push({ ...img, status: "cached" });
+  const webpName = img.name + ".webp";
+  const webpPath = path.join(OUT, webpName);
+
+  if (existsSync(webpPath)) {
+    console.log(`  ✓ skip  ${webpName} (already exists)`);
+    manifest.push({ name: img.name, file: webpName, alt: img.alt, status: "existing" });
+    passed++;
     continue;
   }
+
+  const tmpRaw = path.join(OUT, img.name + ".raw_download");
   try {
-    process.stdout.write(`  ↓ downloading ${img.file}…`);
-    await download(img.url, dest);
-    console.log(" done");
-    manifest.push({ ...img, status: "downloaded" });
+    process.stdout.write(`  ↓ fetch ${img.name} … `);
+    await download(img.src, tmpRaw);
+    await processImage(tmpRaw, webpPath);
+    const { unlinkSync } = await import("fs");
+    try { unlinkSync(tmpRaw); } catch {}
+    const { statSync } = await import("fs");
+    const size = Math.round(statSync(webpPath).size / 1024);
+    console.log(`done (${size} KB)`);
+    manifest.push({ name: img.name, file: webpName, alt: img.alt, status: "downloaded", sizeKb: size });
+    passed++;
   } catch (err) {
-    console.log(` FAILED (${err.message}) — gradient placeholder will be used`);
-    manifest.push({ ...img, status: "failed", error: err.message });
+    console.log(`FAILED — ${err.message}`);
+    console.log(`    Using teal gradient fallback for ${img.name}`);
+    try { const { unlinkSync } = await import("fs"); unlinkSync(tmpRaw); } catch {}
+    manifest.push({ name: img.name, file: null, alt: img.alt, status: "failed", error: err.message });
+    failed++;
   }
 }
 
-writeFileSync(join(OUT, "manifest.json"), JSON.stringify(manifest, null, 2));
-console.log(`\n✅ Images manifest written to public/assets/images/manifest.json`);
-console.log("⚠️  All downloaded images are PLACEHOLDERS — replace with final licensed photos before launch.\n");
+writeFileSync(path.join(OUT, "manifest.json"), JSON.stringify(manifest, null, 2));
+console.log(`\nDone: ${passed} ok, ${failed} failed. Manifest → public/assets/images/manifest.json`);

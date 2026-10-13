@@ -42,9 +42,11 @@ const nextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // unsafe-eval needed for Next.js dev
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://musawo.ug",
+              // OSM raster tiles (Leaflet) + musawo.ug images
+              "img-src 'self' data: blob: https://musawo.ug https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
               "media-src 'self' https://iframe.mediadelivery.net https://video.bunnycdn.com",
-              "frame-src https://iframe.mediadelivery.net",
+              // Bunny video + OSM iframe fallback
+              "frame-src https://iframe.mediadelivery.net https://www.openstreetmap.org",
               "connect-src 'self'",
               "upgrade-insecure-requests",
             ].join("; "),

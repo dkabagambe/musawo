@@ -1,16 +1,60 @@
 import { db } from "@/lib/db";
-import Image from "next/image";
+import PageHero from "@/components/public/PageHero";
+import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { ArrowRight, Clock, BookOpen, Users } from "lucide-react";
 import type { Metadata } from "next";
+import AnimateIn from "@/components/public/AnimateIn";
+import CoursesClient from "./CoursesClient";
+import type { CourseItem } from "./CoursesClient";
 
 export const metadata: Metadata = {
-  title: "Courses — Musawo Training Center",
+  title: "Courses",
   description: "Browse accredited healthcare training courses from Musawo Training Center, Uganda.",
 };
 
+const FALLBACK: Record<string, string> = {
+  "cna":                "/assets/images/course-cna.webp",
+  "basic-nursing-care": "/assets/images/course-basic-nursing.webp",
+  "child-care-safety":  "/assets/images/course-child-safety.webp",
+};
+
+const PLACEHOLDER_COURSES: CourseItem[] = [
+  {
+    id: "p1", title: "Certified Nursing Care Assistant (CNA)", slug: "cna",
+    shortDescription: "Our flagship certification for nursing care assistants across Uganda.",
+    thumbnailUrl: null, fullFeeUgx: 850000, durationWeeks: 12,
+    instalmentCount: 3, tutorName: "MTC Faculty", lessonCount: 48,
+    enrolmentCount: 0, img: "/assets/images/course-cna.webp", category: "Nursing",
+  },
+  {
+    id: "p2", title: "Basic Nursing Care Assistant", slug: "basic-nursing-care",
+    shortDescription: "An accessible entry point with a strong foundation in patient care.",
+    thumbnailUrl: null, fullFeeUgx: 550000, durationWeeks: 8,
+    instalmentCount: 2, tutorName: "MTC Faculty", lessonCount: 32,
+    enrolmentCount: 0, img: "/assets/images/course-basic-nursing.webp", category: "Nursing",
+  },
+  {
+    id: "p3", title: "Babysitting, Child Care & Safety Management", slug: "child-care-safety",
+    shortDescription: "Child care, first aid, and emergency response for child safety workers.",
+    thumbnailUrl: null, fullFeeUgx: 420000, durationWeeks: 6,
+    instalmentCount: 1, tutorName: "MTC Faculty", lessonCount: 24,
+    enrolmentCount: 0, img: "/assets/images/course-child-safety.webp", category: "Child Safety",
+  },
+];
+
+const COMPARE = [
+  { feature: "Duration",         cna: "12 weeks", basic: "8 weeks",  child: "6 weeks" },
+  { feature: "Fee (UGX)",        cna: "850,000",  basic: "550,000",  child: "420,000" },
+  { feature: "Instalments",      cna: "3",        basic: "2",        child: "1" },
+  { feature: "MoH Accredited",   cna: "✓",        basic: "✓",        child: "✓" },
+  { feature: "MoES Accredited",  cna: "✓",        basic: "✓",        child: "✓" },
+  { feature: "Live classes",     cna: "2×/week",  basic: "2×/week",  child: "1×/week" },
+  { feature: "Practical days",   cna: "4 days",   basic: "3 days",   child: "2 days" },
+  { feature: "Certificate",      cna: "CNA",      basic: "BNCA",     child: "CCS" },
+];
+
 export default async function CoursesPage() {
-  const courses = await db.course.findMany({
+  const dbCourses = await db.course.findMany({
     where: { status: "PUBLISHED" },
     include: {
       tutor: { select: { name: true } },
@@ -20,95 +64,120 @@ export default async function CoursesPage() {
     orderBy: { createdAt: "asc" },
   });
 
-  const totalLessons = (blocks: { _count: { lessons: number } }[]) =>
-    blocks.reduce((s, b) => s + b._count.lessons, 0);
-
-  // Fallback images by slug
-  const FALLBACK: Record<string, string> = {
-    "cna":                "/assets/images/cna-course.png",
-    "basic-nursing-care": "/assets/images/basic-nursing.png",
-    "child-care-safety":  "/assets/images/first-aid-child-safety.jpg",
-  };
+  const courses: CourseItem[] = dbCourses.length > 0
+    ? dbCourses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        slug: c.slug,
+        shortDescription: c.shortDescription,
+        thumbnailUrl: c.thumbnailUrl,
+        fullFeeUgx: c.fullFeeUgx,
+        durationWeeks: c.durationWeeks,
+        instalmentCount: c.instalmentCount,
+        tutorName: c.tutor.name,
+        lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
+        enrolmentCount: c._count.enrolments,
+        img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/images/hero-courses.webp",
+        category: c.slug === 'child-care-safety' ? 'Child Safety' : 'Nursing',
+      }))
+    : PLACEHOLDER_COURSES;
 
   return (
-    <div className="min-h-screen bg-surface">
-      {/* Hero banner */}
-      <div className="relative bg-primary text-white py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0">
-          <Image src="/assets/images/hero-training.jpg" alt="" fill className="object-cover opacity-20" aria-hidden="true" priority />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/60" />
-        </div>
-        <div className="relative max-w-4xl mx-auto text-center">
-          <p className="section-eyebrow text-accent mb-2">Accredited by Uganda Government</p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 text-balance">Our Courses</h1>
-          <p className="text-white/75 max-w-xl mx-auto text-lg">
-            Nationally accredited healthcare training designed for Ugandan health workers. Learn on any device, pay with mobile money.
-          </p>
+    <div className="bg-surface">
+      <PageHero
+        image="/assets/images/hero-courses.webp"
+        imageAlt="Healthcare students in a Musawo Training Center classroom"
+        title="Our Accredited Courses"
+        description="Nationally recognised healthcare training designed for Ugandan health workers. Learn on any device, pay with mobile money."
+        breadcrumbs={[{ label: "Courses" }]}
+        cta={{ label: "Enrol now", href: "/register" }}
+        boxSide="left"
+        objectPosition="center right"
+      />
+
+      {/* Accreditation badge strip */}
+      <div className="bg-white border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center gap-6 justify-center">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
+            Ministry of Health Uganda — Accredited
+          </div>
+          <div className="hidden sm:block w-px h-5 bg-border" aria-hidden="true" />
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
+            Ministry of Education &amp; Sports — Registered
+          </div>
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        {courses.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-8 h-8 text-primary" aria-hidden="true" />
-            </div>
-            <h2 className="text-xl font-bold text-primary mb-2">Courses coming soon</h2>
-            <p className="text-gray-500 mb-6">Our first intake is opening soon. Register to be notified.</p>
-            <Link href="/register" className="btn-primary no-underline">Register your interest</Link>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <CoursesClient courses={courses} />
+      </section>
+
+      {/* Comparison table */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16" aria-label="Course comparison">
+        <AnimateIn>
+          <h2 className="text-2xl font-bold text-primary mb-6">Compare courses</h2>
+          <div className="table-container">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th className="text-left">Feature</th>
+                  <th>Certified Nursing Care Assistant</th>
+                  <th>Basic Nursing Care</th>
+                  <th>Child Care &amp; Safety</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE.map((row) => (
+                  <tr key={row.feature}>
+                    <td className="font-medium text-primary">{row.feature}</td>
+                    <td className="text-center">{row.cna}</td>
+                    <td className="text-center">{row.basic}</td>
+                    <td className="text-center">{row.child}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className="font-medium text-primary">Enrol</td>
+                  <td className="text-center">
+                    <Link href="/register?course=cna" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
+                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                    </Link>
+                  </td>
+                  <td className="text-center">
+                    <Link href="/register?course=basic-nursing-care" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
+                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                    </Link>
+                  </td>
+                  <td className="text-center">
+                    <Link href="/register?course=child-care-safety" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
+                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                    </Link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {courses.map((course) => {
-              const img = course.thumbnailUrl ?? FALLBACK[course.slug] ?? "/assets/images/hero-training.jpg";
-              const lessons = totalLessons(course.blocks);
-              return (
-                <article key={course.id} className="bg-white rounded-2xl overflow-hidden shadow-card border border-border hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200 flex flex-col group">
-                  <div className="relative h-52 overflow-hidden">
-                    <Image src={img} alt={`${course.title} course`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
-                    {course.durationWeeks && (
-                      <span className="absolute top-3 right-3 bg-white/90 text-primary text-xs font-bold px-2.5 py-1 rounded-full">
-                        {course.durationWeeks} weeks
-                      </span>
-                    )}
-                  </div>
+        </AnimateIn>
+      </section>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <h2 className="font-extrabold text-base text-primary mb-2 leading-snug">{course.title}</h2>
-
-                    {course.accreditationText && (
-                      <p className="text-xs text-success font-semibold mb-2">✓ {course.accreditationText}</p>
-                    )}
-
-                    {course.shortDescription && (
-                      <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-1 leading-relaxed">{course.shortDescription}</p>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mb-4">
-                      <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" aria-hidden="true" /> {course.tutor.name}</span>
-                      {course.durationWeeks && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" aria-hidden="true" /> {course.durationWeeks} weeks</span>}
-                      {lessons > 0 && <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" aria-hidden="true" /> {lessons} lessons</span>}
-                    </div>
-
-                    <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
-                      <div>
-                        <p className="text-accent font-extrabold text-lg leading-none">UGX {course.fullFeeUgx.toLocaleString()}</p>
-                        {course.instalmentCount > 1 && (
-                          <p className="text-xs text-gray-400 mt-0.5">or {course.instalmentCount} instalments</p>
-                        )}
-                      </div>
-                      <Link href={`/courses/${course.slug}`} className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-600 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline transition-colors">
-                        Enrol <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </main>
+      {/* CTA strip */}
+      <div className="bg-primary py-16 px-4 sm:px-6 text-center">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+          Not sure which course to pick?
+        </h2>
+        <p className="text-white/70 mb-6 max-w-md mx-auto text-sm">
+          Chat with our admissions team on WhatsApp and we&apos;ll help you choose.
+        </p>
+        <Link
+          href="https://wa.me/256785423523"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold px-7 py-3 rounded-xl no-underline transition-colors shadow-cta"
+        >
+          Chat on WhatsApp <ArrowRight className="w-4 h-4" aria-hidden="true" />
+        </Link>
+      </div>
     </div>
   );
 }

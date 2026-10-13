@@ -23,6 +23,8 @@ const config: Config = {
           700: "#073F36",
           800: "#042A24",
           900: "#021512",
+          // Deep teal used for footer, hero boxes, auth panels
+          dark: "#07241F",
         },
         // Accent: warm amber
         accent: {

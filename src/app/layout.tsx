@@ -53,8 +53,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={jakarta.variable}>
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/assets/logo.webp" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
       <body className="bg-white text-body-text antialiased font-sans">{children}</body>
     </html>
