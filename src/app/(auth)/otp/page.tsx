@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { getPostLoginPath } from "@/lib/auth/redirect";
 
 export default function OtpPage() {
   const router = useRouter();
@@ -77,8 +78,11 @@ export default function OtpPage() {
       if (result?.error) {
         setError("Invalid or expired code. Please try again.");
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        const sessionRes = await fetch("/api/auth/session");
+        const sessionData = await sessionRes.json() as { user?: { role?: string } };
+        const role = sessionData?.user?.role;
+        const dest = getPostLoginPath(role, callbackUrl, window.location.origin);
+        router.push(dest);
       }
     } catch {
       setError("Something went wrong.");

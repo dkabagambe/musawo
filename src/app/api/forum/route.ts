@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
 
   const { courseId, title, body } = parsed.data;
 
-  const isTutorOrAdmin = ["TUTOR", "ADMIN"].includes(session.user.role);
-  if (!isTutorOrAdmin) {
+  const isStaff = ["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role);
+  if (!isStaff) {
     const enrolment = await db.enrolment.findFirst({
       where: { userId: session.user.id, courseId, status: { in: ["ACTIVE", "COMPLETED"] } },
     });

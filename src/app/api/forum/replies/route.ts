@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
   if (thread.locked) return NextResponse.json({ error: "Thread is locked" }, { status: 403 });
 
   // Check enrolment or staff
-  const isTutorOrAdmin = ["TUTOR", "ADMIN"].includes(session.user.role);
-  if (!isTutorOrAdmin) {
+  const isStaff = ["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role);
+  if (!isStaff) {
     const enrolment = await db.enrolment.findFirst({
       where: { userId: session.user.id, courseId: thread.courseId, status: { in: ["ACTIVE", "COMPLETED"] } },
     });

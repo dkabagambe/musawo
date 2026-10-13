@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { z } from "zod";
 
 const CreateClassSchema = z.object({
@@ -29,9 +30,9 @@ export async function GET(_req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || !["TUTOR", "ADMIN"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { requirePermission(session.user.role, "lessons.edit"); }
+  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: (e as Error).message }, { status: 403 }); throw e; }
 
   const parsed = CreateClassSchema.safeParse(await req.json());
   if (!parsed.success) {

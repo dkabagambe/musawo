@@ -33,11 +33,21 @@ const PUBLIC_PATHS = [
   "/manifest.json",
   "/sw.js",
   "/approval",
+  "/_rbac_redirect", // kept for backward compat — page now redirects server-side
+  "/403",
 ];
+
+const AUTH_ONLY_PAGES = ["/login", "/register", "/otp", "/forgot-password"];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p + "?")
+  );
+}
+
+function isAuthPage(pathname: string): boolean {
+  return AUTH_ONLY_PAGES.some(
+    (p) => pathname === p || pathname.startsWith(p + "?")
   );
 }
 
@@ -67,28 +77,34 @@ export default auth(function middleware(req: NextRequest) {
     "max-age=63072000; includeSubDomains; preload"
   );
 
-  // Always allow public paths
+  const session = (req as NextRequest & { auth?: { user?: { role: UserRole } } }).auth;
+  const isLoggedIn = !!session?.user;
+  const role = session?.user?.role;
+
+  // Logged-in users hitting auth pages → send to their home portal
+  if (isLoggedIn && isAuthPage(pathname)) {
+    const home = role ? getHomeForRole(role) : "/dashboard";
+    return NextResponse.redirect(new URL(home, req.url));
+  }
+
+  // Always allow public paths for unauthenticated users
   if (isPublic(pathname)) return response;
 
   // Pass through non-protected routes
   if (!requiresAuth(pathname)) return response;
 
-  // Auth.js attaches the session to req.auth when using the auth() wrapper
-  const session = (req as NextRequest & { auth?: { user?: { role: UserRole } } }).auth;
-
-  if (!session?.user) {
+  // Not logged in hitting a protected path → redirect to login
+  if (!isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  const { role } = session.user;
-
   // Coarse-grained portal access — redirect to correct home if wrong portal
   const PORTALS = ["/director", "/system", "/admin", "/bursar", "/tutor", "/dashboard"];
   const portal = PORTALS.find((p) => pathname.startsWith(p));
 
-  if (portal && !canAccessPrefix(role, portal)) {
+  if (portal && role && !canAccessPrefix(role, portal)) {
     return NextResponse.redirect(new URL(getHomeForRole(role), req.url));
   }
 
@@ -96,16 +112,16 @@ export default auth(function middleware(req: NextRequest) {
   if (pathname.startsWith("/api/director") && role !== "SUPERADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (pathname.startsWith("/api/system") && !["SUPERADMIN", "SYSTEM_IT"].includes(role)) {
+  if (pathname.startsWith("/api/system") && !["SUPERADMIN", "SYSTEM_IT"].includes(role ?? "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (pathname.startsWith("/api/bursar") && !["SUPERADMIN", "BURSAR"].includes(role)) {
+  if (pathname.startsWith("/api/bursar") && !["SUPERADMIN", "BURSAR"].includes(role ?? "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (pathname.startsWith("/api/admin") && !["SUPERADMIN", "REGISTRAR", "ADMIN"].includes(role)) {
+  if (pathname.startsWith("/api/admin") && !["SUPERADMIN", "REGISTRAR", "ADMIN"].includes(role ?? "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (pathname.startsWith("/api/tutor") && !["SUPERADMIN", "TUTOR", "REGISTRAR", "ADMIN"].includes(role)) {
+  if (pathname.startsWith("/api/tutor") && !["SUPERADMIN", "TUTOR", "REGISTRAR", "ADMIN"].includes(role ?? "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

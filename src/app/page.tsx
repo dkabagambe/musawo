@@ -133,7 +133,7 @@ export default async function HomePage() {
 
               {/* Trust strip */}
               <ul className="flex flex-wrap gap-x-6 gap-y-2.5 list-none">
-                {TRUST_BADGES.map(({ icon: Icon, label }) => (
+                {TRUST_BADGES.map(({ label }) => (
                   <li key={label} className="flex items-center gap-2 text-sm text-white/70">
                     <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
                     {label}

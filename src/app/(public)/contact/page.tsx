@@ -1,17 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getContactInfo } from "@/lib/contact";
-import { getSetting } from "@/lib/settings";
 import type { Metadata } from "next";
 import { Mail, Phone, MapPin, Instagram, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = { title: "Contact Us — Musawo Training Center" };
 
 export default async function ContactPage() {
-  const [contact, siteName] = await Promise.all([
-    getContactInfo(),
-    getSetting("site.name", "Musawo Training Center"),
-  ]);
+  const contact = await getContactInfo();
 
   return (
     <div className="min-h-screen bg-surface">

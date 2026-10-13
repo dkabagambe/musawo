@@ -55,9 +55,66 @@ async function main() {
   console.log("  ✓ Site settings");
 
   // ─── Users ──────────────────────────────────────────────────────
-  const adminHash = await hash("Admin1234!", ARGON2_OPTIONS);
-  const tutorHash = await hash("Tutor1234!", ARGON2_OPTIONS);
-  const studentHash = await hash("Student1234!", ARGON2_OPTIONS);
+  const pw = async (p: string) => hash(p, ARGON2_OPTIONS);
+
+  // SUPERADMIN — note: TOTP is mandatory in production; seed disables it so
+  // local dev can sign in without an authenticator app.
+  await prisma.user.upsert({
+    where: { email: "superadmin@musawotraining.ug" },
+    update: {},
+    create: {
+      name: "Super Admin",
+      email: "superadmin@musawotraining.ug",
+      passwordHash: await pw("SuperAdmin1234!"),
+      role: UserRole.SUPERADMIN,
+      status: "ACTIVE",
+      totpEnabled: false, // disable TOTP in dev seed so auth works without an app
+      emailVerified: new Date(),
+      dataConsentAt: new Date(),
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "system@musawotraining.ug" },
+    update: {},
+    create: {
+      name: "IT Admin",
+      email: "system@musawotraining.ug",
+      passwordHash: await pw("SystemIT1234!"),
+      role: UserRole.SYSTEM_IT,
+      status: "ACTIVE",
+      emailVerified: new Date(),
+      dataConsentAt: new Date(),
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "registrar@musawotraining.ug" },
+    update: {},
+    create: {
+      name: "MTC Registrar",
+      email: "registrar@musawotraining.ug",
+      passwordHash: await pw("Registrar1234!"),
+      role: UserRole.REGISTRAR,
+      status: "ACTIVE",
+      emailVerified: new Date(),
+      dataConsentAt: new Date(),
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "bursar@musawotraining.ug" },
+    update: {},
+    create: {
+      name: "MTC Bursar",
+      email: "bursar@musawotraining.ug",
+      passwordHash: await pw("Bursar1234!"),
+      role: UserRole.BURSAR,
+      status: "ACTIVE",
+      emailVerified: new Date(),
+      dataConsentAt: new Date(),
+    },
+  });
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@musawotraining.ug" },
@@ -65,7 +122,7 @@ async function main() {
     create: {
       name: "MTC Admin",
       email: "admin@musawotraining.ug",
-      passwordHash: adminHash,
+      passwordHash: await pw("Admin1234!"),
       role: UserRole.ADMIN,
       status: "ACTIVE",
       emailVerified: new Date(),
@@ -79,7 +136,7 @@ async function main() {
     create: {
       name: "Grace Nakato",
       email: "tutor@musawotraining.ug",
-      passwordHash: tutorHash,
+      passwordHash: await pw("Tutor1234!"),
       role: UserRole.TUTOR,
       status: "ACTIVE",
       emailVerified: new Date(),
@@ -94,7 +151,7 @@ async function main() {
       name: "Sarah Auma",
       email: "student@example.com",
       phone: "+256701234567",
-      passwordHash: studentHash,
+      passwordHash: await pw("Student1234!"),
       role: UserRole.STUDENT,
       status: "ACTIVE",
       emailVerified: new Date(),
@@ -250,9 +307,15 @@ You will learn child development basics, age-appropriate care practices, daily c
 
   console.log("\n🎉 Seed complete!");
   console.log("\nLogin credentials:");
-  console.log("  Admin:   admin@musawotraining.ug / Admin1234!");
-  console.log("  Tutor:   tutor@musawotraining.ug / Tutor1234!");
-  console.log("  Student: student@example.com / Student1234!");
+  console.log("  SuperAdmin:  superadmin@musawotraining.ug / SuperAdmin1234!");
+  console.log("  System IT:   system@musawotraining.ug     / SystemIT1234!");
+  console.log("  Registrar:   registrar@musawotraining.ug  / Registrar1234!");
+  console.log("  Bursar:      bursar@musawotraining.ug     / Bursar1234!");
+  console.log("  Admin:       admin@musawotraining.ug      / Admin1234!");
+  console.log("  Tutor:       tutor@musawotraining.ug      / Tutor1234!");
+  console.log("  Student:     student@example.com          / Student1234!");
+  console.log("\n  NOTE: SUPERADMIN TOTP is disabled in the dev seed.");
+  console.log("        Enable it via /api/auth/totp/setup before deploying to prod.");
 }
 
 function getBlocksForCourse(slug: string) {

@@ -13,7 +13,7 @@ const TUTOR_NAV = [
 
 export default async function TutorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !["TUTOR", "ADMIN"].includes(session.user.role)) {
+  if (!session?.user || !["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role)) {
     redirect("/dashboard");
   }
 

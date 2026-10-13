@@ -109,8 +109,10 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Notify admin by email
-  const admins = await db.user.findMany({ where: { role: "ADMIN", status: "ACTIVE" } });
+  // Notify staff (REGISTRAR + SUPERADMIN) by email
+  const admins = await db.user.findMany({
+    where: { role: { in: ["SUPERADMIN", "REGISTRAR", "ADMIN"] }, status: "ACTIVE" },
+  });
   const user = await db.user.findUnique({ where: { id: session.user.id } });
   for (const admin of admins) {
     if (admin.email) {

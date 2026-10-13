@@ -4,24 +4,23 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { getPostLoginPath } from "@/lib/auth/redirect";
 
 type Step = "credentials" | "totp";
 
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") ?? "/dashboard";
+  const rawCallback = params.get("callbackUrl");
 
-  const [mode, setMode]       = useState<"email" | "phone">("email");
-  const [step, setStep]       = useState<Step>("credentials");
-  const [email, setEmail]     = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [phone, setPhone]     = useState("");
-  const [password, setPassword] = useState("");
-  const [totpCode, setTotpCode] = useState("");
-  const [error, setError]     = useState("");
-  const [loading, setLoading] = useState(false);
-  // If the server signals TOTP is required we prompt for it
+  const [mode, setMode]           = useState<"email" | "phone">("email");
+  const [step, setStep]           = useState<Step>("credentials");
+  const [email, setEmail]         = useState("");
+  const [phone, _setPhone]        = useState("");
+  const [password, setPassword]   = useState("");
+  const [totpCode, setTotpCode]   = useState("");
+  const [error, setError]         = useState("");
+  const [loading, setLoading]     = useState(false);
   const [needsTotp, setNeedsTotp] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,20 +44,26 @@ export default function LoginPage() {
       }
 
       if (result?.error) {
-        // For SUPERADMIN wrong TOTP show specific message
-        if (needsTotp) {
-          setError("Invalid authenticator code. Please try again.");
-        } else {
-          setError("Invalid credentials. Please try again.");
-        }
-      } else {
-        // Let server redirect to role-appropriate home
-        router.push(callbackUrl !== "/dashboard" ? callbackUrl : "/_rbac_redirect");
-        router.refresh();
+        setError(
+          needsTotp
+            ? "Invalid authenticator code. Please try again."
+            : "Invalid credentials. Please try again."
+        );
+        setLoading(false);
+        return;
       }
+
+      // Sign-in succeeded. Fetch the session to get the role, then redirect.
+      // We use /api/auth/session (the Next-Auth built-in endpoint) directly
+      // so we don't need to wait for a full page reload.
+      const sessionRes = await fetch("/api/auth/session");
+      const sessionData = await sessionRes.json() as { user?: { role?: string } };
+      const role = sessionData?.user?.role;
+
+      const dest = getPostLoginPath(role, rawCallback, window.location.origin);
+      router.push(dest);
     } catch {
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   }
@@ -70,7 +75,7 @@ export default function LoginPage() {
         Sign in to your Musawo Training Center account
       </p>
 
-      {/* Mode toggle — only on credentials step */}
+      {/* Mode toggle */}
       {step === "credentials" && (
         <div className="flex rounded-xl border border-border overflow-hidden mb-6">
           <button
@@ -141,7 +146,10 @@ export default function LoginPage() {
           <p className="text-sm text-gray-500 mb-4">
             Sign in with a one-time code sent to your phone.
           </p>
-          <Link href="/otp" className="btn-primary no-underline">
+          <Link
+            href={`/otp${rawCallback ? `?callbackUrl=${encodeURIComponent(rawCallback)}` : ""}`}
+            className="btn-primary no-underline"
+          >
             Continue with phone OTP
           </Link>
         </div>
@@ -186,7 +194,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Pre-fill TOTP if user knows they need it */}
           {needsTotp && (
             <div className="mb-6">
               <label htmlFor="totpInline" className="label">Authenticator code (2FA)</label>
