@@ -3,19 +3,19 @@ import PublicFooter from "@/components/public/Footer";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <PublicHeader />
       {/*
         pt-16 offsets the fixed header (h-16 = 64px) so no content is
-        hidden behind it. The homepage hero section sits in normal flow
-        below the header and manages its own internal spacing.
-        pb-20 ensures the WhatsApp FAB never covers the last line of
-        content on short pages.
+        hidden behind it. flex-1 makes <main> grow to fill available
+        space so the footer is always pushed to the bottom on short pages.
+        No pb-* here — the WhatsApp FAB clearance is handled inside the
+        footer itself (pb-20 on mobile in the footer's bottom bar).
       */}
-      <main id="main" className="pt-16 pb-20">
+      <main id="main" className="pt-16 flex-1">
         {children}
       </main>
       <PublicFooter />
-    </>
+    </div>
   );
 }

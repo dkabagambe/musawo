@@ -12,7 +12,7 @@ export default async function PublicFooter() {
   ]);
 
   return (
-    <footer className="bg-primary-dark text-white">
+    <footer className="bg-primary text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
 
@@ -111,15 +111,15 @@ export default async function PublicFooter() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/35">
+        <div className="border-t border-white/10 pt-8 pb-[72px] sm:pb-0 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/55">
           <p>© {new Date().getFullYear()} MUSAWO / Allied Doctors and Friends of Uganda (ADFA). All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/about"    className="hover:text-white/60 no-underline transition-colors">About</Link>
-            <Link href="/faq"      className="hover:text-white/60 no-underline transition-colors">FAQ</Link>
-            <Link href="/privacy"  className="hover:text-white/60 no-underline transition-colors">Privacy</Link>
-            <Link href="/terms"    className="hover:text-white/60 no-underline transition-colors">Terms</Link>
-            <Link href="/refund"   className="hover:text-white/60 no-underline transition-colors">Refunds</Link>
-            <Link href="/login"    className="hover:text-white/60 no-underline transition-colors">Student login</Link>
+            <Link href="/about"    className="hover:text-white no-underline transition-colors">About</Link>
+            <Link href="/faq"      className="hover:text-white no-underline transition-colors">FAQ</Link>
+            <Link href="/privacy"  className="hover:text-white no-underline transition-colors">Privacy</Link>
+            <Link href="/terms"    className="hover:text-white no-underline transition-colors">Terms</Link>
+            <Link href="/refund"   className="hover:text-white no-underline transition-colors">Refunds</Link>
+            <Link href="/login"    className="hover:text-white no-underline transition-colors">Student login</Link>
           </div>
         </div>
       </div>

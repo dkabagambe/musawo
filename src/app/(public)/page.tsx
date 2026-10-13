@@ -119,7 +119,7 @@ export default async function HomePage() {
     : PLACEHOLDER_COURSES;
 
   return (
-    <div className="pb-24">
+    <div>
 
       {/* ══════════════════════════════════════════════════════════
           HERO
