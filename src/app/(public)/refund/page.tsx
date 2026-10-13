@@ -1,6 +1,7 @@
 import PageHero from "@/components/public/PageHero";
 import Link from "next/link";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
+import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -37,7 +38,8 @@ const SCENARIOS = [
   },
 ];
 
-export default function RefundPage() {
+export default async function RefundPage() {
+  const contact = await getContactInfo();
   return (
     <div className="bg-surface">
       <PageHero
@@ -101,7 +103,7 @@ export default function RefundPage() {
           <PolicySection title="How to request a refund">
             <p>To request a refund:</p>
             <ol className="list-decimal pl-5 space-y-1.5">
-              <li>Email <a href="mailto:info@musawo.ug" className="text-accent hover:underline no-underline">info@musawo.ug</a> with the subject line <strong>&ldquo;Refund Request — [Your Full Name]&rdquo;</strong>.</li>
+              <li>Email <a href={`mailto:${contact.email}`} className="text-accent hover:underline no-underline">{contact.email}</a> with the subject line <strong>&ldquo;Refund Request — [Your Full Name]&rdquo;</strong>.</li>
               <li>Include your student ID or the email address used to register, the course name, and the reason for withdrawal.</li>
               <li>We will acknowledge your request within 1 business day and process eligible refunds within 7–14 working days.</li>
             </ol>
@@ -116,9 +118,9 @@ export default function RefundPage() {
               For any questions about this policy, contact our admissions team:
             </p>
             <address className="not-italic mt-2">
-              <a href="mailto:info@musawo.ug" className="text-accent no-underline hover:underline">info@musawo.ug</a>
+              <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>
               {" "}·{" "}
-              <a href="https://wa.me/256785423523" target="_blank" rel="noopener noreferrer" className="text-accent no-underline hover:underline">WhatsApp</a>
+              <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-accent no-underline hover:underline">WhatsApp</a>
             </address>
           </PolicySection>
 

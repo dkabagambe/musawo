@@ -164,7 +164,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </span>
             <span aria-hidden="true">·</span>
             <a
-              href="https://wa.me/256700000000"
+              href="https://wa.me/256785423523"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-primary no-underline hover:underline transition-colors"

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { notFound as _notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { getSetting } from "@/lib/settings";
 import type { Metadata } from "next";
 
 interface Props {
@@ -16,13 +17,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function VerifyCertificatePage({ params }: Props) {
-  const cert = await db.certificate.findUnique({
-    where: { uniqueId: params.certId },
-    include: {
-      user: { select: { name: true } },
-      course: { select: { title: true, accreditationText: true } },
-    },
-  });
+  const [cert, supportEmail] = await Promise.all([
+    db.certificate.findUnique({
+      where: { uniqueId: params.certId },
+      include: {
+        user: { select: { name: true } },
+        course: { select: { title: true, accreditationText: true } },
+      },
+    }),
+    getSetting("site.supportEmail", "info@musawo.ug"),
+  ]);
 
   // Log verification
   if (cert) {
@@ -43,7 +47,8 @@ export default async function VerifyCertificatePage({ params }: Props) {
             No certificate exists for ID: <code className="font-mono">{params.certId}</code>
           </p>
           <p className="text-gray-400 text-xs mt-2">
-            If you believe this is an error, contact training@musawo.ug
+            If you believe this is an error, contact{" "}
+            <a href={`mailto:${supportEmail}`} className="underline">{supportEmail}</a>
           </p>
         </div>
       </main>

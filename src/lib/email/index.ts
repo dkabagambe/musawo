@@ -35,7 +35,7 @@ function renderTemplate(
       <h2>Welcome to Musawo Training Center, {{name}}!</h2>
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
-      <p>If you have any questions, email us at training@musawo.ug.</p>
+      <p>If you have any questions, email us at info@musawo.ug.</p>
     `,
     "email-verification": `
       <h2>Verify your email address</h2>

@@ -1,5 +1,6 @@
 import PageHero from "@/components/public/PageHero";
 import Link from "next/link";
+import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
 
 const LAST_UPDATED = "1 October 2026";
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const contact = await getContactInfo();
   return (
     <div className="bg-surface">
       <PageHero
@@ -146,7 +148,7 @@ export default function TermsPage() {
                 Musawo Training Center — ADFA<br />
                 Plot 5, ADFA Building, Zone 8 Lungujja<br />
                 Kampala, Uganda<br />
-                <a href="mailto:info@musawo.ug" className="text-accent no-underline hover:underline">info@musawo.ug</a>
+                <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>
               </address>
             </TermsSection>
 

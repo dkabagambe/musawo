@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import AnimateIn from "@/components/public/AnimateIn";
 import CoursesClient from "./CoursesClient";
 import type { CourseItem } from "./CoursesClient";
+import { getContactInfo } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Courses",
@@ -54,15 +55,18 @@ const COMPARE = [
 ];
 
 export default async function CoursesPage() {
-  const dbCourses = await db.course.findMany({
-    where: { status: "PUBLISHED" },
-    include: {
-      tutor: { select: { name: true } },
-      _count: { select: { enrolments: true } },
-      blocks: { select: { _count: { select: { lessons: true } } } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  const [dbCourses, contact] = await Promise.all([
+    db.course.findMany({
+      where: { status: "PUBLISHED" },
+      include: {
+        tutor: { select: { name: true } },
+        _count: { select: { enrolments: true } },
+        blocks: { select: { _count: { select: { lessons: true } } } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    getContactInfo(),
+  ]);
 
   const courses: CourseItem[] = dbCourses.length > 0
     ? dbCourses.map((c) => ({
@@ -170,7 +174,7 @@ export default async function CoursesPage() {
           Chat with our admissions team on WhatsApp and we&apos;ll help you choose.
         </p>
         <Link
-          href="https://wa.me/256785423523"
+          href={contact.whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold px-7 py-3 rounded-xl no-underline transition-colors shadow-cta"

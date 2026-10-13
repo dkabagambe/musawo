@@ -6,6 +6,7 @@ import {
   CheckCircle, Clock, BookOpen, Users, Video, FileText, PenSquare,
   Lock, ArrowRight, Award, Smartphone, Banknote, Play,
 } from "lucide-react";
+import { getContactInfo } from "@/lib/contact";
 import PageHero from "@/components/public/PageHero";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
@@ -57,21 +58,24 @@ const HIGHLIGHTS = [
 ];
 
 export default async function CourseDetailPage({ params }: Props) {
-  const course = await db.course.findUnique({
-    where: { slug: params.slug, status: "PUBLISHED" },
-    include: {
-      tutor: { select: { name: true, avatarUrl: true } },
-      blocks: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
-            select: { id: true, title: true, type: true, isFree: true, isFreePreview: true, durationSec: true },
+  const [course, contact] = await Promise.all([
+    db.course.findUnique({
+      where: { slug: params.slug, status: "PUBLISHED" },
+      include: {
+        tutor: { select: { name: true, avatarUrl: true } },
+        blocks: {
+          orderBy: { order: "asc" },
+          include: {
+            lessons: {
+              orderBy: { order: "asc" },
+              select: { id: true, title: true, type: true, isFree: true, isFreePreview: true, durationSec: true },
+            },
           },
         },
       },
-    },
-  });
+    }),
+    getContactInfo(),
+  ]);
   if (!course) notFound();
 
   const totalLessons = course.blocks.reduce((s, b) => s + b.lessons.length, 0);
@@ -269,7 +273,7 @@ export default async function CourseDetailPage({ params }: Props) {
                 Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
               <a
-                href="https://wa.me/256785423523"
+                href={contact.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-semibold text-primary border border-border rounded-xl no-underline hover:border-accent/40 hover:text-accent transition-colors mb-5"
