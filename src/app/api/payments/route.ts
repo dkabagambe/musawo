@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Course not found" }, { status: 404 });
   }
 
-  // Check existing enrolment
   const existing = await db.enrolment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId: course.id } },
   });
@@ -37,7 +36,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Already enrolled" }, { status: 409 });
   }
 
-  // Apply discount code
   let discountId: string | undefined;
   let discountAmount = 0;
 
@@ -52,7 +50,7 @@ export async function POST(req: NextRequest) {
     } else if (discount.discountType === "FIXED_AMOUNT") {
       discountAmount = discount.discountValue ?? 0;
     } else if (discount.discountType === "SCHOLARSHIP") {
-      discountAmount = course.fullFeeUgx; // Full scholarship
+      discountAmount = course.fullFeeUgx;
     }
     if (discountId) {
       await db.discountCode.update({
@@ -66,7 +64,6 @@ export async function POST(req: NextRequest) {
   const user = await db.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  // Create or reuse enrolment
   const enrolment = existing
     ? await db.enrolment.update({
         where: { id: existing.id },
@@ -90,7 +87,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-  // For full scholarship (totalAmount = 0), activate immediately
   if (totalAmount === 0) {
     await db.enrolment.update({
       where: { id: enrolment.id },
@@ -99,27 +95,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ type: "scholarship", enrolmentId: enrolment.id });
   }
 
-  // Calculate instalment amount
   const instalmentCount = body.planType === "INSTALMENT" ? course.instalmentCount : 1;
   const firstAmount =
     body.planType === "INSTALMENT"
       ? Math.ceil(totalAmount / instalmentCount)
       : totalAmount;
 
-  // Create payment record
   const merchantRef = `MTC-${Date.now()}-${enrolment.id.slice(-6)}`;
+  const gateway = await getActiveGateway();
+
   const payment = await db.payment.create({
     data: {
       enrolmentId: enrolment.id,
       amount: firstAmount,
       method: "MTN_MOMO",
-      gateway: (await getActiveGateway()) === "pesapal" ? "PESAPAL" : "FLUTTERWAVE",
+      gateway: gateway === "pesapal" ? "PESAPAL" : gateway === "flutterwave" ? "FLUTTERWAVE" : "MANUAL",
       gatewayOrderId: merchantRef,
       status: "PENDING",
     },
   });
 
-  // Create instalment records if applicable
   if (body.planType === "INSTALMENT") {
     const blocks = await db.block.findMany({
       where: { courseId: course.id },
@@ -130,21 +125,36 @@ export async function POST(req: NextRequest) {
         data: {
           enrolmentId: enrolment.id,
           number: i + 1,
-          amount: i === instalmentCount - 1
-            ? totalAmount - firstAmount * (instalmentCount - 1)
-            : firstAmount,
+          amount:
+            i === instalmentCount - 1
+              ? totalAmount - firstAmount * (instalmentCount - 1)
+              : firstAmount,
           unlocksBlockId: blocks[i]?.id ?? null,
         },
       });
     }
   }
 
+  await audit({
+    actorId: session.user.id,
+    action: "PAYMENT_INITIATED",
+    entityType: "Payment",
+    entityId: payment.id,
+    metadata: { courseId: course.id, amount: firstAmount, gateway },
+    ip: req.headers.get("x-forwarded-for") ?? undefined,
+  });
+
+  // ── DEMO MODE: skip real gateway, return a demo-confirm URL ────
+  if (gateway === "demo" || process.env.DEMO_MODE === "true") {
+    const demoUrl = `${process.env.NEXTAUTH_URL}/api/payments/demo-confirm?paymentId=${payment.id}&enrolmentId=${enrolment.id}&ref=${merchantRef}`;
+    return NextResponse.json({ type: "redirect", redirectUrl: demoUrl });
+  }
+
   const callbackUrl = `${process.env.NEXTAUTH_URL}/api/webhooks/pesapal`;
   const redirectUrl = `${process.env.NEXTAUTH_URL}/dashboard/payments?ref=${merchantRef}`;
-  const nameParts = user.name.split(" ");
+  const nameParts   = user.name.split(" ");
 
   let redirectPaymentUrl: string;
-  const gateway = await getActiveGateway();
 
   if (gateway === "pesapal") {
     const result = await initiateOrder({
@@ -156,15 +166,15 @@ export async function POST(req: NextRequest) {
       notificationId: process.env.PESAPAL_IPN_ID ?? "",
       billingAddress: {
         firstName: nameParts[0],
-        lastName: nameParts.slice(1).join(" ") || nameParts[0],
+        lastName:  nameParts.slice(1).join(" ") || nameParts[0],
         emailAddress: user.email ?? undefined,
-        phoneNumber: user.phone ?? undefined,
+        phoneNumber:  user.phone ?? undefined,
       },
     });
     redirectPaymentUrl = result.redirectUrl;
     await db.payment.update({
       where: { id: payment.id },
-      data: { gatewayRef: result.orderTrackingId },
+      data:  { gatewayRef: result.orderTrackingId },
     });
   } else {
     const result = await initiateFlutterwave({
@@ -176,22 +186,13 @@ export async function POST(req: NextRequest) {
       redirectUrl,
       customer: {
         firstName: nameParts[0],
-        lastName: nameParts.slice(1).join(" ") || nameParts[0],
-        email: user.email ?? undefined,
-        phone: user.phone ?? undefined,
+        lastName:  nameParts.slice(1).join(" ") || nameParts[0],
+        email:  user.email ?? undefined,
+        phone:  user.phone ?? undefined,
       },
     });
     redirectPaymentUrl = result.redirectUrl;
   }
-
-  await audit({
-    actorId: session.user.id,
-    action: "PAYMENT_INITIATED",
-    entityType: "Payment",
-    entityId: payment.id,
-    metadata: { courseId: course.id, amount: firstAmount, gateway },
-    ip: req.headers.get("x-forwarded-for") ?? undefined,
-  });
 
   return NextResponse.json({ type: "redirect", redirectUrl: redirectPaymentUrl });
 }

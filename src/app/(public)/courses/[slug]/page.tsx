@@ -84,8 +84,14 @@ export default async function CourseDetailPage({ params }: Props) {
     .filter((l) => l.isFree || l.isFreePreview)
     .slice(0, 4);
 
-  // Seats remaining: placeholder — replace with real DB count when intake model is added
-  const seatsRemaining = 12;
+  // Real seat count from open intakes
+  const openIntake = await db.intake.findFirst({
+    where: { courseId: course.id, isOpen: true },
+    select: { seats: true, _count: { select: { enrolments: true } } },
+  });
+  const seatsRemaining = openIntake
+    ? Math.max(0, openIntake.seats - openIntake._count.enrolments)
+    : null;
 
   return (
     <div className="min-h-screen bg-surface">
@@ -251,7 +257,7 @@ export default async function CourseDetailPage({ params }: Props) {
                   or {course.instalmentCount} instalments of <strong>UGX {instalment.toLocaleString()}</strong>
                 </p>
               )}
-              {seatsRemaining <= 15 && (
+              {seatsRemaining !== null && seatsRemaining <= 15 && (
                 <p className="text-xs text-danger font-semibold mb-4 bg-danger/10 px-3 py-1.5 rounded-xl">
                   Only {seatsRemaining} seats remaining
                 </p>

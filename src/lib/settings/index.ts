@@ -44,9 +44,11 @@ export async function getFreePreviewPercent(): Promise<number> {
   return parseInt(v, 10);
 }
 
-export async function getActiveGateway(): Promise<"pesapal" | "flutterwave"> {
+export async function getActiveGateway(): Promise<"pesapal" | "flutterwave" | "demo"> {
   const v = await getSetting("payment.gateway", "pesapal");
-  return v === "flutterwave" ? "flutterwave" : "pesapal";
+  if (v === "flutterwave") return "flutterwave";
+  if (v === "demo")        return "demo";
+  return "pesapal";
 }
 
 export async function getTabSwitchThreshold(): Promise<number> {

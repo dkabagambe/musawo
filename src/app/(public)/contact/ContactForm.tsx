@@ -19,9 +19,23 @@ export default function ContactForm() {
     }
     setStatus('loading');
     setErrorMsg('');
-    // Placeholder — wire to a real API route or Resend when ready
-    await new Promise((r) => setTimeout(r, 700));
-    setStatus('sent');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email || `noreply+${Date.now()}@musawotraining.ug`,
+          subject: form.subject || 'Enquiry',
+          message: form.message,
+        }),
+      });
+      if (!res.ok) { setStatus('error'); setErrorMsg('Failed to send. Please try WhatsApp instead.'); return; }
+      setStatus('sent');
+    } catch {
+      setStatus('error');
+      setErrorMsg('Something went wrong. Please try WhatsApp instead.');
+    }
   }
 
   if (status === 'sent') {

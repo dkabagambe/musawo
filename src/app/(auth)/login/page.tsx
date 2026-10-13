@@ -14,8 +14,6 @@ import { getPostLoginPath } from "@/lib/auth/redirect";
 type Step = "credentials" | "totp";
 type Mode = "email" | "phone";
 
-export const metadata = { title: "Sign in — Musawo Training Center" };
-
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
