@@ -50,6 +50,7 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
 
   const accessInfo = enrolment ? {
     status: enrolment.status,
+    paidPercent: enrolment.paidPercent,
     unlockedBlockOrder: enrolment.unlockedBlockOrder,
     provisionalUntil: enrolment.provisionalUntil,
     graceUntil: enrolment.graceUntil,

@@ -40,6 +40,7 @@ export default async function EnrolledPage({ params }: { params: { id: string } 
 
   const level = getAccessLevel({
     status: enrolment.status,
+    paidPercent: enrolment.paidPercent,
     unlockedBlockOrder: enrolment.unlockedBlockOrder,
     provisionalUntil: enrolment.provisionalUntil,
     graceUntil: enrolment.graceUntil,

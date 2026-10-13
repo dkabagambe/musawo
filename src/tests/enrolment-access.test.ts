@@ -26,7 +26,19 @@ function enrolment(
   unlockedBlockOrder = 0,
   opts: Partial<EnrolmentAccessInfo> = {}
 ): EnrolmentAccessInfo {
-  return { status, unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null, ...opts };
+  // Derive paidPercent from status or unlockedBlockOrder if not explicitly supplied
+  const defaultPct = (): number => {
+    if (opts.paidPercent !== undefined) return opts.paidPercent;
+    // Fully-paid statuses always get 100%
+    if (status === "ACTIVE" || status === "COMPLETED" || status === "SPONSORED") return 100;
+    // Map unlockedBlockOrder → pct for instalment-plan states
+    if (unlockedBlockOrder >= 9999) return 100;
+    if (unlockedBlockOrder >= 3)    return 75;
+    if (unlockedBlockOrder >= 2)    return 50;
+    if (unlockedBlockOrder >= 1)    return 25;
+    return 0;
+  };
+  return { status, paidPercent: defaultPct(), unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null, ...opts };
 }
 
 const freelesson      = { isFree: true,  isFreePreview: false };

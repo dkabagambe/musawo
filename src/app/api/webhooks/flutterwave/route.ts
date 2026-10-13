@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyWebhookSignature, getTransactionStatus } from "@/lib/payments/flutterwave";
 import { processConfirmedPayment } from "@/lib/payments";
 import { db } from "@/lib/db";
+import { redis } from "@/lib/db/redis";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -28,6 +29,18 @@ export async function POST(req: NextRequest) {
   if (!payment) {
     console.warn(`Flutterwave webhook: payment not found for ${txRef}`);
     return NextResponse.json({ status: "not_found" });
+  }
+
+  // Early return if already completed
+  if (payment.status === "COMPLETED") {
+    return NextResponse.json({ status: "ok" });
+  }
+
+  // Redis idempotency lock — 30 s TTL
+  const lockKey = `webhook:lock:${payment.id}`;
+  const acquired = await redis.set(lockKey, "1", "EX", 30, "NX");
+  if (!acquired) {
+    return NextResponse.json({ status: "processing" });
   }
 
   // Verify with Flutterwave

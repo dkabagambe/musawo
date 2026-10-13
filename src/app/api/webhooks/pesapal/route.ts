@@ -3,6 +3,7 @@ import { getTransactionStatus } from "@/lib/payments/pesapal";
 import { processConfirmedPayment } from "@/lib/payments";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
+import { redis } from "@/lib/db/redis";
 
 /**
  * Pesapal IPN (Instant Payment Notification) webhook handler.
@@ -44,6 +45,23 @@ export async function POST(req: NextRequest) {
     console.warn(`Pesapal webhook: payment not found for ${merchantRef}`);
     // Return 200 to prevent Pesapal retries on unknown orders
     return NextResponse.json({ orderNotificationType: "IPNCHANGE", orderTrackingId });
+  }
+
+  // Early return if already completed
+  if (payment.status === "COMPLETED") {
+    return NextResponse.json({
+      orderNotificationType: "IPNCHANGE",
+      orderTrackingId,
+      orderMerchantReference: merchantRef,
+      status: 200,
+    });
+  }
+
+  // Redis idempotency lock — 30 s TTL
+  const lockKey = `webhook:lock:${payment.id}`;
+  const acquired = await redis.set(lockKey, "1", "EX", 30, "NX");
+  if (!acquired) {
+    return NextResponse.json({ status: "processing" });
   }
 
   // Query Pesapal to confirm (never trust the webhook alone)

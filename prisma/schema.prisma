@@ -152,6 +152,26 @@ enum AuditAction {
   TOTP_ENABLED
   TOTP_DISABLED
   ACCESS_REVIEW_COMPLETED
+  PAYMENT_CLAIM_SUBMITTED
+  PAYMENT_CLAIM_VERIFIED
+  PAYMENT_CLAIM_REJECTED
+  PAYMENT_REVERSED
+  STATEMENT_IMPORTED
+  RECONCILIATION_ALERT
+}
+
+enum ClaimStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+enum ManualPaymentMethod {
+  BANK_TRANSFER
+  MOBILE_MONEY_MTN
+  MOBILE_MONEY_AIRTEL
+  CASH
 }
 
 enum ApprovalRequestType {
@@ -253,6 +273,13 @@ model User {
   // Staff invites created by this user
   staffInvitesSent  StaffInvite[]
 
+  // Manual payment claims
+  fraudStrikes      Int                    @default(0)
+  claimsSubmitted   ManualPaymentClaim[]   @relation("ClaimantClaims")
+  claimsReviewed    ManualPaymentClaim[]   @relation("ClaimReviewer")
+  claimsVerified    ManualPaymentClaim[]   @relation("ClaimVerifier")
+  statementImports  StatementImport[]
+
   @@map("users")
 }
 
@@ -328,6 +355,7 @@ model Course {
   durationWeeks      Int?
   accreditationText  String?
   tutorId            String
+  accessThresholds   Json?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
@@ -473,6 +501,7 @@ model Enrolment {
   discountCodeId  String?
   discountAmountUgx Int           @default(0)
   unlockedBlockOrder Int          @default(0) // highest block order unlocked
+  paidPercent     Int             @default(0) // 0-100
   // Overdue / grace period
   overdueSince    DateTime?       // when the missed instalment became overdue
   graceUntil      DateTime?       // overdue access window ends here
@@ -489,6 +518,7 @@ model Enrolment {
   payments     Payment[]
   instalments  Instalment[]
   ledger       LedgerEntry[]
+  claims       ManualPaymentClaim[]
 
   @@unique([userId, courseId])
   @@map("enrolments")
@@ -536,11 +566,19 @@ model Payment {
   refundedAt       DateTime?
   refundedBy       String?
   notes            String?        // admin internal notes
+  // Manual claim fields
+  claimId          String?        @unique
+  receiptNumber    String?        @unique
+  reversedAt       DateTime?
+  reversedBy       String?
+  reversalReason   String?
+  fraudStrike      Boolean        @default(false)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
   enrolment  Enrolment    @relation(fields: [enrolmentId], references: [id])
   instalment Instalment?
+  claim      ManualPaymentClaim? @relation(fields: [claimId], references: [id])
 
   @@map("payments")
 }
@@ -565,14 +603,17 @@ model Instalment {
 }
 
 model LedgerEntry {
-  id           String          @id @default(cuid())
-  enrolmentId  String
-  type         LedgerEntryType
-  amount       Int
-  balanceAfter Int
-  description  String
-  paymentId    String?
-  createdAt    DateTime        @default(now())
+  id                String          @id @default(cuid())
+  enrolmentId       String
+  type              LedgerEntryType
+  amount            Int
+  balanceAfter      Int
+  description       String
+  paymentId         String?
+  receiptNumber     String?
+  reversedAt        DateTime?
+  reversedByEntryId String?
+  createdAt         DateTime        @default(now())
 
   enrolment Enrolment @relation(fields: [enrolmentId], references: [id])
 
@@ -1015,6 +1056,8 @@ model AuditLog {
   entityType String?
   entityId   String?
   metadata   Json?
+  before     Json?
+  after      Json?
   ip         String?
   userAgent  String?
   createdAt  DateTime    @default(now())
@@ -1117,4 +1160,85 @@ model StaffInvite {
   createdBy User @relation(fields: [createdById], references: [id])
 
   @@map("staff_invites")
+}
+
+// ─────────────────────────────────────────────
+// MANUAL PAYMENT CLAIMS
+// ─────────────────────────────────────────────
+
+model ManualPaymentClaim {
+  id                 String              @id @default(cuid())
+  enrolmentId        String
+  claimantId         String
+  method             ManualPaymentMethod
+  transactionId      String              @unique
+  amount             Int
+  payerName          String
+  payerPhone         String
+  bankOrProvider     String
+  claimedAt          DateTime
+  status             ClaimStatus         @default(SUBMITTED)
+  receiptS3Key       String?
+  receiptSha256      String?
+  receiptPHash       String?
+  receiptExifFlags   Json?
+  duplicateImageFlag Boolean             @default(false)
+  reviewedById       String?
+  reviewedAt         DateTime?
+  rejectionReason    String?             @db.Text
+  verifiedById       String?
+  verifiedAt         DateTime?
+  statementLineId    String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  enrolment     Enrolment       @relation(fields: [enrolmentId], references: [id])
+  claimant      User            @relation("ClaimantClaims", fields: [claimantId], references: [id])
+  reviewer      User?           @relation("ClaimReviewer", fields: [reviewedById], references: [id])
+  verifier      User?           @relation("ClaimVerifier", fields: [verifiedById], references: [id])
+  statementLine StatementLine?  @relation(fields: [statementLineId], references: [id])
+  payment       Payment?
+
+  @@map("manual_payment_claims")
+}
+
+// ─────────────────────────────────────────────
+// BANK STATEMENT IMPORTS
+// ─────────────────────────────────────────────
+
+model StatementImport {
+  id             String          @id @default(cuid())
+  uploadedById   String
+  filename       String
+  bank           String
+  periodStart    DateTime
+  periodEnd      DateTime
+  lineCount      Int
+  matchedCount   Int             @default(0)
+  unmatchedCount Int             @default(0)
+  unclaimedCount Int             @default(0)
+  s3Key          String
+  createdAt      DateTime        @default(now())
+
+  uploadedBy User            @relation(fields: [uploadedById], references: [id])
+  lines      StatementLine[]
+
+  @@map("statement_imports")
+}
+
+model StatementLine {
+  id          String   @id @default(cuid())
+  importId    String
+  lineNumber  Int
+  txDate      DateTime
+  reference   String
+  description String?
+  amount      Int
+  matchStatus String   @default("UNMATCHED")
+  createdAt   DateTime @default(now())
+
+  import  StatementImport        @relation(fields: [importId], references: [id], onDelete: Cascade)
+  claims  ManualPaymentClaim[]
+
+  @@map("statement_lines")
 }

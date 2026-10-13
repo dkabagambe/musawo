@@ -2,7 +2,33 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
 import { sendSms } from "@/lib/sms";
+import { getSetting } from "@/lib/settings";
 import type { Enrolment, User, Course } from "@prisma/client";
+
+// ─── helpers ───────────────────────────────────────────────────────────────
+
+function pctToUnlockedBlockOrder(pct: number): number {
+  if (pct >= 100) return 9999;
+  if (pct >= 75)  return 3;
+  if (pct >= 50)  return 2;
+  if (pct >= 25)  return 1;
+  return 0;
+}
+
+/**
+ * Generate a sequential MTC receipt number for the current year.
+ * Format: MTC-RCT-YYYY00001
+ */
+async function generateReceiptNumber(): Promise<string> {
+  const year = new Date().getFullYear().toString();
+  const prefix = `MTC-RCT-${year}`;
+  const count = await db.ledgerEntry.count({
+    where: {
+      receiptNumber: { startsWith: prefix },
+    },
+  });
+  return `${prefix}${String(count + 1).padStart(5, "0")}`;
+}
 
 /**
  * Called after a payment webhook confirms a successful payment.
@@ -51,8 +77,13 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
     data: { status: "COMPLETED", paidAt: new Date() },
   });
 
-  // 2. Update ledger
+  // 2. Compute new paid amount and paidPercent
   const newPaid = enrolment.paidAmountUgx + payment.amount;
+  const paidPercent = Math.min(100, Math.floor((newPaid / enrolment.totalAmountUgx) * 100));
+  const newUnlockedBlockOrder = pctToUnlockedBlockOrder(paidPercent);
+
+  // 3. Generate receipt number and update ledger
+  const receiptNumber = await generateReceiptNumber();
   await db.ledgerEntry.create({
     data: {
       enrolmentId: enrolment.id,
@@ -61,39 +92,25 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       balanceAfter: enrolment.totalAmountUgx - newPaid,
       description: `Payment via ${payment.gateway} — ref ${payment.gatewayRef ?? payment.id}`,
       paymentId: payment.id,
+      receiptNumber,
     },
   });
 
-  await db.enrolment.update({
-    where: { id: enrolment.id },
-    data: { paidAmountUgx: newPaid },
-  });
-
-  // 3. Instalment: mark paid, unlock block
+  // 4. Instalment: mark paid, unlock block
   const unpaidInstalment = instalments.find((i) => i.paidAt === null);
-  let newUnlockedBlockOrder = enrolment.unlockedBlockOrder;
 
   if (unpaidInstalment) {
     await db.instalment.update({
       where: { id: unpaidInstalment.id },
       data: { paidAt: new Date(), paymentId: payment.id },
     });
-
-    if (unpaidInstalment.unlocksBlockId) {
-      const block = await db.block.findUnique({ where: { id: unpaidInstalment.unlocksBlockId } });
-      if (block) {
-        newUnlockedBlockOrder = Math.max(enrolment.unlockedBlockOrder, block.order);
-        await db.enrolment.update({
-          where: { id: enrolment.id },
-          data: { unlockedBlockOrder: newUnlockedBlockOrder },
-        });
-      }
-    }
   }
 
-  // 4. Determine new enrolment status
-  const fullyPaid = newPaid >= enrolment.totalAmountUgx;
-  const remainingInstalments = instalments.filter((i) => i.id !== unpaidInstalment?.id && i.paidAt === null);
+  // 5. Determine new enrolment status using paidPercent
+  const fullyPaid = paidPercent >= 100;
+  const remainingInstalments = instalments.filter(
+    (i) => i.id !== unpaidInstalment?.id && i.paidAt === null
+  );
 
   let newStatus: string;
   if (fullyPaid) {
@@ -102,30 +119,36 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       where: { id: enrolment.id },
       data: {
         status: "ACTIVE",
+        paidAmountUgx: newPaid,
+        paidPercent: 100,
         unlockedBlockOrder: 9999,
         overdueSince: null,
         graceUntil: null,
         provisionalUntil: null,
       },
     });
-  } else if (enrolment.status === "PENDING_PAYMENT" || enrolment.status === "OVERDUE") {
-    // First instalment or catch-up — move to PARTIALLY_PAID
+  } else if (paidPercent >= 25) {
     newStatus = remainingInstalments.length > 0 ? "PARTIALLY_PAID" : "ACTIVE";
     await db.enrolment.update({
       where: { id: enrolment.id },
       data: {
         status: newStatus as never,
+        paidAmountUgx: newPaid,
+        paidPercent,
         unlockedBlockOrder: newUnlockedBlockOrder,
         overdueSince: null,
         graceUntil: null,
       },
     });
   } else {
-    // Already PARTIALLY_PAID, another instalment came in
-    newStatus = "PARTIALLY_PAID";
+    newStatus = enrolment.status;
     await db.enrolment.update({
       where: { id: enrolment.id },
-      data: { status: "PARTIALLY_PAID", unlockedBlockOrder: newUnlockedBlockOrder },
+      data: {
+        paidAmountUgx: newPaid,
+        paidPercent,
+        unlockedBlockOrder: newUnlockedBlockOrder,
+      },
     });
   }
 
@@ -139,11 +162,12 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       gateway: payment.gateway,
       course: course.title,
       newStatus,
+      paidPercent,
       unlockedBlockOrder: newUnlockedBlockOrder,
     },
   });
 
-  // 5. Notifications
+  // 6. Notifications
   if (user.email) {
     await sendEmail({
       to: user.email,
@@ -166,6 +190,116 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       message: `MTC: Payment of UGX ${payment.amount.toLocaleString()} received for ${course.title}. Ref: ${payment.gatewayRef ?? payment.id}. Log in to start learning: ${process.env.NEXTAUTH_URL}/dashboard`,
     });
   }
+}
+
+/**
+ * Reverse a verified/completed payment (fraud reversal).
+ * Recomputes paidPercent from remaining COMPLETED non-reversed payments.
+ */
+export async function reverseVerifiedPayment(
+  paymentId: string,
+  reversedById: string,
+  reason: string
+): Promise<void> {
+  const payment = await db.payment.findUnique({
+    where: { id: paymentId },
+    include: { enrolment: true },
+  });
+
+  if (!payment) throw new Error(`Payment ${paymentId} not found`);
+  if (payment.status !== "COMPLETED") {
+    throw new Error(`Payment ${paymentId} is not COMPLETED (status: ${payment.status})`);
+  }
+
+  const { enrolment } = payment;
+  const oldStatus = enrolment.status;
+  const oldPct = enrolment.paidPercent;
+
+  // Mark payment reversed
+  await db.payment.update({
+    where: { id: paymentId },
+    data: {
+      reversedAt: new Date(),
+      reversedBy: reversedById,
+      reversalReason: reason,
+      fraudStrike: true,
+      status: "REFUNDED",
+    },
+  });
+
+  // Create negative REFUND ledger entry
+  const newBalance = enrolment.paidAmountUgx - payment.amount;
+  await db.ledgerEntry.create({
+    data: {
+      enrolmentId: enrolment.id,
+      type: "REFUND",
+      amount: -payment.amount,
+      balanceAfter: enrolment.totalAmountUgx - newBalance,
+      description: `Reversal of payment ${paymentId} — ${reason}`,
+      paymentId: payment.id,
+      reversedAt: new Date(),
+    },
+  });
+
+  // Recompute paidPercent from remaining COMPLETED non-reversed payments
+  const remaining = await db.payment.findMany({
+    where: {
+      enrolmentId: enrolment.id,
+      status: "COMPLETED",
+      reversedAt: null,
+    },
+  });
+  const newPaidAmount = remaining.reduce((sum, p) => sum + p.amount, 0);
+  const newPct = enrolment.totalAmountUgx > 0
+    ? Math.min(100, Math.floor((newPaidAmount / enrolment.totalAmountUgx) * 100))
+    : 0;
+  const newUnlockedBlockOrder = pctToUnlockedBlockOrder(newPct);
+
+  // Determine new status
+  let newStatus: string;
+  if (newPct >= 100) {
+    newStatus = "ACTIVE";
+  } else if (newPct >= 25) {
+    newStatus = "PARTIALLY_PAID";
+  } else {
+    newStatus = "PENDING_PAYMENT";
+  }
+
+  // Check fraud strike threshold
+  const fraudThreshold = parseInt(
+    await getSetting("payment.fraudStrikeThreshold", "2"),
+    10
+  );
+
+  // Increment fraudStrikes on user
+  const updatedUser = await db.user.update({
+    where: { id: enrolment.userId },
+    data: { fraudStrikes: { increment: 1 } },
+  });
+
+  if (updatedUser.fraudStrikes >= fraudThreshold) {
+    newStatus = "SUSPENDED";
+  }
+
+  await db.enrolment.update({
+    where: { id: enrolment.id },
+    data: {
+      paidAmountUgx: newPaidAmount,
+      paidPercent: newPct,
+      unlockedBlockOrder: newUnlockedBlockOrder,
+      status: newStatus as never,
+    },
+  });
+
+  await audit({
+    actorId: reversedById,
+    action: "PAYMENT_REVERSED",
+    entityType: "Payment",
+    entityId: paymentId,
+    metadata: { reason },
+    before: { status: oldStatus, paidPercent: oldPct },
+    after: { status: newStatus, paidPercent: newPct },
+  });
 }
 
 export async function applyDiscountCode(

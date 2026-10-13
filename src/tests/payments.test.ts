@@ -13,7 +13,7 @@ vi.mock("@/lib/db", () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
-    ledgerEntry: { create: vi.fn() },
+    ledgerEntry: { create: vi.fn(), count: vi.fn().mockResolvedValue(0) },
     enrolment: { update: vi.fn() },
     instalment: {
       update: vi.fn(),
@@ -29,6 +29,10 @@ vi.mock("@/lib/email", () => ({
 
 vi.mock("@/lib/sms", () => ({
   sendSms: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/settings", () => ({
+  getSetting: vi.fn().mockResolvedValue("2"),
 }));
 
 import { db } from "@/lib/db";
@@ -51,6 +55,12 @@ const mockPayment = {
   failureReason: null,
   refundedAt: null,
   refundedBy: null,
+  claimId: null,
+  receiptNumber: null,
+  reversedAt: null,
+  reversedBy: null,
+  reversalReason: null,
+  fraudStrike: false,
   createdAt: new Date(),
   updatedAt: new Date(),
   enrolment: {
@@ -62,9 +72,13 @@ const mockPayment = {
     planType: "INSTALMENT",
     totalAmountUgx: 850000,
     paidAmountUgx: 0,
+    paidPercent: 0,
     discountCodeId: null,
     discountAmountUgx: 0,
     unlockedBlockOrder: 0,
+    overdueSince: null,
+    graceUntil: null,
+    provisionalUntil: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     user: { id: "user-1", name: "Sarah Auma", email: "sarah@test.com", phone: "+256701234567" },
@@ -145,6 +159,7 @@ describe("processConfirmedPayment", () => {
         planType: "FULL",
         totalAmountUgx: 850000,
         paidAmountUgx: 0,
+        paidPercent: 0,
         instalments: [],
       },
     };

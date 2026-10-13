@@ -46,7 +46,7 @@ export default async function DashboardPage() {
   ]);
 
   const activeEnrolments = enrolments.filter((e) => {
-    const level = getAccessLevel({ status: e.status, unlockedBlockOrder: e.unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null });
+    const level = getAccessLevel({ status: e.status, paidPercent: e.paidPercent, unlockedBlockOrder: e.unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null });
     return level !== "NONE" && level !== "PENDING";
   });
   const pendingEnrolments = enrolments.filter((e) => e.status === "PENDING_PAYMENT");
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       db.examAttempt.count({ where: { userId: session.user.id, passed: true, exam: { courseId: firstActive.courseId } } }),
       db.certificate.count({ where: { userId: session.user.id, courseId: firstActive.courseId, revokedAt: null } }),
     ]);
-    const accessInfo = { status: firstActive.status, unlockedBlockOrder: firstActive.unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null };
+    const accessInfo = { status: firstActive.status, paidPercent: firstActive.paidPercent, unlockedBlockOrder: firstActive.unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null };
     stepperState = getStepperState(accessInfo, completedLessons > 0, passedExam > 0, cert > 0);
   }
 

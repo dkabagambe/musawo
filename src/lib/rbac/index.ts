@@ -111,7 +111,14 @@ export type Permission =
   | "reports.academic"
 
   // Partner pages
-  | "partner_pages.edit";
+  | "partner_pages.edit"
+
+  // Manual payment claims / reconciliation
+  | "claims.submit"
+  | "claims.review"
+  | "claims.second_verify"
+  | "statements.import"
+  | "reconciliation.view";
 
 // ─── Role → permission map (exhaustive, default-deny) ─────────────────────
 
@@ -140,6 +147,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "approvals.view", "approvals.decide",
     "reports.view", "reports.financial", "reports.academic",
     "partner_pages.edit",
+    "claims.submit", "claims.review", "claims.second_verify",
+    "statements.import", "reconciliation.view",
   ],
 
   SYSTEM_IT: [
@@ -179,6 +188,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "scholarships.initiate",
     "audit.view",
     "reports.view", "reports.financial",
+    "claims.review", "claims.second_verify",
+    "statements.import", "reconciliation.view",
     // Explicitly DENIED: grades.edit, courses.edit, certificates.revoke
   ],
 
@@ -213,6 +224,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "certificates.view",
     "enrolments.view",
     "payments.initiate",
+    "claims.submit",
   ],
 
   SPONSOR: ["reports.view", "students.view"],
