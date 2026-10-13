@@ -6,11 +6,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     <>
       <PublicHeader />
       {/*
-        pt-0 — homepage hero uses -mt-16 for full bleed.
-        pb-20 — ensures the WhatsApp FAB (bottom-4 = 16px, 52px tall) never
-                 covers the last line of content on short pages.
+        pt-16 offsets the fixed header (h-16 = 64px) so no content is
+        hidden behind it. The homepage hero section sits in normal flow
+        below the header and manages its own internal spacing.
+        pb-20 ensures the WhatsApp FAB never covers the last line of
+        content on short pages.
       */}
-      <main id="main" className="pb-20">
+      <main id="main" className="pt-16 pb-20">
         {children}
       </main>
       <PublicFooter />

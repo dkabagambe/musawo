@@ -56,7 +56,7 @@ export default function PageHero({
   if (!image) {
     return (
       <section
-        className="bg-primary-dark pt-16 flex items-center"
+        className="bg-primary-dark flex items-center"
         style={{ minHeight: "clamp(160px, 22vh, 260px)" }}
         aria-label={`${title} page banner`}
       >
@@ -79,7 +79,7 @@ export default function PageHero({
 
   return (
     <section
-      className="relative overflow-hidden pt-16"
+      className="relative overflow-hidden"
       style={{ minHeight: "clamp(320px, 44vh, 480px)" }}
       aria-label={`${title} page hero`}
     >

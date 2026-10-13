@@ -123,30 +123,47 @@ export default async function HomePage() {
 
       {/* ══════════════════════════════════════════════════════════
           HERO
-          Desktop: full-bleed photo, min 720px / ~85vh, capped 860px.
-          Header is 64px tall. Box must clear header by 80px (top) and
-          clear the facts strip by 64px (bottom). Box is vertically
-          centred in the space between those two constraints.
-          Mobile: photo 4:3 on top, box below overlapping 24px.
+          Desktop layout (sm+):
+          - Section starts directly below the fixed header (no negative
+            margin). The header is h-16 (64px) and position:fixed, so
+            the section fills from y=64px downward.
+          - min-height = max(calc(100vh - 64px), 760px), max 900px, so
+            the visible hero is always at least 760px and never more than
+            900px, growing with content if needed.
+          - The photo fills the whole section (absolute inset-0) and uses
+            object-position "right 15%" to keep the subject's head clear
+            of the left-side box while showing as little of the blurred
+            background person on the left as possible.
+          - Content wrapper: flex + items-center centres the box in the
+            remaining height. pt-16 pb-24 (64px top, 96px bottom) gives
+            at least 64px breathing room above and below the box.
 
-          Photo: hero-training.jpg (1200×800).
-          Face + stethoscope = right-centre of the image, starts at y≈0.
-          Since the section uses -mt-16 the section top is 64px above
-          viewport top (i.e. behind the header). With object-position
-          "right 18%" the face sits roughly 80px below the header on
-          a 720–860px hero, keeping it clear of the header bar.
-          Box is on the LEFT so the face (right side) is fully visible.
+          Mobile layout (< sm):
+          - 4:3 photo sits at the top in normal flow.
+          - Teal box sits below with mx-4 px-7 py-8 padding, 24px
+            top margin for separation from the photo.
       ══════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden -mt-16"
-        style={{ minHeight: "clamp(720px, 85vh, 860px)" }}
+        className="relative overflow-hidden"
         aria-label="Hero"
       >
-        {/* ── Full-brightness photo, slow zoom ── */}
+        {/* ── Desktop height spacer ──
+             Both the photo and content wrapper are absolute, so the
+             section would otherwise collapse on desktop. This invisible
+             block lives in flow on sm+ and gives the section its height.
+             Mobile: hidden — height comes from the photo + box in flow.
+        ── */}
         <div
-          className="absolute inset-0 will-change-transform"
+          className="hidden sm:block w-full"
+          style={{ minHeight: "clamp(760px, calc(100vh - 64px), 900px)" }}
+          aria-hidden="true"
+        />
+        {/* ── Full-brightness background photo (desktop only) ── */}
+        <div
+          className="hidden sm:block absolute inset-0 will-change-transform"
           style={{ animation: "heroZoom 14s ease-out forwards" }}
           suppressHydrationWarning
+          aria-hidden="true"
         >
           <Image
             src="/assets/images/hero-training.jpg"
@@ -157,61 +174,56 @@ export default async function HomePage() {
             sizes="100vw"
             className="object-cover"
             /*
-             * object-position right 18%:
-             *   - "right" keeps the face (at x≈700–1000px) visible on the right side
-             *   - "18%" pushes the top of the image down by 18% of the container
-             *     ≈ 130–155px inside an 860px container. Since the section starts
-             *     64px above the viewport (–mt-16), the face top appears at
-             *     ~(130–64) = 66px below the header — well within the 80px gap.
+             * object-position:
+             *   "right 15%" — "right" anchors the right side of the image
+             *   so the woman with the stethoscope (right half of the photo)
+             *   stays fully in frame. "15%" offsets the vertical anchor point
+             *   so the very top of her head clears the header, while keeping
+             *   the blurred second person mostly off the left edge.
              */
-            style={{ objectPosition: "right 18%" }}
-            aria-hidden="true"
+            style={{ objectPosition: "right 15%" }}
           />
         </div>
 
-        {/* ── Content box: left column, vertically centred ──
-             The outer wrapper is a flex column that:
-             – pads the top by header-height (64px) + desired gap (80px) = 144px
-             – pads the bottom by facts-strip overlap + desired gap (64px) = ~96px
-             – uses flex items-center inside that remaining space.
-             Mobile: relative flow, photo is a 4:3 aspect box above this section.
+        {/* ── Mobile photo (natural flow, 4:3) ── */}
+        <div className="sm:hidden w-full aspect-[4/3] relative overflow-hidden">
+          <Image
+            src="/assets/images/hero-training.jpg"
+            alt="Nursing care assistant in a clinical setting"
+            fill
+            priority
+            quality={85}
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "right 15%" }}
+          />
+        </div>
+
+        {/* ── Desktop content wrapper ──
+             Uses min-height on this element (not the section) so the section
+             grows naturally on mobile while the desktop area is always tall
+             enough. flex + items-center vertically centres the box.
+             pt-16 = 64px gap below header, pb-24 = 96px gap above facts strip.
         ── */}
         <div
           className={[
-            /* mobile: sits below the photo in normal flow */
-            "relative",
-            /* sm+: fill the hero, flex-col so padding controls the safe zone */
+            "hidden sm:flex sm:flex-col sm:items-start sm:justify-center",
             "sm:absolute sm:inset-0",
-            "sm:flex sm:flex-col sm:justify-center",
-            /* header (64px) + 80px gap at the top */
-            "sm:pt-[144px]",
-            /* facts strip overlaps photo by ~32px, so give 64px gap = 96px */
-            "sm:pb-[96px]",
+            "sm:pt-16 sm:pb-24",
           ].join(" ")}
         >
-          {/*
-           * Mobile photo spacer: 4:3 aspect keeps the photo visible before the box.
-           * On sm+ the absolute positioning takes over so this has no height.
-           */}
-          <div className="sm:hidden w-full aspect-[4/3]" aria-hidden="true" />
-
-          {/* Grid: left box max ~500px, right side stays free for the face */}
-          <div className="max-w-[1200px] w-full mx-auto px-4 sm:px-6 sm:flex sm:items-center">
+          {/* Inner centering grid: left box max 500px, right stays free */}
+          <div className="max-w-[1200px] w-full mx-auto px-6 flex items-center">
             <div
               className={[
-                /* mobile: 16px side margin, overlaps photo by 24px */
-                "mx-4 -mt-6 sm:mt-0 sm:mx-0",
-                /* brand teal box */
                 "bg-primary rounded-2xl shadow-2xl",
-                /* padding: 28px mobile, 40px desktop */
-                "px-7 py-8 sm:p-10",
-                /* max width */
-                "w-full sm:max-w-[500px]",
+                "px-10 py-10",
+                "w-full max-w-[500px]",
               ].join(" ")}
               style={{ animation: "heroBoxIn 0.35s 0.1s cubic-bezier(0.22,1,0.36,1) both" }}
               suppressHydrationWarning
             >
-              {/* Eyebrow — sits inside the box so never clipped by header */}
+              {/* Eyebrow */}
               <p className="inline-flex items-center gap-2 bg-accent/20 border border-accent/40
                              text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
                              uppercase tracking-wider mb-4">
@@ -219,7 +231,7 @@ export default async function HomePage() {
                 Now enrolling — January 2027 intake
               </p>
 
-              {/* Headline — max 3 lines */}
+              {/* Headline */}
               <h1
                 className="font-bold text-white text-balance leading-[1.15] mb-5"
                 style={{ fontSize: "clamp(2rem, 3.6vw, 3.25rem)" }}
@@ -227,7 +239,7 @@ export default async function HomePage() {
                 Train to become a certified community health worker
               </h1>
 
-              {/* One-sentence description — max 2 lines */}
+              {/* Description */}
               <p
                 className="text-white/80 mb-8 leading-[1.65]"
                 style={{ fontSize: "clamp(0.9375rem, 1.3vw, 1.0625rem)" }}
@@ -235,7 +247,7 @@ export default async function HomePage() {
                 Accredited online short courses in nursing care and child safety — study on your phone, pay with mobile money.
               </p>
 
-              {/* CTAs — stacked on mobile (full-width), row on xs+ */}
+              {/* CTAs */}
               <div className="flex flex-col xs:flex-row gap-3">
                 <Link
                   href="/register"
@@ -256,6 +268,61 @@ export default async function HomePage() {
                   <BookOpen className="w-4 h-4" aria-hidden="true" /> Browse courses
                 </Link>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Mobile content box (below the photo) ── */}
+        <div className="sm:hidden mx-4 mt-6 mb-8">
+          <div
+            className={[
+              "bg-primary rounded-2xl shadow-2xl",
+              "px-7 py-8",
+              "w-full",
+            ].join(" ")}
+            style={{ animation: "heroBoxIn 0.35s 0.1s cubic-bezier(0.22,1,0.36,1) both" }}
+            suppressHydrationWarning
+          >
+            {/* Eyebrow */}
+            <p className="inline-flex items-center gap-2 bg-accent/20 border border-accent/40
+                           text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
+                           uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" aria-hidden="true" />
+              Now enrolling — January 2027 intake
+            </p>
+
+            {/* Headline */}
+            <h1
+              className="font-bold text-white text-balance leading-[1.15] mb-5"
+              style={{ fontSize: "clamp(1.875rem, 5vw, 2.5rem)" }}
+            >
+              Train to become a certified community health worker
+            </h1>
+
+            {/* Description */}
+            <p className="text-white/80 mb-8 leading-[1.65] text-base">
+              Accredited online short courses in nursing care and child safety — study on your phone, pay with mobile money.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center gap-2 bg-accent
+                           hover:bg-accent-600 active:scale-[0.97] text-white font-bold
+                           text-sm px-7 py-3.5 rounded-xl no-underline transition-all shadow-cta"
+              >
+                Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/courses"
+                className="inline-flex items-center justify-center gap-2 bg-white/10
+                           hover:bg-white/20 active:scale-[0.97] border border-white/30
+                           text-white font-semibold text-sm px-7 py-3.5 rounded-xl
+                           no-underline transition-all"
+              >
+                <BookOpen className="w-4 h-4" aria-hidden="true" /> Browse courses
+              </Link>
             </div>
           </div>
         </div>
