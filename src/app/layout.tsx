@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s | Musawo Training Center",
   },
   description:
-    "Certified online health-care training for Ugandan communities. Courses in nursing care, basic care, and child safety — accredited by Uganda Ministry of Health.",
+    "Certified online health-care training for Ugandan communities. Courses in nursing care, basic care, and child safety - accredited by Uganda Ministry of Health.",
   keywords: [
     "nursing training Uganda",
     "online health course Uganda",

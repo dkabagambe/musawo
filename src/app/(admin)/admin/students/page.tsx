@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 
-export const metadata = { title: "Students — Admin" };
+export const metadata = { title: "Students - Admin" };
 
 interface Props {
   searchParams: { q?: string; page?: string };

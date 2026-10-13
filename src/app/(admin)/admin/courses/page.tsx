@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 
-export const metadata = { title: "Courses — Admin" };
+export const metadata = { title: "Courses - Admin" };
 
 export default async function AdminCoursesPage() {
   const session = await auth();

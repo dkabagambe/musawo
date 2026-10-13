@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
   if (!page) return {};
   return {
-    title: `${page.partnerName} — Musawo Training Center`,
+    title: `${page.partnerName} - Musawo Training Center`,
     description: page.heading,
     robots: "noindex", // Partner pages are private campaign pages
   };
@@ -82,7 +82,7 @@ export default async function PartnerPage({ params }: Props) {
 
       <footer className="bg-surface py-8 px-4 text-center text-xs text-gray-400">
         <p>
-          Musawo Training Center — Accredited by Uganda Ministry of Health and
+          Musawo Training Center - Accredited by Uganda Ministry of Health and
           Ministry of Education and Sports
         </p>
         <p className="mt-1">

@@ -11,7 +11,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
-    title: `Verify Certificate — ${params.certId}`,
+    title: `Verify Certificate - ${params.certId}`,
     robots: "noindex",
   };
 }

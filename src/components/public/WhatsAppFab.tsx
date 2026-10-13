@@ -15,38 +15,39 @@ const WA_SVG = (
 /**
  * Floating WhatsApp button.
  * - 52 px diameter, 16 px from right + bottom edges.
- * - Hides automatically when any element with id="mobile-drawer" is visible
- *   (i.e. the mobile nav drawer is open) so it never overlaps the drawer.
+ * - Hidden when the mobile nav drawer is open.
+ * - Hidden when the footer is visible in the viewport (so it never
+ *   overlaps footer text — the footer's pb-[88px] on mobile provides
+ *   a safe zone above the FAB's natural resting position).
  */
 export default function WhatsAppFab({ href }: Props) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen]   = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
 
+  // Watch the mobile drawer
   useEffect(() => {
-    // Watch the mobile-drawer visibility via MutationObserver on its transform
-    const drawer = document.getElementById("mobile-drawer");
-    if (!drawer) return;
-
-    const check = () => {
-      const style = window.getComputedStyle(drawer);
-      setDrawerOpen(!style.transform.includes("translateX(") || style.transform === "none"
-        ? false
-        : style.transform.includes("translateX(0")
-          ? true
-          : false
-      );
-    };
-
-    // Use a ResizeObserver as a proxy — simpler: watch for aria-expanded on the hamburger
     const hamburger = document.querySelector<HTMLButtonElement>('[aria-controls="mobile-drawer"]');
     if (!hamburger) return;
-
     const mo = new MutationObserver(() => {
       setDrawerOpen(hamburger.getAttribute("aria-expanded") === "true");
     });
     mo.observe(hamburger, { attributes: true, attributeFilter: ["aria-expanded"] });
-    check();
     return () => mo.disconnect();
   }, []);
+
+  // Watch footer visibility via IntersectionObserver
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { threshold: 0.05 },
+    );
+    io.observe(footer);
+    return () => io.disconnect();
+  }, []);
+
+  const hidden = drawerOpen || footerVisible;
 
   return (
     <a
@@ -56,9 +57,10 @@ export default function WhatsAppFab({ href }: Props) {
       className={`fixed bottom-4 right-4 z-50 flex items-center justify-center
                   w-[52px] h-[52px] rounded-full shadow-xl no-underline
                   transition-all duration-200 hover:scale-110 active:scale-95
-                  ${drawerOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+                  ${hidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       style={{ backgroundColor: "#25D366" }}
       aria-label="Chat with Musawo on WhatsApp"
+      aria-hidden={hidden}
     >
       {WA_SVG}
     </a>

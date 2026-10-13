@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
-export const metadata = { title: "My Courses — Tutor" };
+export const metadata = { title: "My Courses - Tutor" };
 
 export default async function TutorCoursesPage() {
   const session = await auth();

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-export const metadata = { title: "Ledger — Bursar" };
+export const metadata = { title: "Ledger - Bursar" };
 
 export default async function BursarLedgerPage() {
   const session = await auth();

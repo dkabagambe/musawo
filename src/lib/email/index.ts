@@ -51,7 +51,7 @@ function renderTemplate(
       <p style="font-size:13px;color:#6B7280;">This link expires in {{expiresIn}}. If you did not create an account, you can safely ignore this email.</p>
     `,
     "payment-receipt": `
-      <h2>Payment Received — {{courseName}}</h2>
+      <h2>Payment Received - {{courseName}}</h2>
       <p>Dear {{name}},</p>
       <p>We have received your payment of <strong>{{amount}}</strong> on {{date}}.</p>
       <p>Reference: {{paymentRef}}</p>
@@ -64,7 +64,7 @@ function renderTemplate(
       <p><a href="{{joinUrl}}">Join the class</a></p>
     `,
     "exam-result": `
-      <h2>Your exam result — {{examTitle}}</h2>
+      <h2>Your exam result - {{examTitle}}</h2>
       <p>Dear {{name}},</p>
       <p>Your result for <strong>{{examTitle}}</strong>: <strong>{{score}}%</strong> — {{passFail}}</p>
       <p><a href="{{resultsUrl}}">View detailed results</a></p>
@@ -122,7 +122,7 @@ function renderTemplate(
       ${html}
       <hr style="margin-top: 32px; border-color: #E5E7EB;" />
       <p style="font-size: 12px; color: #6B7280;">
-        Musawo Training Center — Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda<br />
+        Musawo Training Center - Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda<br />
         <a href="mailto:info@musawo.ug">info@musawo.ug</a> ·
         <a href="tel:+256785423523">+256 785 423 523</a> ·
         <a href="https://wa.me/256785423523">WhatsApp</a>

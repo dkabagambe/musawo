@@ -138,7 +138,7 @@ export async function POST(
   if (studentUser.email) {
     await sendEmail({
       to: studentUser.email,
-      subject: `Payment claim rejected — ${claim.enrolment.course.title}`,
+      subject: `Payment claim rejected - ${claim.enrolment.course.title}`,
       template: "payment-receipt",
       variables: {
         name: studentUser.name,

@@ -158,7 +158,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
             Pass mark: {passPercent}%
           </p>
           <ul className="text-sm text-gray-500 text-left mb-8 space-y-1 inline-block">
-            <li>⚠️ Do not switch tabs during the exam — it will be logged.</li>
+            <li>⚠️ Do not switch tabs during the exam - it will be logged.</li>
             <li>⏱ Submit before the timer runs out.</li>
             <li>✅ MCQ and True/False answers are auto-marked.</li>
             <li>📝 Short answers are reviewed by your tutor.</li>

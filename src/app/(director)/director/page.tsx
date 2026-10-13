@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
-export const metadata = { title: "Executive Dashboard — Director" };
+export const metadata = { title: "Executive Dashboard - Director" };
 
 export default async function DirectorDashboardPage() {
   const session = await auth();

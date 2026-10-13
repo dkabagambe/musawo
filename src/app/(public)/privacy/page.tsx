@@ -41,11 +41,11 @@ export default async function PrivacyPage() {
             <PolicySection title="2. Information we collect">
               <p>We collect the following categories of personal data:</p>
               <ul>
-                <li><strong>Account data</strong> — name, email address, phone number, and password (stored as a secure hash) when you register.</li>
-                <li><strong>Payment data</strong> — mobile money number, transaction reference, and payment status. We do not store full card numbers; payments are processed by Pesapal or Flutterwave.</li>
-                <li><strong>Learning data</strong> — course progress, lesson completion, quiz scores, and certificate records.</li>
-                <li><strong>Communications</strong> — messages you send via our contact form, WhatsApp, or email.</li>
-                <li><strong>Technical data</strong> — IP address, browser type, device type, and pages visited, collected automatically via server logs and cookies.</li>
+                <li><strong>Account data</strong>: name, email address, phone number, and password (stored as a secure hash) when you register.</li>
+                <li><strong>Payment data</strong>: mobile money number, transaction reference, and payment status. We do not store full card numbers; payments are processed by Pesapal or Flutterwave.</li>
+                <li><strong>Learning data</strong>: course progress, lesson completion, quiz scores, and certificate records.</li>
+                <li><strong>Communications</strong>: messages you send via our contact form, WhatsApp, or email.</li>
+                <li><strong>Technical data</strong>: IP address, browser type, device type, and pages visited, collected automatically via server logs and cookies.</li>
               </ul>
             </PolicySection>
 
@@ -68,10 +68,10 @@ export default async function PrivacyPage() {
             <PolicySection title="4. Legal basis for processing">
               <p>We process personal data on the following grounds:</p>
               <ul>
-                <li><strong>Contract performance</strong> — processing necessary to deliver the courses you have enrolled in.</li>
-                <li><strong>Legitimate interests</strong> — platform security, fraud prevention, and service improvement.</li>
-                <li><strong>Consent</strong> — where you have opted in to marketing communications.</li>
-                <li><strong>Legal obligation</strong> — where required by Ugandan law or regulatory bodies.</li>
+                <li><strong>Contract performance</strong>: processing necessary to deliver the courses you have enrolled in.</li>
+                <li><strong>Legitimate interests</strong>: platform security, fraud prevention, and service improvement.</li>
+                <li><strong>Consent</strong>: where you have opted in to marketing communications.</li>
+                <li><strong>Legal obligation</strong>: where required by Ugandan law or regulatory bodies.</li>
               </ul>
             </PolicySection>
 
@@ -85,11 +85,11 @@ export default async function PrivacyPage() {
             <PolicySection title="6. Data sharing">
               <p>We share personal data only with:</p>
               <ul>
-                <li><strong>Payment processors</strong> — Pesapal Ltd and Flutterwave Inc, for the purpose of processing your payments.</li>
-                <li><strong>Communication providers</strong> — Resend (email) and Africa&apos;s Talking (SMS), for sending transactional messages.</li>
-                <li><strong>Video hosting</strong> — Bunny.net, for streaming course videos securely.</li>
-                <li><strong>Cloud storage</strong> — Cloudflare R2, for storing course files and resources.</li>
-                <li><strong>Regulatory bodies</strong> — Uganda&apos;s Ministry of Health or Ministry of Education and Sports, where required for accreditation or compliance.</li>
+                <li><strong>Payment processors</strong>: Pesapal Ltd and Flutterwave Inc, for the purpose of processing your payments.</li>
+                <li><strong>Communication providers</strong>: Resend (email) and Africa&apos;s Talking (SMS), for sending transactional messages.</li>
+                <li><strong>Video hosting</strong>: Bunny.net, for streaming course videos securely.</li>
+                <li><strong>Cloud storage</strong>: Cloudflare R2, for storing course files and resources.</li>
+                <li><strong>Regulatory bodies</strong>: Uganda&apos;s Ministry of Health or Ministry of Education and Sports, where required for accreditation or compliance.</li>
               </ul>
               <p>
                 All third-party processors are contractually required to protect your data and to use it only for the stated purpose.
@@ -116,12 +116,12 @@ export default async function PrivacyPage() {
             <PolicySection title="9. Your rights">
               <p>You have the right to:</p>
               <ul>
-                <li><strong>Access</strong> — request a copy of the personal data we hold about you.</li>
-                <li><strong>Correction</strong> — ask us to correct inaccurate data.</li>
-                <li><strong>Deletion</strong> — request that we delete your account and personal data.</li>
-                <li><strong>Portability</strong> — receive your data in a structured, machine-readable format.</li>
-                <li><strong>Objection</strong> — object to processing based on legitimate interests.</li>
-                <li><strong>Withdraw consent</strong> — where processing is based on consent, withdraw it at any time.</li>
+                <li><strong>Access</strong>: request a copy of the personal data we hold about you.</li>
+                <li><strong>Correction</strong>: ask us to correct inaccurate data.</li>
+                <li><strong>Deletion</strong>: request that we delete your account and personal data.</li>
+                <li><strong>Portability</strong>: receive your data in a structured, machine-readable format.</li>
+                <li><strong>Objection</strong>: object to processing based on legitimate interests.</li>
+                <li><strong>Withdraw consent</strong>: where processing is based on consent, withdraw it at any time.</li>
               </ul>
               <p>
                 To exercise any of these rights, email us at{" "}
@@ -141,7 +141,7 @@ export default async function PrivacyPage() {
                 For any questions about this Privacy Policy, please contact:
               </p>
               <address className="not-italic text-gray-600 text-sm leading-relaxed mt-2">
-                Musawo Training Center — ADFA<br />
+                Musawo Training Center - ADFA<br />
                 Plot 5, ADFA Building, Zone 8 Lungujja<br />
                 Kampala, Uganda<br />
                 <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>

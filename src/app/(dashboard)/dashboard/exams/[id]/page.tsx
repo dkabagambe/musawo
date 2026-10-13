@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props) {
     where: { id: params.id },
     select: { title: true },
   });
-  return { title: exam ? `${exam.title} — Exam` : "Exam" };
+  return { title: exam ? `${exam.title} - Exam` : "Exam" };
 }
 
 export default async function ExamPage({ params }: Props) {

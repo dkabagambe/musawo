@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { FileText, Clock, CheckCircle2, AlertCircle, BookOpen } from "lucide-react";
 
-export const metadata = { title: "Assignments — Musawo Training Center" };
+export const metadata = { title: "Assignments - Musawo Training Center" };
 
 export default async function AssignmentsPage() {
   const session = await auth();

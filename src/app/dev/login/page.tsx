@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import DevLoginForm from "./DevLoginForm";
 
-export const metadata = { title: "Demo Accounts — Dev Login" };
+export const metadata = { title: "Demo Accounts - Dev Login" };
 
 const DEMO_ACCOUNTS = [
   { label: "CEO / Director",  email: "ceo@musawotraining.ug",        role: "SUPERADMIN", landing: "/director",        icon: "👑" },

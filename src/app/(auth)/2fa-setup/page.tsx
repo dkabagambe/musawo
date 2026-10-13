@@ -154,7 +154,7 @@ export default function TwoFASetupPage() {
           <div className="flex flex-col items-center gap-4 mb-6 p-5 rounded-2xl bg-surface border border-border/60">
             <Image
               src={qrDataUrl}
-              alt="TOTP QR code — scan with your authenticator app"
+              alt="TOTP QR code - scan with your authenticator app"
               width={180}
               height={180}
               className="rounded-lg"

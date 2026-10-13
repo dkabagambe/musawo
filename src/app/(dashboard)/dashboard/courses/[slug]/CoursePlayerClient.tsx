@@ -262,7 +262,7 @@ export default function CoursePlayerClient({
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="badge-info badge text-xs">
-                  Block {activeBlock?.order} — Lesson {activeLesson.order}
+                  Block {activeBlock?.order} - Lesson {activeLesson.order}
                 </span>
               </div>
               <h2 className="text-xl font-semibold mb-4">{activeLesson.title}</h2>
@@ -331,7 +331,7 @@ export default function CoursePlayerClient({
                   ) : (
                     <div className="bg-primary/10 rounded-2xl p-10 text-center">
                       <p className="text-4xl mb-2" aria-hidden="true">🔒</p>
-                      <p className="text-sm text-gray-500">Notes locked — complete payment to access.</p>
+                      <p className="text-sm text-gray-500">Notes locked. Complete payment to access.</p>
                     </div>
                   )}
                 </div>

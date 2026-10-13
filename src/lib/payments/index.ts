@@ -90,7 +90,7 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       type: "PAYMENT",
       amount: payment.amount,
       balanceAfter: enrolment.totalAmountUgx - newPaid,
-      description: `Payment via ${payment.gateway} — ref ${payment.gatewayRef ?? payment.id}`,
+      description: `Payment via ${payment.gateway} - ref ${payment.gatewayRef ?? payment.id}`,
       paymentId: payment.id,
       receiptNumber,
     },
@@ -171,7 +171,7 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
   if (user.email) {
     await sendEmail({
       to: user.email,
-      subject: `Payment received — ${course.title}`,
+      subject: `Payment received - ${course.title}`,
       template: "payment-receipt",
       variables: {
         name: user.name,
@@ -235,7 +235,7 @@ export async function reverseVerifiedPayment(
       type: "REFUND",
       amount: -payment.amount,
       balanceAfter: enrolment.totalAmountUgx - newBalance,
-      description: `Reversal of payment ${paymentId} — ${reason}`,
+      description: `Reversal of payment ${paymentId} - ${reason}`,
       paymentId: payment.id,
       reversedAt: new Date(),
     },

@@ -45,10 +45,10 @@ const SCHOLARSHIP_TYPES = [
     badge: "Pay in 3 parts",
     badgeColor: "bg-primary/10 text-primary",
     description:
-      "Not a scholarship, but our flexible payment plan is available to all students — pay 25% upfront and the rest in two further instalments as you progress through the course.",
+      "Not a scholarship, but our flexible payment plan is available to all students - pay 25% upfront and the rest in two further instalments as you progress through the course.",
     criteria: [
       "Available to every enrolled student",
-      "No application required — select at checkout",
+      "No application required - select at checkout",
       "Each instalment unlocks the next course block",
     ],
   },
@@ -56,7 +56,7 @@ const SCHOLARSHIP_TYPES = [
 
 const PROCESS = [
   { n: "01", title: "Apply when you register", body: "Tick the scholarship option during registration and complete the short application form. It takes about 5 minutes." },
-  { n: "02", title: "Our team reviews your application", body: "The admissions team reviews all scholarship applications within 3–5 working days of the enrolment deadline." },
+  { n: "02", title: "Our team reviews your application", body: "The admissions team reviews all scholarship applications within 3-5 working days of the enrolment deadline." },
   { n: "03", title: "You receive a decision by email", body: "We will notify you of the outcome by email and SMS. Successful applicants receive a scholarship code to apply at checkout." },
   { n: "04", title: "Start learning", body: "Apply your scholarship code, confirm your place, and start your course on the intake start date." },
 ];
@@ -138,10 +138,10 @@ export default async function ScholarshipsPage() {
             <h2 className="text-xl font-bold text-primary mb-4">Important notes</h2>
             <ul className="space-y-3 list-none text-sm text-gray-600">
               {[
-                "Scholarship places are limited. Applying does not guarantee a scholarship — we encourage all applicants to also consider the instalment plan as a backup.",
+                "Scholarship places are limited. Applying does not guarantee a scholarship, so we encourage all applicants to also consider the instalment plan as a backup.",
                 "Scholarships are awarded per intake. An unsuccessful application in one intake does not affect future applications.",
                 "Scholarship recipients must complete the course to retain the award. Withdrawing without a compelling reason may affect eligibility for future intakes.",
-                "All course academic requirements — assessments, attendance, and the final examination — apply equally to scholarship students.",
+                "All course academic requirements - assessments, attendance, and the final examination - apply equally to scholarship students.",
                 "Musawo Training Center reserves the right to request supporting documentation (such as a letter from a community leader) before confirming a full scholarship.",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
@@ -162,7 +162,7 @@ export default async function ScholarshipsPage() {
             Start your application today
           </h2>
           <p className="text-white/75 max-w-md mx-auto mb-8 leading-relaxed">
-            Tick the scholarship option when you register. Our team will review your application and respond within 3–5 working days.
+            Tick the scholarship option when you register. Our team will review your application and respond within 3-5 working days.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link

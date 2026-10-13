@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 
-export const metadata = { title: "Reports — Admin" };
+export const metadata = { title: "Reports - Admin" };
 
 export default async function AdminReportsPage() {
   const session = await auth();

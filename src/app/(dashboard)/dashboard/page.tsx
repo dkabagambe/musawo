@@ -122,7 +122,7 @@ export default async function DashboardPage() {
       {enrolments.filter(e => e.status === "OVERDUE").map(e => (
         <div key={e.id} className="bg-danger/10 border border-danger/20 rounded-2xl px-4 py-3 mb-4 flex items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-danger text-sm">⚠️ Overdue payment — {e.course.title}</p>
+            <p className="font-semibold text-danger text-sm">⚠️ Overdue payment: {e.course.title}</p>
             <p className="text-xs text-gray-500 mt-0.5">You have missed an instalment. Pay now to keep your access.</p>
           </div>
           <Link href={`/courses/${e.course.slug}`} className="btn-primary text-xs px-4 py-1.5 no-underline flex-shrink-0">Pay now</Link>

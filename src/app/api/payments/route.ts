@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
       id: merchantRef,
       currency: "UGX",
       amount: firstAmount,
-      description: `${course.title} — ${body.planType === "INSTALMENT" ? `Instalment 1 of ${instalmentCount}` : "Full payment"}`,
+      description: `${course.title} - ${body.planType === "INSTALMENT" ? `Instalment 1 of ${instalmentCount}` : "Full payment"}`,
       callbackUrl,
       notificationId: process.env.PESAPAL_IPN_ID ?? "",
       billingAddress: {

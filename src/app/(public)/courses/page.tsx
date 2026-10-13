@@ -104,12 +104,12 @@ export default async function CoursesPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center gap-6 justify-center">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
-            Ministry of Health Uganda — Accredited
+            Ministry of Health Uganda - Accredited
           </div>
           <div className="hidden sm:block w-px h-5 bg-border" aria-hidden="true" />
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
-            Ministry of Education &amp; Sports — Registered
+            Ministry of Education &amp; Sports - Registered
           </div>
         </div>
       </div>

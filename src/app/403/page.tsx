@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getHomePathForRole } from "@/lib/auth/redirect";
 
-export const metadata = { title: "Access Denied — Musawo Training Center" };
+export const metadata = { title: "Access Denied - Musawo Training Center" };
 
 export default async function ForbiddenPage() {
   const session = await auth();

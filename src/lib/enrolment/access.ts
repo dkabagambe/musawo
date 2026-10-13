@@ -166,7 +166,7 @@ export function getLockedReason(
   if (level === "OVERDUE") {
     const pct = enrolment?.paidPercent ?? 0;
     if (_lessonAllowedByPercent(block.order, pct, thresholds)) {
-      return "Your instalment is overdue — pay now to maintain access";
+      return "Your instalment is overdue - pay now to maintain access";
     }
     return _lockedReasonByBlock(block.order);
   }

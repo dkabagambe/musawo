@@ -1,4 +1,4 @@
-# Musawo Training Center — Learning Platform
+# Musawo Training Center - Learning Platform
 
 A fully online learning platform for Musawo Training Center (MTC), Kampala, Uganda.
 Built with Next.js 14, Prisma, PostgreSQL, and Redis.
@@ -54,7 +54,7 @@ The key ones for local development are already filled in with safe local default
 
 ## Production deployment (VPS + Caddy)
 
-> **IMPORTANT — security checklist before going live:**
+> **IMPORTANT - security checklist before going live:**
 >
 > - Generate strong random passwords:
 >   ```bash

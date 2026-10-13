@@ -64,7 +64,7 @@ export default function NewTicketForm() {
         <textarea
           id="ticket-body"
           className="input min-h-[120px] resize-y"
-          placeholder="Describe the issue in detail — include your course, what you were doing, and any error messages."
+          placeholder="Describe the issue in detail - include your course, what you were doing, and any error messages."
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required

@@ -98,7 +98,7 @@ async function checkAccount(email: string): Promise<AccountCheck> {
       ? `verifyPassword threw: ${passwordError}`
       : "password does not verify";
   } else if (user.totpEnabled && user.totpSecret) {
-    blockReason = "TOTP required (totpEnabled=true) — needs code in login form";
+    blockReason = "TOTP required (totpEnabled=true) - needs code in login form";
   }
 
   return {
@@ -132,7 +132,7 @@ export default async function AuthCheckPage() {
       <p style={{ color: "#666", marginBottom: "1.5rem", fontSize: "0.875rem" }}>
         Tests each demo account against the real <code>authorize()</code> logic (same
         verifyPassword function, same TOTP gate). Never logs passwords.
-        Rate-limit counts show current Redis zset size — reset with{" "}
+        Rate-limit counts show current Redis zset size - reset with{" "}
         <code>npm run rate-limit:reset</code>.
       </p>
 

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
-export const metadata = { title: "Approval Inbox — Director" };
+export const metadata = { title: "Approval Inbox - Director" };
 
 interface Props {
   searchParams: { status?: string };

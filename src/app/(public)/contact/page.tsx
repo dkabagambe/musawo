@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with Musawo Training Center — course enquiries, payments, scholarships and more.",
+  description: "Get in touch with Musawo Training Center - course enquiries, payments, scholarships and more.",
 };
 
 export default async function ContactPage() {

@@ -45,7 +45,7 @@ export default async function ResourcesPage() {
         image="/assets/images/hero-resources.webp"
         imageAlt="Musawo Training Center healthcare services and educational resources"
         title="Free Resource Library"
-        description="Healthcare guides, reference materials, and study aids — free for everyone, no account required."
+        description="Healthcare guides, reference materials, and study aids - free for everyone, no account required."
         breadcrumbs={[{ label: "Resources" }]}
         boxSide="left"
         objectPosition="right center"

@@ -9,11 +9,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about Musawo Training Center — bringing quality healthcare training to Ugandan communities since 2018.",
+  description: "Learn about Musawo Training Center - bringing quality healthcare training to Ugandan communities since 2018.",
 };
 
 const TIMELINE = [
-  { year: "2018", title: "Founded",       body: "ADFA — Allied Doctors and Friends of Uganda — established Musawo Training Center in Lungujja, Kampala." },
+  { year: "2018", title: "Founded",       body: "ADFA, Allied Doctors and Friends of Uganda, established Musawo Training Center in Lungujja, Kampala." },
   { year: "2021", title: "First clinic",  body: "Opened the Lungujja community clinic providing testing, treatment and health education." },
   { year: "2023", title: "Licensed",      body: "Achieved full Ministry of Health and Ministry of Education & Sports accreditation for our nursing care programs." },
   { year: "2025", title: "Expansion",     body: "Launched online learning, extending accredited training to students across Uganda." },
@@ -38,7 +38,7 @@ export default function AboutPage() {
     <div className="bg-surface">
       <PageHero
         image="/assets/images/hero-about.webp"
-        imageAlt="ADFA team collage — Musawo Training Center staff and community work"
+        imageAlt="ADFA team collage - Musawo Training Center staff and community work"
         title="About Musawo Training Center"
         description="Bringing quality healthcare to Ugandan homes and communities through training, testing, treatment and trust since 2018."
         breadcrumbs={[{ label: "About" }]}
@@ -56,7 +56,7 @@ export default function AboutPage() {
               Musawo Training Center (MTC) is a division of Allied Doctors and Friends of Uganda (ADFA), a community health organisation based in Lungujja, Kampala. We provide accredited, affordable healthcare training to Ugandans who want to serve their communities.
             </p>
             <p className="text-gray-600 leading-relaxed mb-6">
-              Our courses are fully accredited by Uganda&apos;s Ministry of Health and Ministry of Education and Sports. We train nursing care assistants, child safety workers, and community health workers — the backbone of Uganda&apos;s primary healthcare system.
+              Our courses are fully accredited by Uganda&apos;s Ministry of Health and Ministry of Education and Sports. We train nursing care assistants, child safety workers, and community health workers, the backbone of Uganda&apos;s primary healthcare system.
             </p>
             <ul className="space-y-3 list-none mb-8">
               {[

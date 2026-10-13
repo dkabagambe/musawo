@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
-export const metadata = { title: "Payments — Bursar" };
+export const metadata = { title: "Payments - Bursar" };
 
 interface Props { searchParams: { status?: string; page?: string } }
 

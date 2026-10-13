@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { MAX_SUPERADMIN_ACCOUNTS } from "@/lib/rbac";
 
-export const metadata = { title: "Staff Accounts — Director" };
+export const metadata = { title: "Staff Accounts - Director" };
 
 export default async function DirectorStaffPage() {
   const session = await auth();

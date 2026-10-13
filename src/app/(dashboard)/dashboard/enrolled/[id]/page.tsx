@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { getAccessLevel } from "@/lib/enrolment/access";
 
-export const metadata = { title: "You're enrolled! — Musawo Training Center" };
+export const metadata = { title: "You're enrolled! - Musawo Training Center" };
 
 export default async function EnrolledPage({ params }: { params: { id: string } }) {
   const session = await auth();

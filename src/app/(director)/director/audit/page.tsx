@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
-export const metadata = { title: "Full Audit Log — Director" };
+export const metadata = { title: "Full Audit Log - Director" };
 
 interface Props { searchParams: { action?: string; page?: string } }
 

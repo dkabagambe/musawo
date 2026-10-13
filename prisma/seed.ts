@@ -1,5 +1,5 @@
 /**
- * Musawo Training Center — Comprehensive Demo Seed
+ * Musawo Training Center - Comprehensive Demo Seed
  *
  * Wipes and rebuilds all demo data. Safe to run repeatedly (upsert-first,
  * then bulk-creates rich data only when tables are empty).
@@ -86,7 +86,7 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   { key: "exam.tabSwitchAlertThreshold", value: "3",              description: "Tab switches before alert" },
   { key: "exam.defaultAttemptLimit",  value: "2",                 description: "Default exam attempt limit" },
   { key: "certificate.issuerName",    value: "Musawo Training Center", description: "Certificate issuer text" },
-  { key: "intake.currentLabel",       value: "Intake 7 – November 2026", description: "Current intake label" },
+  { key: "intake.currentLabel",       value: "Intake 7 - November 2026", description: "Current intake label" },
 ];
 
 // ─── Student profiles ─────────────────────────────────────────────
@@ -477,7 +477,7 @@ async function main() {
     create: {
       id: "intake-running",
       courseId: courses["cna"].id,
-      label: "Intake 6 – August 2026",
+      label: "Intake 6 - August 2026",
       startDate: monthsAgo(3),
       endDate: weeksFrom(9),
       seats: 40,
@@ -492,7 +492,7 @@ async function main() {
     create: {
       id: "intake-upcoming",
       courseId: courses["cna"].id,
-      label: "Intake 7 – November 2026",
+      label: "Intake 7 - November 2026",
       startDate: weeksFrom(3),
       endDate: weeksFrom(15),
       seats: 40,
@@ -507,7 +507,7 @@ async function main() {
     create: {
       id: "intake-basic",
       courseId: courses["basic-nursing-care"].id,
-      label: "Intake 4 – September 2026",
+      label: "Intake 4 - September 2026",
       startDate: monthsAgo(2),
       endDate: weeksFrom(6),
       seats: 30,
@@ -645,7 +645,7 @@ async function main() {
           type: isReversed ? LedgerEntryType.REFUND : LedgerEntryType.PAYMENT,
           amount: isReversed ? -ps.amount : ps.amount,
           balanceAfter: ps.amount,
-          description: isReversed ? "Payment reversed — fraud flag" : `Payment via ${ps.method.replace("_", " ")}`,
+          description: isReversed ? "Payment reversed - fraud flag" : `Payment via ${ps.method.replace("_", " ")}`,
           createdAt: paidAt,
         },
       });
@@ -799,7 +799,7 @@ async function main() {
     // Final exam questions
     const finalQuestions = [
       { text: "Which of the following is NOT a vital sign?", type: "MCQ", options: JSON.stringify(["Temperature","Pulse","Height","Blood pressure"]), correctAnswer: "Height", points: 5 },
-      { text: "Normal adult resting pulse rate is:", type: "MCQ", options: JSON.stringify(["40–60 bpm","60–100 bpm","100–120 bpm","120–160 bpm"]), correctAnswer: "60–100 bpm", points: 5 },
+      { text: "Normal adult resting pulse rate is:", type: "MCQ", options: JSON.stringify(["40-60 bpm","60-100 bpm","100-120 bpm","120-160 bpm"]), correctAnswer: "60-100 bpm", points: 5 },
       { text: "A patient tells you they are in pain. What should you do first?", type: "MCQ", options: JSON.stringify(["Give them paracetamol","Assess and document the pain, then inform the nurse","Ask them to wait","Tell them it will pass"]), correctAnswer: "Assess and document the pain, then inform the nurse", points: 5 },
       { text: "Patient confidentiality means:", type: "MCQ", options: JSON.stringify(["Only sharing patient information with family members","Never discussing a patient with anyone","Sharing patient information only with authorised healthcare team members","Posting patient updates on social media with their permission"]), correctAnswer: "Sharing patient information only with authorised healthcare team members", points: 5 },
       { text: "A nursing care assistant can independently prescribe medications.", type: "TRUE_FALSE", options: JSON.stringify(["True","False"]), correctAnswer: "False", points: 5 },
@@ -944,7 +944,7 @@ async function main() {
         { authorId: tutor.id, courseId: courses["cna"].id, title: "Block 4 live class this Thursday at 6pm", body: "Join us this Thursday for our Block 4 live class on vital signs. Link will be sent 30 minutes before the session.", pinned: true,  createdAt: daysAgo(3) },
         { authorId: registrar.id, courseId: null, title: "Intake 7 registration now open", body: "We are now accepting registrations for our November 2026 intake. Early bird discount applies for the first 10 students.", pinned: true,  createdAt: daysAgo(7) },
         { authorId: tutor.id, courseId: courses["cna"].id, title: "Block 2 exam results released", body: "Results for the Block 2 Infection Control Assessment are now available in your Results section.", pinned: false, createdAt: daysAgo(10) },
-        { authorId: ceo.id, courseId: null, title: "Platform maintenance — Saturday 2am", body: "We will perform scheduled maintenance this Saturday from 2am to 4am EAT. The platform will be briefly unavailable.", pinned: false, createdAt: daysAgo(5) },
+        { authorId: ceo.id, courseId: null, title: "Platform maintenance - Saturday 2am", body: "We will perform scheduled maintenance this Saturday from 2am to 4am EAT. The platform will be briefly unavailable.", pinned: false, createdAt: daysAgo(5) },
       ],
     });
     console.log("  ✓ Announcements (4)");
@@ -957,7 +957,7 @@ async function main() {
       data: {
         courseId: courses["cna"].id,
         authorId: students["75"].id,
-        title: "Hand hygiene question — 5 moments",
+        title: "Hand hygiene question - 5 moments",
         body: "I have a question about the 5 moments for hand hygiene. When exactly should we wash hands before patient contact if the patient is already in isolation? Is it inside or outside the room?",
         createdAt: daysAgo(8),
       },
@@ -986,7 +986,7 @@ async function main() {
       data: {
         courseId: courses["cna"].id,
         authorId: students["completed"].id,
-        title: "Certificate verification — works great!",
+        title: "Certificate verification - works great!",
         body: "Just tested the QR code on my certificate and it verified correctly. Well done Musawo team for making this work so smoothly!",
         createdAt: daysAgo(20),
         pinned: false,
@@ -1052,15 +1052,15 @@ async function main() {
   if (existingResources === 0) {
     const resourceItems = [
       { title: "Uganda Healthcare Worker Reference Guide",      description: "A free reference guide for community health workers covering infection prevention and patient communication.", s3Key: "resources/healthcare-reference-guide.pdf",     category: "Reference",  isPublic: true  },
-      { title: "Hand Hygiene Poster (WHO)",                     description: "WHO official 5 moments for hand hygiene poster — print and display in your workplace.",                     s3Key: "resources/who-hand-hygiene-poster.pdf",         category: "Posters",    isPublic: true  },
+      { title: "Hand Hygiene Poster (WHO)",                     description: "WHO official 5 moments for hand hygiene poster - print and display in your workplace.",                     s3Key: "resources/who-hand-hygiene-poster.pdf",         category: "Posters",    isPublic: true  },
       { title: "Vital Signs Normal Ranges Quick Reference",     description: "Laminated quick-reference card for normal adult vital sign ranges.",                                        s3Key: "resources/vital-signs-quick-ref.pdf",           category: "Reference",  isPublic: false },
       { title: "CNA Course Syllabus 2026",                      description: "Full syllabus and learning outcomes for the Certified Nursing Care Assistant course.",                      s3Key: "resources/cna-syllabus-2026.pdf",               category: "Syllabi",    isPublic: true  },
       { title: "Basic Nursing Care Assistant Syllabus 2026",    description: "Full syllabus and learning outcomes for the Basic Nursing Care Assistant course.",                         s3Key: "resources/basic-nursing-syllabus-2026.pdf",     category: "Syllabi",    isPublic: true  },
-      { title: "Uganda Nurses and Midwives Act",                description: "Official text of the Uganda Nurses and Midwives Act (Cap. 274) — required reading for all students.",       s3Key: "resources/nurses-midwives-act-uganda.pdf",      category: "Legal",      isPublic: true  },
+      { title: "Uganda Nurses and Midwives Act",                description: "Official text of the Uganda Nurses and Midwives Act (Cap. 274) - required reading for all students.",       s3Key: "resources/nurses-midwives-act-uganda.pdf",      category: "Legal",      isPublic: true  },
       { title: "Personal Care Procedures Manual",               description: "Step-by-step procedures for bathing, oral care, and grooming in a care setting.",                          s3Key: "resources/personal-care-procedures.pdf",        category: "Manuals",    isPublic: false },
       { title: "Infection Prevention Standard Precautions",     description: "WHO guidelines on standard precautions for infection prevention in healthcare settings.",                   s3Key: "resources/who-standard-precautions.pdf",        category: "Guidelines", isPublic: true  },
       { title: "Patient Rights Charter Uganda",                 description: "The Uganda Patient's Charter outlining rights and responsibilities in healthcare.",                         s3Key: "resources/patient-rights-charter-uganda.pdf",   category: "Legal",      isPublic: true  },
-      { title: "CPR Quick Reference Card",                      description: "Pocket reference for adult and infant CPR — print and keep on hand during practical sessions.",             s3Key: "resources/cpr-quick-reference.pdf",             category: "Reference",  isPublic: false },
+      { title: "CPR Quick Reference Card",                      description: "Pocket reference for adult and infant CPR - print and keep on hand during practical sessions.",             s3Key: "resources/cpr-quick-reference.pdf",             category: "Reference",  isPublic: false },
     ];
 
     for (const r of resourceItems) {
@@ -1177,7 +1177,7 @@ async function main() {
         courseId: cnaCourseId,
         blockId: block3Id ?? null,
         title: "Personal Care Reflection Journal",
-        instructions: "Write a 300–500 word reflective journal entry describing how you would assist a patient with bathing while maintaining their dignity. Include: (1) how you would explain the procedure to the patient, (2) the steps you would follow, and (3) how you would ensure privacy and comfort throughout. You may submit as text or upload a Word document/PDF.",
+        instructions: "Write a 300-500 word reflective journal entry describing how you would assist a patient with bathing while maintaining their dignity. Include: (1) how you would explain the procedure to the patient, (2) the steps you would follow, and (3) how you would ensure privacy and comfort throughout. You may submit as text or upload a Word document/PDF.",
         dueDate: daysFrom(7),
         maxPoints: 20,
         status: "PUBLISHED",

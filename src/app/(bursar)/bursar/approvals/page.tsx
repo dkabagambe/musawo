@@ -63,7 +63,7 @@ export default function BursarApprovalsPage() {
             </select>
           </div>
           <div>
-            <label className="label" htmlFor="amount">Amount (UGX) — if applicable</label>
+            <label className="label" htmlFor="amount">Amount (UGX) - if applicable</label>
             <input id="amount" type="number" min="0" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} className="input" placeholder="e.g. 150000" />
           </div>
           <div>

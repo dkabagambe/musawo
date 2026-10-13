@@ -31,7 +31,7 @@ async function getPublicCourses() {
 
 const FACTS = [
   { icon: ShieldCheck, label: "Ministry of Health accredited" },
-  { icon: Smartphone,  label: "100% online — study on your phone" },
+  { icon: Smartphone,  label: "100% online - study on your phone" },
   { icon: Banknote,    label: "Pay with MTN or Airtel Money" },
   { icon: Users,       label: "Scholarships available every intake" },
 ];
@@ -40,7 +40,7 @@ const HOW_STEPS = [
   { n: "01", icon: BookOpen, title: "Choose your course",
     body: "Browse our accredited health-worker courses and pick the one that fits your goals." },
   { n: "02", icon: Banknote, title: "Pay with mobile money",
-    body: "MTN MoMo or Airtel Money — pay in full or split into affordable instalments." },
+    body: "MTN MoMo or Airtel Money - pay in full or split into affordable instalments." },
   { n: "03", icon: Video,    title: "Learn & attend live classes",
     body: "Study at your own pace on any device, then join live sessions with your tutor twice a week." },
   { n: "04", icon: Award,    title: "Pass your exam & certify",
@@ -228,7 +228,7 @@ export default async function HomePage() {
                              text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
                              uppercase tracking-wider mb-4">
                 <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-                Now enrolling — January 2027 intake
+                Now enrolling - January 2027 intake
               </p>
 
               {/* Headline */}
@@ -244,7 +244,7 @@ export default async function HomePage() {
                 className="text-white/80 mb-8 leading-[1.65]"
                 style={{ fontSize: "clamp(0.9375rem, 1.3vw, 1.0625rem)" }}
               >
-                Accredited online short courses in nursing care and child safety — study on your phone, pay with mobile money.
+                Accredited online short courses in nursing care and child safety. Study on your phone, pay with mobile money.
               </p>
 
               {/* CTAs */}
@@ -288,7 +288,7 @@ export default async function HomePage() {
                            text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
                            uppercase tracking-wider mb-4">
               <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-              Now enrolling — January 2027 intake
+              Now enrolling - January 2027 intake
             </p>
 
             {/* Headline */}
@@ -301,7 +301,7 @@ export default async function HomePage() {
 
             {/* Description */}
             <p className="text-white/80 mb-8 leading-[1.65] text-base">
-              Accredited online short courses in nursing care and child safety — study on your phone, pay with mobile money.
+              Accredited online short courses in nursing care and child safety. Study on your phone, pay with mobile money.
             </p>
 
             {/* CTAs */}

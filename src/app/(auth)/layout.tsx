@@ -11,12 +11,12 @@ function getHeroPhoto(pathname: string): { src: string; alt: string } {
   if (pathname.startsWith("/register")) {
     return {
       src: "/assets/images/hero-register.webp",
-      alt: "Community health training — MTC Uganda",
+      alt: "Community health training - MTC Uganda",
     };
   }
   return {
     src: "/assets/images/hero-login.webp",
-    alt: "Healthcare worker performing a blood check — MTC",
+    alt: "Healthcare worker performing a blood check - MTC",
   };
 }
 
@@ -74,7 +74,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <Link
               href="/"
               className="flex items-center gap-2 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
-              aria-label="Musawo Training Center — back to home"
+              aria-label="Musawo Training Center - back to home"
             >
               <span className="flex items-center justify-center bg-white rounded-lg w-9 h-9 flex-shrink-0 shadow-sm p-1">
                 <Image
@@ -115,7 +115,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/"
             className="flex items-center gap-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
-            aria-label="Musawo Training Center — back to home"
+            aria-label="Musawo Training Center - back to home"
           >
             <span className="flex items-center justify-center bg-white rounded-xl w-[46px] h-[46px] flex-shrink-0 shadow-sm border border-border/60 p-1.5">
               <Image

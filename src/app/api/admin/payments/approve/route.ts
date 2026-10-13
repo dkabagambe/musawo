@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     if (payment.enrolment.user.email) {
       await sendEmail({
         to: payment.enrolment.user.email,
-        subject: `Your bank payment has been approved — ${payment.enrolment.course.title}`,
+        subject: `Your bank payment has been approved - ${payment.enrolment.course.title}`,
         template: "payment-receipt",
         variables: {
           name: payment.enrolment.user.name,
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     if (payment.enrolment.user.email) {
       await sendEmail({
         to: payment.enrolment.user.email,
-        subject: `Payment update — ${payment.enrolment.course.title}`,
+        subject: `Payment update - ${payment.enrolment.course.title}`,
         template: "payment-receipt",
         variables: {
           name: payment.enrolment.user.name,

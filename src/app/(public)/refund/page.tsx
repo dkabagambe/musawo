@@ -73,7 +73,7 @@ export default async function RefundPage() {
           <PolicySection title="Instalment plans">
             <p>
               If you are on an instalment plan and choose to withdraw, refunds apply only to amounts already paid and are calculated
-              based on the timing of your withdrawal as described above. Outstanding instalments are cancelled upon confirmed withdrawal —
+              based on the timing of your withdrawal as described above. Outstanding instalments are cancelled upon confirmed withdrawal.
               you will not be charged future instalments after your withdrawal is processed.
             </p>
           </PolicySection>
@@ -103,12 +103,12 @@ export default async function RefundPage() {
           <PolicySection title="How to request a refund">
             <p>To request a refund:</p>
             <ol className="list-decimal pl-5 space-y-1.5">
-              <li>Email <a href={`mailto:${contact.email}`} className="text-accent hover:underline no-underline">{contact.email}</a> with the subject line <strong>&ldquo;Refund Request — [Your Full Name]&rdquo;</strong>.</li>
+              <li>Email <a href={`mailto:${contact.email}`} className="text-accent hover:underline no-underline">{contact.email}</a> with the subject line <strong>&ldquo;Refund Request - [Your Full Name]&rdquo;</strong>.</li>
               <li>Include your student ID or the email address used to register, the course name, and the reason for withdrawal.</li>
-              <li>We will acknowledge your request within 1 business day and process eligible refunds within 7–14 working days.</li>
+              <li>We will acknowledge your request within 1 business day and process eligible refunds within 7-14 working days.</li>
             </ol>
             <p className="mt-3">
-              Refunds are returned to the original payment method. Mobile money refunds are typically processed within 3–5 working days
+              Refunds are returned to the original payment method. Mobile money refunds are typically processed within 3-5 working days
               after approval; bank transfers may take up to 14 working days.
             </p>
           </PolicySection>

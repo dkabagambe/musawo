@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 
-export const metadata = { title: "Check your email — Musawo Training Center" };
+export const metadata = { title: "Check your email - Musawo Training Center" };
 
 export default function CheckEmailPage() {
   return (

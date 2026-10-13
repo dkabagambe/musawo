@@ -47,7 +47,7 @@ export async function sendVerificationEmail(
 
   await sendEmail({
     to: email,
-    subject: "Verify your email — Musawo Training Center",
+    subject: "Verify your email - Musawo Training Center",
     template: "email-verification",
     variables: {
       name,

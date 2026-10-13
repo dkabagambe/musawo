@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import CompleteReviewForm from "./CompleteReviewForm";
 
-export const metadata = { title: "Access Review — Director" };
+export const metadata = { title: "Access Review - Director" };
 
 function currentQuarter(): string {
   const now = new Date();

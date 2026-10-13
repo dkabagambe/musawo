@@ -114,7 +114,7 @@ export default function BankPaymentForm({
         <h2 className="text-xl font-bold mb-2">Payment submitted!</h2>
         <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">
           Your bank receipt has been received. An admin will review and approve
-          your payment within 1–2 business days. You will receive an email and
+          your payment within 1-2 business days. You will receive an email and
           SMS once approved.
         </p>
         <button
@@ -157,7 +157,7 @@ export default function BankPaymentForm({
             }}
             required
           />
-          <p className="text-xs text-gray-400 mt-1">PDF, JPG or PNG — max 5 MB</p>
+          <p className="text-xs text-gray-400 mt-1">PDF, JPG or PNG - max 5 MB</p>
         </div>
 
         <button type="submit" className="btn-primary w-full" disabled={uploading}>
@@ -172,7 +172,7 @@ export default function BankPaymentForm({
       <h2 className="text-lg font-semibold mb-1">Pay by bank transfer</h2>
       <p className="text-sm text-gray-500 mb-4">
         Deposit your fees at any bank branch, then submit your receipt here.
-        Your account will be activated within 1–2 business days.
+        Your account will be activated within 1-2 business days.
       </p>
 
       {/* Bank details to pay to */}
@@ -181,7 +181,7 @@ export default function BankPaymentForm({
         <div className="space-y-1 text-gray-700">
           <p><span className="font-medium">Account name:</span> Musawo / ADFA</p>
           <p><span className="font-medium">Bank:</span> Centenary Bank Uganda</p>
-          <p><span className="font-medium">Account number:</span> 3100000000 <span className="text-gray-400">(placeholder — update in admin)</span></p>
+          <p><span className="font-medium">Account number:</span> 3100000000 <span className="text-gray-400">(placeholder - update in admin)</span></p>
           <p><span className="font-medium">Branch:</span> Kampala Road</p>
           <p className="text-xs text-gray-400 mt-2">
             ⚠️ Use your full name as the payment reference so we can identify your deposit.
@@ -210,7 +210,7 @@ export default function BankPaymentForm({
                 }`}
               >
                 {p === "FULL"
-                  ? `Full — UGX ${fullFeeUgx.toLocaleString()}`
+                  ? `Full - UGX ${fullFeeUgx.toLocaleString()}`
                   : `${instalmentCount} instalments from UGX ${firstInstalmentAmount.toLocaleString()}`}
               </button>
             ))}
@@ -268,7 +268,7 @@ export default function BankPaymentForm({
       </div>
 
       <button type="submit" className="btn-primary w-full">
-        Continue — upload receipt
+        Continue - upload receipt
       </button>
     </form>
   );

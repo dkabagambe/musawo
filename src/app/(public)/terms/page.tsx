@@ -48,7 +48,7 @@ export default async function TermsPage() {
             <TermsSection title="3. Enrolment and access">
               <p>
                 Access to paid course content is granted upon receipt of full payment or the required instalment deposit.
-                Your access is personal and non-transferable — you may not share your login credentials or provide access to any other person.
+                Your access is personal and non-transferable. You may not share your login credentials or provide access to any other person.
               </p>
               <p>
                 Course access remains active for the duration of the course plus six (6) months from the original enrolment date,
@@ -87,7 +87,7 @@ export default async function TermsPage() {
 
             <TermsSection title="6. Intellectual property">
               <p>
-                All course content — including videos, notes, assessments, images, and software — is the intellectual property of MTC or its licensors
+                All course content, including videos, notes, assessments, images, and software - is the intellectual property of MTC or its licensors
                 and is protected by Ugandan and international copyright law. You are granted a limited, non-exclusive, non-transferable licence to
                 access and view the content solely for your own personal, non-commercial study.
               </p>
@@ -145,7 +145,7 @@ export default async function TermsPage() {
             <TermsSection title="13. Contact">
               <p>For questions about these Terms, contact us at:</p>
               <address className="not-italic text-gray-600 text-sm leading-relaxed mt-2">
-                Musawo Training Center — ADFA<br />
+                Musawo Training Center - ADFA<br />
                 Plot 5, ADFA Building, Zone 8 Lungujja<br />
                 Kampala, Uganda<br />
                 <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>

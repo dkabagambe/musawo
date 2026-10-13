@@ -13,7 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const course = await db.course.findUnique({ where: { slug: params.slug }, select: { title: true } });
-  return { title: course ? `${course.title} — My Courses` : "Course" };
+  return { title: course ? `${course.title} - My Courses` : "Course" };
 }
 
 export default async function CoursePlayerPage({ params, searchParams }: Props) {

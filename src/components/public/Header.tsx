@@ -82,7 +82,7 @@ export default function PublicHeader() {
           <Link
             href="/"
             className="flex items-center gap-3 no-underline flex-shrink-0"
-            aria-label="Musawo Training Center — home"
+            aria-label="Musawo Training Center - home"
           >
             <span className="flex items-center justify-center bg-white rounded-xl w-[52px] h-[52px] flex-shrink-0 shadow-sm p-1.5">
               <Image

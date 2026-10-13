@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 
-export const metadata = { title: "Audit Log — Admin" };
+export const metadata = { title: "Audit Log - Admin" };
 
 interface Props {
   searchParams: { action?: string; page?: string };

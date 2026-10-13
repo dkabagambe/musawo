@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     from: "noreply@musawotraining.ug",
     to:   "info@musawo.ug",
     replyTo: body.email,
-    subject: `[Contact] ${body.subject} — from ${body.name}`,
+    subject: `[Contact] ${body.subject} - from ${body.name}`,
     text: `From: ${body.name} <${body.email}>\n\n${body.message}`,
   });
 

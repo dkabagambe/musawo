@@ -54,7 +54,7 @@ export default async function BankPaymentPage() {
       <p className="text-gray-500 text-sm mb-8">
         Deposit your fees at any bank branch or via mobile banking, then upload
         your receipt below. Your enrolment will be activated once an admin
-        verifies the payment (usually within 1–2 business days).
+        verifies the payment (usually within 1-2 business days).
       </p>
 
       {/* Pending approval notices */}
@@ -66,7 +66,7 @@ export default async function BankPaymentPage() {
             .map((e) =>
               e.payments.map((p) => (
                 <p key={p.id} className="text-xs text-amber-700">
-                  {e.course.title} — Ref: {p.bankTransferRef} — submitted{" "}
+                  {e.course.title} - Ref: {p.bankTransferRef} - submitted{" "}
                   {new Date(p.createdAt).toLocaleDateString("en-UG")}
                 </p>
               ))

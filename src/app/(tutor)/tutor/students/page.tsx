@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
-export const metadata = { title: "My Students — Tutor" };
+export const metadata = { title: "My Students - Tutor" };
 
 export default async function TutorStudentsPage() {
   const session = await auth();
