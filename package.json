@@ -18,7 +18,7 @@
     "db:generate": "prisma generate",
     "demo:reset": "docker compose down -v && docker compose up -d postgres redis && until docker compose exec postgres pg_isready -U mtc -d mtc_db -q; do sleep 1; done && npx prisma migrate deploy && npx prisma db seed",
     "demo:start": "docker compose up -d postgres redis && until docker compose exec postgres pg_isready -U mtc -d mtc_db -q; do sleep 1; done && npx prisma migrate deploy && npx prisma db seed && npm run dev",
-    "rate-limit:reset": "tsx scripts/rate-limit-reset.ts"
+    "rate-limit:reset": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/rate-limit-reset.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.7.4",
