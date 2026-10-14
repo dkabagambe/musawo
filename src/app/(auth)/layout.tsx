@@ -16,8 +16,8 @@ function getHeroPhoto(pathname: string): { src: string; alt: string } {
   }
   // login, forgot-password, reset-password, otp, 2fa, invite, etc.
   return {
-    src: "/assets/images/adfa-collage.webp",
-    alt: "ADFA and Musawo Training Center - healthcare professionals and community work",
+    src: "/assets/images/musawo-banner.webp",
+    alt: "Musawo healthcare professionals serving the community in Uganda",
   };
 }
 
