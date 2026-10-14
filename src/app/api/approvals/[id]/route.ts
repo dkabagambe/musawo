@@ -10,7 +10,7 @@ const DecideSchema = z.object({
   decisionNote: z.string().min(5).max(2000),
 });
 
-/** GET /api/approvals/[id] — view a single request (SUPERADMIN or initiator) */
+/** GET /api/approvals/[id] - view a single request (SUPERADMIN or initiator) */
 export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
@@ -38,7 +38,7 @@ export async function GET(
   return NextResponse.json({ request });
 }
 
-/** PATCH /api/approvals/[id] — decide (SUPERADMIN only, cannot be initiator) */
+/** PATCH /api/approvals/[id] - decide (SUPERADMIN only, cannot be initiator) */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }

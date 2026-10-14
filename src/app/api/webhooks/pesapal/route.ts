@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Redis idempotency lock — 30 s TTL
+  // Redis idempotency lock - 30 s TTL
   const lockKey = `webhook:lock:${payment.id}`;
   const acquired = await redis.set(lockKey, "1", "EX", 30, "NX");
   if (!acquired) {

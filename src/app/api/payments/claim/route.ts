@@ -18,7 +18,7 @@ const ClaimSchema = z.object({
 });
 
 /**
- * POST /api/payments/claim — student submits a manual payment claim
+ * POST /api/payments/claim - student submits a manual payment claim
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * GET /api/payments/claim?enrolmentId=xxx — list claims for an enrolment owned by the session user
+ * GET /api/payments/claim?enrolmentId=xxx - list claims for an enrolment owned by the session user
  */
 export async function GET(req: NextRequest) {
   const session = await auth();

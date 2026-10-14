@@ -71,10 +71,10 @@ export default async function GradebookPage() {
                       <td className="py-2 text-right">
                         {entry.score != null && entry.maxScore != null
                           ? `${entry.score}/${entry.maxScore}`
-                          : "—"}
+                          : "-"}
                       </td>
                       <td className="py-2 text-right font-medium">
-                        {entry.percentage != null ? `${Math.round(entry.percentage)}%` : "—"}
+                        {entry.percentage != null ? `${Math.round(entry.percentage)}%` : "-"}
                       </td>
                       <td className="py-2 text-right">
                         {entry.passed === true ? (

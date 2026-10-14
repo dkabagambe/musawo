@@ -102,11 +102,11 @@ export default async function AdminStudentsPage({ searchParams }: Props) {
               {students.map((s) => (
                 <tr key={s.id}>
                   <td className="py-2 pr-4 font-mono text-xs text-gray-400">
-                    {s.studentNumber ?? "—"}
+                    {s.studentNumber ?? "-"}
                   </td>
                   <td className="py-2 pr-4 font-medium">{s.name}</td>
-                  <td className="py-2 pr-4 text-gray-500">{s.email ?? "—"}</td>
-                  <td className="py-2 pr-4 text-gray-500">{s.phone ?? "—"}</td>
+                  <td className="py-2 pr-4 text-gray-500">{s.email ?? "-"}</td>
+                  <td className="py-2 pr-4 text-gray-500">{s.phone ?? "-"}</td>
                   <td className="py-2 pr-4">
                     {s.status === "ACTIVE" ? (
                       <span className="badge badge-success">Active</span>

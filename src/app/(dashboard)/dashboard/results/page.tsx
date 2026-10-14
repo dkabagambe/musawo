@@ -109,7 +109,7 @@ export default async function ResultsPage() {
                       Attempt {att.number} ·{" "}
                       {att.submittedAt
                         ? new Date(att.submittedAt).toLocaleDateString("en-UG")
-                        : "—"}
+                        : "-"}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">

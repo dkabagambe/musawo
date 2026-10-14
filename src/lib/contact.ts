@@ -1,5 +1,5 @@
 /**
- * Contact details helper — reads from SiteSettings with fallbacks.
+ * Contact details helper - reads from SiteSettings with fallbacks.
  * Used in layout, footer, emails, certificates, etc.
  * Admin can override any value via /admin/settings.
  */

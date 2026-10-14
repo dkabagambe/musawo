@@ -14,7 +14,7 @@ export default async function SystemAuditPage({ searchParams }: Props) {
   const take = 50;
   const skip = (page - 1) * take;
 
-  // SYSTEM_IT sees only infrastructure/settings events — no student or payment data
+  // SYSTEM_IT sees only infrastructure/settings events - no student or payment data
   const where = {
     action: {
       in: [
@@ -64,7 +64,7 @@ export default async function SystemAuditPage({ searchParams }: Props) {
                   <span className="badge badge-info text-xs">{log.action.replace(/_/g, " ")}</span>
                 </td>
                 <td className="py-2 pr-3">{log.actor?.name ?? "System"}</td>
-                <td className="py-2 pr-3 font-mono text-xs text-gray-400">{log.ip ?? "—"}</td>
+                <td className="py-2 pr-3 font-mono text-xs text-gray-400">{log.ip ?? "-"}</td>
                 <td className="py-2 text-xs text-gray-400">{new Date(log.createdAt).toLocaleString("en-UG")}</td>
               </tr>
             ))}

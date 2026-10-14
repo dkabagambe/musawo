@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * ClinicMap — three-tier fallback:
- *   1. Leaflet raster map (no WebGL, no API key) — primary
- *   2. OpenStreetMap iframe embed                — if Leaflet fails
- *   3. Styled address card                       — if iframe fails
+ * ClinicMap - three-tier fallback:
+ *   1. Leaflet raster map (no WebGL, no API key) - primary
+ *   2. OpenStreetMap iframe embed                - if Leaflet fails
+ *   3. Styled address card                       - if iframe fails
  *
  * No WebGL required at any level.
  */
@@ -23,7 +23,7 @@ const OSM_EMBED  = `https://www.openstreetmap.org/export/embed.html?bbox=${OSM_B
 const GMAPS_URL  = `https://www.google.com/maps/search/?api=1&query=${LAT},${LNG}`;
 const GMAPS_DIR  = `https://www.google.com/maps/dir/?api=1&destination=${LAT},${LNG}`;
 
-// Dynamically import Leaflet — ssr:false so it never runs on the server
+// Dynamically import Leaflet - ssr:false so it never runs on the server
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
   loading: () => <MapSkeleton />,

@@ -7,7 +7,7 @@ import { getTabSwitchThreshold } from "@/lib/settings";
 import { SubmitExamSchema } from "@/lib/validators";
 import { z } from "zod";
 
-// POST /api/exams/start — start an exam attempt
+// POST /api/exams/start - start an exam attempt
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) {
@@ -134,7 +134,7 @@ async function handleSubmit(req: NextRequest, userId: string) {
 
   // Check time limit
   if (attempt.timeLimitEndsAt && attempt.timeLimitEndsAt < new Date()) {
-    // Time up — submit with whatever answers they have
+    // Time up - submit with whatever answers they have
   }
 
   const result = markExam(

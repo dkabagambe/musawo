@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-      // Always show success — no email enumeration
+      // Always show success - no email enumeration
       setSent(true);
     } catch {
       setError("Something went wrong. Please try again.");

@@ -275,6 +275,7 @@ async function main() {
       description: `Our flagship certification provides a comprehensive foundation for nursing care work in homes, hospitals, clinics, and community care settings across Uganda.\n\nYou will learn patient-centred care, safety practices, infection prevention, hygiene and personal care support, basic clinical procedures, care for elderly patients, and professional ethics.\n\nUpon completion, you will receive a nationally recognised certificate accredited by Uganda's Ministry of Health.`,
       fullFeeUgx: 850000,
       instalmentCount: 3,
+      thumbnailUrl: "/assets/images/cna-course.png",
       freePreviewPercent: 12,
       durationWeeks: 12,
       accreditationText: "Accredited by Uganda Ministry of Health and Ministry of Education and Sports",
@@ -285,8 +286,9 @@ async function main() {
       title: "Basic Nursing Care Assistant",
       shortDescription: "An accessible, practical entry point into healthcare work with a strong foundation in patient care.",
       description: `An accessible entry point into healthcare work designed for learners who want to begin serving patients quickly.\n\nYou will learn essential patient care skills, safety and hygiene, basic clinical practices, professional communication, and basic first aid and emergency response.\n\nGraduates receive a nationally recognised certificate and are eligible for placement support through the Musawo network.`,
-      fullFeeUgx: 450000,
+      fullFeeUgx: 600000,
       instalmentCount: 2,
+      thumbnailUrl: "/assets/images/basic-nursing.png",
       freePreviewPercent: 12,
       durationWeeks: 8,
       accreditationText: "Accredited by Uganda Ministry of Health and Ministry of Education and Sports",
@@ -294,11 +296,12 @@ async function main() {
     },
     {
       slug: "child-care-safety",
-      title: "Babysitting, Child Care & Safety Management",
+      title: "Babysitting, Child Care and Safety Management",
       shortDescription: "Child development, daily care routines, first aid, and safety management for professional and family carers.",
       description: `Children need attentive, informed carers who understand child development and can keep them safe. This course is for anyone stepping into a childcare role.\n\nYou will learn child development basics, age-appropriate care practices, daily care routines, recognising signs of illness, first aid and emergency response for infants and children, and safety management in home and community settings.`,
-      fullFeeUgx: 350000,
-      instalmentCount: 2,
+      fullFeeUgx: 480000,
+      instalmentCount: 1,
+      thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
       freePreviewPercent: 15,
       durationWeeks: 6,
       accreditationText: "Accredited by Uganda Ministry of Education and Sports",
@@ -309,7 +312,11 @@ async function main() {
   for (const cd of COURSE_DEFS) {
     courses[cd.slug] = await prisma.course.upsert({
       where: { slug: cd.slug },
-      update: {},
+      update: {
+        fullFeeUgx: cd.fullFeeUgx,
+        instalmentCount: cd.instalmentCount,
+        thumbnailUrl: cd.thumbnailUrl,
+      },
       create: { ...cd, status: "PUBLISHED" },
     });
   }
@@ -720,7 +727,7 @@ async function main() {
     }
     const tutor2Enr = await prisma.enrolment.findFirst({ where: { userId: tutor2.id } });
     if (tutor2Enr) enrolments["tutor2"] = tutor2Enr;
-    console.log("  ℹ  Enrolments already seeded — skipping payments/progress");
+    console.log("  ℹ  Enrolments already seeded - skipping payments/progress");
   }
 
   // ── Discount codes ─────────────────────────────────────────────

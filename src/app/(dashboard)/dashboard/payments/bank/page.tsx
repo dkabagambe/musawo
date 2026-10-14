@@ -33,7 +33,7 @@ export default async function BankPaymentPage() {
     },
   });
 
-  // Also get published courses not yet enrolled — student may want to pay first
+  // Also get published courses not yet enrolled - student may want to pay first
   const allCourses = await db.course.findMany({
     where: { status: "PUBLISHED" },
     select: { id: true, title: true, fullFeeUgx: true, instalmentCount: true, slug: true },

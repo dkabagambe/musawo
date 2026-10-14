@@ -10,7 +10,7 @@ const Schema = z.object({ email: z.string().email() });
 /**
  * POST /api/auth/resend-verification
  * Resends the email verification link.
- * Rate-limited to once per minute per email (via token expiry — we just
+ * Rate-limited to once per minute per email (via token expiry - we just
  * check if a fresh token was created recently by looking for existing ones
  * that are still more than 23h55m from expiry).
  */

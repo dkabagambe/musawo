@@ -5,7 +5,7 @@ import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 
-/** GET /api/admin/courses — list all courses */
+/** GET /api/admin/courses - list all courses */
 export async function GET(_req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,7 +37,7 @@ const CreateSchema = z.object({
   thumbnailUrl:       z.string().url().optional(),
 });
 
-/** POST /api/admin/courses — create a course */
+/** POST /api/admin/courses - create a course */
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

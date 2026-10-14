@@ -1,5 +1,5 @@
 import PageHero from "@/components/public/PageHero";
-import { Mail, Phone, MapPin, ArrowRight, MessageCircle, Navigation } from "lucide-react";
+import { Mail, Phone, MapPin, ArrowRight, MessageCircle } from "lucide-react";
 import { getContactInfo } from "@/lib/contact";
 import AnimateIn from "@/components/public/AnimateIn";
 import ContactForm from "./ContactForm";

@@ -1,5 +1,5 @@
 /**
- * Next.js middleware — runs in the Edge runtime.
+ * Next.js middleware - runs in the Edge runtime.
  *
  * IMPORTANT: only imports edge-safe modules.
  * - Uses authConfig (no argon2, no Prisma, no Redis)
@@ -33,7 +33,7 @@ const PUBLIC_PATHS = [
   "/manifest.json",
   "/sw.js",
   "/approval",
-  "/_rbac_redirect", // kept for backward compat — page now redirects server-side
+  "/_rbac_redirect", // kept for backward compat - page now redirects server-side
   "/403",
   "/invite",
   "/check-email",
@@ -104,7 +104,7 @@ export default auth(function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Coarse-grained portal access — redirect to correct home if wrong portal
+  // Coarse-grained portal access - redirect to correct home if wrong portal
   const PORTALS = ["/director", "/system", "/admin", "/bursar", "/tutor", "/dashboard"];
   const portal = PORTALS.find((p) => pathname.startsWith(p));
 
@@ -112,7 +112,7 @@ export default auth(function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(getHomeForRole(role), req.url));
   }
 
-  // API role guards (coarse — fine-grained enforced in each handler)
+  // API role guards (coarse - fine-grained enforced in each handler)
   if (pathname.startsWith("/api/director") && role !== "SUPERADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

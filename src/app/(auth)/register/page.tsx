@@ -9,7 +9,7 @@ import {
   AlertCircle, Loader2, CheckCircle2,
 } from "lucide-react";
 
-/** Password strength meter — returns 0-4 score */
+/** Password strength meter - returns 0-4 score */
 function passwordStrength(pw: string): number {
   if (!pw) return 0;
   let score = 0;
@@ -263,7 +263,7 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      {/* What happens next — desktop only */}
+      {/* What happens next - desktop only */}
       <div className="hidden lg:block mt-8 pt-6 border-t border-border/60">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">What happens next</p>
         <ol className="space-y-2">

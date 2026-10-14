@@ -43,7 +43,7 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
 
   if (!course) notFound();
 
-  // Check enrolment — allow PREVIEW access (show locked state)
+  // Check enrolment - allow PREVIEW access (show locked state)
   const enrolment = await db.enrolment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId: course.id } },
   });
@@ -59,7 +59,7 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
 
   const level = getAccessLevel(accessInfo);
 
-  // PENDING with no provisional access — redirect to course public page
+  // PENDING with no provisional access - redirect to course public page
   if (!enrolment || level === "PENDING") {
     redirect(`/courses/${course.slug}`);
   }

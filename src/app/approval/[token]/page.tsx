@@ -137,7 +137,7 @@ export default async function ApprovalLinkPage({ params }: Props) {
           </div>
         </dl>
 
-        {/* Decision form — only if PENDING and not expired */}
+        {/* Decision form - only if PENDING and not expired */}
         {request.status === "PENDING" && !expired && (
           <ApprovalDecisionForm
             requestId={request.id}

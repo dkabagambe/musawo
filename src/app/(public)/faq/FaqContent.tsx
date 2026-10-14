@@ -20,7 +20,7 @@ const FAQS = [
       { q: "How do I pay?",                              a: "You can pay with MTN Mobile Money, Airtel Money, a debit or credit card, or a bank transfer. Instalment payment plans are available on all courses - pay 25% to start, then the remainder in two further instalments." },
       { q: "Are scholarships available?",                a: "Yes. A limited number of subsidised and full scholarship places are allocated each intake for learners who cannot afford the full fee. Apply when you register and our admissions team will follow up." },
       { q: "What is your refund policy?",                a: "If you withdraw before the course start date you are entitled to a full refund. After the start date, a partial refund may be available depending on how much of the course has been completed. See our Refund Policy page for full details." },
-      { q: "Can I pay in instalments?",                  a: "Yes. Every course offers an instalment plan. You pay a 25% deposit to confirm your place, then the remainder in two further instalments — each unlocking the next block of course content." },
+      { q: "Can I pay in instalments?",                  a: "Yes. Every course offers an instalment plan. You pay a 25% deposit to confirm your place, then the remainder in two further instalments - each unlocking the next block of course content." },
     ],
   },
   {

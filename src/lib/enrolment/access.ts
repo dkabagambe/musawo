@@ -12,7 +12,7 @@ import type { EnrolmentStatus } from "@prisma/client";
 
 export type AccessLevel =
   | "NONE"         // logged out or no enrolment record
-  | "PREVIEW"      // registered, not enrolled — free-preview lessons only
+  | "PREVIEW"      // registered, not enrolled - free-preview lessons only
   | "PENDING"      // payment initiated but not confirmed
   | "PROVISIONAL"  // bank transfer pending approval but provisional hours granted
   | "PARTIAL"      // instalment plan, some blocks unlocked

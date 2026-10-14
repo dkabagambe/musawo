@@ -10,13 +10,14 @@ import { ArrowLeft } from "lucide-react";
 function getHeroPhoto(pathname: string): { src: string; alt: string } {
   if (pathname.startsWith("/register")) {
     return {
-      src: "/assets/images/hero-register.webp",
-      alt: "Community health training - MTC Uganda",
+      src: "/assets/care-to-community.webp",
+      alt: "Musawo community health worker supporting a family in Uganda",
     };
   }
+  // login, forgot-password, reset-password, otp, 2fa, invite, etc.
   return {
-    src: "/assets/images/hero-login.webp",
-    alt: "Healthcare worker performing a blood check - MTC",
+    src: "/assets/clinical-training.webp",
+    alt: "Musawo Training Center clinical skills session",
   };
 }
 
@@ -43,7 +44,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           aria-hidden="true"
         />
 
-        {/* Caption box — solid brand teal, 32 px from edges */}
+        {/* Caption box - solid brand teal, 32 px from edges */}
         <motion.div
           initial={{ opacity: 0, x: -28 }}
           animate={{ opacity: 1, x: 0 }}

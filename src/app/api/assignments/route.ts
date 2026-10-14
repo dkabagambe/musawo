@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
-/** GET /api/assignments — assignments for the student's enrolled courses */
+/** GET /api/assignments - assignments for the student's enrolled courses */
 export async function GET(_req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,7 +35,7 @@ const SubmitSchema = z.object({
   fileS3Key:    z.string().max(500).optional(),
 });
 
-/** POST /api/assignments — submit an assignment */
+/** POST /api/assignments - submit an assignment */
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

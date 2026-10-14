@@ -55,7 +55,7 @@ export async function POST(
     );
 
     if (claim.amount > threshold) {
-      // Requires a second verifier — mark as UNDER_REVIEW
+      // Requires a second verifier - mark as UNDER_REVIEW
       await db.manualPaymentClaim.update({
         where: { id: claim.id },
         data: {
@@ -68,7 +68,7 @@ export async function POST(
       return NextResponse.json({ ok: true, requiresSecondVerify: true });
     }
 
-    // Below threshold — verify directly
+    // Below threshold - verify directly
     await db.manualPaymentClaim.update({
       where: { id: claim.id },
       data: {

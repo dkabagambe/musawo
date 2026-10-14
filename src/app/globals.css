@@ -4,11 +4,15 @@
 
 @layer base {
   :root {
-    --color-primary: #0B6B5D;
-    --color-accent:  #F2A32E;
-    --color-success: #00C47A;
-    --color-warning: #F59E0B;
-    --color-danger:  #EF4444;
+    --color-primary:     #0B6B5D;
+    --color-primary-dark:#07241F;
+    --color-accent:      #F2A32E;
+    --color-success:     #00C47A;
+    --color-warning:     #F59E0B;
+    --color-danger:      #EF4444;
+    --color-surface-alt: #F1F7F5;
+    --color-muted:       #4B5563;
+    --color-border:      #E4EAE8;
   }
 
   * { box-sizing: border-box; }
@@ -183,6 +187,31 @@
     @apply text-accent text-xs font-bold uppercase tracking-widest;
   }
 
+  /* ── Section header (centred label + H2) ──────────────────────── */
+  .section-header {
+    @apply text-center mb-10 sm:mb-12;
+  }
+  .section-header .section-eyebrow { @apply block mb-2; }
+  .section-header h2 {
+    @apply mt-0;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  /* ── Container ────────────────────────────────────────────────── */
+  .container-page {
+    @apply max-w-[1200px] mx-auto px-4 sm:px-6;
+  }
+
+  /* ── Section padding ──────────────────────────────────────────── */
+  .section-pad {
+    @apply py-12 sm:py-16 lg:py-24;
+  }
+
+  /* ── Side nav layout (with sticky side nav) ───────────────────── */
+  .sidenav-layout {
+    @apply flex gap-12 items-start;
+  }
+
   /* ── Divider ───────────────────────────────────────────────────── */
   .divider { @apply flex items-center gap-3 text-xs text-gray-400 my-4; }
   .divider::before, .divider::after { content: ""; @apply flex-1 h-px bg-border; }
@@ -228,6 +257,18 @@
 }
 
 /* ── Global keyframes ──────────────────────────────────────────── */
+/* ── Home hero section height ──────────────────────────────── */
+/* Mobile / tablet: viewport minus 72px fixed header */
+.hero-section {
+  height: clamp(480px, calc(100svh - 72px), 960px);
+}
+/* Desktop (lg+): viewport minus 110px dual-bar header */
+@media (min-width: 1024px) {
+  .hero-section {
+    height: clamp(540px, calc(100svh - 110px), 960px);
+  }
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }

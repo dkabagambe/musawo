@@ -1,5 +1,5 @@
 /**
- * /dev/auth-check — Development-only diagnostic page.
+ * /dev/auth-check - Development-only diagnostic page.
  * 404 in production.
  *
  * Shows for every demo account:
@@ -15,7 +15,7 @@ import { verifyPassword } from "@/lib/auth/password";
 import { redis } from "@/lib/db/redis";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Auth Check — Dev" };
+export const metadata = { title: "Auth Check - Dev" };
 
 const DEMO_EMAIL = "Demo1234!";
 
@@ -64,7 +64,7 @@ async function checkAccount(email: string): Promise<AccountCheck> {
   try {
     rateLimitCount = await redis.zcard(rateLimitKey);
   } catch {
-    // Redis unavailable — not a hard failure
+    // Redis unavailable - not a hard failure
   }
 
   if (!user) {
@@ -127,7 +127,7 @@ export default async function AuthCheckPage() {
   return (
     <div style={{ fontFamily: "monospace", padding: "2rem", maxWidth: "960px", margin: "0 auto" }}>
       <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "0.5rem" }}>
-        🔐 Auth Check — Dev Only
+        🔐 Auth Check - Dev Only
       </h1>
       <p style={{ color: "#666", marginBottom: "1.5rem", fontSize: "0.875rem" }}>
         Tests each demo account against the real <code>authorize()</code> logic (same
@@ -165,7 +165,7 @@ export default async function AuthCheckPage() {
             <tr key={r.email} style={{ background: r.wouldAuthorize ? "#f0fdf4" : "#fef2f2" }}>
               <td style={td}>{r.email}</td>
               <td style={{ ...td, textAlign: "center" }}>{r.exists ? "✅" : "❌"}</td>
-              <td style={td}>{r.status ?? "—"}</td>
+              <td style={td}>{r.status ?? "-"}</td>
               <td style={{ ...td, textAlign: "center" }}>{r.emailVerified ? "✅" : "❌"}</td>
               <td style={{ ...td, textAlign: "center" }}>
                 {r.totpEnabled ? (r.totpSecret ? "🔐 on" : "⚠️ on/no-secret") : "off"}
@@ -179,7 +179,7 @@ export default async function AuthCheckPage() {
               <td style={{ ...td, textAlign: "center", fontWeight: "bold", color: r.wouldAuthorize ? "#166534" : "#7f1d1d" }}>
                 {r.wouldAuthorize ? "✅ yes" : "❌ no"}
               </td>
-              <td style={{ ...td, color: "#6b7280" }}>{r.blockReason ?? "—"}</td>
+              <td style={{ ...td, color: "#6b7280" }}>{r.blockReason ?? "-"}</td>
             </tr>
           ))}
         </tbody>

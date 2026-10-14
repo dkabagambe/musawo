@@ -40,7 +40,7 @@ export async function sendVerificationEmail(
   // so developers can click it without needing email delivery.
   if (!process.env.RESEND_API_KEY || process.env.NODE_ENV === "development") {
     console.log("\n─────────────────────────────────────────────────────");
-    console.log("📧  EMAIL VERIFICATION LINK (dev only — click to verify)");
+    console.log("📧  EMAIL VERIFICATION LINK (dev only - click to verify)");
     console.log(verifyUrl);
     console.log("─────────────────────────────────────────────────────\n");
   }

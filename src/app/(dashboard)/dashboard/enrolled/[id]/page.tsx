@@ -95,7 +95,7 @@ export default async function EnrolledPage({ params }: { params: { id: string } 
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Date</span>
-              <span>{lastPayment.paidAt ? new Date(lastPayment.paidAt).toLocaleDateString("en-UG") : "—"}</span>
+              <span>{lastPayment.paidAt ? new Date(lastPayment.paidAt).toLocaleDateString("en-UG") : "-"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Reference</span>

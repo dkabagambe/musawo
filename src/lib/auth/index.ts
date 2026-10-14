@@ -1,5 +1,5 @@
 /**
- * Full NextAuth config — Node.js runtime only.
+ * Full NextAuth config - Node.js runtime only.
  * Used by server components and API route handlers.
  * Never import this file from middleware.ts.
  */
@@ -48,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // ── TOTP enforcement ─────────────────────────────────────────
         // Any user with totpEnabled=true must supply a valid code.
         // SUPERADMIN accounts that have NOT yet set up TOTP (totpEnabled=false)
-        // are allowed through — this covers freshly-seeded demo accounts and
+        // are allowed through - this covers freshly-seeded demo accounts and
         // the brief window between account creation and /2fa-setup completion.
         // Once a SUPERADMIN enables TOTP it becomes mandatory on every login.
         if (user.totpEnabled && user.totpSecret) {

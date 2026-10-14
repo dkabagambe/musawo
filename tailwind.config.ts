@@ -45,8 +45,11 @@ const config: Config = {
         warning: "#F59E0B",
         danger:  "#EF4444",
         "body-text": "#1F2937",
+        muted:       "#4B5563",
         surface:     "#F8FAF9",
+        "surface-alt": "#F1F7F5",
         border:      "#E4EAE8",
+        "border-dark": "#E5E7EB",
         // Legacy aliases kept so existing pages don't break
         teal: {
           DEFAULT: "#0B6B5D",
@@ -55,6 +58,7 @@ const config: Config = {
       fontFamily: {
         sans:    ["var(--font-jakarta)", "Inter", "system-ui", "sans-serif"],
         heading: ["var(--font-jakarta)", "Inter", "system-ui", "sans-serif"],
+        body:    ["Inter", "var(--font-jakarta)", "system-ui", "sans-serif"],
         mono:    ["JetBrains Mono", "Fira Code", "monospace"],
       },
       screens: {

@@ -67,7 +67,7 @@ export default async function ScholarshipsPage() {
   return (
     <div className="bg-surface">
       <PageHero
-        image="/assets/images/hero-faq-scholarships.webp"
+        image="/assets/community-outreach.webp"
         imageAlt="Musawo Training Center community health workers"
         title="Scholarships & Financial Aid"
         description="Cost should never stop anyone from becoming a health worker. We reserve scholarship and subsidised places every intake."

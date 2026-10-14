@@ -13,13 +13,13 @@ const DEMO_ACCOUNTS = [
   { label: "Bursar",          email: "bursar@musawotraining.ug",     role: "BURSAR",     landing: "/bursar",          icon: "💳" },
   { label: "Tutor (Grace)",   email: "tutor@musawotraining.ug",      role: "TUTOR",      landing: "/tutor",           icon: "👩‍🏫" },
   { label: "Tutor 2 (dual)",  email: "tutor2@musawotraining.ug",     role: "TUTOR",      landing: "/tutor",           icon: "👩‍🏫" },
-  { label: "Student — new",      email: "student.new@example.com",       role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — 25% paid", email: "student.25@example.com",        role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — 50% paid", email: "student.50@example.com",        role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — active",   email: "student.full@example.com",      role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — overdue",  email: "student.overdue@example.com",   role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — sponsored",email: "student.sponsored@example.com", role: "STUDENT", landing: "/dashboard", icon: "🎓" },
-  { label: "Student — completed",email: "student.completed@example.com", role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - new",      email: "student.new@example.com",       role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - 25% paid", email: "student.25@example.com",        role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - 50% paid", email: "student.50@example.com",        role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - active",   email: "student.full@example.com",      role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - overdue",  email: "student.overdue@example.com",   role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - sponsored",email: "student.sponsored@example.com", role: "STUDENT", landing: "/dashboard", icon: "🎓" },
+  { label: "Student - completed",email: "student.completed@example.com", role: "STUDENT", landing: "/dashboard", icon: "🎓" },
 ];
 
 export const DEMO_PASSWORD = "Demo1234!";
@@ -36,7 +36,7 @@ export default function DevLoginPage() {
           <Image src="/assets/logo-header.png" alt="MTC" width={40} height={40} className="rounded-xl" />
           <div>
             <h1 className="text-xl font-bold text-primary">Demo Login</h1>
-            <p className="text-xs text-gray-500">Local development only — not available in production</p>
+            <p className="text-xs text-gray-500">Local development only - not available in production</p>
           </div>
         </div>
 

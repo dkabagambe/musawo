@@ -7,8 +7,8 @@ import { audit } from "@/lib/audit";
 export const runtime = "nodejs";
 
 /**
- * GET  — generate a new TOTP secret and return QR code (only if not yet enabled)
- * POST — confirm setup with a valid code, then enable TOTP on the account
+ * GET  - generate a new TOTP secret and return QR code (only if not yet enabled)
+ * POST - confirm setup with a valid code, then enable TOTP on the account
  */
 export async function GET(_req: NextRequest) {
   const session = await auth();
@@ -26,7 +26,7 @@ export async function GET(_req: NextRequest) {
   const qrDataUrl = await generateQrDataUrl(otpauthUrl);
 
   // Store the raw secret temporarily in a signed server-side value (we use a short-lived OTP record)
-  // Store in OtpCode table with purpose TOTP_SETUP — reuse the pattern
+  // Store in OtpCode table with purpose TOTP_SETUP - reuse the pattern
   await db.otpCode.deleteMany({ where: { userId: session.user.id, purpose: "TOTP_SETUP" } });
   await db.otpCode.create({
     data: {

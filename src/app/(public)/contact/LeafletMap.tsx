@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * LeafletMap — raster OSM tiles, no WebGL, no API key.
+ * LeafletMap - raster OSM tiles, no WebGL, no API key.
  *
  * Loaded only in the browser via next/dynamic (ssr:false in the parent).
  * Uses Leaflet 1.9.x with a custom divIcon pin so no broken image paths.
@@ -9,7 +9,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Lungujja / ADFA Building — verified coordinates
+// Lungujja / ADFA Building - verified coordinates
 export const LAT = 0.3040;
 export const LNG = 32.5441;
 const ZOOM = 16;
@@ -30,7 +30,7 @@ export default function LeafletMap({ onError }: Props) {
 
     (async () => {
       try {
-        // Dynamic import — keeps leaflet out of the server bundle
+        // Dynamic import - keeps leaflet out of the server bundle
         const L = (await import("leaflet")).default;
 
         // Leaflet CSS must be loaded; import it here so webpack bundles it
@@ -52,17 +52,17 @@ export default function LeafletMap({ onError }: Props) {
         // Re-enable scroll zoom on click so page still scrolls on mobile
         map.once("click", () => map.scrollWheelZoom.enable());
 
-        // Raster OSM tiles — no WebGL required
+        // Raster OSM tiles - no WebGL required
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright" ' +
             'target="_blank" rel="noopener">OpenStreetMap</a> contributors',
           maxZoom: 19,
-          // Error per tile — if OSM tiles are blocked, fall back entirely
+          // Error per tile - if OSM tiles are blocked, fall back entirely
           errorTileUrl: "",
         }).addTo(map);
 
-        // Custom div-based pin — no broken default icon paths
+        // Custom div-based pin - no broken default icon paths
         const pin = L.divIcon({
           className: "",
           html: `

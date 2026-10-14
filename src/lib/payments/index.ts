@@ -32,7 +32,7 @@ async function generateReceiptNumber(): Promise<string> {
 
 /**
  * Called after a payment webhook confirms a successful payment.
- * Idempotent — safe to call multiple times for the same payment.
+ * Idempotent - safe to call multiple times for the same payment.
  *
  * State machine transitions:
  *   PENDING_PAYMENT → ACTIVE (full payment)

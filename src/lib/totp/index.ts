@@ -1,5 +1,5 @@
 /**
- * TOTP helpers — wraps `otpauth` library.
+ * TOTP helpers - wraps `otpauth` library.
  * The secret is stored encrypted in the DB using AES-256-GCM.
  * Encryption key comes from TOTP_ENCRYPTION_KEY env var (32-byte hex).
  */

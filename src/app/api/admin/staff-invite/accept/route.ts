@@ -12,7 +12,7 @@ const AcceptSchema = z.object({
   password: z.string().min(8).max(128),
 });
 
-/** POST /api/admin/staff-invite/accept — accept invite, create account */
+/** POST /api/admin/staff-invite/accept - accept invite, create account */
 export async function POST(req: NextRequest) {
   const parsed = AcceptSchema.safeParse(await req.json());
   if (!parsed.success)

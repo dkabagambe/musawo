@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 import PageHero from "@/components/public/PageHero";
+import CTABand from "@/components/public/CTABand";
+import ContactBand from "@/components/public/ContactBand";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -14,9 +16,9 @@ export const metadata: Metadata = {
 };
 
 const FALLBACK: Record<string, string> = {
-  "cna":                "/assets/images/course-cna.webp",
-  "basic-nursing-care": "/assets/images/course-basic-nursing.webp",
-  "child-care-safety":  "/assets/images/course-child-safety.webp",
+  "cna":                "/assets/images/cna-course.png",
+  "basic-nursing-care": "/assets/images/basic-nursing.png",
+  "child-care-safety":  "/assets/images/first-aid-child-safety.jpg",
 };
 
 const PLACEHOLDER_COURSES: CourseItem[] = [
@@ -25,31 +27,31 @@ const PLACEHOLDER_COURSES: CourseItem[] = [
     shortDescription: "Our flagship certification for nursing care assistants across Uganda.",
     thumbnailUrl: null, fullFeeUgx: 850000, durationWeeks: 12,
     instalmentCount: 3, tutorName: "MTC Faculty", lessonCount: 48,
-    enrolmentCount: 0, img: "/assets/images/course-cna.webp", category: "Nursing",
+    enrolmentCount: 0, img: "/assets/images/cna-course.png", category: "Nursing",
   },
   {
     id: "p2", title: "Basic Nursing Care Assistant", slug: "basic-nursing-care",
     shortDescription: "An accessible entry point with a strong foundation in patient care.",
-    thumbnailUrl: null, fullFeeUgx: 550000, durationWeeks: 8,
+    thumbnailUrl: null, fullFeeUgx: 600000, durationWeeks: 8,
     instalmentCount: 2, tutorName: "MTC Faculty", lessonCount: 32,
-    enrolmentCount: 0, img: "/assets/images/course-basic-nursing.webp", category: "Nursing",
+    enrolmentCount: 0, img: "/assets/images/basic-nursing.png", category: "Nursing",
   },
   {
-    id: "p3", title: "Babysitting, Child Care & Safety Management", slug: "child-care-safety",
+    id: "p3", title: "Babysitting, Child Care and Safety Management", slug: "child-care-safety",
     shortDescription: "Child care, first aid, and emergency response for child safety workers.",
-    thumbnailUrl: null, fullFeeUgx: 420000, durationWeeks: 6,
+    thumbnailUrl: null, fullFeeUgx: 480000, durationWeeks: 6,
     instalmentCount: 1, tutorName: "MTC Faculty", lessonCount: 24,
-    enrolmentCount: 0, img: "/assets/images/course-child-safety.webp", category: "Child Safety",
+    enrolmentCount: 0, img: "/assets/images/first-aid-child-safety.jpg", category: "Child Safety",
   },
 ];
 
 const COMPARE = [
   { feature: "Duration",         cna: "12 weeks", basic: "8 weeks",  child: "6 weeks" },
-  { feature: "Fee (UGX)",        cna: "850,000",  basic: "550,000",  child: "420,000" },
+  { feature: "Fee (UGX)",        cna: "850,000",  basic: "600,000",  child: "480,000" },
   { feature: "Instalments",      cna: "3",        basic: "2",        child: "1" },
-  { feature: "MoH Accredited",   cna: "✓",        basic: "✓",        child: "✓" },
-  { feature: "MoES Accredited",  cna: "✓",        basic: "✓",        child: "✓" },
-  { feature: "Live classes",     cna: "2×/week",  basic: "2×/week",  child: "1×/week" },
+  { feature: "MoH Accredited",   cna: "Yes",      basic: "Yes",      child: "Yes" },
+  { feature: "MoES Accredited",  cna: "Yes",      basic: "Yes",      child: "Yes" },
+  { feature: "Live classes",     cna: "2/week",   basic: "2/week",   child: "1/week" },
   { feature: "Practical days",   cna: "4 days",   basic: "3 days",   child: "2 days" },
   { feature: "Certificate",      cna: "CNA",      basic: "BNCA",     child: "CCS" },
 ];
@@ -166,22 +168,14 @@ export default async function CoursesPage() {
       </section>
 
       {/* CTA strip */}
-      <div className="bg-primary py-16 px-4 sm:px-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
-          Not sure which course to pick?
-        </h2>
-        <p className="text-white/70 mb-6 max-w-md mx-auto text-sm">
-          Chat with our admissions team on WhatsApp and we&apos;ll help you choose.
-        </p>
-        <Link
-          href={contact.whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold px-7 py-3 rounded-xl no-underline transition-colors shadow-cta"
-        >
-          Chat on WhatsApp <ArrowRight className="w-4 h-4" aria-hidden="true" />
-        </Link>
-      </div>
+      <CTABand
+        heading="Not sure which course to pick?"
+        subheading="Chat with our admissions team on WhatsApp and we'll help you choose the right programme."
+        primaryLabel="Enrol now"
+        primaryHref="/register"
+        whatsappUrl={contact.whatsappUrl}
+      />
+      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

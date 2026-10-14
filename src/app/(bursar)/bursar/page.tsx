@@ -90,7 +90,7 @@ export default async function BursarDashboardPage() {
                     <td className="py-2 pr-4">{p.enrolment.user.name}</td>
                     <td className="py-2 pr-4 text-gray-500 text-xs">{p.enrolment.course.title}</td>
                     <td className="py-2 pr-4 text-right font-medium">UGX {p.amount.toLocaleString()}</td>
-                    <td className="py-2 text-xs text-gray-400">{p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "—"}</td>
+                    <td className="py-2 text-xs text-gray-400">{p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "-"}</td>
                   </tr>
                 ))}
               </tbody>

@@ -53,7 +53,7 @@ export default async function DashboardLayout({
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar — hidden on mobile, shown md+ */}
+        {/* Sidebar - hidden on mobile, shown md+ */}
         <nav
           className="hidden md:flex flex-col w-52 bg-white border-r border-border py-4 px-2 gap-1"
           aria-label="Dashboard navigation"

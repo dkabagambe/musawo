@@ -67,11 +67,11 @@ export default async function DirectorAuditPage({ searchParams }: Props) {
                   </span>
                 </td>
                 <td className="py-2 pr-3 font-medium">{log.actor?.name ?? "System"}</td>
-                <td className="py-2 pr-3 text-xs text-gray-500">{log.actor?.role?.replace("_"," ") ?? "—"}</td>
+                <td className="py-2 pr-3 text-xs text-gray-500">{log.actor?.role?.replace("_"," ") ?? "-"}</td>
                 <td className="py-2 pr-3 text-xs text-gray-400 font-mono">
-                  {log.entityType ? `${log.entityType} ${(log.entityId ?? "").slice(0, 8)}` : "—"}
+                  {log.entityType ? `${log.entityType} ${(log.entityId ?? "").slice(0, 8)}` : "-"}
                 </td>
-                <td className="py-2 pr-3 text-xs text-gray-400 font-mono">{log.ip ?? "—"}</td>
+                <td className="py-2 pr-3 text-xs text-gray-400 font-mono">{log.ip ?? "-"}</td>
                 <td className="py-2 text-xs text-gray-400">{new Date(log.createdAt).toLocaleString("en-UG")}</td>
               </tr>
             ))}

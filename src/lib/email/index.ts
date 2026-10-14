@@ -66,7 +66,7 @@ function renderTemplate(
     "exam-result": `
       <h2>Your exam result - {{examTitle}}</h2>
       <p>Dear {{name}},</p>
-      <p>Your result for <strong>{{examTitle}}</strong>: <strong>{{score}}%</strong> — {{passFail}}</p>
+      <p>Your result for <strong>{{examTitle}}</strong>: <strong>{{score}}%</strong> - {{passFail}}</p>
       <p><a href="{{resultsUrl}}">View detailed results</a></p>
     `,
     "certificate-issued": `
@@ -145,6 +145,6 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
     });
   } catch (err) {
     console.error("Email send failed:", err);
-    // Non-fatal — log and continue
+    // Non-fatal - log and continue
   }
 }

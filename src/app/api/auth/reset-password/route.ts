@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This reset link has expired. Please request a new one." }, { status: 400 });
   }
 
-  // Hash the new password and mark the token used — atomically
+  // Hash the new password and mark the token used - atomically
   const hashed = await hashPassword(body.password);
 
   await db.$transaction([

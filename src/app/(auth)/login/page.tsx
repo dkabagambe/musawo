@@ -172,7 +172,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* Mode tabs — segmented control */}
+      {/* Mode tabs - segmented control */}
       <div className="relative flex rounded-xl border border-border bg-surface p-1 mb-8" role="tablist" aria-label="Sign-in method">
         {/* sliding indicator */}
         <motion.div

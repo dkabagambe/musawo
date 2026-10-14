@@ -94,7 +94,7 @@ export function ExamAttemptRow({
             </span>
           </span>
         ) : (
-          <span className="text-gray-400">—</span>
+          <span className="text-gray-400">-</span>
         )}
       </td>
       <td className="py-2 text-xs text-gray-400">
@@ -104,7 +104,7 @@ export function ExamAttemptRow({
               month: "short",
               year: "numeric",
             })
-          : "—"}
+          : "-"}
       </td>
     </tr>
   );

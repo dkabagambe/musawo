@@ -44,7 +44,7 @@ export async function GET(
   return NextResponse.json({ student });
 }
 
-/** PATCH /api/admin/students/[id] — edit or suspend */
+/** PATCH /api/admin/students/[id] - edit or suspend */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }

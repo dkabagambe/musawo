@@ -3,7 +3,7 @@
  *
  * Rules:
  *  - NO argon2, NO Prisma, NO Redis, NO Node fs/crypto, NO S3
- *  - Only JWT reads — token data is stamped at sign-in time in index.ts
+ *  - Only JWT reads - token data is stamped at sign-in time in index.ts
  *  - Imported by middleware.ts (Edge runtime) and spread into the full config
  */
 
@@ -18,7 +18,7 @@ export const authConfig: NextAuthConfig = {
 
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
 
-  // No providers here — added in index.ts (Node runtime only)
+  // No providers here - added in index.ts (Node runtime only)
   providers: [],
 
   callbacks: {

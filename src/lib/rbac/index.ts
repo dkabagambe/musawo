@@ -1,5 +1,5 @@
 /**
- * RBAC — central permissions library.
+ * RBAC - central permissions library.
  *
  * Design principles:
  * - Default DENY: every check must be explicitly allowed.
@@ -47,7 +47,7 @@ export type Permission =
   | "enrolments.create"
   | "enrolments.edit"
 
-  // Finance — REGISTRAR & TUTOR must NEVER see these
+  // Finance - REGISTRAR & TUTOR must NEVER see these
   | "payments.view"
   | "payments.initiate"
   | "payments.export"
@@ -103,7 +103,7 @@ export type Permission =
 
   // Approvals
   | "approvals.view"        // SUPERADMIN sees all; initiator sees own
-  | "approvals.decide"      // SUPERADMIN only — and never own request
+  | "approvals.decide"      // SUPERADMIN only - and never own request
 
   // Reports
   | "reports.view"
@@ -155,7 +155,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "settings.view", "settings.edit",
     "integrations.edit", "backups.manage", "health.view",
     "break_glass.request",
-    "audit.view", // filtered — no student/payment data
+    "audit.view", // filtered - no student/payment data
     "reports.view",
     // Explicitly DENIED (not in list): students.*, payments.*, grades.*, certificates.*
   ],
@@ -235,7 +235,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
 /**
  * Returns true if the role has the given permission.
- * Default deny — if permission not in map, returns false.
+ * Default deny - if permission not in map, returns false.
  */
 export function can(role: UserRole, permission: Permission): boolean {
   return (ROLE_PERMISSIONS[role] ?? []).includes(permission);

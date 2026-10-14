@@ -17,7 +17,7 @@ const WA_SVG = (
  * - 52 px diameter, 16 px from right + bottom edges.
  * - Hidden when the mobile nav drawer is open.
  * - Hidden when the footer is visible in the viewport (so it never
- *   overlaps footer text — the footer's pb-[88px] on mobile provides
+ *   overlaps footer text - the footer's pb-[88px] on mobile provides
  *   a safe zone above the FAB's natural resting position).
  */
 export default function WhatsAppFab({ href }: Props) {

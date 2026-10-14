@@ -1,6 +1,9 @@
 import { db } from "@/lib/db";
 import PageHero from "@/components/public/PageHero";
+import CTABand from "@/components/public/CTABand";
+import ContactBand from "@/components/public/ContactBand";
 import { getPresignedDownloadUrl } from "@/lib/s3";
+import { getContactInfo } from "@/lib/contact";
 import { FileText, BookOpen, ClipboardList, FileCheck, Download } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -17,18 +20,16 @@ const CATEGORY_META: Record<string, { icon: typeof FileText; color: string; labe
   "General":     { icon: FileText,      color: "bg-gray-100 text-gray-500",    label: "General" },
 };
 
-function fileSizeLabel(bytes?: number | null): string {
-  if (!bytes) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
+// fileSizeLabel kept for future use when resource sizes are shown
 
 export default async function ResourcesPage() {
-  const resources = await db.resource.findMany({
-    where: { isPublic: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const [resources, contact] = await Promise.all([
+    db.resource.findMany({
+      where: { isPublic: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    getContactInfo(),
+  ]);
 
   const categories = ["Reference", "Guides", "Study aids", "Forms", "General"];
   const byCategory: Record<string, typeof resources> = {};
@@ -107,6 +108,14 @@ export default async function ResourcesPage() {
           </>
         )}
       </section>
+      <CTABand
+        heading="Want full course access?"
+        subheading="These free resources are just a sample. Enrolled students get the complete study library."
+        primaryLabel="Enrol now"
+        primaryHref="/register"
+        whatsappUrl={contact.whatsappUrl}
+      />
+      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

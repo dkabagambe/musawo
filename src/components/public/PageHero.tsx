@@ -27,7 +27,7 @@ export interface PageHeroProps {
   boxSide?: "left" | "right";
   /** objectPosition e.g. "center top", "right center" */
   objectPosition?: string;
-  /** Unused — kept for API compatibility */
+  /** Unused - kept for API compatibility */
   large?: boolean;
 }
 
@@ -60,7 +60,7 @@ export default function PageHero({
         style={{ minHeight: "clamp(160px, 22vh, 260px)" }}
         aria-label={`${title} page banner`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 w-full">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 w-full">
           {allBreadcrumbs.length > 1 && (
             <Breadcrumb items={allBreadcrumbs} />
           )}
@@ -100,7 +100,8 @@ export default function PageHero({
 
       {/* ── Content: solid teal box anchored over the photo ─────── */}
       <div
-        className={`relative h-full flex items-end pb-10 sm:items-center sm:pb-0 max-w-7xl mx-auto px-4 sm:px-6 py-12
+        className={`relative h-full flex items-end pb-10 sm:items-center sm:pb-0
+          max-w-[1200px] mx-auto px-4 sm:px-6 py-12
           ${boxSide === "right" ? "justify-end" : "justify-start"}`}
         style={{ minHeight: "inherit" }}
       >

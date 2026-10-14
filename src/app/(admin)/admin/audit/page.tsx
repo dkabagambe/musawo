@@ -77,9 +77,9 @@ export default async function AdminAuditPage({ searchParams }: Props) {
                   {log.actor?.name ?? <span className="text-gray-400">System</span>}
                 </td>
                 <td className="py-2 pr-4 text-gray-500 text-xs">
-                  {log.entityType ? `${log.entityType} ${log.entityId?.slice(0, 8) ?? ""}` : "—"}
+                  {log.entityType ? `${log.entityType} ${log.entityId?.slice(0, 8) ?? ""}` : "-"}
                 </td>
-                <td className="py-2 pr-4 text-gray-400 text-xs font-mono">{log.ip ?? "—"}</td>
+                <td className="py-2 pr-4 text-gray-400 text-xs font-mono">{log.ip ?? "-"}</td>
                 <td className="py-2 text-gray-400 text-xs">
                   {new Date(log.createdAt).toLocaleString("en-UG")}
                 </td>

@@ -10,6 +10,9 @@ import {
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import CountUp from "@/components/public/CountUp";
+import CTABand from "@/components/public/CTABand";
+import ContactBand from "@/components/public/ContactBand";
+import HomeHero from "@/components/public/HomeHero";
 import HomeFaq from "./HomeFaq";
 
 /* ─── Data ────────────────────────────────────────────────────── */
@@ -59,19 +62,19 @@ const PLACEHOLDER_COURSES = [
     title: "Certified Nursing Care Assistant (CNA)",
     desc: "Our flagship certification for nursing care assistants across Uganda.",
     slug: "cna", weeks: 12 as number | null, fee: 850000,
-    img: "/assets/images/course-cna.webp", instalments: 3,
+    img: "/assets/images/cna-course.png", instalments: 3,
   },
   {
     title: "Basic Nursing Care Assistant",
     desc: "An accessible entry point with a strong foundation in patient care.",
-    slug: "basic-nursing-care", weeks: 8 as number | null, fee: 550000,
-    img: "/assets/images/course-basic-nursing.webp", instalments: 2,
+    slug: "basic-nursing-care", weeks: 8 as number | null, fee: 600000,
+    img: "/assets/images/basic-nursing.png", instalments: 2,
   },
   {
-    title: "Babysitting, Child Care & Safety Management",
+    title: "Babysitting, Child Care and Safety Management",
     desc: "Child care, first aid, and emergency response for child safety workers.",
-    slug: "child-care-safety", weeks: 6 as number | null, fee: 420000,
-    img: "/assets/images/course-child-safety.webp", instalments: 1,
+    slug: "child-care-safety", weeks: 6 as number | null, fee: 480000,
+    img: "/assets/images/first-aid-child-safety.jpg", instalments: 1,
   },
 ];
 
@@ -121,226 +124,14 @@ export default async function HomePage() {
   return (
     <div>
 
-      {/* ══════════════════════════════════════════════════════════
-          HERO
-          Desktop layout (sm+):
-          - Section starts directly below the fixed header (no negative
-            margin). The header is h-16 (64px) and position:fixed, so
-            the section fills from y=64px downward.
-          - min-height = max(calc(100vh - 64px), 760px), max 900px, so
-            the visible hero is always at least 760px and never more than
-            900px, growing with content if needed.
-          - The photo fills the whole section (absolute inset-0) and uses
-            object-position "right 15%" to keep the subject's head clear
-            of the left-side box while showing as little of the blurred
-            background person on the left as possible.
-          - Content wrapper: flex + items-center centres the box in the
-            remaining height. pt-16 pb-24 (64px top, 96px bottom) gives
-            at least 64px breathing room above and below the box.
+      {/* Hero slideshow + content block */}
+      <HomeHero />
 
-          Mobile layout (< sm):
-          - 4:3 photo sits at the top in normal flow.
-          - Teal box sits below with mx-4 px-7 py-8 padding, 24px
-            top margin for separation from the photo.
-      ══════════════════════════════════════════════════════════ */}
-      <section
-        className="relative overflow-hidden"
-        aria-label="Hero"
-      >
-        {/* ── Desktop height spacer ──
-             Both the photo and content wrapper are absolute, so the
-             section would otherwise collapse on desktop. This invisible
-             block lives in flow on sm+ and gives the section its height.
-             Mobile: hidden — height comes from the photo + box in flow.
-        ── */}
-        <div
-          className="hidden sm:block w-full"
-          style={{ minHeight: "clamp(760px, calc(100vh - 64px), 900px)" }}
-          aria-hidden="true"
-        />
-        {/* ── Full-brightness background photo (desktop only) ── */}
-        <div
-          className="hidden sm:block absolute inset-0 will-change-transform"
-          style={{ animation: "heroZoom 14s ease-out forwards" }}
-          suppressHydrationWarning
-          aria-hidden="true"
-        >
-          <Image
-            src="/assets/images/hero-training.jpg"
-            alt=""
-            fill
-            priority
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-            /*
-             * object-position:
-             *   "right 15%" — "right" anchors the right side of the image
-             *   so the woman with the stethoscope (right half of the photo)
-             *   stays fully in frame. "15%" offsets the vertical anchor point
-             *   so the very top of her head clears the header, while keeping
-             *   the blurred second person mostly off the left edge.
-             */
-            style={{ objectPosition: "right 15%" }}
-          />
-        </div>
-
-        {/* ── Mobile photo (natural flow, 4:3) ── */}
-        <div className="sm:hidden w-full aspect-[4/3] relative overflow-hidden">
-          <Image
-            src="/assets/images/hero-training.jpg"
-            alt="Nursing care assistant in a clinical setting"
-            fill
-            priority
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: "right 15%" }}
-          />
-        </div>
-
-        {/* ── Desktop content wrapper ──
-             Uses min-height on this element (not the section) so the section
-             grows naturally on mobile while the desktop area is always tall
-             enough. flex + items-center vertically centres the box.
-             pt-16 = 64px gap below header, pb-24 = 96px gap above facts strip.
-        ── */}
-        <div
-          className={[
-            "hidden sm:flex sm:flex-col sm:items-start sm:justify-center",
-            "sm:absolute sm:inset-0",
-            "sm:pt-16 sm:pb-24",
-          ].join(" ")}
-        >
-          {/* Inner centering grid: left box max 500px, right stays free */}
-          <div className="max-w-[1200px] w-full mx-auto px-6 flex items-center">
-            <div
-              className={[
-                "bg-primary rounded-2xl shadow-2xl",
-                "px-10 py-10",
-                "w-full max-w-[500px]",
-              ].join(" ")}
-              style={{ animation: "heroBoxIn 0.35s 0.1s cubic-bezier(0.22,1,0.36,1) both" }}
-              suppressHydrationWarning
-            >
-              {/* Eyebrow */}
-              <p className="inline-flex items-center gap-2 bg-accent/20 border border-accent/40
-                             text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
-                             uppercase tracking-wider mb-4">
-                <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-                Now enrolling - January 2027 intake
-              </p>
-
-              {/* Headline */}
-              <h1
-                className="font-bold text-white text-balance leading-[1.15] mb-5"
-                style={{ fontSize: "clamp(2rem, 3.6vw, 3.25rem)" }}
-              >
-                Train to become a certified community health worker
-              </h1>
-
-              {/* Description */}
-              <p
-                className="text-white/80 mb-8 leading-[1.65]"
-                style={{ fontSize: "clamp(0.9375rem, 1.3vw, 1.0625rem)" }}
-              >
-                Accredited online short courses in nursing care and child safety. Study on your phone, pay with mobile money.
-              </p>
-
-              {/* CTAs */}
-              <div className="flex flex-col xs:flex-row gap-3">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center gap-2 bg-accent
-                             hover:bg-accent-600 active:scale-[0.97] text-white font-bold
-                             text-sm px-7 py-3.5 rounded-xl no-underline transition-all shadow-cta
-                             w-full xs:w-auto"
-                >
-                  Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center justify-center gap-2 bg-white/10
-                             hover:bg-white/20 active:scale-[0.97] border border-white/30
-                             text-white font-semibold text-sm px-7 py-3.5 rounded-xl
-                             no-underline transition-all w-full xs:w-auto"
-                >
-                  <BookOpen className="w-4 h-4" aria-hidden="true" /> Browse courses
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Mobile content box (below the photo) ── */}
-        <div className="sm:hidden mx-4 mt-6 mb-8">
-          <div
-            className={[
-              "bg-primary rounded-2xl shadow-2xl",
-              "px-7 py-8",
-              "w-full",
-            ].join(" ")}
-            style={{ animation: "heroBoxIn 0.35s 0.1s cubic-bezier(0.22,1,0.36,1) both" }}
-            suppressHydrationWarning
-          >
-            {/* Eyebrow */}
-            <p className="inline-flex items-center gap-2 bg-accent/20 border border-accent/40
-                           text-accent text-[11px] font-bold px-3 py-1.5 rounded-full
-                           uppercase tracking-wider mb-4">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" aria-hidden="true" />
-              Now enrolling - January 2027 intake
-            </p>
-
-            {/* Headline */}
-            <h1
-              className="font-bold text-white text-balance leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(1.875rem, 5vw, 2.5rem)" }}
-            >
-              Train to become a certified community health worker
-            </h1>
-
-            {/* Description */}
-            <p className="text-white/80 mb-8 leading-[1.65] text-base">
-              Accredited online short courses in nursing care and child safety. Study on your phone, pay with mobile money.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 bg-accent
-                           hover:bg-accent-600 active:scale-[0.97] text-white font-bold
-                           text-sm px-7 py-3.5 rounded-xl no-underline transition-all shadow-cta"
-              >
-                Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Link>
-              <Link
-                href="/courses"
-                className="inline-flex items-center justify-center gap-2 bg-white/10
-                           hover:bg-white/20 active:scale-[0.97] border border-white/30
-                           text-white font-semibold text-sm px-7 py-3.5 rounded-xl
-                           no-underline transition-all"
-              >
-                <BookOpen className="w-4 h-4" aria-hidden="true" /> Browse courses
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          FACTS STRIP
-          Desktop: overlaps the bottom edge of the photo only (not
-          the box). 64px gap from box bottom achieved via sm:pb-[96px]
-          on the hero + the strip's -mt-8 only reaching the photo.
-          Mobile: sits below the box with 16px margin, no overlap.
-      ══════════════════════════════════════════════════════════ */}
-      <div
-        className="mx-4 mt-6 sm:mx-6 sm:-mt-8 sm:relative sm:z-10 lg:mx-auto lg:max-w-[1200px]"
-      >
-        <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.09)] border border-border">
+      {/* ── Facts strip ─────────────────────────────────────── */}
+      <div className="bg-[#F1F7F5]">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <ul
-            className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 divide-x divide-border list-none"
+            className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border list-none"
             aria-label="Key facts"
           >
             {FACTS.map((f, i) => (
@@ -361,7 +152,7 @@ export default async function HomePage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          WHAT WE OFFER — 3 course cards
+          WHAT WE OFFER - 3 course cards
       ══════════════════════════════════════════════════════════ */}
       <section
         className="py-24 px-4 sm:px-6 bg-surface"
@@ -439,7 +230,7 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          HOW IT WORKS — 4 steps
+          HOW IT WORKS - 4 steps
       ══════════════════════════════════════════════════════════ */}
       <section className="py-24 px-4 sm:px-6" id="how" aria-label="How it works">
         <div className="max-w-[1200px] mx-auto">
@@ -471,14 +262,14 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          WHY MUSAWO — large photo + 3 points
+          WHY MUSAWO - large photo + 3 points
       ══════════════════════════════════════════════════════════ */}
       <section className="py-24 px-4 sm:px-6 bg-surface" aria-label="Why Musawo">
         <div className="max-w-[1200px] mx-auto lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           <AnimateIn className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-12 lg:mb-0 shadow-xl">
             <Image
-              src="/assets/images/graduates-field.webp"
-              alt="Musawo graduates working in healthcare across Uganda"
+              src="/assets/musawo-staff.webp"
+              alt="Musawo Training Center staff and healthcare team"
               fill
               className="object-cover"
             />
@@ -542,13 +333,13 @@ export default async function HomePage() {
       >
         <div className="absolute inset-0">
           <Image
-            src="/assets/images/hero-faq-scholarships.webp"
+            src="/assets/community-outreach.webp"
             alt="" fill
             className="object-cover"
             style={{ objectPosition: "center 40%" }}
             aria-hidden="true"
           />
-          {/* Solid teal overlay — intentional for this full-bleed CTA band */}
+          {/* Solid teal overlay - intentional for this full-bleed CTA band */}
           <div className="absolute inset-0 bg-primary/85" aria-hidden="true" />
         </div>
         <AnimateIn className="relative max-w-[680px] mx-auto text-center text-white">
@@ -650,41 +441,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          FINAL CTA BAND
-      ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6 bg-primary" aria-label="Call to action">
-        <AnimateIn className="max-w-[760px] mx-auto text-center">
-          <h2
-            className="font-extrabold text-white mb-5"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)" }}
-          >
-            Ready to become a health worker?
-          </h2>
-          <p className="text-white/75 mb-10 text-lg leading-[1.65] max-w-lg mx-auto">
-            Join the January 2027 intake. Enrol in minutes, study on your phone, certify in weeks.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center gap-2 bg-accent
-                         hover:bg-accent-600 active:scale-[0.97] text-white font-bold
-                         text-base px-8 py-4 rounded-xl no-underline transition-all shadow-cta"
-            >
-              Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-            <a
-              href={contact.whatsappUrl}
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-white/10
-                         hover:bg-white/20 border border-white/30 text-white font-semibold
-                         text-base px-8 py-4 rounded-xl no-underline transition-all"
-            >
-              Chat on WhatsApp
-            </a>
-          </div>
-        </AnimateIn>
-      </section>
+      <CTABand
+        heading="Ready to become a health worker?"
+        subheading="Join the January 2027 intake. Enrol in minutes, study on your phone, certify in weeks."
+        whatsappUrl={contact.whatsappUrl}
+      />
+      <ContactBand whatsappUrl={contact.whatsappUrl} />
 
     </div>
   );

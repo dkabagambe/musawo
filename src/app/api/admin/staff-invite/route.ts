@@ -10,10 +10,10 @@ import crypto from "crypto";
 const InviteSchema = z.object({
   email: z.string().email(),
   role: z.enum(["SYSTEM_IT", "REGISTRAR", "BURSAR", "TUTOR"]),
-  // SUPERADMIN accounts are created only via seed/CLI — never via invite
+  // SUPERADMIN accounts are created only via seed/CLI - never via invite
 });
 
-/** POST /api/admin/staff-invite — send a staff invite email */
+/** POST /api/admin/staff-invite - send a staff invite email */
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, expiresAt }, { status: 201 });
 }
 
-/** GET /api/admin/staff-invite?token=xxx — validate an invite token (public) */
+/** GET /api/admin/staff-invite?token=xxx - validate an invite token (public) */
 export async function GET(req: NextRequest) {
   const token = new URL(req.url).searchParams.get("token");
   if (!token) return NextResponse.json({ error: "Missing token" }, { status: 400 });

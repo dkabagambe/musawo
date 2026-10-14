@@ -43,7 +43,7 @@ export default async function DirectorStaffPage() {
         <p className="text-sm text-amber-800">
           <strong>⚠️ Access control:</strong> Creating, suspending, or changing roles for staff accounts
           requires a formal approval request. SUPERADMIN accounts can only be created via the seed script
-          or CLI — never through the UI.
+          or CLI - never through the UI.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export default async function DirectorStaffPage() {
             {staff.map((s) => (
               <tr key={s.id}>
                 <td className="py-2 pr-4 font-medium">{s.name}</td>
-                <td className="py-2 pr-4 text-gray-500">{s.email ?? "—"}</td>
+                <td className="py-2 pr-4 text-gray-500">{s.email ?? "-"}</td>
                 <td className="py-2 pr-4">
                   <span className={`badge text-xs ${ROLE_COLORS[s.role] ?? "badge-info"}`}>
                     {s.role.replace("_", " ")}

@@ -43,8 +43,8 @@ export default async function AdminTutorsPage() {
               {tutors.map((t) => (
                 <tr key={t.id}>
                   <td className="py-2 pr-4 font-medium">{t.name}</td>
-                  <td className="py-2 pr-4 text-gray-500">{t.email ?? "—"}</td>
-                  <td className="py-2 pr-4 text-gray-500">{t.phone ?? "—"}</td>
+                  <td className="py-2 pr-4 text-gray-500">{t.email ?? "-"}</td>
+                  <td className="py-2 pr-4 text-gray-500">{t.phone ?? "-"}</td>
                   <td className="py-2 pr-4">
                     {t.status === "ACTIVE" ? (
                       <span className="badge badge-success">Active</span>
