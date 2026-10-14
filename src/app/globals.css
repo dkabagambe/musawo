@@ -91,7 +91,7 @@
   /* ── Auth-specific card and button ─────────────────────────────── */
   /* Wider padding, softer shadow — used by all (auth) pages */
   .auth-card {
-    @apply bg-white rounded-2xl shadow-card border border-border/60 p-10;
+    @apply bg-white rounded-2xl shadow-card border border-border/60 p-6 sm:p-10;
   }
 
   /* Teal primary button for auth pages (spec: amber only for "Enrol now" CTA) */

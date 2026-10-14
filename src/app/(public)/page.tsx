@@ -41,13 +41,13 @@ const FACTS = [
 
 const HOW_STEPS = [
   { n: "01", icon: BookOpen, title: "Choose your course",
-    body: "Browse our accredited health-worker courses and pick the one that fits your goals." },
+    body: "Browse our three accredited programmes - Certified Nursing Care Assistant, Basic Nursing Care, or Child Care and Safety. Pick the one that fits your goals and schedule." },
   { n: "02", icon: Banknote, title: "Pay with mobile money",
-    body: "MTN MoMo or Airtel Money - pay in full or split into affordable instalments." },
-  { n: "03", icon: Video,    title: "Learn & attend live classes",
-    body: "Study at your own pace on any device, then join live sessions with your tutor twice a week." },
-  { n: "04", icon: Award,    title: "Pass your exam & certify",
-    body: "Complete your assessments and download your nationally recognised digital certificate." },
+    body: "MTN MoMo or Airtel Money - pay the full fee or spread it across instalments as you progress through the course." },
+  { n: "03", icon: Video,    title: "Learn and attend live classes",
+    body: "Study pre-recorded lessons on any device at your own pace, then join live video sessions with your tutor twice a week." },
+  { n: "04", icon: Award,    title: "Pass your exam and certify",
+    body: "Complete your assessments and download your nationally recognised digital certificate, accredited by Uganda's Ministry of Health." },
 ];
 
 const STATS = [
@@ -60,19 +60,19 @@ const STATS = [
 const PLACEHOLDER_COURSES = [
   {
     title: "Certified Nursing Care Assistant (CNA)",
-    desc: "Our flagship certification for nursing care assistants across Uganda.",
+    desc: "Our flagship certification equips learners with practical skills to work as qualified nursing care assistants in homes, hospitals, clinics, and community care settings across Uganda.",
     slug: "cna", weeks: 12 as number | null, fee: 850000,
     img: "/assets/images/cna-course.png", instalments: 3,
   },
   {
     title: "Basic Nursing Care Assistant",
-    desc: "An accessible entry point with a strong foundation in patient care.",
+    desc: "An accessible, practical entry point into healthcare work for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.",
     slug: "basic-nursing-care", weeks: 8 as number | null, fee: 600000,
     img: "/assets/images/basic-nursing.png", instalments: 2,
   },
   {
     title: "Babysitting, Child Care and Safety Management",
-    desc: "Child care, first aid, and emergency response for child safety workers.",
+    desc: "For anyone stepping into a childcare role. Child development, daily care routines, first aid, and safety management in home and community care environments.",
     slug: "child-care-safety", weeks: 6 as number | null, fee: 480000,
     img: "/assets/images/first-aid-child-safety.jpg", instalments: 1,
   },
@@ -131,7 +131,7 @@ export default async function HomePage() {
       <div className="bg-[#F1F7F5]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           <ul
-            className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border list-none"
+            className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-border list-none"
             aria-label="Key facts"
           >
             {FACTS.map((f, i) => (
@@ -155,7 +155,7 @@ export default async function HomePage() {
           WHAT WE OFFER - 3 course cards
       ══════════════════════════════════════════════════════════ */}
       <section
-        className="py-24 px-4 sm:px-6 bg-surface"
+        className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface"
         id="courses"
         aria-label="Featured courses"
       >
@@ -232,7 +232,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           HOW IT WORKS - 4 steps
       ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6" id="how" aria-label="How it works">
+      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6" id="how" aria-label="How it works">
         <div className="max-w-[1200px] mx-auto">
           <AnimateIn className="mb-12">
             <p className="section-eyebrow">Simple process</p>
@@ -264,15 +264,15 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           WHY MUSAWO - large photo + 3 points
       ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6 bg-surface" aria-label="Why Musawo">
+      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface" aria-label="Why Musawo">
         <div className="max-w-[1200px] mx-auto lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           <AnimateIn className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-12 lg:mb-0 shadow-xl">
             <Image
-              src="/assets/images/graduates-clinic.jpg"
-              alt="Musawo Training Center graduates working at a healthcare clinic"
+              src="/assets/images/musawo-session.webp"
+              alt="Musawo Training Center practical training session"
               fill
               className="object-cover"
-              style={{ objectPosition: "center 20%" }}
+              style={{ objectPosition: "center 30%" }}
             />
             {/* caption card */}
             <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -312,7 +312,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           NUMBERS ROW
       ══════════════════════════════════════════════════════════ */}
-      <section className="bg-primary py-20 px-4 sm:px-6" aria-label="Impact numbers">
+      <section className="bg-primary py-14 sm:py-20 px-4 sm:px-6" aria-label="Impact numbers">
         <div className="max-w-[1200px] mx-auto">
           <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {STATS.map((s) => (
@@ -329,7 +329,7 @@ export default async function HomePage() {
           SCHOLARSHIPS CTA BAND
       ══════════════════════════════════════════════════════════ */}
       <section
-        className="relative py-24 px-4 sm:px-6 overflow-hidden"
+        className="relative py-14 sm:py-20 lg:py-24 px-4 sm:px-6 overflow-hidden"
         aria-label="Scholarships"
       >
         <div className="absolute inset-0">
@@ -379,7 +379,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           TESTIMONIALS
       ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6" aria-label="Student testimonials">
+      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6" aria-label="Student testimonials">
         <div className="max-w-[1200px] mx-auto">
           <AnimateIn className="mb-12">
             <p className="section-eyebrow">Our graduates</p>
@@ -421,7 +421,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           FAQ PREVIEW
       ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6 bg-surface" id="faq" aria-label="Frequently asked questions">
+      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface" id="faq" aria-label="Frequently asked questions">
         <div className="max-w-[760px] mx-auto">
           <AnimateIn className="mb-12">
             <p className="section-eyebrow">FAQ</p>

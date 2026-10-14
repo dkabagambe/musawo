@@ -10,8 +10,8 @@ import { ArrowLeft } from "lucide-react";
 function getHeroPhoto(pathname: string): { src: string; alt: string } {
   if (pathname.startsWith("/register")) {
     return {
-      src: "/assets/care-to-community.webp",
-      alt: "Musawo community health worker supporting a family in Uganda",
+      src: "/assets/images/hero-register.webp",
+      alt: "Healthcare training at Musawo Training Center Uganda",
     };
   }
   // login, forgot-password, reset-password, otp, 2fa, invite, etc.
@@ -39,7 +39,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           src={heroSrc}
           alt={heroAlt}
           fill
-          className="object-cover object-[center_30%]"
+          className="object-cover object-center"
           priority
           aria-hidden="true"
         />
@@ -99,12 +99,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </Link>
           </div>
           {/* Slim photo strip */}
-          <div className="relative h-40 sm:h-48 overflow-hidden">
+          <div className="relative h-56 sm:h-72 overflow-hidden">
             <Image
               src={heroSrc}
               alt={heroAlt}
               fill
-              className="object-cover object-[center_30%]"
+              className="object-cover object-center"
               priority
               aria-hidden="true"
             />

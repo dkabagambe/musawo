@@ -111,16 +111,16 @@ export default async function CourseDetailPage({ params }: Props) {
 
       {/* Feature highlights row */}
       <div className="bg-white border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-          <StaggerGrid className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
+          <StaggerGrid className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {HIGHLIGHTS.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div key={title} className="flex items-start gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                   <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-primary leading-tight">{title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-snug">{body}</p>
+                  <p className="text-xs sm:text-sm font-bold text-primary leading-tight">{title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-snug hidden sm:block">{body}</p>
                 </div>
               </div>
             ))}
@@ -254,7 +254,7 @@ export default async function CourseDetailPage({ params }: Props) {
 
           {/* Sticky enrol card */}
           <aside>
-            <div className="bg-white rounded-2xl border border-border shadow-card-hover p-6 sticky top-20">
+            <div className="bg-white rounded-2xl border border-border shadow-card-hover p-6 sticky top-[80px]">
               <p className="text-3xl font-extrabold text-accent mb-1">UGX {course.fullFeeUgx.toLocaleString()}</p>
               {instalment && (
                 <p className="text-sm text-gray-400 mb-2">

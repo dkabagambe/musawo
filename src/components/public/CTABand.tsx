@@ -26,7 +26,7 @@ export default function CTABand({
 
   return (
     <section
-      className={`${bg} py-20 sm:py-24 px-4 sm:px-6`}
+      className={`${bg} py-14 sm:py-20 px-4 sm:px-6`}
       aria-label="Call to action"
     >
       <div className="max-w-[760px] mx-auto text-center">

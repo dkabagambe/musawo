@@ -15,7 +15,7 @@ export default function ContactBand({
 }: ContactBandProps) {
   return (
     <section
-      className="bg-[#F1F7F5] py-16 sm:py-20 px-4 sm:px-6"
+      className="bg-[#F1F7F5] py-12 sm:py-16 px-4 sm:px-6"
       aria-label="Contact information"
     >
       <div className="max-w-[1200px] mx-auto">

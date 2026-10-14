@@ -106,7 +106,7 @@ export default function PageHero({
         style={{ minHeight: "inherit" }}
       >
         <div
-          className="w-full sm:max-w-[520px] bg-primary-dark rounded-2xl px-8 py-8 sm:py-10 shadow-xl"
+          className="w-full sm:max-w-[520px] bg-primary-dark rounded-2xl px-5 py-7 sm:px-8 sm:py-10 shadow-xl"
           style={{ animation: "heroBoxIn 0.35s cubic-bezier(0.22,1,0.36,1) both" }}
         >
           {/* Breadcrumb */}
