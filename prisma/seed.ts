@@ -119,7 +119,7 @@ async function main() {
     where: { email: "ceo@musawotraining.ug" },
     update: {},
     create: {
-      name: "Dr. Samuel Okwii",
+      name: "Dr. Mathias Senyondo",
       email: "ceo@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.SUPERADMIN,
@@ -149,7 +149,7 @@ async function main() {
     where: { email: "itadmin@musawotraining.ug" },
     update: {},
     create: {
-      name: "Brian Ochieng",
+      name: "Daniel Kabagambe",
       email: "itadmin@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.SYSTEM_IT,
@@ -163,7 +163,7 @@ async function main() {
     where: { email: "registrar@musawotraining.ug" },
     update: {},
     create: {
-      name: "Diana Nakiganda",
+      name: "Zidah Atuhaire",
       email: "registrar@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.REGISTRAR,
@@ -177,7 +177,7 @@ async function main() {
     where: { email: "bursar@musawotraining.ug" },
     update: {},
     create: {
-      name: "Joseph Waiswa",
+      name: "Abraham Eyakya",
       email: "bursar@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.BURSAR,
@@ -191,7 +191,7 @@ async function main() {
     where: { email: "tutor@musawotraining.ug" },
     update: {},
     create: {
-      name: "Grace Nakato",
+      name: "Nankya Shanita",
       email: "tutor@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.TUTOR,
@@ -205,7 +205,7 @@ async function main() {
     where: { email: "tutor2@musawotraining.ug" },
     update: {},
     create: {
-      name: "Peter Lukwago",
+      name: "Mirembe Joel",
       email: "tutor2@musawotraining.ug",
       passwordHash: hashedPw,
       role: UserRole.TUTOR,
