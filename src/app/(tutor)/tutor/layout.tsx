@@ -1,14 +1,14 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { LayoutDashboard, BookOpen, Video, ClipboardList, Users } from "lucide-react";
 
-const TUTOR_NAV = [
-  { href: "/tutor", label: "Overview", icon: "📊" },
-  { href: "/tutor/courses", label: "My Courses", icon: "📚" },
-  { href: "/tutor/classes", label: "Live Classes", icon: "📹" },
-  { href: "/tutor/exams", label: "Exams", icon: "📝" },
-  { href: "/tutor/students", label: "My Students", icon: "👥" },
+const NAV: NavItem[] = [
+  { href: "/tutor",          label: "Overview",     icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/tutor/courses",  label: "My Courses",   icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/tutor/classes",  label: "Live Classes", icon: <Video className="w-4 h-4" /> },
+  { href: "/tutor/exams",    label: "Exams",        icon: <ClipboardList className="w-4 h-4" /> },
+  { href: "/tutor/students", label: "My Students",  icon: <Users className="w-4 h-4" /> },
 ];
 
 export default async function TutorLayout({ children }: { children: React.ReactNode }) {
@@ -16,36 +16,10 @@ export default async function TutorLayout({ children }: { children: React.ReactN
   if (!session?.user || !["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role)) {
     redirect("/dashboard");
   }
-
+  const name = session.user.name ?? "Tutor";
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
-      <header className="bg-primary text-white h-14 flex items-center px-4 gap-4 z-40 shadow-md">
-        <Link href="/tutor" className="flex items-center gap-2 no-underline">
-          <Image src="/assets/logo.webp" alt="MTC Tutor" width={80} height={24} className="h-7 w-auto" />
-          <span className="text-white/60 text-sm font-medium">Tutor</span>
-        </Link>
-        <div className="flex-1" />
-        <span className="text-sm text-white/70 hidden sm:inline">{session.user.name}</span>
-        <Link href="/api/auth/signout" className="text-xs text-white/50 hover:text-white no-underline">
-          Sign out
-        </Link>
-      </header>
-
-      <div className="flex flex-1">
-        <nav className="hidden md:flex flex-col w-52 bg-white border-r border-border py-4 px-2 gap-0.5" aria-label="Tutor navigation">
-          {TUTOR_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-body-text hover:bg-surface hover:text-primary no-underline transition-colors"
-            >
-              <span aria-hidden="true">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <main className="flex-1 px-4 py-6 overflow-auto">{children}</main>
-      </div>
-    </div>
+    <AppShell nav={NAV} role="Tutor Portal" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+      {children}
+    </AppShell>
   );
 }

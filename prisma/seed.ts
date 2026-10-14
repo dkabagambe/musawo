@@ -271,8 +271,8 @@ async function main() {
     {
       slug: "cna",
       title: "Certified Nursing Care Assistant (CNA)",
-      shortDescription: "Our flagship certification equips learners with practical skills to work as qualified nursing care assistants across Uganda.",
-      description: `Our flagship certification provides a comprehensive foundation for nursing care work in homes, hospitals, clinics, and community care settings across Uganda.\n\nYou will learn patient-centred care, safety practices, infection prevention, hygiene and personal care support, basic clinical procedures, care for elderly patients, and professional ethics.\n\nUpon completion, you will receive a nationally recognised certificate accredited by Uganda's Ministry of Health.`,
+      shortDescription: "Our flagship certification equips learners with practical skills to work as qualified nursing care assistants in homes, hospitals, clinics, and community care settings across Uganda.",
+      description: `Our flagship certification provides a comprehensive foundation for nursing care work across Uganda. Every person we certify becomes a new strand in Uganda's community health safety net.\n\nWhat you will learn:\n- Patient-centred care and compassionate communication\n- Safety practices and infection prevention and control\n- Hygiene and personal care support for patients\n- Basic clinical procedures and medication support\n- Care for elderly patients and those living with chronic conditions\n- Professional conduct and ethics in healthcare settings\n\nGraduates receive a nationally recognised certificate accredited by Uganda's Ministry of Health and Ministry of Education and Sports. Musawo connects graduates to employment opportunities locally and internationally through its growing network of healthcare partners.`,
       fullFeeUgx: 850000,
       instalmentCount: 3,
       thumbnailUrl: "/assets/images/cna-course.png",
@@ -284,8 +284,8 @@ async function main() {
     {
       slug: "basic-nursing-care",
       title: "Basic Nursing Care Assistant",
-      shortDescription: "An accessible, practical entry point into healthcare work with a strong foundation in patient care.",
-      description: `An accessible entry point into healthcare work designed for learners who want to begin serving patients quickly.\n\nYou will learn essential patient care skills, safety and hygiene, basic clinical practices, professional communication, and basic first aid and emergency response.\n\nGraduates receive a nationally recognised certificate and are eligible for placement support through the Musawo network.`,
+      shortDescription: "An accessible, practical entry point into healthcare work for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.",
+      description: `An accessible, practical entry point into healthcare work. This course is designed for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.\n\nWhat you will learn:\n- Essential patient care and daily support skills\n- Safety, hygiene, and basic clinical practices\n- Professional conduct and communication in care settings\n- Supporting healthcare teams in clinics and home environments\n- First aid and basic emergency response\n\nGraduates receive a nationally recognised certificate and are eligible for placement support through the Musawo network.`,
       fullFeeUgx: 600000,
       instalmentCount: 2,
       thumbnailUrl: "/assets/images/basic-nursing.png",
@@ -297,8 +297,8 @@ async function main() {
     {
       slug: "child-care-safety",
       title: "Babysitting, Child Care and Safety Management",
-      shortDescription: "Child development, daily care routines, first aid, and safety management for professional and family carers.",
-      description: `Children need attentive, informed carers who understand child development and can keep them safe. This course is for anyone stepping into a childcare role.\n\nYou will learn child development basics, age-appropriate care practices, daily care routines, recognising signs of illness, first aid and emergency response for infants and children, and safety management in home and community settings.`,
+      shortDescription: "For anyone stepping into a childcare role - child development, daily care routines, first aid, and safety management in home and community care environments.",
+      description: `Children need attentive, informed carers who understand their development and can keep them safe. This course is for anyone stepping into a childcare role - as a professional carer, a family member, or someone seeking to work with children in community settings.\n\nWhat you will learn:\n- Child development basics and age-appropriate care practices\n- Daily care routines: feeding, hygiene, rest, and stimulation\n- Recognising signs of illness, injury, or distress in children\n- First aid and emergency response for infants and children\n- Safety management in home and community care environments\n\nGraduates receive a nationally recognised certificate accredited by Uganda's Ministry of Education and Sports.`,
       fullFeeUgx: 480000,
       instalmentCount: 1,
       thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",

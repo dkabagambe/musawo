@@ -27,13 +27,26 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The seed creates three accounts you can log in with:
+The seed creates accounts you can log in with — all use password **`Demo1234!`**:
 
-| Role    | Email                        | Password     |
-|---------|------------------------------|--------------|
-| Admin   | admin@musawotraining.ug      | Password123! |
-| Tutor   | tutor@musawotraining.ug      | Password123! |
-| Student | student@musawotraining.ug    | Password123! |
+| Role                 | Email                            | Dashboard             |
+|----------------------|----------------------------------|-----------------------|
+| CEO / Director       | ceo@musawotraining.ug            | `/director`           |
+| Deputy Director      | deputy@musawotraining.ug         | `/director`           |
+| IT Admin             | itadmin@musawotraining.ug        | `/system`             |
+| Registrar            | registrar@musawotraining.ug      | `/admin/students`     |
+| Bursar               | bursar@musawotraining.ug         | `/bursar`             |
+| Tutor                | tutor@musawotraining.ug          | `/tutor`              |
+| Tutor 2 (dual-role)  | tutor2@musawotraining.ug         | `/tutor`              |
+| Student (new)        | student.new@example.com          | `/dashboard`          |
+| Student (25% paid)   | student.25@example.com           | `/dashboard`          |
+| Student (50% paid)   | student.50@example.com           | `/dashboard`          |
+| Student (active)     | student.full@example.com         | `/dashboard`          |
+| Student (overdue)    | student.overdue@example.com      | `/dashboard`          |
+| Student (sponsored)  | student.sponsored@example.com    | `/dashboard`          |
+| Student (completed)  | student.completed@example.com    | `/dashboard`          |
+
+> **One-click dev login:** open [http://localhost:3000/dev/login](http://localhost:3000/dev/login) to sign in as any account instantly without typing credentials. See `docs/DEMO.md` for the full presentation walkthrough.
 
 ---
 
