@@ -268,10 +268,11 @@ export default async function HomePage() {
         <div className="max-w-[1200px] mx-auto lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           <AnimateIn className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-12 lg:mb-0 shadow-xl">
             <Image
-              src="/assets/musawo-staff.webp"
-              alt="Musawo Training Center staff and healthcare team"
+              src="/assets/images/graduates-clinic.jpg"
+              alt="Musawo Training Center graduates working at a healthcare clinic"
               fill
               className="object-cover"
+              style={{ objectPosition: "center 20%" }}
             />
             {/* caption card */}
             <div className="absolute bottom-0 left-0 right-0 p-5">

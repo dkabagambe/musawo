@@ -16,8 +16,8 @@ function getHeroPhoto(pathname: string): { src: string; alt: string } {
   }
   // login, forgot-password, reset-password, otp, 2fa, invite, etc.
   return {
-    src: "/assets/clinical-training.webp",
-    alt: "Musawo Training Center clinical skills session",
+    src: "/assets/images/adfa-collage.webp",
+    alt: "ADFA and Musawo Training Center - healthcare professionals and community work",
   };
 }
 
