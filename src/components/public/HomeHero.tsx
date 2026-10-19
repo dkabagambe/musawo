@@ -170,35 +170,36 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
         aria-label="Welcome to Musawo Training Center"
       >
 
-        {/* Background photo slides */}
-        <AnimatePresence initial={false}>
-          <m.div
-            key={slide.id}
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduced ? 0 : FADE_MS / 1000, ease: "easeInOut" }}
+        {/* Background photo slides - all mounted, CSS opacity transition */}
+        {SLIDES.map((s, i) => (
+          <div
+            key={s.id}
+            className="absolute inset-0 will-change-[opacity]"
+            style={{
+              opacity: i === idx ? 1 : 0,
+              transition: reduced ? "none" : `opacity ${FADE_MS}ms ease-in-out`,
+              zIndex: i === idx ? 1 : 0,
+            }}
             aria-hidden="true"
           >
-            <m.div
-              className="absolute inset-0 will-change-transform"
-              initial={{ scale: 1 }}
-              animate={{ scale: reduced ? 1 : 1.07 }}
-              transition={{ duration: (HOLD_MS + FADE_MS) / 1000, ease: "linear" }}
+            <div
+              className="absolute inset-0"
+              style={{
+                transform: i === idx ? "scale(1.07)" : "scale(1)",
+                transition: reduced ? "none" : `transform ${(HOLD_MS + FADE_MS)}ms linear`,
+              }}
             >
               <Image
-                src={slide.src}
-                alt={slide.alt}
+                src={s.src}
+                alt={s.alt}
                 fill
-                priority={slide.id === 1}
-                quality={90}
+                priority={i === 0}
+                quality={85}
                 sizes="100vw"
                 className="object-cover"
-                style={{ objectPosition: slide.pos }}
+                style={{ objectPosition: s.pos }}
               />
-            </m.div>
-
+            </div>
             <div
               className="absolute inset-0"
               style={{
@@ -206,8 +207,8 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
                   "radial-gradient(ellipse 80% 70% at 50% 60%, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.05) 100%)",
               }}
             />
-          </m.div>
-        </AnimatePresence>
+          </div>
+        ))}
 
         {/* Mobile + tablet: centred */}
         <div className="absolute inset-0 flex items-center justify-center px-5 sm:px-10 lg:hidden">
