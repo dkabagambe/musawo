@@ -62,6 +62,7 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
           <p className="text-sm text-gray-500 mt-0.5">{total.toLocaleString()} total</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/registrar/students/new" className="btn-primary text-sm no-underline">+ New student</Link>
           <a href="/api/admin/students/export" className="btn-outline text-sm no-underline">Export CSV</a>
         </div>
       </div>

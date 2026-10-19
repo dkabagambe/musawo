@@ -82,6 +82,8 @@ export default function DevLoginPage() {
         <p className="text-center text-xs text-gray-400 mt-6">
           This page is only shown when <code>NODE_ENV !== &quot;production&quot;</code>.
           See <code>docs/DEMO.md</code> for the presentation walkthrough.
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          <a href="/dev/mail" className="text-accent underline">Email preview (/dev/mail)</a>
         </p>
       </div>
     </div>
