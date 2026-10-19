@@ -30,7 +30,7 @@ function enrolment(
   const defaultPct = (): number => {
     if (opts.paidPercent !== undefined) return opts.paidPercent;
     // Fully-paid statuses always get 100%
-    if (status === "ACTIVE" || status === "COMPLETED" || status === "SPONSORED") return 100;
+    if (status === "ACTIVE" || status === "COMPLETED") return 100;
     // Map unlockedBlockOrder → pct for instalment-plan states
     if (unlockedBlockOrder >= 9999) return 100;
     if (unlockedBlockOrder >= 3)    return 75;
@@ -66,7 +66,6 @@ describe("getAccessLevel", () => {
   });
 
   it("ACTIVE → FULL",          () => expect(getAccessLevel(enrolment("ACTIVE"))).toBe("FULL"));
-  it("SPONSORED → FULL",       () => expect(getAccessLevel(enrolment("SPONSORED"))).toBe("FULL"));
   it("PARTIALLY_PAID → PARTIAL",() => expect(getAccessLevel(enrolment("PARTIALLY_PAID", 1))).toBe("PARTIAL"));
   it("COMPLETED → COMPLETED",  () => expect(getAccessLevel(enrolment("COMPLETED"))).toBe("COMPLETED"));
 
@@ -134,9 +133,6 @@ describe("canAccessLesson", () => {
     expect(canAccessLesson(paidLesson, block2, enrolment("OVERDUE", 1, { graceUntil: future }))).toBe(false);
   });
 
-  // SPONSORED — full access
-  it("paid lesson → accessible when SPONSORED", () =>
-    expect(canAccessLesson(paidLesson, block1, enrolment("SPONSORED", 9999))).toBe(true));
 
   // COMPLETED — full access
   it("paid lesson → accessible when COMPLETED", () =>
@@ -166,8 +162,6 @@ describe("canAccessExam", () => {
     expect(canAccessExam(block1, enrolment("PARTIALLY_PAID", 1))).toBe(true));
   it("PARTIALLY_PAID, block NOT unlocked → cannot access exam", () =>
     expect(canAccessExam(block2, enrolment("PARTIALLY_PAID", 1))).toBe(false));
-  it("SPONSORED → can access exam", () =>
-    expect(canAccessExam(block1, enrolment("SPONSORED", 9999))).toBe(true));
   it("REFUNDED → cannot access exam", () =>
     expect(canAccessExam(block1, enrolment("REFUNDED"))).toBe(false));
 });
@@ -179,7 +173,6 @@ describe("canPostInForum", () => {
   it("PENDING_PAYMENT → cannot post",       () => expect(canPostInForum(enrolment("PENDING_PAYMENT"))).toBe(false));
   it("ACTIVE → can post",                   () => expect(canPostInForum(enrolment("ACTIVE"))).toBe(true));
   it("PARTIALLY_PAID → can post",           () => expect(canPostInForum(enrolment("PARTIALLY_PAID", 1))).toBe(true));
-  it("SPONSORED → can post",               () => expect(canPostInForum(enrolment("SPONSORED"))).toBe(true));
   it("COMPLETED → can post",               () => expect(canPostInForum(enrolment("COMPLETED"))).toBe(true));
   it("OVERDUE in grace → can post", () => {
     const future = new Date(Date.now() + 86_400_000);
@@ -193,7 +186,6 @@ describe("canPostInForum", () => {
 describe("canDownloadCertificate", () => {
   it("COMPLETED → can download",           () => expect(canDownloadCertificate(enrolment("COMPLETED"))).toBe(true));
   it("ACTIVE → can download",              () => expect(canDownloadCertificate(enrolment("ACTIVE"))).toBe(true));
-  it("SPONSORED → can download",           () => expect(canDownloadCertificate(enrolment("SPONSORED"))).toBe(true));
   it("PENDING_PAYMENT → cannot download",  () => expect(canDownloadCertificate(enrolment("PENDING_PAYMENT"))).toBe(false));
   it("REFUNDED → cannot download",         () => expect(canDownloadCertificate(enrolment("REFUNDED"))).toBe(false));
   it("no enrolment → cannot download",     () => expect(canDownloadCertificate(null)).toBe(false));
@@ -224,19 +216,6 @@ describe("Instalment drip access", () => {
     const enr = enrolment("PARTIALLY_PAID", 1);
     expect(canAccessLesson(paidLesson, block1, enr)).toBe(true);
   });
-});
-
-// ─── Scholarship flow ─────────────────────────────────────────────────────────
-
-describe("Scholarship (SPONSORED) flow", () => {
-  it("SPONSORED gives FULL access level", () =>
-    expect(getAccessLevel(enrolment("SPONSORED", 9999))).toBe("FULL"));
-  it("SPONSORED can access all paid lessons", () =>
-    expect(canAccessLesson(paidLesson, block2, enrolment("SPONSORED", 9999))).toBe(true));
-  it("SPONSORED can access exams", () =>
-    expect(canAccessExam(block1, enrolment("SPONSORED", 9999))).toBe(true));
-  it("SPONSORED can download certificate", () =>
-    expect(canDownloadCertificate(enrolment("SPONSORED"))).toBe(true));
 });
 
 // ─── Refund flow ──────────────────────────────────────────────────────────────
@@ -324,7 +303,6 @@ describe("enrolmentStatusLabel", () => {
     ["ACTIVE",          "Active"],
     ["PARTIALLY_PAID",  "Partially paid"],
     ["OVERDUE",         "Overdue"],
-    ["SPONSORED",       "Sponsored"],
     ["COMPLETED",       "Completed"],
     ["SUSPENDED",       "Suspended"],
     ["REFUNDED",        "Refunded"],

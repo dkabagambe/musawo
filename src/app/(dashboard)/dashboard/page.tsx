@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       where: {
         scheduledAt: { gt: new Date() },
         status: "SCHEDULED",
-        course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE","PARTIALLY_PAID","SPONSORED","COMPLETED"] } } } },
+        course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE","PARTIALLY_PAID","COMPLETED"] } } } },
       },
       orderBy: { scheduledAt: "asc" },
       take: 3,
@@ -218,8 +218,7 @@ export default async function DashboardPage() {
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                             enr.status === "ACTIVE"    ? "bg-success/10 text-success" :
                             enr.status === "COMPLETED" ? "bg-primary/10 text-primary" :
-                            enr.status === "SPONSORED" ? "bg-accent/10 text-accent"   :
-                                                         "bg-gray-100 text-gray-500"}`}>
+                                                                                     "bg-gray-100 text-gray-500"}`}>
                             {enrolmentStatusLabel(enr.status)}
                           </span>
                         </div>

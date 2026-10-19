@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type RequestType = "REFUND" | "WAIVER" | "FEE_CHANGE" | "SCHOLARSHIP_AWARD";
+type RequestType = "REFUND" | "WAIVER" | "FEE_CHANGE";
 
 export default function BursarApprovalsPage() {
   const [form, setForm] = useState({
@@ -44,7 +44,7 @@ export default function BursarApprovalsPage() {
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl mb-6">Submit Approval Request</h1>
       <p className="text-sm text-gray-500 mb-6">
-        Refunds, waivers, fee changes, and scholarship awards all require Director (SUPERADMIN) approval.
+      Refunds, waivers, and fee changes all require Director (SUPERADMIN) approval.
         You will be notified by email when a decision is made.
       </p>
 
@@ -59,7 +59,6 @@ export default function BursarApprovalsPage() {
               <option value="REFUND">Refund</option>
               <option value="WAIVER">Fee waiver</option>
               <option value="FEE_CHANGE">Fee change</option>
-              <option value="SCHOLARSHIP_AWARD">Scholarship award</option>
             </select>
           </div>
           <div>

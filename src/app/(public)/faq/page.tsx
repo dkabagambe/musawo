@@ -19,7 +19,7 @@ export default async function FaqPage() {
   return (
     <div className="bg-surface">
       <PageHero
-        image="/assets/images/hero-faq-scholarships.webp"
+        image="/assets/community-outreach.webp"
         imageAlt="ADFA community outreach event in Uganda"
         title="Frequently Asked Questions"
         description="Everything you need to know about our courses, payments, and certificates."

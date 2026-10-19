@@ -291,9 +291,16 @@
   to   { transform: scale(1.05); }
 }
 
+/* Fade + slide up — used on sign-out page and other micro-transitions */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   @keyframes heroBoxIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes heroZoom  { from { transform: none; } to { transform: none; } }
   @keyframes fadeUp    { from { opacity: 0; } to { opacity: 1; } }
   @keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeInUp  { from { opacity: 0; } to { opacity: 1; } }
 }

@@ -29,7 +29,6 @@ function expectAllowed(role: UserRole, permission: Permission) {
 describe("SUPERADMIN", () => {
   it("can approve refunds",             () => expectAllowed("SUPERADMIN", "refunds.approve"));
   it("can approve waivers",             () => expectAllowed("SUPERADMIN", "waivers.approve"));
-  it("can approve scholarship awards",  () => expectAllowed("SUPERADMIN", "scholarships.approve"));
   it("can decide approval requests",    () => expectAllowed("SUPERADMIN", "approvals.decide"));
   it("can view full audit log",         () => expectAllowed("SUPERADMIN", "audit.view.full"));
   it("can complete access reviews",     () => expectAllowed("SUPERADMIN", "access_review.complete"));
@@ -97,7 +96,6 @@ describe("ACADEMIC_REGISTRAR", () => {
   it("can view students",               () => expectAllowed("ACADEMIC_REGISTRAR", "students.view"));
   it("can create students",             () => expectAllowed("ACADEMIC_REGISTRAR", "students.create"));
   it("can issue certificates",          () => expectAllowed("ACADEMIC_REGISTRAR", "certificates.issue"));
-  it("can initiate scholarships",       () => expectAllowed("ACADEMIC_REGISTRAR", "scholarships.initiate"));
   it("can view grades",                 () => expectAllowed("ACADEMIC_REGISTRAR", "grades.view"));
   it("can edit grades",                 () => expectAllowed("ACADEMIC_REGISTRAR", "grades.edit"));
   it("can prepare graduands",           () => expectAllowed("ACADEMIC_REGISTRAR", "graduands.prepare"));
@@ -222,11 +220,6 @@ describe("Separation of duties", () => {
   it("BURSAR cannot approve their own refund request", () => {
     expectAllowed("BURSAR", "refunds.initiate");
     expectForbidden("BURSAR", "refunds.approve");
-  });
-
-  it("ACADEMIC_REGISTRAR cannot approve their own scholarship initiation", () => {
-    expectAllowed("ACADEMIC_REGISTRAR", "scholarships.initiate");
-    expectForbidden("ACADEMIC_REGISTRAR", "scholarships.approve");
   });
 
   it("PRINCIPAL can approve graduands but cannot prepare and approve alone (two-person rule enforced in API)", () => {

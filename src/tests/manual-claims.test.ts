@@ -118,12 +118,12 @@ describe("canAccess at 100% paidPercent (ACTIVE)", () => {
   });
 });
 
-// ─── 6. SPONSORED status, paidPercent=0 ──────────────────────────────────────
+// ─── 6. ACTIVE status, paidPercent=100 ───────────────────────────────────────
 
-describe("SPONSORED status (paidPercent=0)", () => {
-  const e = enr("SPONSORED", 0);
+describe("ACTIVE status (paidPercent=100)", () => {
+  const e = enr("ACTIVE", 100);
 
-  it("block1 lesson allowed — FULL access regardless of paidPercent", () => {
+  it("block1 lesson allowed — FULL access", () => {
     expect(canAccess({ type: "lesson", blockOrder: 1 }, e, T).allowed).toBe(true);
   });
 

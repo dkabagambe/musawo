@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
-import { Users, BookOpen, Award } from "lucide-react";
+import { Users, BookOpen, Award, ClipboardList } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = { title: "Academic Registrar Overview" };
@@ -11,16 +11,18 @@ export default async function RegistrarPage() {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "students.create")) redirect("/dashboard");
 
-  const [totalStudents, activeEnrolments, completedEnrolments] = await Promise.all([
+  const [totalStudents, activeEnrolments, completedEnrolments, pendingApplications] = await Promise.all([
     db.user.count({ where: { role: "STUDENT", status: "ACTIVE" } }),
     db.enrolment.count({ where: { status: "ACTIVE" } }),
     db.enrolment.count({ where: { status: "COMPLETED" } }),
+    db.application.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
   ]);
 
   const stats = [
-    { label: "Total students",    value: totalStudents,       icon: Users,    href: "/registrar/students" },
-    { label: "Active enrolments", value: activeEnrolments,    icon: BookOpen, href: "/registrar/enrolments" },
-    { label: "Completed",         value: completedEnrolments, icon: Award,    href: "/registrar/graduands" },
+    { label: "Pending applications", value: pendingApplications, icon: ClipboardList, href: "/registrar/applications", highlight: pendingApplications > 0 },
+    { label: "Total students",    value: totalStudents,       icon: Users,    href: "/registrar/students",    highlight: false },
+    { label: "Active enrolments", value: activeEnrolments,    icon: BookOpen, href: "/registrar/enrolments",  highlight: false },
+    { label: "Completed",         value: completedEnrolments, icon: Award,    href: "/registrar/graduands",   highlight: false },
   ];
 
   const recentStudents = await db.user.findMany({
@@ -40,12 +42,12 @@ export default async function RegistrarPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(({ label, value, icon: Icon, href }) => (
+        {stats.map(({ label, value, icon: Icon, href, highlight }) => (
           <Link key={label} href={href} className="card p-5 no-underline hover:shadow-card-hover transition-shadow block">
-            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center mb-3">
-              <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${highlight ? "bg-warning/15" : "bg-primary/10"}`}>
+              <Icon className={`w-4 h-4 ${highlight ? "text-warning" : "text-primary"}`} aria-hidden="true" />
             </div>
-            <p className="text-2xl font-extrabold text-primary">{value}</p>
+            <p className={`text-2xl font-extrabold ${highlight ? "text-warning" : "text-primary"}`}>{value}</p>
             <p className="text-xs text-gray-500 mt-0.5">{label}</p>
           </Link>
         ))}

@@ -23,7 +23,9 @@ type EmailTemplate =
   | "otp"
   | "approval-request"
   | "application-confirmation"
-  | "application-received-registrar";
+  | "application-received-registrar"
+  | "application-accepted"
+  | "application-rejected";
 
 interface SendEmailParams {
   to: string;
@@ -156,6 +158,28 @@ function renderTemplate(
       </table>
       <p><a href="{{approvalUrl}}" style="background:#FF6900;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Review and decide</a></p>
       <p style="font-size:12px;color:#9CA3AF;">This link expires in {{expiresIn}}. TOTP is required.</p>
+    `,
+    "application-accepted": `
+      <h2>Your application has been accepted - {{courseName}}</h2>
+      <p>Dear {{name}},</p>
+      <p>We are pleased to let you know that your application for <strong>{{courseName}}</strong> has been accepted.</p>
+      <p>Please click the button below to activate your student account, set a password, and confirm your place. This link is valid for {{expiresIn}}.</p>
+      <p style="margin: 24px 0;">
+        <a href="{{inviteUrl}}" style="background:#0B6B5D;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">
+          Activate my account
+        </a>
+      </p>
+      <p>Intake: <strong>{{intakeLabel}}</strong></p>
+      <p>Course fee: <strong>{{feeUgx}}</strong></p>
+      <p>If you have any questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+    `,
+    "application-rejected": `
+      <h2>Update on your application - Musawo Training Center</h2>
+      <p>Dear {{name}},</p>
+      <p>Thank you for applying for <strong>{{courseName}}</strong> at Musawo Training Center.</p>
+      <p>After reviewing your application, we are unable to offer you a place at this time.</p>
+      <p style="background:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;">{{reason}}</p>
+      <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@mtc.ac.ug.</p>
     `,
   };
 

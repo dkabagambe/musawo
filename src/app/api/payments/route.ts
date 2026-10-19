@@ -3,7 +3,6 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { initiateOrder } from "@/lib/payments/pesapal";
 import { initiateOrder as initiateFlutterwave } from "@/lib/payments/flutterwave";
-import { applyDiscountCode } from "@/lib/payments";
 import { getActiveGateway } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { InitiatePaymentSchema } from "@/lib/validators";
@@ -36,32 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Already enrolled" }, { status: 409 });
   }
 
-  let discountId: string | undefined;
-  let discountAmount = 0;
-
-  if (body.discountCode) {
-    const discount = await applyDiscountCode(body.discountCode, course.id);
-    if (!discount.valid) {
-      return NextResponse.json({ error: discount.error }, { status: 400 });
-    }
-    discountId = discount.discountId;
-    const courseFee = course.fullFeeUgx ?? 0;
-    if (discount.discountType === "PERCENTAGE") {
-      discountAmount = Math.round((courseFee * (discount.discountValue ?? 0)) / 100);
-    } else if (discount.discountType === "FIXED_AMOUNT") {
-      discountAmount = discount.discountValue ?? 0;
-    } else if (discount.discountType === "SCHOLARSHIP") {
-      discountAmount = courseFee;
-    }
-    if (discountId) {
-      await db.discountCode.update({
-        where: { id: discountId },
-        data: { uses: { increment: 1 } },
-      });
-    }
-  }
-
-  const totalAmount = Math.max(0, (course.fullFeeUgx ?? 0) - discountAmount);
+  const totalAmount = course.fullFeeUgx ?? 0;
   const user = await db.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
@@ -71,8 +45,6 @@ export async function POST(req: NextRequest) {
         data: {
           planType: body.planType,
           totalAmountUgx: totalAmount,
-          discountCodeId: discountId ?? null,
-          discountAmountUgx: discountAmount,
           intakeId: body.intakeId ?? null,
         },
       })
@@ -83,18 +55,8 @@ export async function POST(req: NextRequest) {
           intakeId: body.intakeId ?? null,
           planType: body.planType,
           totalAmountUgx: totalAmount,
-          discountCodeId: discountId ?? null,
-          discountAmountUgx: discountAmount,
         },
       });
-
-  if (totalAmount === 0) {
-    await db.enrolment.update({
-      where: { id: enrolment.id },
-      data: { status: "ACTIVE", paidAmountUgx: 0, unlockedBlockOrder: 9999 },
-    });
-    return NextResponse.json({ type: "scholarship", enrolmentId: enrolment.id });
-  }
 
   const instalmentCount = body.planType === "INSTALMENT" ? course.instalmentCount : 1;
   const firstAmount =

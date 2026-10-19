@@ -17,7 +17,7 @@ export type AccessLevel =
   | "PROVISIONAL"  // bank transfer pending approval but provisional hours granted
   | "PARTIAL"      // instalment plan, some blocks unlocked
   | "OVERDUE"      // missed instalment, in grace period
-  | "FULL"         // fully paid / sponsored
+  | "FULL"         // fully paid
   | "COMPLETED";   // course finished
 
 export interface EnrolmentAccessInfo {
@@ -73,9 +73,6 @@ export function getAccessLevel(
       // Grace expired → same as PENDING (lock new blocks)
       return "PENDING";
 
-    case "SPONSORED":
-      return "FULL";
-
     case "COMPLETED":
       return "COMPLETED";
 
@@ -97,7 +94,7 @@ export function getAccessLevel(
  * Rules:
  *  - isFree         → always accessible (even NONE)
  *  - isFreePreview  → accessible for PREVIEW and above
- *  - FULL/COMPLETED/SPONSORED → all blocks
+ *  - FULL/COMPLETED → all blocks
  *  - PARTIAL/OVERDUE(grace)/PROVISIONAL → check paidPercent vs thresholds
  */
 export function canAccessLesson(
@@ -242,8 +239,7 @@ export function canAccess(
     if (resource.type === "certificate") {
       const allowed =
         enrolment?.status === "COMPLETED" ||
-        enrolment?.status === "ACTIVE" ||
-        enrolment?.status === "SPONSORED";
+        enrolment?.status === "ACTIVE";
       return {
         allowed,
         reason: allowed ? null : "Complete all course requirements to earn your certificate",
@@ -293,7 +289,7 @@ export function canAccess(
   if (resource.type === "certificate") {
     const allowed =
       pct >= thresholds.final &&
-      (enrolment?.status === "COMPLETED" || enrolment?.status === "ACTIVE" || enrolment?.status === "SPONSORED");
+      (enrolment?.status === "COMPLETED" || enrolment?.status === "ACTIVE");
     return {
       allowed,
       reason: allowed ? null : "Pay in full to access the final exam and earn your certificate",
@@ -359,8 +355,7 @@ export function canPostInForum(enrolment: EnrolmentAccessInfo | null, now: Date 
 
 /** Returns true if the student may download their certificate. */
 export function canDownloadCertificate(enrolment: EnrolmentAccessInfo | null): boolean {
-  return enrolment?.status === "COMPLETED" || enrolment?.status === "ACTIVE" ||
-         enrolment?.status === "SPONSORED";
+  return enrolment?.status === "COMPLETED" || enrolment?.status === "ACTIVE";
 }
 
 /**
@@ -372,7 +367,6 @@ export function enrolmentStatusLabel(status: EnrolmentStatus | null): string {
     case "ACTIVE":          return "Active";
     case "PARTIALLY_PAID":  return "Partially paid";
     case "OVERDUE":         return "Overdue";
-    case "SPONSORED":       return "Sponsored";
     case "COMPLETED":       return "Completed";
     case "SUSPENDED":       return "Suspended";
     case "REFUNDED":        return "Refunded";

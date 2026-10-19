@@ -41,7 +41,6 @@ export default async function AdminIntakesPage() {
                     <th className="pb-2 font-medium pr-4">Start</th>
                     <th className="pb-2 font-medium pr-4">End</th>
                     <th className="pb-2 font-medium pr-4 text-center">Seats</th>
-                    <th className="pb-2 font-medium pr-4 text-center">Scholarship</th>
                     <th className="pb-2 font-medium">Status</th>
                   </tr>
                 </thead>
@@ -56,7 +55,6 @@ export default async function AdminIntakesPage() {
                         {new Date(intake.endDate).toLocaleDateString("en-UG")}
                       </td>
                       <td className="py-2 pr-4 text-center">{intake.seats}</td>
-                      <td className="py-2 pr-4 text-center">{intake.scholarshipSeats}</td>
                       <td className="py-2">
                         {intake.isOpen ? (
                           <span className="badge badge-success">Open</span>

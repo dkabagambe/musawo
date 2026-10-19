@@ -22,7 +22,7 @@ export default async function PaymentsPage() {
 
   const METHOD_LABEL: Record<string, string> = {
     MTN_MOMO: "MTN MoMo", AIRTEL_MONEY: "Airtel Money",
-    BANK_TRANSFER: "Bank Transfer", SCHOLARSHIP: "Scholarship",
+    BANK_TRANSFER: "Bank Transfer",
   };
 
   return (

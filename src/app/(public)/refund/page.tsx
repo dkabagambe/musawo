@@ -93,13 +93,6 @@ export default async function RefundPage() {
             </p>
           </PolicySection>
 
-          <PolicySection title="Scholarships">
-            <p>
-              Scholarship and subsidised places are non-refundable and non-transferable. If a scholarship recipient withdraws,
-              the scholarship is forfeited and cannot be reapplied to a future intake.
-            </p>
-          </PolicySection>
-
           <PolicySection title="How to request a refund">
             <p>To request a refund:</p>
             <ol className="list-decimal pl-5 space-y-1.5">

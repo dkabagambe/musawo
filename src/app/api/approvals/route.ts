@@ -9,7 +9,7 @@ import { z } from "zod";
 
 const CreateSchema = z.object({
   type: z.enum([
-    "REFUND","WAIVER","FEE_CHANGE","SCHOLARSHIP_AWARD",
+    "REFUND","WAIVER","FEE_CHANGE",
     "STAFF_ACCOUNT_CREATE","STAFF_ACCOUNT_SUSPEND","STAFF_ACCOUNT_ROLE_CHANGE",
   ]),
   reason:      z.string().min(10).max(2000),
@@ -64,7 +64,6 @@ export async function POST(req: NextRequest) {
     REFUND:                   "refunds.initiate",
     WAIVER:                   "waivers.initiate",
     FEE_CHANGE:               "fees.change.initiate",
-    SCHOLARSHIP_AWARD:        "scholarships.initiate",
     STAFF_ACCOUNT_CREATE:     "staff.create.initiate",
     STAFF_ACCOUNT_SUSPEND:    "staff.suspend.initiate",
     STAFF_ACCOUNT_ROLE_CHANGE:"staff.suspend.initiate",

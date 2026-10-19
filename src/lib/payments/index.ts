@@ -302,33 +302,6 @@ export async function reverseVerifiedPayment(
   });
 }
 
-export async function applyDiscountCode(
-  code: string,
-  courseId: string
-): Promise<{
-  valid: boolean;
-  discountId?: string;
-  discountType?: string;
-  discountValue?: number;
-  error?: string;
-}> {
-  const discount = await db.discountCode.findUnique({ where: { code } });
-  if (!discount) return { valid: false, error: "Invalid code" };
-  if (discount.expiresAt && discount.expiresAt < new Date())
-    return { valid: false, error: "Code expired" };
-  if (discount.maxUses && discount.uses >= discount.maxUses)
-    return { valid: false, error: "Code fully used" };
-  if (discount.courseId && discount.courseId !== courseId)
-    return { valid: false, error: "Code not valid for this course" };
-
-  return {
-    valid: true,
-    discountId: discount.id,
-    discountType: discount.type,
-    discountValue: discount.value,
-  };
-}
-
 /**
  * Mark an enrolment as OVERDUE after a missed instalment due date.
  * Called by a scheduled job / cron. Idempotent.

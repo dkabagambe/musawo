@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type RequestType = "REFUND" | "WAIVER" | "FEE_CHANGE" | "SCHOLARSHIP_AWARD";
+type RequestType = "REFUND" | "WAIVER" | "FEE_CHANGE";
 
 export const metadata = { title: "Approval Requests - Finance Officer" };
 
@@ -46,7 +46,7 @@ export default function FinanceApprovalsPage() {
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold text-primary mb-6">Submit Approval Request</h1>
       <p className="text-sm text-gray-500 mb-6">
-        Refunds, waivers, fee changes, and scholarship awards all require Director approval.
+      Refunds, waivers, and fee changes all require Director approval.
         You will be notified by email when a decision is made.
       </p>
 
@@ -61,7 +61,6 @@ export default function FinanceApprovalsPage() {
               <option value="REFUND">Refund</option>
               <option value="WAIVER">Fee waiver</option>
               <option value="FEE_CHANGE">Fee change</option>
-              <option value="SCHOLARSHIP_AWARD">Scholarship award</option>
             </select>
           </div>
           <div>

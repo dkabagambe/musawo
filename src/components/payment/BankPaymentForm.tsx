@@ -36,9 +36,7 @@ export default function BankPaymentForm({
   const [step, setStep] = useState<"form" | "upload" | "done">("form");
   const [planType, setPlanType] = useState<"FULL" | "INSTALMENT">("FULL");
   const [bankName, setBankName] = useState("");
-  const [bankRef, setBankRef] = useState("");
-  const [discountCode, setDiscountCode] = useState("");
-  const [amount, _setAmount] = useState(fullFeeUgx);
+  const [bankRef, setBankRef] = useState("");const [amount, _setAmount] = useState(fullFeeUgx);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -65,7 +63,6 @@ export default function BankPaymentForm({
           amount: planType === "INSTALMENT" ? firstInstalmentAmount : amount,
           bankName,
           bankTransferRef: bankRef.trim(),
-          discountCode: discountCode.trim() || undefined,
           planType,
         }),
       });
@@ -246,18 +243,6 @@ export default function BankPaymentForm({
           required
         />
         <p className="text-xs text-gray-400 mt-1">Found on your bank receipt or SMS confirmation</p>
-      </div>
-
-      <div className="mb-6">
-        <label htmlFor="discount-code" className="label">Scholarship / discount code (optional)</label>
-        <input
-          id="discount-code"
-          type="text"
-          className="input"
-          placeholder="e.g. SCHOLAR2026"
-          value={discountCode}
-          onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-        />
       </div>
 
       <div className="bg-surface rounded-xl p-3 mb-4 text-sm flex justify-between">

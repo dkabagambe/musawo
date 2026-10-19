@@ -103,15 +103,7 @@ export default async function TermsPage() {
               </p>
             </TermsSection>
 
-            <TermsSection title="8. Scholarships and financial assistance">
-              <p>
-                Scholarship places are limited and allocated at MTC&apos;s sole discretion. Receiving a scholarship does not affect the academic requirements
-                for certification. Scholarship recipients agree to allow MTC to use their anonymised success story for promotional purposes unless they
-                opt out in writing.
-              </p>
-            </TermsSection>
-
-            <TermsSection title="9. Limitation of liability">
+            <TermsSection title="8. Limitation of liability">
               <p>
                 To the maximum extent permitted by law, MTC is not liable for any indirect, incidental, or consequential loss arising from your use of
                 the Platform, including loss of data, loss of income, or failure to obtain employment after certification.

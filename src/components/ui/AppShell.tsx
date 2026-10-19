@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, LogOut, ChevronRight } from "lucide-react";
 
@@ -19,7 +19,6 @@ interface AppShellProps {
   role: string;
   userName: string;
   userInitial: string;
-  /** accent colour class for sidebar active state — defaults to primary */
   accentClass?: string;
 }
 
@@ -32,7 +31,13 @@ export default function AppShell({
   accentClass = "bg-primary",
 }: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [drawerOpen, setDrawer] = useState(false);
+
+  // Eagerly prefetch every nav route on mount so clicks are instant
+  useEffect(() => {
+    nav.forEach((item) => router.prefetch(item.href));
+  }, [nav, router]);
 
   // Close drawer on route change
   useEffect(() => { setDrawer(false); }, [pathname]);
@@ -111,7 +116,7 @@ export default function AppShell({
 
         {/* Sign out */}
         <Link
-          href="/api/auth/signout"
+          href="/signout"
           className="hidden sm:flex items-center gap-1.5 text-xs text-white/60 hover:text-white no-underline transition-colors px-2 py-1.5 rounded-lg hover:bg-white/10"
           title="Sign out"
         >
@@ -149,7 +154,7 @@ export default function AppShell({
                 <p className="text-xs font-semibold text-primary truncate">{userName}</p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-wide">{role}</p>
               </div>
-              <Link href="/api/auth/signout" className="text-gray-400 hover:text-danger transition-colors" title="Sign out">
+              <Link href="/signout" className="text-gray-400 hover:text-danger transition-colors" title="Sign out">
                 <LogOut className="w-4 h-4" />
               </Link>
             </div>
@@ -188,7 +193,7 @@ export default function AppShell({
               </div>
             </div>
             <Link
-              href="/api/auth/signout"
+              href="/signout"
               onClick={() => setDrawer(false)}
               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-danger hover:bg-danger/5 no-underline transition-colors"
             >

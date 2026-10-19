@@ -66,8 +66,7 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   { key: "site.tagline",         value: "Learn. Serve. Transform.",             description: "Site tagline" },
   { key: "site.accreditationText", value: "",                      description: "Accreditation statement (empty = hide accreditation page)" },
   { key: "site.intakeEyebrow",   value: "Now enrolling: November 2026 intake", description: "Hero eyebrow text" },
-  { key: "feature.scholarships", value: "false",                   description: "Enable scholarship features (true/false)" },
-  { key: "course.freePreviewPercent", value: "12",                 description: "% of lessons free before payment" },
+{ key: "course.freePreviewPercent", value: "12",                 description: "% of lessons free before payment" },
   { key: "payment.gateway",      value: "demo",                    description: "Active payment gateway" },
   { key: "payment.currency",     value: "UGX",                     description: "Currency code" },
   { key: "payment.pesapalConsumerKey",    value: "DEMO_KEY",       description: "Pesapal v3 consumer key" },
@@ -161,7 +160,6 @@ async function main() {
     full:      "2026/MHC/006",
     overdue:   "2026/MHC/007",
     completed: "2026/MHC/009",
-    sponsored: "2026/BHC/001",
   };
   for (const def of STUDENT_DEFS) {
     const sn = STUDENT_SNS[def.key];
@@ -628,7 +626,6 @@ async function main() {
       startDate: monthsAgo(3),
       endDate: weeksFrom(9),
       seats: 40,
-      scholarshipSeats: 5,
       isOpen: true,
     },
   });
@@ -643,7 +640,6 @@ async function main() {
       startDate: weeksFrom(3),
       endDate: weeksFrom(15),
       seats: 40,
-      scholarshipSeats: 5,
       isOpen: true,
     },
   });
@@ -658,7 +654,6 @@ async function main() {
       startDate: monthsAgo(2),
       endDate: weeksFrom(6),
       seats: 30,
-      scholarshipSeats: 3,
       isOpen: true,
     },
   });
@@ -743,14 +738,13 @@ async function main() {
       { studentKey: "full",      method: PaymentMethod.BANK_TRANSFER, gateway: PaymentGateway.MANUAL,      amount: cnaFee,     daysBack: 55, status: PaymentStatus.COMPLETED },
       { studentKey: "overdue",   method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.MANUAL,      amount: instalment, daysBack: 80, status: PaymentStatus.COMPLETED },
       { studentKey: "completed", method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.PESAPAL,     amount: cnaFee,     daysBack: 120, status: PaymentStatus.COMPLETED },
-      { studentKey: "sponsored", method: PaymentMethod.SCHOLARSHIP,   gateway: PaymentGateway.MANUAL,      amount: cnaFee,     daysBack: 90, status: PaymentStatus.COMPLETED },
       { studentKey: "tutor2",    method: PaymentMethod.BANK_TRANSFER, gateway: PaymentGateway.MANUAL,      amount: courses["basic-home-caregiver"].fullFeeUgx ?? 1800000, daysBack: 50, status: PaymentStatus.COMPLETED },
       // One reversed payment (fraud)
       { studentKey: "75",        method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.PESAPAL,     amount: 85000,      daysBack: 30, status: PaymentStatus.REFUNDED },
     ];
 
     // Extra historical payments for revenue charts (past 6 months)
-    const extraStudentKeys = ["25", "50", "75", "full", "completed", "sponsored"];
+    const extraStudentKeys = ["25", "50", "75", "full", "completed"];
     const extraPayments: typeof PAYMENT_SCENARIOS = [];
     for (let m = 1; m <= 5; m++) {
       for (let i = 0; i < 4; i++) {
@@ -870,33 +864,6 @@ async function main() {
     if (tutor2Enr) enrolments["tutor2"] = tutor2Enr;
     console.log("  ℹ  Enrolments already seeded - skipping payments/progress");
   }
-
-  // ── Discount codes ─────────────────────────────────────────────
-  await prisma.discountCode.upsert({
-    where: { code: "SCHOLAR2026" },
-    update: {},
-    create: {
-      code: "SCHOLAR2026", type: "SCHOLARSHIP", value: 100, maxUses: 20,
-      expiresAt: new Date("2027-12-31"), createdBy: registrar.id,
-    },
-  });
-  await prisma.discountCode.upsert({
-    where: { code: "LAUNCH20" },
-    update: {},
-    create: {
-      code: "LAUNCH20", type: "PERCENTAGE", value: 20, maxUses: 50,
-      expiresAt: new Date("2026-12-31"), createdBy: registrar.id,
-    },
-  });
-  await prisma.discountCode.upsert({
-    where: { code: "STAFF50" },
-    update: {},
-    create: {
-      code: "STAFF50", type: "PERCENTAGE", value: 50, maxUses: 10,
-      expiresAt: new Date("2027-06-30"), createdBy: ceo.id,
-    },
-  });
-  console.log("  ✓ Discount codes (3)");
 
   // ── Exams ──────────────────────────────────────────────────────
   const existingExams = await prisma.exam.count();
@@ -1259,28 +1226,6 @@ async function main() {
           createdAt: daysAgo(7),
         },
         {
-          type: ApprovalRequestType.SCHOLARSHIP_AWARD,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: registrar.id,
-          studentId: students["new"].id,
-          enrolmentId: enrolments["new"]?.id,
-          amount: courses["medical-home-caregiver"].fullFeeUgx ?? 2300000,
-          reason: "Student qualifies under the MTC community health worker scholarship programme.",
-          approvalToken: approvalToken(),
-          createdAt: daysAgo(1),
-        },
-        {
-          type: ApprovalRequestType.SCHOLARSHIP_AWARD,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: registrar.id,
-          studentId: students["pending"].id,
-          enrolmentId: enrolments["pending"]?.id,
-          amount: courses["medical-home-caregiver"].fullFeeUgx ?? 2300000,
-          reason: "Nominated by St. Francis Hospital, Nsambya for the 2026 community health scholarship.",
-          approvalToken: approvalToken(),
-          createdAt: daysAgo(2),
-        },
-        {
           type: ApprovalRequestType.FEE_CHANGE,
           status: ApprovalRequestStatus.PENDING,
           initiatorId: registrar.id,
@@ -1291,7 +1236,7 @@ async function main() {
         },
       ],
     });
-    console.log("  ✓ Pending approvals (6: 2 refunds, 1 waiver, 2 scholarships, 1 fee change)");
+    console.log("  ✓ Pending approvals (4: 2 refunds, 1 waiver, 1 fee change)");
   }
 
   // ── Notifications ──────────────────────────────────────────────
@@ -1306,7 +1251,7 @@ async function main() {
       { userId: students["new"].id,       channel: "IN_APP", type: "WELCOME",          subject: "Welcome to Musawo Training Center!", body: "Welcome, Harriet! Your account has been created. Please complete your first payment to unlock your course.", readAt: daysAgo(2) },
       { userId: students["completed"].id, channel: "IN_APP", type: "CERTIFICATE_READY", subject: "Your certificate is ready", body: "Congratulations! Your CNA certificate (MTC-2026-CNA-00001) is ready to download.", readAt: daysAgo(20) },
       { userId: financeOfficer.id,                channel: "IN_APP", type: "CLAIM_SUBMITTED",  subject: "New payment claim submitted",    body: "A new manual payment claim has been submitted by Harriet Namutebi. Please review.", readAt: null },
-      { userId: ceo.id,                   channel: "IN_APP", type: "APPROVAL_NEEDED",  subject: "6 approvals awaiting your decision", body: "There are 6 approval requests pending in your inbox: 2 refunds, 1 waiver, 2 scholarships, 1 fee change.", readAt: null },
+      { userId: ceo.id,                   channel: "IN_APP", type: "APPROVAL_NEEDED",  subject: "4 approvals awaiting your decision", body: "There are 4 approval requests pending in your inbox: 2 refunds, 1 waiver, 1 fee change.", readAt: null },
       { userId: tutor.id,                 channel: "IN_APP", type: "EXAM_REVIEW",      subject: "Exam submission pending review", body: "Ronald Mugisha submitted Block 2 exam 5 days ago and has a short-answer question awaiting your marking.", readAt: null },
     ];
 

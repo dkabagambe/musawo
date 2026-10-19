@@ -13,7 +13,7 @@ export default async function AssignmentsPage() {
   const enrolments = await db.enrolment.findMany({
     where: {
       userId: session.user.id,
-      status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "SPONSORED"] },
+      status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID"] },
     },
     select: { courseId: true },
   });

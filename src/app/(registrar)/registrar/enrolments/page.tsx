@@ -74,7 +74,7 @@ export default async function RegistrarEnrolmentsPage({ searchParams }: Props) {
         />
         <select name="status" defaultValue={statusFilter ?? ""} className="input w-auto text-sm">
           <option value="">All statuses</option>
-          {["ACTIVE","COMPLETED","SUSPENDED","SPONSORED"].map((s) => (
+          {["ACTIVE","COMPLETED","SUSPENDED"].map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>

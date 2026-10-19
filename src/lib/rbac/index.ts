@@ -73,8 +73,6 @@ export type Permission =
   | "waivers.approve"          // SUPER_ADMIN only
   | "fees.change.initiate"
   | "fees.change.approve"      // SUPER_ADMIN only
-  | "scholarships.initiate"
-  | "scholarships.approve"     // SUPER_ADMIN only
   | "finance.totals.view"      // PRINCIPAL sees totals only
 
   // Courses / Content
@@ -203,7 +201,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "refunds.initiate", "refunds.approve",
     "waivers.initiate", "waivers.approve",
     "fees.change.initiate", "fees.change.approve",
-    "scholarships.initiate", "scholarships.approve",
     "courses.view", "courses.create", "courses.edit", "courses.publish", "courses.delete",
     "content.upload", "content.approve",
     "lessons.edit",
@@ -314,7 +311,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "transcripts.view", "transcripts.generate",
     "announcements.send.all",
     "announcements.manage",
-    "scholarships.initiate",
     "waivers.initiate",
     "staff.create.initiate", "staff.suspend.initiate",
     "audit.view",
@@ -366,7 +362,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "refunds.initiate",
     "waivers.initiate",
     "fees.change.initiate",
-    "scholarships.initiate",
     "audit.view",
     "reports.view", "reports.financial",
     "claims.review", "claims.second_verify",
@@ -444,7 +439,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "refunds.initiate", "refunds.approve",
     "waivers.initiate", "waivers.approve",
     "fees.change.initiate", "fees.change.approve",
-    "scholarships.initiate", "scholarships.approve",
     "courses.view", "courses.create", "courses.edit", "courses.publish", "courses.delete",
     "content.upload", "content.approve", "lessons.edit",
     "exams.create", "exams.mark", "exams.release",
@@ -481,7 +475,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "staff.view", "staff.create.initiate", "staff.suspend.initiate",
     "settings.view", "settings.edit",
     "audit.view", "reports.view", "reports.academic",
-    "policies.view", "partner_pages.edit", "scholarships.initiate",
+    "policies.view", "partner_pages.edit",
     "attendance.view", "classes.view",
     "intakes.manage",
     "announcements.manage",
@@ -491,7 +485,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "payments.view", "payments.initiate", "payments.export", "payments.hold",
     "ledger.view", "finance.totals.view",
     "refunds.initiate", "waivers.initiate", "fees.change.initiate",
-    "scholarships.initiate",
     "audit.view", "reports.view", "reports.financial",
     "claims.review", "claims.second_verify",
     "statements.import", "reconciliation.view",
@@ -524,7 +517,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "graduands.prepare", "graduates.view",
     "transcripts.view", "transcripts.generate",
     "announcements.send.all",
-    "scholarships.initiate", "waivers.initiate",
+    "waivers.initiate",
     "staff.create.initiate", "staff.suspend.initiate",
     "audit.view", "reports.view", "reports.academic",
     "policies.view",
@@ -543,7 +536,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "graduands.prepare", "graduates.view",
     "transcripts.view", "transcripts.generate",
     "announcements.send.all",
-    "scholarships.initiate", "waivers.initiate",
+    "waivers.initiate",
     "settings.view", "settings.edit",
     "audit.view", "reports.view", "reports.academic",
     "policies.view", "partner_pages.edit",

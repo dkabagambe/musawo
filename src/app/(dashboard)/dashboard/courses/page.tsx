@@ -13,13 +13,12 @@ const STATUS_STYLE: Record<string, string> = {
   PARTIALLY_PAID:  "bg-warning/10 text-amber-700",
   PENDING_PAYMENT: "bg-warning/10 text-amber-700",
   OVERDUE:         "bg-danger/10 text-danger",
-  SPONSORED:       "bg-accent/10 text-accent",
   SUSPENDED:       "bg-danger/10 text-danger",
 };
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Active", COMPLETED: "Completed", PARTIALLY_PAID: "Partially paid",
   PENDING_PAYMENT: "Pending payment", OVERDUE: "Overdue",
-  SPONSORED: "Sponsored", SUSPENDED: "Suspended",
+SUSPENDED: "Suspended",
 };
 
 export default async function MyCoursesPage() {
@@ -49,7 +48,7 @@ export default async function MyCoursesPage() {
   const completedCount = progressRows[0]?._count.lessonId ?? 0;
 
   const canAccess = (status: string) =>
-    ["ACTIVE","PARTIALLY_PAID","OVERDUE","SPONSORED","COMPLETED"].includes(status);
+    ["ACTIVE","PARTIALLY_PAID","OVERDUE","COMPLETED"].includes(status);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

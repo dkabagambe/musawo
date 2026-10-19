@@ -70,7 +70,6 @@ enum EnrolmentStatus {
   ACTIVE             // fully paid (or first instalment for instalment plan)
   PARTIALLY_PAID     // instalment plan: some blocks unlocked, more due
   OVERDUE            // instalment missed, in grace period
-  SPONSORED          // scholarship/sponsor — no payment required
   COMPLETED          // all lessons done, exams passed, cert issued
   SUSPENDED          // admin-suspended
   REFUNDED           // refund approved, access ended
@@ -97,20 +96,12 @@ enum PaymentMethod {
   CARD
   BANK_TRANSFER
   MANUAL
-  SCHOLARSHIP
-}
-
-enum DiscountCodeType {
-  SCHOLARSHIP
-  PERCENTAGE
-  FIXED_AMOUNT
 }
 
 enum LedgerEntryType {
   PAYMENT
   REFUND
   ADJUSTMENT
-  SCHOLARSHIP
 }
 
 enum LiveClassStatus {
@@ -192,7 +183,6 @@ enum ApprovalRequestType {
   REFUND
   WAIVER
   FEE_CHANGE
-  SCHOLARSHIP_AWARD
   STAFF_ACCOUNT_CREATE
   STAFF_ACCOUNT_SUSPEND
   STAFF_ACCOUNT_ROLE_CHANGE
@@ -499,7 +489,6 @@ model Intake {
   startDate        DateTime
   endDate          DateTime
   seats            Int
-  scholarshipSeats Int      @default(0)
   isOpen           Boolean  @default(true)
   createdAt        DateTime @default(now())
 
@@ -574,8 +563,6 @@ model Enrolment {
   planType        String          @default("FULL") // "FULL" | "INSTALMENT"
   totalAmountUgx  Int
   paidAmountUgx   Int             @default(0)
-  discountCodeId  String?
-  discountAmountUgx Int           @default(0)
   unlockedBlockOrder Int          @default(0) // highest block order unlocked
   paidPercent     Int             @default(0) // 0-100
   // Overdue / grace period
@@ -590,7 +577,6 @@ model Enrolment {
   user         User          @relation(fields: [userId], references: [id])
   course       Course        @relation(fields: [courseId], references: [id])
   intake       Intake?       @relation(fields: [intakeId], references: [id])
-  discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id])
   payments     Payment[]
   instalments  Instalment[]
   ledger       LedgerEntry[]
@@ -598,23 +584,6 @@ model Enrolment {
 
   @@unique([userId, courseId])
   @@map("enrolments")
-}
-
-model DiscountCode {
-  id         String           @id @default(cuid())
-  code       String           @unique
-  type       DiscountCodeType
-  value      Int              // percentage (0-100) or fixed amount in UGX
-  uses       Int              @default(0)
-  maxUses    Int?
-  courseId   String?          // null = valid for all courses
-  expiresAt  DateTime?
-  createdAt  DateTime         @default(now())
-  createdBy  String?
-
-  enrolments Enrolment[]
-
-  @@map("discount_codes")
 }
 
 model Payment {

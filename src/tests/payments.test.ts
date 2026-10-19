@@ -73,8 +73,6 @@ const mockPayment = {
     totalAmountUgx: 850000,
     paidAmountUgx: 0,
     paidPercent: 0,
-    discountCodeId: null,
-    discountAmountUgx: 0,
     unlockedBlockOrder: 0,
     overdueSince: null,
     graceUntil: null,
@@ -225,14 +223,6 @@ describe("Discount code application", () => {
 
     expect(discountAmount).toBe(170000);
     expect(finalAmount).toBe(680000);
-  });
-
-  it("applies scholarship (100% discount)", () => {
-    const fullFee = 850000;
-    const discountAmount = fullFee; // SCHOLARSHIP type gives 100%
-    const finalAmount = Math.max(0, fullFee - discountAmount);
-
-    expect(finalAmount).toBe(0);
   });
 
   it("applies fixed amount discount", () => {

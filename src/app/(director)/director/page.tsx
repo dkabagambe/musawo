@@ -54,7 +54,6 @@ export default async function DirectorDashboardPage() {
   const APPROVAL_TYPE_LABELS: Record<string, string> = {
     REFUND: "Refund request",
     WAIVER: "Fee waiver",
-    SCHOLARSHIP_AWARD: "Scholarship award",
     FEE_CHANGE: "Fee change",
     MANUAL_ENROLMENT: "Manual enrolment",
   };

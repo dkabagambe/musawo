@@ -32,7 +32,6 @@ export const InitiatePaymentSchema = z.object({
   courseId: z.string().cuid(),
   intakeId: z.string().cuid().optional(),
   planType: z.enum(["FULL", "INSTALMENT"]),
-  discountCode: z.string().max(50).optional(),
 });
 
 // ─── Courses ──────────────────────────────────
@@ -79,14 +78,4 @@ export const CreateLiveClassSchema = z.object({
   durationMin: z.number().int().min(15).max(300),
   joinUrl: z.string().url(),
   platform: z.enum(["google_meet", "zoom", "jitsi"]),
-});
-
-// ─── Admin ────────────────────────────────────
-export const CreateDiscountCodeSchema = z.object({
-  code: z.string().min(3).max(50).regex(/^[A-Z0-9_-]+$/),
-  type: z.enum(["SCHOLARSHIP", "PERCENTAGE", "FIXED_AMOUNT"]),
-  value: z.number().int().min(0),
-  maxUses: z.number().int().positive().optional(),
-  courseId: z.string().cuid().optional(),
-  expiresAt: z.string().datetime().optional(),
 });

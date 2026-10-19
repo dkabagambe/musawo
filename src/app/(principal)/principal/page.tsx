@@ -11,7 +11,7 @@ export default async function PrincipalPage() {
   if (!session?.user || !can(session.user.role, "content.approve")) redirect("/dashboard");
 
   const [totalStudents, pendingResults, pendingGraduands] = await Promise.all([
-    db.enrolment.count({ where: { status: { in: ["ACTIVE", "COMPLETED", "SPONSORED"] } } }),
+    db.enrolment.count({ where: { status: { in: ["ACTIVE", "COMPLETED"] } } }),
     db.examAttempt.count({ where: { status: "SUBMITTED", score: { not: null } } }),
     db.enrolment.count({ where: { status: "COMPLETED" } }),
   ]);
