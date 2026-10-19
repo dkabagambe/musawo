@@ -16,9 +16,15 @@ const SLIDES = [
   },
   {
     id: 2,
-    src: "/assets/images/graduates-field.webp",
-    alt: "Musawo Training Center graduates working in the community",
+    src: "/assets/images/musawo-session.webp",
+    alt: "Musawo Training Center students in a hands-on practical training session",
     pos: "center 30%",
+  },
+  {
+    id: 3,
+    src: "/assets/images/graduates-clinic.jpg",
+    alt: "Musawo Training Center graduates working in a clinical environment",
+    pos: "center 25%",
   },
 ];
 
