@@ -28,8 +28,8 @@ const SLIDES = [
   },
 ];
 
-const HOLD_MS = 12000;
-const FADE_MS = 1000;
+const HOLD_MS = 5000;
+const FADE_MS = 800;
 
 /* ─── Shared card content ──────────────────────────────────── */
 function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
@@ -38,10 +38,10 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
     <div
       className="rounded-2xl px-7 py-8 sm:px-9 sm:py-10"
       style={{
-        background: "rgba(0,0,0,0.42)",
-        backdropFilter: "blur(3px)",
-        WebkitBackdropFilter: "blur(3px)",
-        border: "1px solid rgba(255,255,255,0.10)",
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+        border: "1px solid rgba(255,255,255,0.12)",
       }}
     >
       {/* Badge */}
@@ -203,7 +203,7 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 80% 70% at 50% 60%, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.05) 100%)",
+                  "radial-gradient(ellipse 90% 80% at 50% 60%, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.30) 70%, rgba(0,0,0,0.10) 100%)",
               }}
             />
           </div>

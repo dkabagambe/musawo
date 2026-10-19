@@ -38,7 +38,7 @@ async function getPublicCourses() {
       category: true,
     },
     orderBy: { createdAt: "asc" },
-    take: 6,
+    take: 7,
   });
 }
 
