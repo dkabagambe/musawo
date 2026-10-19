@@ -55,14 +55,16 @@ export default function AppShell({
             <Link
               href={item.href}
               onClick={onClick}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium no-underline transition-all duration-150 relative
+              prefetch={true}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium no-underline relative
+                transition-colors duration-100
                 ${active
                   ? "bg-primary text-white shadow-primary-glow"
                   : "text-gray-600 hover:bg-surface hover:text-primary"
                 }`}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-100
                 ${active ? "bg-white/20" : "bg-surface"}`}>
                 {item.icon}
               </span>
