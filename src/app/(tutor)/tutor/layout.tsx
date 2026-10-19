@@ -14,7 +14,7 @@ const NAV: NavItem[] = [
 
 export default async function TutorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "content.upload")) {
+  if (!session?.user || !can(session.user.role, "courses.view")) {
     redirect("/dashboard");
   }
   const name = session.user.name ?? "Instructor";

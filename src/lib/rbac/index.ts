@@ -250,9 +250,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "students.view", "students.export", "students.view.contacts",
     "enrolments.view",
     "applications.view",
-    "finance.totals.view",
+    "payments.view", "finance.totals.view",  // read-only finance visibility
     "courses.view", "courses.create", "courses.edit", "courses.publish", "courses.delete",
-    "content.approve",
+    "content.approve", "content.upload",
     "exams.mark", "exams.release",
     "grades.view",
     "attendance.view", "attendance.export",
@@ -262,12 +262,12 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "transcripts.view",
     "announcements.send.all",
     "staff.view",
-    "audit.view",
+    "audit.view", "audit.view.full",
     "reports.view", "reports.academic",
     "policies.view", "policies.edit",
     "support.view",
     "approvals.view",
-    // DENIED: payments.view, ledger.view, settings.edit, grades.edit
+    // DENIED: payments.hold, payments.initiate, refunds.*, ledger.view, settings.edit
   ],
 
   // ── DEPUTY_PRINCIPAL: daily operations, delegates from Principal
@@ -275,9 +275,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "students.view", "students.export", "students.view.contacts",
     "enrolments.view",
     "applications.view",
-    "finance.totals.view",
+    "payments.view", "finance.totals.view",  // read-only finance visibility
     "courses.view",
-    "content.approve",   // only when Principal delegates (enforced in API)
+    "content.approve", "content.upload",  // when Principal delegates
     "exams.mark",
     "grades.view",
     "attendance.view", "attendance.export",
@@ -291,7 +291,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "reports.view", "reports.academic",
     "policies.view",
     "support.view", "support.manage",
-    // DENIED: exams.release, graduands.approve, certificates.issue, policies.edit
+    // DENIED: exams.release, graduands.approve, certificates.issue, policies.edit,
+    //         payments.hold, payments.initiate, refunds.*, ledger.view, settings.edit
   ],
 
   // ── ACADEMIC_REGISTRAR: student records, enrolments, academic calendar
@@ -609,11 +610,11 @@ export function canAccessPrefix(role: UserRole, prefix: string): boolean {
     { prefix: "/principal", roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL"] },
     { prefix: "/deputy",    roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL"] },
     { prefix: "/registrar", roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "ACADEMIC_REGISTRAR", "REGISTRAR"] },
-    { prefix: "/admin",     roles: ["SUPER_ADMIN", "SUPERADMIN", "ACADEMIC_REGISTRAR", "REGISTRAR", "ADMINISTRATOR", "ADMIN", "HR_SYSTEM_ADMIN"] },
-    { prefix: "/finance",   roles: ["SUPER_ADMIN", "SUPERADMIN", "FINANCE_OFFICER", "BURSAR"] },
-    { prefix: "/bursar",    roles: ["SUPER_ADMIN", "SUPERADMIN", "FINANCE_OFFICER", "BURSAR"] }, // legacy redirect
-    { prefix: "/tutor",     roles: ["SUPER_ADMIN", "SUPERADMIN", "INSTRUCTOR", "TUTOR", "TEACHING_ASSISTANT", "ACADEMIC_REGISTRAR", "REGISTRAR"] },
-    { prefix: "/auditor",   roles: ["SUPER_ADMIN", "SUPERADMIN", "AUDITOR_READONLY"] },
+    { prefix: "/admin",     roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "ACADEMIC_REGISTRAR", "REGISTRAR", "ADMINISTRATOR", "ADMIN", "HR_SYSTEM_ADMIN"] },
+    { prefix: "/finance",   roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "FINANCE_OFFICER", "BURSAR"] },
+    { prefix: "/bursar",    roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "FINANCE_OFFICER", "BURSAR"] }, // legacy redirect
+    { prefix: "/tutor",     roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "INSTRUCTOR", "TUTOR", "TEACHING_ASSISTANT", "ACADEMIC_REGISTRAR", "REGISTRAR"] },
+    { prefix: "/auditor",   roles: ["SUPER_ADMIN", "SUPERADMIN", "PRINCIPAL", "DEPUTY_PRINCIPAL", "AUDITOR_READONLY"] },
     { prefix: "/system",    roles: ["SUPER_ADMIN", "SUPERADMIN", "SYSTEM_IT"] },
     { prefix: "/dashboard", roles: ["STUDENT", "SPONSOR"] },
   ];

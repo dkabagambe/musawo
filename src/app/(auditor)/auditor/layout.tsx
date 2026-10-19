@@ -14,7 +14,7 @@ const NAV: NavItem[] = [
 
 export default async function AuditorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "audit.comment")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "audit.view")) redirect("/login");
   const name = session.user.name ?? "Auditor";
   return (
     <AppShell nav={NAV} role="Auditor" userName={name} userInitial={name.charAt(0).toUpperCase()}>

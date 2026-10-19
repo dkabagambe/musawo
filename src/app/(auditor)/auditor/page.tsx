@@ -4,7 +4,7 @@ import { can } from "@/lib/rbac";
 export const metadata = { title: "Auditor Overview" };
 export default async function AuditorPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "audit.comment")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "audit.view")) redirect("/login");
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-primary mb-2">Auditor / Legal Advisor</h1>

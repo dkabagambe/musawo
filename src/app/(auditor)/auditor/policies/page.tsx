@@ -6,7 +6,7 @@ export const metadata = { title: "Policies - Auditor" };
 
 export default async function StubPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "audit.comment")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "audit.view")) redirect("/login");
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-primary mb-2">Policies - Auditor</h1>

@@ -13,7 +13,7 @@ const NAV: NavItem[] = [
 
 export default async function BursarLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "payments.hold")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
   const name = session.user.name ?? "Finance";
   return (
     <AppShell nav={NAV} role="Finance Officer" userName={name} userInitial={name.charAt(0).toUpperCase()}>

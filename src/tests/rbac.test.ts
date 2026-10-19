@@ -78,14 +78,17 @@ describe("PRINCIPAL", () => {
   it("can view students",               () => expectAllowed("PRINCIPAL", "students.view"));
   it("can view grades",                 () => expectAllowed("PRINCIPAL", "grades.view"));
   it("can mark exams",                  () => expectAllowed("PRINCIPAL", "exams.mark"));
+  it("can view payments (read-only)",   () => expectAllowed("PRINCIPAL", "payments.view"));
+  it("can view full audit log",         () => expectAllowed("PRINCIPAL", "audit.view.full"));
 
-  it("CANNOT view payments",            () => expectForbidden("PRINCIPAL", "payments.view"));
+  it("CANNOT initiate payments",         () => expectForbidden("PRINCIPAL", "payments.initiate"));
   it("CANNOT view ledger",              () => expectForbidden("PRINCIPAL", "ledger.view"));
   it("CANNOT initiate refunds",         () => expectForbidden("PRINCIPAL", "refunds.initiate"));
   it("CANNOT edit grades",              () => expectForbidden("PRINCIPAL", "grades.edit"));
   it("CANNOT decide approvals",         () => expectForbidden("PRINCIPAL", "approvals.decide"));
   it("CANNOT edit settings",            () => expectForbidden("PRINCIPAL", "settings.edit"));
   it("CANNOT manage intakes",           () => expectForbidden("PRINCIPAL", "intakes.manage"));
+  it("CANNOT approve staff changes",    () => expectForbidden("PRINCIPAL", "staff.create.approve"));
 });
 
 // ─── ACADEMIC_REGISTRAR ───────────────────────────────────────────────────────
@@ -236,7 +239,7 @@ describe("Separation of duties", () => {
 
 describe("No role escalation", () => {
   const nonSuperAdminRoles: UserRole[] = [
-    "SYSTEM_IT", "ADMINISTRATOR", "PRINCIPAL", "ACADEMIC_REGISTRAR",
+    "SYSTEM_IT", "ADMINISTRATOR", "ACADEMIC_REGISTRAR",
     "BURSAR", "TUTOR", "STUDENT",
     "REGISTRAR", "ADMIN",
   ];
