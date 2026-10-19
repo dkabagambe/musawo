@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { can } from "@/lib/rbac";
 import { Monitor, Settings, FileSearch } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -11,7 +12,7 @@ const NAV: NavItem[] = [
 
 export default async function SystemLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN", "SYSTEM_IT"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "integrations.edit")) redirect("/login");
   const name = session.user.name ?? "IT Admin";
   return (
     <AppShell nav={NAV} role="System IT" userName={name} userInitial={name.charAt(0).toUpperCase()}>

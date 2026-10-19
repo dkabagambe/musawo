@@ -29,7 +29,7 @@ export default async function CertificatesPage() {
             <Award className="w-8 h-8 text-primary/40" />
           </div>
           <h2 className="font-bold text-primary mb-2">No certificates yet</h2>
-          <p className="text-gray-500 text-sm">Complete a course to earn your nationally recognised certificate.</p>
+          <p className="text-gray-500 text-sm">Complete a course to earn your digital certificate with QR verification.</p>
         </div>
       ) : (
         <div className="space-y-4">

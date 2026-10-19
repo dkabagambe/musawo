@@ -325,7 +325,7 @@ export default function LoginPage() {
       {/* Trust line */}
       <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mt-6 mb-5">
         <Lock style={{width:"13px",height:"13px"}} aria-hidden="true" />
-        <span>Your information is protected · Ministry of Health accredited</span>
+        <span>Your information is protected · Digital certificate with QR verification</span>
       </div>
 
       {/* Footer links */}

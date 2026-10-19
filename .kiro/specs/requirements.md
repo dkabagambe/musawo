@@ -87,7 +87,7 @@ The student experience is modelled on VU's VClass: learn anywhere on any device;
 - **REQ-CERT-01** Certificate generated as PDF after all required exams passed (and practical sign-off where applicable).
 - **REQ-CERT-02** Unique alphanumeric ID + QR code linking to public verification page.
 - **REQ-CERT-03** Admin can revoke a certificate with reason (audit logged).
-- **REQ-CERT-04** Certificates carry accreditation text: "Accredited by Uganda Ministry of Health and Ministry of Education and Sports".
+- **REQ-CERT-04** Certificates carry the `accreditationText` from the site setting (empty by default). When the setting is blank the accreditation line is omitted from the certificate PDF.
 
 ### 3.8 Notifications
 
@@ -129,7 +129,7 @@ The student experience is modelled on VU's VClass: learn anywhere on any device;
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `site.domain` | `learn.musawotraining.ug` | Platform domain |
+| `site.domain` | `mtc.ac.ug` | Platform domain |
 | `site.name` | `Musawo Training Center` | Displayed name |
 | `site.supportEmail` | `training@musawo.ug` | Support email |
 | `site.supportPhone` | `+256 700 000000` | Support phone |

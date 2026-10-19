@@ -120,7 +120,7 @@ export default function TwoFASetupPage() {
   return (
     <div className="auth-card">
       <Link
-        href="/dashboard/security"
+        href="/dashboard/profile"
         className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-6 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded"
       >
         <ArrowLeft className="w-4 h-4" aria-hidden="true" />

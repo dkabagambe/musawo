@@ -14,7 +14,14 @@ export default async function SettingsPage() {
     {
       label: "Site",
       prefix: "site.",
-      keys: ["site.name", "site.domain", "site.supportEmail", "site.supportPhone"],
+      keys: [
+        "site.name",
+        "site.domain",
+        "site.url",
+        "site.supportEmail",
+        "site.supportPhone",
+        "site.accreditationText",
+      ],
     },
     {
       label: "Course defaults",

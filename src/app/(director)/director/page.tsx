@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -9,7 +10,7 @@ export const metadata = { title: "Executive Dashboard" };
 
 export default async function DirectorDashboardPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "approvals.decide") === false) redirect("/login");
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -150,7 +151,7 @@ export default async function DirectorDashboardPage() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-bold text-success">UGX {p.amount.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">{p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "—"}</p>
+                  <p className="text-xs text-gray-400">{p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "-"}</p>
                 </div>
               </div>
             ))}

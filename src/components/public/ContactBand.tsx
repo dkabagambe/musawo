@@ -11,7 +11,7 @@ interface ContactBandProps {
  * "Call or WhatsApp us".
  */
 export default function ContactBand({
-  whatsappUrl = "https://wa.me/256785423523",
+  whatsappUrl = "https://wa.me/256709184468",
 }: ContactBandProps) {
   return (
     <section
@@ -63,7 +63,7 @@ export default function ContactBand({
             <div>
               <p className="font-bold text-primary text-base mb-1">Call or WhatsApp us</p>
               <p className="text-sm text-gray-500 leading-relaxed">
-                +256 785 423 523. Mon to Fri, 8 am to 6 pm EAT.
+                0709 184 468. Mon to Fri, 8 am to 6 pm EAT.
               </p>
             </div>
           </a>

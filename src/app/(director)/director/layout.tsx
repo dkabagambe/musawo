@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { can } from "@/lib/rbac";
 import { LayoutDashboard, ClipboardCheck, Users, Search, Shield, Settings } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -14,7 +15,7 @@ const NAV: NavItem[] = [
 
 export default async function DirectorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || !can(session.user.role, "approvals.decide")) redirect("/login");
   const name = session.user.name ?? "Director";
   return (
     <AppShell nav={NAV} role="Executive" userName={name} userInitial={name.charAt(0).toUpperCase()}>

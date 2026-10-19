@@ -113,7 +113,7 @@ export default async function DashboardPage() {
             <AlertTriangle className="w-5 h-5 text-danger" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-danger text-sm">Overdue payment — {e.course.title}</p>
+            <p className="font-semibold text-danger text-sm">Overdue payment: {e.course.title}</p>
             <p className="text-xs text-gray-500 mt-0.5">You have missed an instalment. Pay now to keep your access.</p>
           </div>
           <Link href="/dashboard/payments" className="btn-primary text-xs px-4 py-2 no-underline flex-shrink-0">Pay now</Link>

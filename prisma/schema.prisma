@@ -15,22 +15,36 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum UserRole {
-  SUPERADMIN
-  SYSTEM_IT
-  REGISTRAR
-  BURSAR
-  TUTOR
-  STUDENT
-  // Legacy alias kept for transition; treat as REGISTRAR in code
-  ADMIN
-  SPONSOR
-  EMPLOYER
+  // ── Active roles ──────────────────────────────────────────────
+  SUPER_ADMIN          // Managing Director / CEO / CFO. Max 3 accounts.
+  BOARD_MEMBER         // Read-only reports and aggregates.
+  PRINCIPAL            // Academic head; approves content, results, graduands.
+  DEPUTY_PRINCIPAL     // Daily operations; delegates from Principal.
+  ACADEMIC_REGISTRAR   // Student records, enrolments, academic calendar.
+  INSTRUCTOR           // Teaching staff (was TUTOR).
+  TEACHING_ASSISTANT   // Supporting staff; limited upload and roll-call.
+  FINANCE_OFFICER      // Payments, ledger, holds (was BURSAR).
+  HR_SYSTEM_ADMIN      // Staff accounts, leave, non-secret settings.
+  AUDITOR_READONLY     // Legal advisor; view-only, every view logged.
+  SYSTEM_IT            // Technical settings, integrations, backups.
+  STUDENT              // Learner account.
+  // ── Legacy aliases kept until data is migrated ────────────────
+  SUPERADMIN           // -> SUPER_ADMIN
+  ADMINISTRATOR        // -> HR_SYSTEM_ADMIN
+  BURSAR               // -> FINANCE_OFFICER
+  TUTOR                // -> INSTRUCTOR
+  REGISTRAR            // -> ACADEMIC_REGISTRAR
+  ADMIN                // -> ACADEMIC_REGISTRAR
+  SPONSOR              // -> remove after seed migration
+  EMPLOYER             // -> remove after seed migration
 }
 
 enum UserStatus {
   ACTIVE
   SUSPENDED
-  PENDING_VERIFICATION
+  PENDING_VERIFICATION   // email not yet confirmed
+  PENDING_ACCEPTANCE     // Registrar created account; student not yet confirmed details
+  DETAILS_DISPUTED       // student flagged details as wrong
 }
 
 enum CourseStatus {
@@ -348,12 +362,21 @@ model Course {
   description        String       @db.Text
   shortDescription   String?
   thumbnailUrl       String?
+  flyerS3Key         String?      // admin-uploaded course flyer (image or PDF)
   status             CourseStatus @default(DRAFT)
+  // Category: "PROFESSIONAL" requires title+reg number; "OPEN" is open to all
+  category           String       @default("OPEN")  // "OPEN" | "PROFESSIONAL"
+  targetAudience     String?      @db.Text  // e.g. "Nurses, midwives, clinical officers"
+  eligibilityText    String?      @db.Text  // shown on apply form
+  durationMonths     Int?         // preferred over durationWeeks for real courses
   freePreviewPercent Int          @default(12)
-  fullFeeUgx         Int          // in shillings
+  fullFeeUgx         Int?         // null means "contact admissions"
+  feeContactOnly     Boolean      @default(false) // true = hide fee, show contact message
   instalmentCount    Int          @default(1)
-  durationWeeks      Int?
+  durationWeeks      Int?         // kept for backward compat
   accreditationText  String?
+  intakeLabel        String?      // e.g. "November 2026"
+  contentNote        String?      @db.Text // e.g. "draft for Principal review"
   tutorId            String
   accessThresholds   Json?
   createdAt          DateTime     @default(now())
@@ -371,6 +394,7 @@ model Course {
   announcements Announcement[]
   forumThreads ForumThread[]
   gradeEntries GradeEntry[]
+  applications Application[]
 
   @@map("courses")
 }
@@ -471,7 +495,7 @@ model LessonProgress {
 model Intake {
   id               String   @id @default(cuid())
   courseId         String
-  label            String   // e.g. "January 2026 Cohort"
+  label            String   // e.g. "November 2026 Cohort"
   startDate        DateTime
   endDate          DateTime
   seats            Int
@@ -479,11 +503,63 @@ model Intake {
   isOpen           Boolean  @default(true)
   createdAt        DateTime @default(now())
 
-  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrolments Enrolment[]
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolments    Enrolment[]
+  applications  Application[]
 
   @@map("intakes")
 }
+
+// ─────────────────────────────────────────────
+// APPLICATIONS (Batch A3)
+// Public applicants fill a form; creates an Application record only.
+// No account is created until the Registrar processes it.
+// ─────────────────────────────────────────────
+
+enum ApplicationStatus {
+  SUBMITTED       // applicant submitted; waiting for Registrar
+  UNDER_REVIEW    // Registrar opened
+  ACCEPTED        // account created, invite sent
+  REJECTED        // not admitted
+  WITHDRAWN       // applicant withdrew
+}
+
+model Application {
+  id                   String            @id @default(cuid())
+  // Course and intake
+  courseId             String?
+  intakeId             String?
+  // Applicant details
+  fullName             String
+  email                String
+  phone                String
+  category             String            @default("OPEN") // "OPEN" | "PROFESSIONAL"
+  professionalTitle    String?
+  registrationNumber   String?
+  highestQualification String?
+  dateOfBirth          DateTime?
+  gender               String?
+  district             String?
+  howHeard             String?
+  notes                String?           @db.Text
+  // Status
+  status               ApplicationStatus @default(SUBMITTED)
+  reviewedById         String?
+  reviewedAt           DateTime?
+  rejectionReason      String?           @db.Text
+  // If accepted: link to the created user account
+  createdUserId        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  course      Course?  @relation(fields: [courseId], references: [id])
+  intake      Intake?  @relation(fields: [intakeId], references: [id])
+
+  @@map("applications")
+}
+
+// Add relation back on Course for applications
+
 
 // ─────────────────────────────────────────────
 // ENROLMENT & PAYMENTS

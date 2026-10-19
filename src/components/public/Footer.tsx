@@ -37,17 +37,9 @@ export default async function PublicFooter() {
     <footer className="bg-primary text-white">
       {/* ── Main grid ─────────────────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-16 pb-12">
-        {/*
-          12-column grid:
-          - Brand block: col-span-4
-          - Quick Links: col-span-2
-          - Courses: col-span-2
-          - Enquiries (two sub-columns): col-span-4
-          Tablet: 2 cols, Mobile: 1 col
-        */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-12 gap-y-12">
 
-          {/* ── Brand block (lg: 4 cols) ──────────────────────────── */}
+          {/* Brand block */}
           <div className="md:col-span-2 lg:col-span-4">
             <Link
               href="/"
@@ -71,17 +63,17 @@ export default async function PublicFooter() {
 
             {/* Tagline */}
             <p className="text-white font-semibold text-sm mb-3 tracking-wide">
-              Learn. Certify. Serve.
+              Learn. Serve. Transform.
             </p>
 
             <p className="text-white/85 text-sm leading-relaxed mb-6 max-w-xs">
-              Bringing quality healthcare to Ugandan homes and communities since 2018 through testing, treatment, training and trust.
+              Hybrid and online healthcare training with 70% hands-on practicals. Taught by doctors, nurses and clinicians. Serving Uganda since 2018.
             </p>
 
             {/* Social icons */}
             <div className="flex items-center gap-3 mb-4">
               <a
-                href="https://www.instagram.com/musawotm"
+                href={contact.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-white/15 hover:bg-accent rounded-lg flex items-center justify-center no-underline transition-colors"
@@ -90,7 +82,7 @@ export default async function PublicFooter() {
                 <Instagram className="w-4 h-4" aria-hidden="true" />
               </a>
               <a
-                href="https://www.tiktok.com/@musawoadfa"
+                href={contact.tiktokUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-white/15 hover:bg-accent rounded-lg flex items-center justify-center no-underline transition-colors"
@@ -101,7 +93,7 @@ export default async function PublicFooter() {
             </div>
 
             <a
-              href="https://musawo.ug"
+              href="https://www.musawo.ug"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white/90 no-underline transition-colors"
@@ -110,18 +102,18 @@ export default async function PublicFooter() {
             </a>
           </div>
 
-          {/* ── Quick Links (lg: 2 cols) ──────────────────────────── */}
+          {/* Quick Links */}
           <div className="lg:col-span-2">
             <FooterHeading>Quick Links</FooterHeading>
             <ul className="space-y-3 list-none">
               {[
                 { label: "Home",          href: "/" },
                 { label: "Courses",       href: "/courses" },
-                { label: "Admissions",    href: "/admissions/how-to-enrol" },
+                { label: "Apply now",     href: "/apply" },
+                { label: "How to enrol",  href: "/admissions/how-to-enrol" },
                 { label: "Learning",      href: "/learning/how-you-learn" },
                 { label: "About",         href: "/about" },
                 { label: "Resources",     href: "/resources" },
-                { label: "Scholarships",  href: "/scholarships" },
                 { label: "FAQ",           href: "/faq" },
                 { label: "Contact",       href: "/contact" },
                 { label: "Student login", href: "/login" },
@@ -133,15 +125,19 @@ export default async function PublicFooter() {
             </ul>
           </div>
 
-          {/* ── Courses (lg: 2 cols) ──────────────────────────────── */}
+          {/* Courses */}
           <div className="lg:col-span-2">
             <FooterHeading>Courses</FooterHeading>
             <ul className="space-y-3 list-none">
               {[
-                { label: "Certified Nursing Care Assistant", href: "/courses/cna" },
-                { label: "Basic Nursing Care Assistant",     href: "/courses/basic-nursing-care" },
-                { label: "Child Care and Safety",            href: "/courses/child-care-safety" },
-                { label: "All courses",                      href: "/courses" },
+                { label: "Medical Home Caregiver",     href: "/courses/medical-home-caregiver" },
+                { label: "Basic Home Caregiver",       href: "/courses/basic-home-caregiver" },
+                { label: "Babysitting and Childcare",  href: "/courses/babysitting-childcare-safety" },
+                { label: "Mental Health Support",      href: "/courses/mental-health-support-advocacy" },
+                { label: "Care of Older Persons",      href: "/courses/care-older-persons-disability" },
+                { label: "Basic Life Support",         href: "/courses/basic-life-support-first-aid" },
+                { label: "Advanced Life Support",      href: "/courses/advanced-life-support" },
+                { label: "All courses",                href: "/courses" },
               ].map(({ label, href }) => (
                 <li key={href}>
                   <Link href={href} className={linkClass}>{label}</Link>
@@ -150,7 +146,7 @@ export default async function PublicFooter() {
             </ul>
           </div>
 
-          {/* ── Enquiries (lg: 4 cols, two internal sub-columns) ──── */}
+          {/* Enquiries */}
           <div className="md:col-span-2 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
 
             {/* Local Enquiries */}
@@ -159,9 +155,7 @@ export default async function PublicFooter() {
               <ul className="space-y-3 list-none text-sm">
                 <li className="flex items-start gap-2.5 text-white/85">
                   <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-accent" aria-hidden="true" />
-                  <span className="leading-snug">
-                    Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda
-                  </span>
+                  <span className="leading-snug">{contact.address}</span>
                 </li>
                 <li>
                   <a
@@ -174,59 +168,67 @@ export default async function PublicFooter() {
                 </li>
                 <li>
                   <a
-                    href="tel:+256785423523"
+                    href={`tel:+256709184468`}
                     className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                   >
                     <Phone className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    +256 785 423 523
+                    {contact.phone}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`tel:+256790192270`}
+                    className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
+                  >
+                    <Phone className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    0790 192 270
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Admissions and Registry */}
+            {/* Admissions + WhatsApp */}
             <div>
-              <FooterHeading>Admissions and Registry</FooterHeading>
+              <FooterHeading>Admissions</FooterHeading>
               <ul className="space-y-3 list-none text-sm">
                 <li>
                   <a
-                    href={`mailto:${contact.email}`}
+                    href="mailto:admissions@mtc.ac.ug"
                     className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                   >
                     <Mail className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    {contact.email}
+                    admissions@mtc.ac.ug
                   </a>
                 </li>
                 <li>
                   <Link
-                    href="/contact"
+                    href="/apply"
                     className="inline-flex items-center gap-1.5 mt-1 bg-white/10 hover:bg-white/20
                                text-white text-xs font-semibold px-3.5 py-2 rounded-lg
                                no-underline transition-colors"
                   >
-                    Send us a message
+                    Apply now
                   </Link>
                 </li>
               </ul>
 
-              {/* Online Student Support */}
               <div className="mt-8">
-                <FooterHeading>Online Student Support</FooterHeading>
+                <FooterHeading>Online Support</FooterHeading>
                 <ul className="space-y-3 list-none text-sm">
                   <li>
                     <a
-                      href="https://wa.me/256785423523"
+                      href={contact.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                     >
                       <MessageCircle className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                      +256 785 423 523
+                      {contact.phone}
                     </a>
                   </li>
                   <li>
                     <a
-                      href="https://wa.me/256785423523"
+                      href={contact.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 mt-1 bg-[#25D366] hover:bg-[#1ebe5d]
@@ -238,8 +240,7 @@ export default async function PublicFooter() {
                     </a>
                   </li>
                   <li className="text-white/50 text-xs leading-snug">
-                    Mon to Fri, 8 am to 6 pm EAT.<br />
-                    Sat, 9 am to 1 pm EAT.
+                    Mon to Fri, 8 am to 6 pm EAT.
                   </li>
                 </ul>
               </div>
@@ -249,12 +250,8 @@ export default async function PublicFooter() {
         </div>
       </div>
 
-      {/* ── Bottom bar ────────────────────────────────────────────── */}
+      {/* Bottom bar */}
       <div className="bg-[#0A5A4E]">
-        {/*
-          pb-[88px] on mobile keeps the copyright row clear of the
-          52 px WhatsApp FAB (bottom-4 + 52 px + gap = ~88 px).
-        */}
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-5 pb-[88px] sm:pb-6 text-center">
           <p className="text-[15px] text-white/88 font-normal mb-3">
             &copy; {new Date().getFullYear()} MUSAWO / Allied Doctors and Friends of Uganda (ADFA). All rights reserved.

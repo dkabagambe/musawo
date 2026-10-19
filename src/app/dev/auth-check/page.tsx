@@ -20,13 +20,13 @@ export const metadata = { title: "Auth Check - Dev" };
 const DEMO_EMAIL = "Demo1234!";
 
 const DEMO_ACCOUNTS = [
-  "ceo@musawotraining.ug",
-  "deputy@musawotraining.ug",
-  "itadmin@musawotraining.ug",
-  "registrar@musawotraining.ug",
-  "bursar@musawotraining.ug",
-  "tutor@musawotraining.ug",
-  "tutor2@musawotraining.ug",
+  "ceo@mtc.ac.ug",
+  "deputy@mtc.ac.ug",
+  "itadmin@mtc.ac.ug",
+  "registrar@mtc.ac.ug",
+  "bursar@mtc.ac.ug",
+  "tutor@mtc.ac.ug",
+  "tutor2@mtc.ac.ug",
   "student.new@example.com",
   "student.pending@example.com",
   "student.25@example.com",

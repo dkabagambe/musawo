@@ -28,14 +28,20 @@ const DEMO_PASSWORD = "Demo1234!";
  * If you add more demo accounts, add them here too.
  */
 const DEMO_EMAILS = [
-  // Staff
-  "ceo@musawotraining.ug",
-  "deputy@musawotraining.ug",
-  "itadmin@musawotraining.ug",
-  "registrar@musawotraining.ug",
-  "bursar@musawotraining.ug",
-  "tutor@musawotraining.ug",
-  "tutor2@musawotraining.ug",
+  // Staff -- matching prisma/seed.ts mkStaff calls
+  "ceo@mtc.ac.ug",
+  "deputy@mtc.ac.ug",
+  "board@mtc.ac.ug",
+  "principal@mtc.ac.ug",
+  "deputyprincipal@mtc.ac.ug",
+  "registrar@mtc.ac.ug",
+  "finance@mtc.ac.ug",
+  "hr@mtc.ac.ug",
+  "auditor@mtc.ac.ug",
+  "itadmin@mtc.ac.ug",
+  "tutor@mtc.ac.ug",
+  "tutor2@mtc.ac.ug",
+  "assistant@mtc.ac.ug",
   // Students
   "student.new@example.com",
   "student.pending@example.com",
@@ -44,7 +50,6 @@ const DEMO_EMAILS = [
   "student.75@example.com",
   "student.full@example.com",
   "student.overdue@example.com",
-  "student.sponsored@example.com",
   "student.completed@example.com",
 ];
 
@@ -81,6 +86,9 @@ async function simulateAuthorize(
   return { ok: true, userId: user.id };
 }
 
+// argon2 is intentionally slow; allow up to 15 s per check (first call pays JIT warm-up cost)
+const ARGON2_TIMEOUT_MS = 15_000;
+
 describe("authorize() — all demo accounts sign in with Demo1234!", () => {
   it.each(DEMO_EMAILS)("signs in %s", async (email) => {
     const result = await simulateAuthorize(email, DEMO_PASSWORD);
@@ -88,10 +96,10 @@ describe("authorize() — all demo accounts sign in with Demo1234!", () => {
       result,
       `${email} authorize failed: ${!result.ok ? result.reason : ""}`,
     ).toMatchObject({ ok: true });
-  });
+  }, ARGON2_TIMEOUT_MS);
 
   it("rejects a wrong password", async () => {
-    const result = await simulateAuthorize("ceo@musawotraining.ug", "WrongPass1!");
+    const result = await simulateAuthorize("ceo@mtc.ac.ug", "WrongPass1!");
     expect(result).toMatchObject({ ok: false, reason: "password mismatch" });
   });
 

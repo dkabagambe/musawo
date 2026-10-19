@@ -45,27 +45,27 @@ test.describe("Post-login redirect by role", () => {
   });
 
   test("TUTOR lands on /tutor", async ({ page }) => {
-    await login(page, "tutor@musawotraining.ug", "Tutor1234!");
+    await login(page, "tutor@mtc.ac.ug", "Tutor1234!");
     expect(page.url()).toContain("/tutor");
   });
 
   test("REGISTRAR lands on /admin/students", async ({ page }) => {
-    await login(page, "registrar@musawotraining.ug", "Registrar1234!");
+    await login(page, "registrar@mtc.ac.ug", "Registrar1234!");
     expect(page.url()).toContain("/admin/students");
   });
 
   test("BURSAR lands on /bursar", async ({ page }) => {
-    await login(page, "bursar@musawotraining.ug", "Bursar1234!");
+    await login(page, "bursar@mtc.ac.ug", "Bursar1234!");
     expect(page.url()).toContain("/bursar");
   });
 
   test("SYSTEM_IT lands on /system", async ({ page }) => {
-    await login(page, "system@musawotraining.ug", "SystemIT1234!");
+    await login(page, "system@mtc.ac.ug", "SystemIT1234!");
     expect(page.url()).toContain("/system");
   });
 
   test("SUPERADMIN lands on /director (TOTP disabled in dev seed)", async ({ page }) => {
-    await login(page, "superadmin@musawotraining.ug", "SuperAdmin1234!");
+    await login(page, "superadmin@mtc.ac.ug", "SuperAdmin1234!");
     expect(page.url()).toContain("/director");
   });
 
@@ -114,7 +114,7 @@ test.describe("Access control", () => {
   });
 
   test("logged-in bursar cannot open /admin/students (redirected to /bursar)", async ({ page }) => {
-    await login(page, "bursar@musawotraining.ug", "Bursar1234!");
+    await login(page, "bursar@mtc.ac.ug", "Bursar1234!");
     await page.goto(`${BASE}/admin/students`);
     await expect(page).toHaveURL(/\/bursar/);
     await logout(page);
@@ -141,9 +141,9 @@ test.describe("Access control", () => {
     // Login as each role and check
     const users = [
       ["student@example.com", "Student1234!"],
-      ["tutor@musawotraining.ug", "Tutor1234!"],
-      ["registrar@musawotraining.ug", "Registrar1234!"],
-      ["bursar@musawotraining.ug", "Bursar1234!"],
+      ["tutor@mtc.ac.ug", "Tutor1234!"],
+      ["registrar@mtc.ac.ug", "Registrar1234!"],
+      ["bursar@mtc.ac.ug", "Bursar1234!"],
     ];
     for (const [email, password] of users) {
       await login(page, email, password);

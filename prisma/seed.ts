@@ -50,14 +50,23 @@ async function pw(plain: string) {
 // ─── Site Settings ────────────────────────────────────────────────
 const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   { key: "site.name",            value: "Musawo Training Center",  description: "Platform display name" },
-  { key: "site.domain",          value: "learn.musawotraining.ug", description: "Platform domain" },
-  { key: "site.supportEmail",    value: "info@musawo.ug",          description: "Support email address" },
-  { key: "site.supportPhone",    value: "+256 785 423 523",        description: "Support phone number" },
-  { key: "site.whatsappNumber",  value: "256785423523",            description: "WhatsApp number (digits only)" },
-  { key: "site.address",         value: "Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda", description: "Physical address" },
+  { key: "site.domain",          value: "mtc.ac.ug",               description: "Site domain (used in emails and metadata)" },
+  { key: "site.url",             value: "https://mtc.ac.ug",       description: "Full site URL" },
+  { key: "site.supportEmail",    value: "info@mtc.ac.ug",          description: "Primary support email" },
+  { key: "site.admissionsEmail", value: "admissions@mtc.ac.ug",    description: "Admissions email" },
+  { key: "site.supportPhone",    value: "0709 184 468",            description: "Primary phone (display)" },
+  { key: "site.supportPhone2",   value: "0790 192 270",            description: "Secondary phone (display)" },
+  { key: "site.whatsappNumber",  value: "256709184468",            description: "WhatsApp number (digits only, primary)" },
+  { key: "site.websiteUrl",      value: "www.musawo.ug",           description: "Main website URL" },
+  { key: "site.address",         value: "Luggala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)", description: "Physical address" },
+  { key: "site.mapLat",          value: "0.3075",                  description: "Map pin latitude (Luggala, Lubaga)" },
+  { key: "site.mapLng",          value: "32.5510",                 description: "Map pin longitude (Luggala, Lubaga)" },
   { key: "site.instagramUrl",    value: "https://www.instagram.com/musawotm",  description: "Instagram URL" },
   { key: "site.tiktokUrl",       value: "https://www.tiktok.com/@musawoadfa",  description: "TikTok URL" },
-  { key: "site.tagline",         value: "Bringing quality healthcare to Ugandan homes and communities since 2018 through testing, treatment, training and trust.", description: "Footer tagline" },
+  { key: "site.tagline",         value: "Learn. Serve. Transform.",             description: "Site tagline" },
+  { key: "site.accreditationText", value: "",                      description: "Accreditation statement (empty = hide accreditation page)" },
+  { key: "site.intakeEyebrow",   value: "Now enrolling: November 2026 intake", description: "Hero eyebrow text" },
+  { key: "feature.scholarships", value: "false",                   description: "Enable scholarship features (true/false)" },
   { key: "course.freePreviewPercent", value: "12",                 description: "% of lessons free before payment" },
   { key: "payment.gateway",      value: "demo",                    description: "Active payment gateway" },
   { key: "payment.currency",     value: "UGX",                     description: "Currency code" },
@@ -69,6 +78,8 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   { key: "payment.bankAccountNumber", value: "3100 4423 5678",               description: "Bank account number" },
   { key: "payment.bankName",          value: "Centenary Bank Uganda",        description: "Bank name" },
   { key: "payment.bankBranch",        value: "Kampala Road Branch",          description: "Bank branch" },
+  { key: "payment.mtnMomoCode",       value: "582962",                       description: "MTN MoMo merchant code (dial *165*3#)" },
+  { key: "payment.airtelMerchantId",  value: "4363108",                      description: "Airtel Money merchant ID (dial *185*9#)" },
   { key: "video.bunnyStreamApiKey",   value: "DEMO_BUNNY_KEY",    description: "Bunny Stream API key" },
   { key: "video.bunnyLibraryId",      value: "123456",            description: "Bunny Stream library ID" },
   { key: "video.bunnySigningKey",     value: "DEMO_SIGNING_KEY",  description: "Bunny signed-URL key" },
@@ -82,11 +93,10 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   { key: "sms.senderId",              value: "MUSAWO",            description: "SMS sender ID" },
   { key: "whatsapp.accessToken",      value: "DEMO_WA_TOKEN",     description: "WhatsApp Business Cloud token" },
   { key: "whatsapp.phoneNumberId",    value: "DEMO_WA_PHONE_ID",  description: "WhatsApp Business phone number ID" },
-  { key: "partner.defaultName",       value: "Musawo",            description: "Default partner name" },
   { key: "exam.tabSwitchAlertThreshold", value: "3",              description: "Tab switches before alert" },
   { key: "exam.defaultAttemptLimit",  value: "2",                 description: "Default exam attempt limit" },
   { key: "certificate.issuerName",    value: "Musawo Training Center", description: "Certificate issuer text" },
-  { key: "intake.currentLabel",       value: "Intake 7 - November 2026", description: "Current intake label" },
+  { key: "intake.currentLabel",       value: "November 2026",     description: "Current intake label" },
 ];
 
 // ─── Student profiles ─────────────────────────────────────────────
@@ -98,7 +108,6 @@ const STUDENT_DEFS = [
   { key: "75",        name: "Florence Akello",     email: "student.75@example.com",        phone: "+256700111005", status: EnrolmentStatus.ACTIVE,          paidPct: 100 },
   { key: "full",      name: "Ronald Mugisha",      email: "student.full@example.com",      phone: "+256700111006", status: EnrolmentStatus.ACTIVE,          paidPct: 100 },
   { key: "overdue",   name: "Grace Nalubega",      email: "student.overdue@example.com",   phone: "+256700111007", status: EnrolmentStatus.OVERDUE,         paidPct: 33  },
-  { key: "sponsored", name: "Annet Aber",          email: "student.sponsored@example.com", phone: "+256700111008", status: EnrolmentStatus.SPONSORED,       paidPct: 100 },
   { key: "completed", name: "James Ssemwogerere", email: "student.completed@example.com", phone: "+256700111009", status: EnrolmentStatus.COMPLETED,       paidPct: 100 },
 ];
 
@@ -110,133 +119,55 @@ async function main() {
   for (const s of SETTINGS) {
     await prisma.siteSetting.upsert({ where: { key: s.key }, update: { value: s.value }, create: s });
   }
-  console.log("  ✓ Site settings (37)");
+  console.log("  ✓ Site settings");
 
   // ── Staff accounts ─────────────────────────────────────────────
   const hashedPw = await pw(DEMO_PW);
 
-  const ceo = await prisma.user.upsert({
-    where: { email: "ceo@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Dr. Mathias Senyondo",
-      email: "ceo@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.SUPERADMIN,
-      status: "ACTIVE",
-      totpEnabled: false,
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
+  const mkStaff = (email: string, name: string, role: UserRole) =>
+    prisma.user.upsert({
+      where: { email },
+      update: { role },
+      create: { name, email, passwordHash: hashedPw, role, status: "ACTIVE", totpEnabled: false, emailVerified: new Date(), dataConsentAt: new Date() },
+    });
 
-  const deputy = await prisma.user.upsert({
-    where: { email: "deputy@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Beatrice Nansamba",
-      email: "deputy@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.SUPERADMIN,
-      status: "ACTIVE",
-      totpEnabled: false,
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
+  const ceo          = await mkStaff("ceo@mtc.ac.ug",           "Dr. Mathias Senyondo",  UserRole.SUPER_ADMIN);
+  const deputyCeo    = await mkStaff("deputy@mtc.ac.ug",         "Beatrice Nansamba",     UserRole.SUPER_ADMIN);
+  const boardMember  = await mkStaff("board@mtc.ac.ug",          "Grace Akello",          UserRole.BOARD_MEMBER);
+  const principal    = await mkStaff("principal@mtc.ac.ug",      "Dr. Joel Mirembe",      UserRole.PRINCIPAL);
+  const deputyPrinc  = await mkStaff("deputyprincipal@mtc.ac.ug","Sarah Namugabi",        UserRole.DEPUTY_PRINCIPAL);
+  const registrar    = await mkStaff("registrar@mtc.ac.ug",      "Zidah Atuhaire",        UserRole.ACADEMIC_REGISTRAR);
+  const financeOfficer = await mkStaff("finance@mtc.ac.ug",      "Abraham Eyakya",        UserRole.FINANCE_OFFICER);
+  const hrAdmin      = await mkStaff("hr@mtc.ac.ug",             "Carolyn Nabirye",       UserRole.HR_SYSTEM_ADMIN);
+  const auditor      = await mkStaff("auditor@mtc.ac.ug",        "Patrick Ssali",         UserRole.AUDITOR_READONLY);
+  const itadmin      = await mkStaff("itadmin@mtc.ac.ug",        "Daniel Kabagambe",      UserRole.SYSTEM_IT);
+  const tutor        = await mkStaff("tutor@mtc.ac.ug",          "Nankya Shanita",        UserRole.INSTRUCTOR);
+  const tutor2       = await mkStaff("tutor2@mtc.ac.ug",         "Mirembe Joel",          UserRole.INSTRUCTOR);
+  const ta           = await mkStaff("assistant@mtc.ac.ug",      "Amara Birungi",         UserRole.TEACHING_ASSISTANT);
 
-  const itadmin = await prisma.user.upsert({
-    where: { email: "itadmin@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Daniel Kabagambe",
-      email: "itadmin@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.SYSTEM_IT,
-      status: "ACTIVE",
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
+  void deputyCeo; void boardMember; void deputyPrinc;
+  void hrAdmin; void auditor; void itadmin; void ta;
 
-  const registrar = await prisma.user.upsert({
-    where: { email: "registrar@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Zidah Atuhaire",
-      email: "registrar@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.REGISTRAR,
-      status: "ACTIVE",
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
-
-  const bursar = await prisma.user.upsert({
-    where: { email: "bursar@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Abraham Eyakya",
-      email: "bursar@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.BURSAR,
-      status: "ACTIVE",
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
-
-  const tutor = await prisma.user.upsert({
-    where: { email: "tutor@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Nankya Shanita",
-      email: "tutor@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.TUTOR,
-      status: "ACTIVE",
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
-
-  const tutor2 = await prisma.user.upsert({
-    where: { email: "tutor2@musawotraining.ug" },
-    update: {},
-    create: {
-      name: "Mirembe Joel",
-      email: "tutor2@musawotraining.ug",
-      passwordHash: hashedPw,
-      role: UserRole.TUTOR,
-      status: "ACTIVE",
-      emailVerified: new Date(),
-      dataConsentAt: new Date(),
-    },
-  });
-
-  console.log("  ✓ Staff accounts (CEO, deputy, IT, registrar, bursar, 2 tutors)");
+  console.log("  ✓ Staff accounts (13 across all roles)");
 
   // ── Students ───────────────────────────────────────────────────
   const students: Record<string, Awaited<ReturnType<typeof prisma.user.upsert>>> = {};
   const STUDENT_SNS: Record<string, string> = {
-    new:       "MTC-2026-00001",
-    pending:   "MTC-2026-00002",
-    "25":      "MTC-2026-00003",
-    "50":      "MTC-2026-00004",
-    "75":      "MTC-2026-00005",
-    full:      "MTC-2026-00006",
-    overdue:   "MTC-2026-00007",
-    sponsored: "MTC-2026-00008",
-    completed: "MTC-2026-00009",
+    new:       "2026/MHC/001",
+    pending:   "2026/MHC/002",
+    "25":      "2026/MHC/003",
+    "50":      "2026/MHC/004",
+    "75":      "2026/MHC/005",
+    full:      "2026/MHC/006",
+    overdue:   "2026/MHC/007",
+    completed: "2026/MHC/009",
+    sponsored: "2026/BHC/001",
   };
   for (const def of STUDENT_DEFS) {
     const sn = STUDENT_SNS[def.key];
-    // Check if student number is taken by a different user before upsert
     const snConflict = await prisma.user.findUnique({ where: { studentNumber: sn } });
     const emailExists = await prisma.user.findUnique({ where: { email: def.email } });
     if (snConflict && snConflict.email !== def.email) {
-      // Clear conflicting student number so our upsert can proceed
       await prisma.user.update({ where: { id: snConflict.id }, data: { studentNumber: null } });
     }
     students[def.key] = await prisma.user.upsert({
@@ -256,11 +187,18 @@ async function main() {
     });
   }
   // tutor2 also has a STUDENT enrolment (dual-role demo)
-  // We give them a studentNumber for the demo
-  await prisma.user.update({
-    where: { id: tutor2.id },
-    data: { studentNumber: `MTC-2026-00010` },
-  });
+  // Only assign studentNumber if not already set
+  if (!tutor2.studentNumber) {
+    // Use a high number that won't conflict with student sequence
+    const tutor2SN = "2026/BHC/099";
+    const snConflict = await prisma.user.findUnique({ where: { studentNumber: tutor2SN } });
+    if (!snConflict) {
+      await prisma.user.update({
+        where: { id: tutor2.id },
+        data: { studentNumber: tutor2SN },
+      });
+    }
+  }
 
   console.log(`  ✓ Students (${STUDENT_DEFS.length})`);
 
@@ -269,43 +207,238 @@ async function main() {
 
   const COURSE_DEFS = [
     {
-      slug: "cna",
-      title: "Certified Nursing Care Assistant (CNA)",
-      shortDescription: "Our flagship certification equips learners with practical skills to work as qualified nursing care assistants in homes, hospitals, clinics, and community care settings across Uganda.",
-      description: `Our flagship certification provides a comprehensive foundation for nursing care work across Uganda. Every person we certify becomes a new strand in Uganda's community health safety net.\n\nWhat you will learn:\n- Patient-centred care and compassionate communication\n- Safety practices and infection prevention and control\n- Hygiene and personal care support for patients\n- Basic clinical procedures and medication support\n- Care for elderly patients and those living with chronic conditions\n- Professional conduct and ethics in healthcare settings\n\nGraduates receive a nationally recognised certificate accredited by Uganda's Ministry of Health and Ministry of Education and Sports. Musawo connects graduates to employment opportunities locally and internationally through its growing network of healthcare partners.`,
-      fullFeeUgx: 850000,
-      instalmentCount: 3,
+      slug: "medical-home-caregiver",
+      title: "Medical Home Caregiver Course",
+      category: "PROFESSIONAL",
+      targetAudience: "Nurses, midwives, clinical officers",
+      eligibilityText: "Applicants must hold a professional nursing, midwifery or clinical officer qualification and provide their professional title and registration number.",
+      shortDescription: "Advanced home care training for registered health professionals. Hybrid and online classes with 70% hands-on practicals in our skills lab.",
+      description: `[DRAFT for Principal review]\n\nThis course equips registered health professionals with advanced home caregiving skills for complex patient cases.\n\nModule 1: Advanced patient assessment in the home setting\nModule 2: Medication management and administration\nModule 3: Wound care and post-operative home nursing\nModule 4: Palliative and end-of-life care at home\nModule 5: Documentation and professional accountability\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/cna-course.png",
-      freePreviewPercent: 12,
-      durationWeeks: 12,
-      accreditationText: "Accredited by Uganda Ministry of Health and Ministry of Education and Sports",
+      freePreviewPercent: 10,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
       tutorId: tutor.id,
     },
     {
-      slug: "basic-nursing-care",
-      title: "Basic Nursing Care Assistant",
-      shortDescription: "An accessible, practical entry point into healthcare work for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.",
-      description: `An accessible, practical entry point into healthcare work. This course is designed for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.\n\nWhat you will learn:\n- Essential patient care and daily support skills\n- Safety, hygiene, and basic clinical practices\n- Professional conduct and communication in care settings\n- Supporting healthcare teams in clinics and home environments\n- First aid and basic emergency response\n\nGraduates receive a nationally recognised certificate and are eligible for placement support through the Musawo network.`,
-      fullFeeUgx: 600000,
-      instalmentCount: 2,
+      slug: "basic-home-caregiver",
+      title: "Basic Home Caregiver Course",
+      category: "OPEN",
+      targetAudience: "PLE, S.4 and S.6 leavers, working carers",
+      eligibilityText: "Open to all. No prior qualifications required. A basic ability to read and write in English is helpful.",
+      shortDescription: "Practical home caregiving skills for anyone who wants to care for patients in the home. Hybrid and online classes with 70% hands-on practicals.",
+      description: `[DRAFT for Principal review]\n\nThis course provides essential home caregiving skills for community carers, family members and school leavers entering care work.\n\nModule 1: Introduction to patient care and professional ethics\nModule 2: Personal hygiene, feeding and mobility assistance\nModule 3: Infection prevention and basic safety\nModule 4: Recognising and responding to health changes\nModule 5: Communication with patients and families\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/basic-nursing.png",
       freePreviewPercent: 12,
-      durationWeeks: 8,
-      accreditationText: "Accredited by Uganda Ministry of Health and Ministry of Education and Sports",
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
       tutorId: tutor.id,
     },
     {
-      slug: "child-care-safety",
-      title: "Babysitting, Child Care and Safety Management",
-      shortDescription: "For anyone stepping into a childcare role - child development, daily care routines, first aid, and safety management in home and community care environments.",
-      description: `Children need attentive, informed carers who understand their development and can keep them safe. This course is for anyone stepping into a childcare role - as a professional carer, a family member, or someone seeking to work with children in community settings.\n\nWhat you will learn:\n- Child development basics and age-appropriate care practices\n- Daily care routines: feeding, hygiene, rest, and stimulation\n- Recognising signs of illness, injury, or distress in children\n- First aid and emergency response for infants and children\n- Safety management in home and community care environments\n\nGraduates receive a nationally recognised certificate accredited by Uganda's Ministry of Education and Sports.`,
-      fullFeeUgx: 480000,
-      instalmentCount: 1,
+      slug: "babysitting-childcare-safety",
+      title: "Basic Certificate in Babysitting, Childcare and Safety Management",
+      category: "OPEN",
+      targetAudience: "Nannies, house helps, school leavers, parents",
+      eligibilityText: "Open to all. No prior qualifications required.",
+      shortDescription: "Child development, daily care routines, first aid and safety management for anyone caring for children in home or community settings.",
+      description: `[DRAFT for Principal review]\n\nThis certificate prepares carers to look after children safely and confidently.\n\nModule 1: Child development stages and age-appropriate care\nModule 2: Daily routines: feeding, hygiene, sleep and play\nModule 3: First aid for infants and children\nModule 4: Recognising signs of illness, abuse or neglect\nModule 5: Home and environment safety management\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
       freePreviewPercent: 15,
-      durationWeeks: 6,
-      accreditationText: "Accredited by Uganda Ministry of Education and Sports",
+      fullFeeUgx: 500000,
+      feeContactOnly: false,
+      instalmentCount: 2,
+      durationMonths: 2,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
       tutorId: tutor2.id,
+    },
+    {
+      slug: "mental-health-support-advocacy",
+      title: "Mental Health Support and Advocacy Certificate",
+      category: "OPEN",
+      targetAudience: "Teachers, counsellors, community workers",
+      eligibilityText: "Open to all. Suitable for anyone working with people in distress.",
+      shortDescription: "Practical mental health support skills and advocacy for teachers, counsellors and community workers. Hybrid and online classes.",
+      description: `[DRAFT for Principal review]\n\nThis certificate builds practical skills for supporting people experiencing mental health challenges in schools, workplaces and communities.\n\nModule 1: Understanding mental health and common conditions\nModule 2: Listening and first response skills\nModule 3: Crisis recognition and de-escalation\nModule 4: Referral pathways and community resources in Uganda\nModule 5: Stigma, advocacy and rights-based approaches\nModule 6: Self-care for helpers\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/community-outreach.webp",
+      freePreviewPercent: 12,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "care-older-persons-disability",
+      title: "Basic Certificate in Care of Older Persons and Persons with Disability (Geriatric)",
+      category: "OPEN",
+      targetAudience: "Carers, families, health workers",
+      eligibilityText: "Open to all. Suitable for carers, family members and community health workers.",
+      shortDescription: "Specialist care skills for older persons and people with disability, including mobility support, dementia care and assistive technology.",
+      description: `[DRAFT for Principal review]\n\nThis certificate trains carers to support older persons and persons with disability with dignity and competence.\n\nModule 1: Ageing, disability and the Ugandan context\nModule 2: Mobility assistance, fall prevention and rehabilitation support\nModule 3: Dementia and cognitive impairment care\nModule 4: Personal care, nutrition and medication for older persons\nModule 5: Assistive devices and adaptive environments\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/clinical-training.webp",
+      freePreviewPercent: 12,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor2.id,
+    },
+    {
+      slug: "basic-life-support-first-aid",
+      title: "Basic Life Support and First Aid Certificate",
+      category: "OPEN",
+      targetAudience: "Carers, teachers, drivers, workplace staff",
+      eligibilityText: "Open to all. No prior qualifications required.",
+      shortDescription: "CPR, AED, choking, bleeding and emergency first aid for anyone in a caregiving, teaching or workplace role.",
+      description: `[DRAFT for Principal review]\n\nThis one-month certificate teaches essential life-saving skills for everyday settings.\n\nModule 1: Recognising a life-threatening emergency\nModule 2: CPR and AED use for adults, children and infants\nModule 3: Choking, bleeding and burns management\nModule 4: Stroke, seizure and diabetic emergencies\nModule 5: Practical assessment in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/training-session.webp",
+      freePreviewPercent: 20,
+      fullFeeUgx: 350000,
+      feeContactOnly: false,
+      instalmentCount: 1,
+      durationMonths: 1,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "advanced-life-support",
+      title: "Advanced Life Support",
+      category: "PROFESSIONAL",
+      targetAudience: "Doctors, nurses, clinical officers",
+      eligibilityText: "Applicants must hold a professional medical, nursing or clinical officer qualification and provide their professional title and registration number.",
+      shortDescription: "Advanced resuscitation, airway management and emergency algorithms for registered health professionals.",
+      description: `[DRAFT for Principal review]\n\nThis one-month course covers advanced resuscitation and emergency management skills for qualified health professionals.\n\nModule 1: Advanced airway management\nModule 2: Advanced cardiac life support (ACLS) algorithms\nModule 3: Paediatric advanced life support (PALS)\nModule 4: Trauma and obstetric emergencies\nModule 5: Team leadership in resuscitation\nModule 6: Practical megacode scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/healthcare-services.webp",
+      freePreviewPercent: 10,
+      fullFeeUgx: 600000,
+      feeContactOnly: false,
+      instalmentCount: 1,
+      durationMonths: 1,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "basic-home-caregiver",
+      title: "Basic Home Caregiver Course",
+      category: "OPEN",
+      targetAudience: "PLE, S.4 and S.6 leavers, working carers",
+      eligibilityText: "Open to all. No prior qualifications required. A basic ability to read and write in English is helpful.",
+      shortDescription: "Practical home caregiving skills for anyone who wants to care for patients in the home. Hybrid and online classes with 70% hands-on practicals.",
+      description: `[DRAFT for Principal review]\n\nThis course provides essential home caregiving skills for community carers, family members and school leavers entering care work.\n\nModule 1: Introduction to patient care and professional ethics\nModule 2: Personal hygiene, feeding and mobility assistance\nModule 3: Infection prevention and basic safety\nModule 4: Recognising and responding to health changes\nModule 5: Communication with patients and families\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/basic-nursing.png",
+      freePreviewPercent: 12,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "babysitting-childcare-safety",
+      title: "Basic Certificate in Babysitting, Childcare and Safety Management",
+      category: "OPEN",
+      targetAudience: "Nannies, house helps, school leavers, parents",
+      eligibilityText: "Open to all. No prior qualifications required.",
+      shortDescription: "Child development, daily care routines, first aid and safety management for anyone caring for children in home or community settings.",
+      description: `[DRAFT for Principal review]\n\nThis certificate prepares carers to look after children safely and confidently.\n\nModule 1: Child development stages and age-appropriate care\nModule 2: Daily routines: feeding, hygiene, sleep and play\nModule 3: First aid for infants and children\nModule 4: Recognising signs of illness, abuse or neglect\nModule 5: Home and environment safety management\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
+      freePreviewPercent: 15,
+      fullFeeUgx: 1200000,
+      feeContactOnly: false,
+      instalmentCount: 2,
+      durationMonths: 2,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor2.id,
+    },
+    {
+      slug: "mental-health-support-advocacy",
+      title: "Mental Health Support and Advocacy Certificate",
+      category: "OPEN",
+      targetAudience: "Teachers, counsellors, community workers",
+      eligibilityText: "Open to all. Suitable for anyone working with people in distress.",
+      shortDescription: "Practical mental health support skills and advocacy for teachers, counsellors and community workers. Hybrid and online classes.",
+      description: `[DRAFT for Principal review]\n\nThis certificate builds practical skills for supporting people experiencing mental health challenges in schools, workplaces and communities.\n\nModule 1: Understanding mental health and common conditions\nModule 2: Listening and first response skills\nModule 3: Crisis recognition and de-escalation\nModule 4: Referral pathways and community resources in Uganda\nModule 5: Stigma, advocacy and rights-based approaches\nModule 6: Self-care for helpers\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/cna-course.png",
+      freePreviewPercent: 12,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "care-older-persons-disability",
+      title: "Basic Certificate in Care of Older Persons and Persons with Disability (Geriatric)",
+      category: "OPEN",
+      targetAudience: "Carers, families, health workers",
+      eligibilityText: "Open to all. Suitable for carers, family members and community health workers.",
+      shortDescription: "Specialist care skills for older persons and people with disability, including mobility support, dementia care and assistive technology.",
+      description: `[DRAFT for Principal review]\n\nThis certificate trains carers to support older persons and persons with disability with dignity and competence.\n\nModule 1: Ageing, disability and the Ugandan context\nModule 2: Mobility assistance, fall prevention and rehabilitation support\nModule 3: Dementia and cognitive impairment care\nModule 4: Personal care, nutrition and medication for older persons\nModule 5: Assistive devices and adaptive environments\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/basic-nursing.png",
+      freePreviewPercent: 12,
+      fullFeeUgx: 1800000,
+      feeContactOnly: false,
+      instalmentCount: 3,
+      durationMonths: 3,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor2.id,
+    },
+    {
+      slug: "basic-life-support-first-aid",
+      title: "Basic Life Support and First Aid Certificate",
+      category: "OPEN",
+      targetAudience: "Carers, teachers, drivers, workplace staff",
+      eligibilityText: "Open to all. No prior qualifications required.",
+      shortDescription: "CPR, AED, choking, bleeding and emergency first aid for anyone in a caregiving, teaching or workplace role.",
+      description: `[DRAFT for Principal review]\n\nThis one-month certificate teaches essential life-saving skills for everyday settings.\n\nModule 1: Recognising a life-threatening emergency\nModule 2: CPR and AED use for adults, children and infants\nModule 3: Choking, bleeding and burns management\nModule 4: Stroke, seizure and diabetic emergencies\nModule 5: Practical assessment in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
+      freePreviewPercent: 20,
+      fullFeeUgx: 600000,
+      feeContactOnly: false,
+      instalmentCount: 1,
+      durationMonths: 1,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
+    },
+    {
+      slug: "advanced-life-support",
+      title: "Advanced Life Support",
+      category: "PROFESSIONAL",
+      targetAudience: "Doctors, nurses, clinical officers",
+      eligibilityText: "Applicants must hold a professional medical, nursing or clinical officer qualification and provide their professional title and registration number.",
+      shortDescription: "Advanced resuscitation, airway management and emergency algorithms for registered health professionals.",
+      description: `[DRAFT for Principal review]\n\nThis one-month course covers advanced resuscitation and emergency management skills for qualified health professionals.\n\nModule 1: Advanced airway management\nModule 2: Advanced cardiac life support (ACLS) algorithms\nModule 3: Paediatric advanced life support (PALS)\nModule 4: Trauma and obstetric emergencies\nModule 5: Team leadership in resuscitation\nModule 6: Practical megacode scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/images/cna-course.png",
+      freePreviewPercent: 10,
+      fullFeeUgx: 900000,
+      feeContactOnly: false,
+      instalmentCount: 1,
+      durationMonths: 1,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor.id,
     },
   ];
 
@@ -314,8 +447,15 @@ async function main() {
       where: { slug: cd.slug },
       update: {
         fullFeeUgx: cd.fullFeeUgx,
+        feeContactOnly: cd.feeContactOnly,
         instalmentCount: cd.instalmentCount,
         thumbnailUrl: cd.thumbnailUrl,
+        category: cd.category,
+        targetAudience: cd.targetAudience,
+        eligibilityText: cd.eligibilityText,
+        durationMonths: cd.durationMonths,
+        intakeLabel: cd.intakeLabel,
+        contentNote: cd.contentNote,
       },
       create: { ...cd, status: "PUBLISHED" },
     });
@@ -328,7 +468,7 @@ async function main() {
     order: number; title: string; description: string;
     lessons: Array<{ order: number; title: string; type: string; isFree: boolean; isFreePreview: boolean; durationSec: number; notesContent?: string }>
   }>> = {
-    "cna": [
+    "medical-home-caregiver": [
       {
         order: 1, title: "Foundations of Nursing Care",
         description: "Introduction to nursing care, patient dignity, and healthcare settings in Uganda.",
@@ -381,7 +521,7 @@ async function main() {
         ],
       },
     ],
-    "basic-nursing-care": [
+    "basic-home-caregiver": [
       {
         order: 1, title: "Introduction to Patient Care",
         description: "Core concepts of basic nursing care and professional conduct.",
@@ -414,7 +554,7 @@ async function main() {
         ],
       },
     ],
-    "child-care-safety": [
+    "babysitting-childcare-safety": [
       {
         order: 1, title: "Child Development Basics",
         description: "Understanding child development stages and age-appropriate care.",
@@ -483,7 +623,7 @@ async function main() {
     update: {},
     create: {
       id: "intake-running",
-      courseId: courses["cna"].id,
+      courseId: courses["medical-home-caregiver"].id,
       label: "Intake 6 - August 2026",
       startDate: monthsAgo(3),
       endDate: weeksFrom(9),
@@ -498,7 +638,7 @@ async function main() {
     update: {},
     create: {
       id: "intake-upcoming",
-      courseId: courses["cna"].id,
+      courseId: courses["medical-home-caregiver"].id,
       label: "Intake 7 - November 2026",
       startDate: weeksFrom(3),
       endDate: weeksFrom(15),
@@ -513,7 +653,7 @@ async function main() {
     update: {},
     create: {
       id: "intake-basic",
-      courseId: courses["basic-nursing-care"].id,
+      courseId: courses["basic-home-caregiver"].id,
       label: "Intake 4 - September 2026",
       startDate: monthsAgo(2),
       endDate: weeksFrom(6),
@@ -531,7 +671,7 @@ async function main() {
   const enrolments: Record<string, Awaited<ReturnType<typeof prisma.enrolment.create>>> = {};
 
   if (existingEnrolments === 0) {
-    const cnaFee = courses["cna"].fullFeeUgx;
+    const cnaFee = courses["medical-home-caregiver"].fullFeeUgx ?? 2300000;
     const instalment = Math.ceil(cnaFee / 3);
 
     for (const def of STUDENT_DEFS) {
@@ -541,7 +681,7 @@ async function main() {
       const enr = await prisma.enrolment.create({
         data: {
           userId: student.id,
-          courseId: courses["cna"].id,
+          courseId: courses["medical-home-caregiver"].id,
           intakeId: intake1.id,
           status: def.status,
           planType: def.paidPct === 100 ? "FULL" : def.paidPct === 0 ? "FULL" : "INSTALMENT",
@@ -573,15 +713,16 @@ async function main() {
     }
 
     // Also enrol tutor2 as a student
+    const basicFee = courses["basic-home-caregiver"]?.fullFeeUgx ?? 1800000;
     const tutor2Enrol = await prisma.enrolment.create({
       data: {
         userId: tutor2.id,
-        courseId: courses["basic-nursing-care"].id,
+        courseId: courses["basic-home-caregiver"].id,
         intakeId: intakeBasic.id,
         status: EnrolmentStatus.ACTIVE,
         planType: "FULL",
-        totalAmountUgx: courses["basic-nursing-care"].fullFeeUgx,
-        paidAmountUgx: courses["basic-nursing-care"].fullFeeUgx,
+        totalAmountUgx: basicFee,
+        paidAmountUgx: basicFee,
         paidPercent: 100,
         unlockedBlockOrder: 3,
       },
@@ -603,7 +744,7 @@ async function main() {
       { studentKey: "overdue",   method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.MANUAL,      amount: instalment, daysBack: 80, status: PaymentStatus.COMPLETED },
       { studentKey: "completed", method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.PESAPAL,     amount: cnaFee,     daysBack: 120, status: PaymentStatus.COMPLETED },
       { studentKey: "sponsored", method: PaymentMethod.SCHOLARSHIP,   gateway: PaymentGateway.MANUAL,      amount: cnaFee,     daysBack: 90, status: PaymentStatus.COMPLETED },
-      { studentKey: "tutor2",    method: PaymentMethod.BANK_TRANSFER, gateway: PaymentGateway.MANUAL,      amount: courses["basic-nursing-care"].fullFeeUgx, daysBack: 50, status: PaymentStatus.COMPLETED },
+      { studentKey: "tutor2",    method: PaymentMethod.BANK_TRANSFER, gateway: PaymentGateway.MANUAL,      amount: courses["basic-home-caregiver"].fullFeeUgx ?? 1800000, daysBack: 50, status: PaymentStatus.COMPLETED },
       // One reversed payment (fraud)
       { studentKey: "75",        method: PaymentMethod.MTN_MOMO,      gateway: PaymentGateway.PESAPAL,     amount: 85000,      daysBack: 30, status: PaymentStatus.REFUNDED },
     ];
@@ -685,7 +826,7 @@ async function main() {
           receiptS3Key: `claims/demo-receipt-${cd.studentKey}.pdf`,
           status: cd.status,
           duplicateImageFlag: cd.note === "Duplicate transaction ID",
-          verifiedById: cd.status === ClaimStatus.VERIFIED ? bursar.id : null,
+          verifiedById: cd.status === ClaimStatus.VERIFIED ? financeOfficer.id : null,
           createdAt: daysAgo(cd.daysBack),
         },
       });
@@ -695,7 +836,7 @@ async function main() {
 
     // ── Lesson Progress ────────────────────────────────────────
     const cnaLessons = await prisma.lesson.findMany({
-      where: { block: { courseId: courses["cna"].id } },
+      where: { block: { courseId: courses["medical-home-caregiver"].id } },
       orderBy: [{ block: { order: "asc" } }, { order: "asc" }],
     });
 
@@ -765,7 +906,7 @@ async function main() {
   if (existingExams === 0) {
     examCna = await prisma.exam.create({
       data: {
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         title: "Block 2: Infection Control Assessment",
         timeLimitMin: 30,
         attemptLimit: 2,
@@ -777,7 +918,7 @@ async function main() {
 
     examFinal = await prisma.exam.create({
       data: {
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         title: "CNA Final Certification Exam",
         timeLimitMin: 60,
         attemptLimit: 2,
@@ -877,8 +1018,8 @@ async function main() {
     await prisma.certificate.create({
       data: {
         userId: students["completed"].id,
-        courseId: courses["cna"].id,
-        uniqueId: "MTC-2026-CNA-00001",
+        courseId: courses["medical-home-caregiver"].id,
+        uniqueId: "2026/MHC/001/CERT",
         fileS3Key: "certificates/MTC-2026-CNA-00001.pdf",
         issuedAt: daysAgo(25),
       },
@@ -887,7 +1028,7 @@ async function main() {
     await prisma.certificate.create({
       data: {
         userId: students["75"].id,
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         uniqueId: "MTC-2026-CNA-00002-REVOKED",
         fileS3Key: "certificates/MTC-2026-CNA-00002.pdf",
         issuedAt: daysAgo(90),
@@ -912,7 +1053,7 @@ async function main() {
     for (const cls of classes) {
       const lc = await prisma.liveClass.create({
         data: {
-          courseId: courses["cna"].id,
+          courseId: courses["medical-home-caregiver"].id,
           tutorId: tutor.id,
           title: cls.title,
           scheduledAt: daysFrom(cls.daysOffset),
@@ -948,9 +1089,9 @@ async function main() {
   if (existingAnnouncements === 0) {
     await prisma.announcement.createMany({
       data: [
-        { authorId: tutor.id, courseId: courses["cna"].id, title: "Block 4 live class this Thursday at 6pm", body: "Join us this Thursday for our Block 4 live class on vital signs. Link will be sent 30 minutes before the session.", pinned: true,  createdAt: daysAgo(3) },
+        { authorId: tutor.id, courseId: courses["medical-home-caregiver"].id, title: "Block 4 live class this Thursday at 6pm", body: "Join us this Thursday for our Block 4 live class on vital signs. Link will be sent 30 minutes before the session.", pinned: true,  createdAt: daysAgo(3) },
         { authorId: registrar.id, courseId: null, title: "Intake 7 registration now open", body: "We are now accepting registrations for our November 2026 intake. Early bird discount applies for the first 10 students.", pinned: true,  createdAt: daysAgo(7) },
-        { authorId: tutor.id, courseId: courses["cna"].id, title: "Block 2 exam results released", body: "Results for the Block 2 Infection Control Assessment are now available in your Results section.", pinned: false, createdAt: daysAgo(10) },
+        { authorId: tutor.id, courseId: courses["medical-home-caregiver"].id, title: "Block 2 exam results released", body: "Results for the Block 2 Infection Control Assessment are now available in your Results section.", pinned: false, createdAt: daysAgo(10) },
         { authorId: ceo.id, courseId: null, title: "Platform maintenance - Saturday 2am", body: "We will perform scheduled maintenance this Saturday from 2am to 4am EAT. The platform will be briefly unavailable.", pinned: false, createdAt: daysAgo(5) },
       ],
     });
@@ -962,7 +1103,7 @@ async function main() {
   if (existingThreads === 0) {
     const thread1 = await prisma.forumThread.create({
       data: {
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         authorId: students["75"].id,
         title: "Hand hygiene question - 5 moments",
         body: "I have a question about the 5 moments for hand hygiene. When exactly should we wash hands before patient contact if the patient is already in isolation? Is it inside or outside the room?",
@@ -978,7 +1119,7 @@ async function main() {
 
     const thread2 = await prisma.forumThread.create({
       data: {
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         authorId: students["full"].id,
         title: "Tips for the vital signs block?",
         body: "Has anyone already done Block 4? Any tips for the vital signs practical? I am a bit nervous about measuring blood pressure correctly.",
@@ -991,7 +1132,7 @@ async function main() {
 
     const thread3 = await prisma.forumThread.create({
       data: {
-        courseId: courses["cna"].id,
+        courseId: courses["medical-home-caregiver"].id,
         authorId: students["completed"].id,
         title: "Certificate verification - works great!",
         body: "Just tested the QR code on my certificate and it verified correctly. Well done Musawo team for making this work so smoothly!",
@@ -1022,7 +1163,7 @@ async function main() {
     await prisma.supportReply.create({
       data: {
         ticketId: ticket1.id,
-        authorId: bursar.id,
+        authorId: financeOfficer.id,
         body: "Thank you for reaching out. We have found your transaction and are processing the confirmation. Your account will be updated within 24 hours.",
         isStaff: true,
         createdAt: daysAgo(1),
@@ -1087,7 +1228,7 @@ async function main() {
         {
           type: ApprovalRequestType.REFUND,
           status: ApprovalRequestStatus.PENDING,
-          initiatorId: bursar.id,
+          initiatorId: financeOfficer.id,
           studentId: students["75"].id,
           enrolmentId: enrolments["75"]?.id,
           amount: 85000,
@@ -1098,7 +1239,7 @@ async function main() {
         {
           type: ApprovalRequestType.REFUND,
           status: ApprovalRequestStatus.PENDING,
-          initiatorId: bursar.id,
+          initiatorId: financeOfficer.id,
           studentId: students["overdue"].id,
           enrolmentId: enrolments["overdue"]?.id,
           amount: 50000,
@@ -1123,8 +1264,8 @@ async function main() {
           initiatorId: registrar.id,
           studentId: students["new"].id,
           enrolmentId: enrolments["new"]?.id,
-          amount: courses["cna"].fullFeeUgx,
-          reason: "Student qualifies under Uganda Ministry of Health community health worker scholarship programme.",
+          amount: courses["medical-home-caregiver"].fullFeeUgx ?? 2300000,
+          reason: "Student qualifies under the MTC community health worker scholarship programme.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(1),
         },
@@ -1134,7 +1275,7 @@ async function main() {
           initiatorId: registrar.id,
           studentId: students["pending"].id,
           enrolmentId: enrolments["pending"]?.id,
-          amount: courses["cna"].fullFeeUgx,
+          amount: courses["medical-home-caregiver"].fullFeeUgx ?? 2300000,
           reason: "Nominated by St. Francis Hospital, Nsambya for the 2026 community health scholarship.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(2),
@@ -1164,7 +1305,7 @@ async function main() {
       { userId: students["overdue"].id,   channel: "IN_APP", type: "PAYMENT_REMINDER", subject: "Instalment overdue",             body: "Your second instalment of UGX 283,334 was due 14 days ago. Please pay to retain access.", readAt: null },
       { userId: students["new"].id,       channel: "IN_APP", type: "WELCOME",          subject: "Welcome to Musawo Training Center!", body: "Welcome, Harriet! Your account has been created. Please complete your first payment to unlock your course.", readAt: daysAgo(2) },
       { userId: students["completed"].id, channel: "IN_APP", type: "CERTIFICATE_READY", subject: "Your certificate is ready", body: "Congratulations! Your CNA certificate (MTC-2026-CNA-00001) is ready to download.", readAt: daysAgo(20) },
-      { userId: bursar.id,                channel: "IN_APP", type: "CLAIM_SUBMITTED",  subject: "New payment claim submitted",    body: "A new manual payment claim has been submitted by Harriet Namutebi. Please review.", readAt: null },
+      { userId: financeOfficer.id,                channel: "IN_APP", type: "CLAIM_SUBMITTED",  subject: "New payment claim submitted",    body: "A new manual payment claim has been submitted by Harriet Namutebi. Please review.", readAt: null },
       { userId: ceo.id,                   channel: "IN_APP", type: "APPROVAL_NEEDED",  subject: "6 approvals awaiting your decision", body: "There are 6 approval requests pending in your inbox: 2 refunds, 1 waiver, 2 scholarships, 1 fee change.", readAt: null },
       { userId: tutor.id,                 channel: "IN_APP", type: "EXAM_REVIEW",      subject: "Exam submission pending review", body: "Ronald Mugisha submitted Block 2 exam 5 days ago and has a short-answer question awaiting your marking.", readAt: null },
     ];
@@ -1176,12 +1317,12 @@ async function main() {
   // ── Assignments ────────────────────────────────────────────────
   const existingAssignments = await prisma.assignment.count();
   if (existingAssignments === 0) {
-    const cnaCourseId = courses["cna"].id;
-    const block3Id = allBlocks["cna"]?.[2]?.id;
+    const mainCourseId = courses["medical-home-caregiver"].id;
+    const block3Id = allBlocks["medical-home-caregiver"]?.[2]?.id;
 
     const assignment1 = await prisma.assignment.create({
       data: {
-        courseId: cnaCourseId,
+        courseId: mainCourseId,
         blockId: block3Id ?? null,
         title: "Personal Care Reflection Journal",
         instructions: "Write a 300-500 word reflective journal entry describing how you would assist a patient with bathing while maintaining their dignity. Include: (1) how you would explain the procedure to the patient, (2) the steps you would follow, and (3) how you would ensure privacy and comfort throughout. You may submit as text or upload a Word document/PDF.",
@@ -1193,7 +1334,7 @@ async function main() {
 
     const assignment2 = await prisma.assignment.create({
       data: {
-        courseId: cnaCourseId,
+        courseId: mainCourseId,
         blockId: null,
         title: "Infection Control Scenario Analysis",
         instructions: "Read the scenario in the attached brief and answer the three questions: (1) What infection risks are present? (2) What standard precautions should be applied? (3) How would you document and report the incident? Upload your answers as a PDF.",
@@ -1228,17 +1369,17 @@ async function main() {
     }> = [
       { actorId: ceo.id,       action: AuditAction.LOGIN,               entityType: "User", entityId: ceo.id,       ip: "197.239.5.10", createdAt: daysAgo(1) },
       { actorId: registrar.id, action: AuditAction.LOGIN,               entityType: "User", entityId: registrar.id, ip: "197.239.5.11", createdAt: daysAgo(1) },
-      { actorId: bursar.id,    action: AuditAction.LOGIN,               entityType: "User", entityId: bursar.id,    ip: "41.210.3.22",  createdAt: daysAgo(2) },
+      { actorId: financeOfficer.id,    action: AuditAction.LOGIN,               entityType: "User", entityId: financeOfficer.id,    ip: "41.210.3.22",  createdAt: daysAgo(2) },
       { actorId: tutor.id,     action: AuditAction.LOGIN,               entityType: "User", entityId: tutor.id,     ip: "41.210.3.23",  createdAt: daysAgo(2) },
       { actorId: registrar.id, action: AuditAction.ENROLMENT_CREATED,   entityType: "Enrolment", entityId: enrolments["new"]?.id ?? "x", metadata: JSON.stringify({ student: "Harriet Namutebi", course: "CNA" }), createdAt: daysAgo(14) },
-      { actorId: bursar.id,    action: AuditAction.PAYMENT_CONFIRMED,   entityType: "Payment", entityId: "demo-p1", metadata: JSON.stringify({ amount: 850000, method: "MTN_MOMO" }), createdAt: daysAgo(55) },
-      { actorId: registrar.id, action: AuditAction.CERTIFICATE_ISSUED,  entityType: "Certificate", entityId: "MTC-2026-CNA-00001", metadata: JSON.stringify({ student: "James Ssemwogerere" }), createdAt: daysAgo(25) },
+      { actorId: financeOfficer.id,    action: AuditAction.PAYMENT_CONFIRMED,   entityType: "Payment", entityId: "demo-p1", metadata: JSON.stringify({ amount: 850000, method: "MTN_MOMO" }), createdAt: daysAgo(55) },
+      { actorId: registrar.id, action: AuditAction.CERTIFICATE_ISSUED,  entityType: "Certificate", entityId: "2026/MHC/001/CERT", metadata: JSON.stringify({ student: "James Ssemwogerere" }), createdAt: daysAgo(25) },
       { actorId: ceo.id,       action: AuditAction.APPROVAL_APPROVED,   entityType: "ApprovalRequest", entityId: "demo-ap1", metadata: JSON.stringify({ type: "SCHOLARSHIP_AWARD", student: "Annet Aber" }), createdAt: daysAgo(85) },
-      { actorId: bursar.id,    action: AuditAction.PAYMENT_REVERSED,    entityType: "Payment", entityId: "demo-p2", metadata: JSON.stringify({ amount: 85000, reason: "Fraud" }), createdAt: daysAgo(25) },
+      { actorId: financeOfficer.id,    action: AuditAction.PAYMENT_REVERSED,    entityType: "Payment", entityId: "demo-p2", metadata: JSON.stringify({ amount: 85000, reason: "Fraud" }), createdAt: daysAgo(25) },
       { actorId: itadmin.id,   action: AuditAction.SETTINGS_CHANGED,    entityType: "SiteSetting", entityId: "payment.gateway", metadata: JSON.stringify({ from: "pesapal", to: "demo" }), createdAt: daysAgo(3) },
       { actorId: ceo.id,       action: AuditAction.ACCESS_REVIEW_COMPLETED, entityType: "AccessReview", entityId: "demo-ar1", metadata: JSON.stringify({ quarter: "Q3 2026", reviewedAccounts: 6 }), createdAt: daysAgo(30) },
-      { actorId: bursar.id,    action: AuditAction.PAYMENT_CLAIM_SUBMITTED, entityType: "ManualPaymentClaim", entityId: "demo-claim-1", metadata: JSON.stringify({ amount: 283334 }), createdAt: daysAgo(70) },
-      { actorId: bursar.id,    action: AuditAction.PAYMENT_CLAIM_VERIFIED, entityType: "ManualPaymentClaim", entityId: "demo-claim-1", metadata: JSON.stringify({ verifiedBy: "bursar" }), createdAt: daysAgo(68) },
+      { actorId: financeOfficer.id,    action: AuditAction.PAYMENT_CLAIM_SUBMITTED, entityType: "ManualPaymentClaim", entityId: "demo-claim-1", metadata: JSON.stringify({ amount: 283334 }), createdAt: daysAgo(70) },
+      { actorId: financeOfficer.id,    action: AuditAction.PAYMENT_CLAIM_VERIFIED, entityType: "ManualPaymentClaim", entityId: "demo-claim-1", metadata: JSON.stringify({ verifiedBy: "finance-officer" }), createdAt: daysAgo(68) },
       { actorId: registrar.id, action: AuditAction.BULK_EXPORT,         entityType: "Student", entityId: "export-2026-10", metadata: JSON.stringify({ format: "CSV", count: 9 }), createdAt: daysAgo(7) },
       { actorId: tutor.id,     action: AuditAction.EXAM_SUBMITTED,      entityType: "ExamAttempt", entityId: "demo-ea1", metadata: JSON.stringify({ exam: "Block 2", student: "Ronald Mugisha" }), createdAt: daysAgo(5) },
       { actorId: students["completed"].id, action: AuditAction.LOGIN,   entityType: "User", entityId: students["completed"].id, ip: "197.239.5.55", createdAt: daysAgo(26) },
@@ -1264,10 +1405,10 @@ async function main() {
   const existingGrades = await prisma.gradeEntry.count();
   if (existingGrades === 0) {
     const gradeData = [
-      { userId: students["completed"].id, courseId: courses["cna"].id, itemType: "EXAM",       itemId: "exam-block2", itemTitle: "Block 2: Infection Control Assessment", score: 25, maxScore: 30, percentage: 83, passed: true  },
-      { userId: students["completed"].id, courseId: courses["cna"].id, itemType: "EXAM",       itemId: "exam-final",  itemTitle: "CNA Final Certification Exam",           score: 52, maxScore: 65, percentage: 80, passed: true  },
-      { userId: students["75"].id,        courseId: courses["cna"].id, itemType: "EXAM",       itemId: "exam-block2", itemTitle: "Block 2: Infection Control Assessment", score: 12, maxScore: 30, percentage: 40, passed: false },
-      { userId: students["full"].id,      courseId: courses["cna"].id, itemType: "ASSIGNMENT", itemId: "assign-1",    itemTitle: "Personal Care Reflection Journal",      score: null, maxScore: 20, percentage: null, passed: null },
+      { userId: students["completed"].id, courseId: courses["medical-home-caregiver"].id, itemType: "EXAM",       itemId: "exam-block2", itemTitle: "Block 2: Infection Control Assessment", score: 25, maxScore: 30, percentage: 83, passed: true  },
+      { userId: students["completed"].id, courseId: courses["medical-home-caregiver"].id, itemType: "EXAM",       itemId: "exam-final",  itemTitle: "CNA Final Certification Exam",           score: 52, maxScore: 65, percentage: 80, passed: true  },
+      { userId: students["75"].id,        courseId: courses["medical-home-caregiver"].id, itemType: "EXAM",       itemId: "exam-block2", itemTitle: "Block 2: Infection Control Assessment", score: 12, maxScore: 30, percentage: 40, passed: false },
+      { userId: students["full"].id,      courseId: courses["medical-home-caregiver"].id, itemType: "ASSIGNMENT", itemId: "assign-1",    itemTitle: "Personal Care Reflection Journal",      score: null, maxScore: 20, percentage: null, passed: null },
     ];
 
     await prisma.gradeEntry.createMany({ data: gradeData });
@@ -1279,14 +1420,14 @@ async function main() {
   if (existingInvite === 0) {
     await prisma.staffInvite.create({
       data: {
-        email: "newstaff@musawotraining.ug",
+        email: "newstaff@mtc.ac.ug",
         role: "TUTOR",
         token: "demo-invite-token-" + randomBytes(8).toString("hex"),
         expiresAt: daysFrom(7),
         createdById: ceo.id,
       },
     });
-    console.log("  ✓ Pending staff invite (newstaff@musawotraining.ug)");
+    console.log("  ✓ Pending staff invite (newstaff@mtc.ac.ug)");
   }
 
   // ── Access Review ──────────────────────────────────────────────
@@ -1304,26 +1445,28 @@ async function main() {
   }
 
   // ── Print summary ──────────────────────────────────────────────
-  console.log("\n" + "═".repeat(62));
-  console.log("  🎉  DEMO SEED COMPLETE");
-  console.log("═".repeat(62));
+  console.log("\n" + "=".repeat(62));
+  console.log("  DEMO SEED COMPLETE");
+  console.log("=".repeat(62));
   console.log("\n  All demo accounts use password: Demo1234!\n");
   console.log("  STAFF ACCOUNTS");
-  console.log("  ─────────────────────────────────────────────────────");
-  console.log("  CEO/SUPERADMIN  ceo@musawotraining.ug      → /director");
-  console.log("  Deputy CEO      deputy@musawotraining.ug   → /director");
-  console.log("  IT Admin        itadmin@musawotraining.ug  → /system");
-  console.log("  Registrar       registrar@musawotraining.ug → /admin/students");
-  console.log("  Bursar          bursar@musawotraining.ug   → /bursar");
-  console.log("  Tutor 1         tutor@musawotraining.ug    → /tutor");
-  console.log("  Tutor 2 (dual)  tutor2@musawotraining.ug   → /tutor (+ student)");
+  console.log("  " + "-".repeat(57));
+  console.log("  SUPERADMIN      ceo@mtc.ac.ug          /director");
+  console.log("  SUPERADMIN      deputy@mtc.ac.ug       /director");
+  console.log("  ADMINISTRATOR   administrator@mtc.ac.ug /admin");
+  console.log("  PRINCIPAL       principal@mtc.ac.ug    /principal");
+  console.log("  SYSTEM_IT       itadmin@mtc.ac.ug      /system");
+  console.log("  ACAD_REGISTRAR  registrar@mtc.ac.ug    /registrar");
+  console.log("  BURSAR          bursar@mtc.ac.ug       /finance");
+  console.log("  TUTOR           tutor@mtc.ac.ug        /tutor");
+  console.log("  TUTOR (dual)    tutor2@mtc.ac.ug       /tutor + student");
   console.log("\n  STUDENT ACCOUNTS (all CNA course)");
-  console.log("  ─────────────────────────────────────────────────────");
+  console.log("  " + "-".repeat(57));
   for (const def of STUDENT_DEFS) {
     console.log(`  ${def.status.padEnd(15)} ${def.email}`);
   }
   console.log("\n  See docs/DEMO.md for the full presentation walkthrough.");
-  console.log("═".repeat(62) + "\n");
+  console.log("=".repeat(62) + "\n");
 }
 
 main()

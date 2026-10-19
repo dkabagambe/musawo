@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -9,7 +10,7 @@ export const metadata = { title: "Bursar Dashboard" };
 
 export default async function BursarDashboardPage() {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN", "BURSAR"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -116,7 +117,7 @@ export default async function BursarDashboardPage() {
                       <span className="font-bold text-success">UGX {p.amount.toLocaleString()}</span>
                     </td>
                     <td className="px-5 py-3 text-xs text-gray-400 hidden sm:table-cell">
-                      {p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "—"}
+                      {p.paidAt ? new Date(p.paidAt).toLocaleDateString("en-UG") : "-"}
                     </td>
                   </tr>
                 ))}

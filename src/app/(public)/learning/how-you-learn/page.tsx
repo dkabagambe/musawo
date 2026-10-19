@@ -58,7 +58,7 @@ const FEATURES = [
   {
     icon: Globe,
     heading: "Study from anywhere in Uganda",
-    body: "There is no need to relocate. Except for practical days at our Lungujja clinic, everything is done online.",
+    body: "There is no need to relocate. Except for practical days at our skills lab, everything is done online.",
   },
   {
     icon: Shield,
@@ -81,7 +81,7 @@ const WHAT_TO_EXPECT = [
   {
     week: "Weeks 7 to 9",
     title: "Clinical practice",
-    body: "Practical days at the Lungujja clinic under qualified clinical supervisors. Apply classroom learning with real patients.",
+    body: "Practical days at the skills lab under qualified clinical supervisors. Apply classroom learning with real patients.",
   },
   {
     week: "Weeks 10 to 12",

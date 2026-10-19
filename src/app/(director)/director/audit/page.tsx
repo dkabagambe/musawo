@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
@@ -8,7 +9,7 @@ interface Props { searchParams: { action?: string; page?: string } }
 
 export default async function DirectorAuditPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "audit.view.full") === false) redirect("/login");
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const take = 50;

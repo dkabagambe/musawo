@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with Musawo Training Center - course enquiries, payments, scholarships and more.",
+  description: "Get in touch with Musawo Training Center - course enquiries, payments, admissions and more.",
 };
 
 export default async function ContactPage() {
@@ -18,7 +18,7 @@ export default async function ContactPage() {
     <div className="bg-surface">
       <PageHero
         image="/assets/images/hero-contact.webp"
-        imageAlt="Musawo Training Center Lungujja clinic and offices"
+        imageAlt="Musawo Training Center skills lab and offices"
         title="Contact Us"
         description="Questions about courses, payments, or admissions? Our team is ready to help."
         breadcrumbs={[{ label: "Contact" }]}

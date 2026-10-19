@@ -82,12 +82,11 @@ export default async function PartnerPage({ params }: Props) {
 
       <footer className="bg-surface py-8 px-4 text-center text-xs text-gray-400">
         <p>
-          Musawo Training Center - Accredited by Uganda Ministry of Health and
-          Ministry of Education and Sports
+          Musawo Training Center - Allied Doctors and Friends of Uganda
         </p>
         <p className="mt-1">
-          <a href="https://learn.musawotraining.ug" className="text-primary no-underline hover:underline">
-            learn.musawotraining.ug
+          <a href="https://mtc.ac.ug" className="text-primary no-underline hover:underline">
+            mtc.ac.ug
           </a>
         </p>
       </footer>

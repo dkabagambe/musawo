@@ -29,12 +29,12 @@ export default async function TermsPage() {
             <TermsSection title="1. Acceptance of terms">
               <p>
                 By accessing or using the Musawo Training Center platform (&ldquo;Platform&rdquo;) at{" "}
-                <strong>learn.musawotraining.ug</strong>, you agree to be bound by these Terms of Service.
+                <strong>mtc.ac.ug</strong>, you agree to be bound by these Terms of Service.
                 If you do not agree, please do not use the Platform.
               </p>
               <p>
                 The Platform is operated by Allied Doctors and Friends of Uganda (ADFA), trading as Musawo Training Center
-                (&ldquo;MTC&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), Plot 5 ADFA Building, Zone 8 Lungujja, Kampala, Uganda.
+                (&ldquo;MTC&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), Plot 5 ADFA Building, Luggala Trading Center, Lubaga Division, Kampala, Uganda.
               </p>
             </TermsSection>
 
@@ -99,8 +99,7 @@ export default async function TermsPage() {
                 QR code for verification. MTC reserves the right to revoke a certificate where there is evidence of academic dishonesty.
               </p>
               <p>
-                Our courses are accredited by Uganda&apos;s Ministry of Health and Ministry of Education and Sports. Accreditation status is subject to
-                periodic renewal; MTC will notify students if accreditation status changes for any course.
+                MTC will notify students if the status of any course changes in a way that affects certificates already issued.
               </p>
             </TermsSection>
 
@@ -146,7 +145,7 @@ export default async function TermsPage() {
               <p>For questions about these Terms, contact us at:</p>
               <address className="not-italic text-gray-600 text-sm leading-relaxed mt-2">
                 Musawo Training Center - ADFA<br />
-                Plot 5, ADFA Building, Zone 8 Lungujja<br />
+                Plot 5, ADFA Building, Luggala Trading Center, Lubaga Division<br />
                 Kampala, Uganda<br />
                 <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>
               </address>

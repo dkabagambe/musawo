@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import ApprovalDecisionForm from "@/app/approval/[token]/ApprovalDecisionForm";
@@ -7,7 +8,7 @@ interface Props { params: { id: string } }
 
 export default async function ApprovalDetailPage({ params }: Props) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "approvals.decide") === false) redirect("/login");
 
   const request = await db.approvalRequest.findUnique({
     where: { id: params.id },

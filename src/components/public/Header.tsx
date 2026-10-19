@@ -30,37 +30,41 @@ const NAV: NavItem[] = [
   {
     label: "Courses",
     children: [
-      { label: "Certified Nursing Care Assistant", href: "/courses/cna",                desc: "Flagship 12-week accredited certification." },
-      { label: "Basic Nursing Care Assistant",     href: "/courses/basic-nursing-care", desc: "8-week foundation in patient care." },
-      { label: "Child Care and Safety",            href: "/courses/child-care-safety",  desc: "6-week child safety and first aid." },
-      { label: "All courses",                      href: "/courses",                    desc: "Browse and compare all programmes." },
+      { label: "Medical Home Caregiver",           href: "/courses/medical-home-caregiver",         desc: "3 months. For registered health professionals." },
+      { label: "Basic Home Caregiver",             href: "/courses/basic-home-caregiver",           desc: "3 months. Open to all." },
+      { label: "Babysitting, Childcare and Safety",href: "/courses/babysitting-childcare-safety",   desc: "2 months. Open to all." },
+      { label: "Mental Health Support",            href: "/courses/mental-health-support-advocacy", desc: "3 months. Open to all." },
+      { label: "Care of Older Persons (Geriatric)",href: "/courses/care-older-persons-disability",  desc: "3 months. Open to all." },
+      { label: "Basic Life Support and First Aid", href: "/courses/basic-life-support-first-aid",   desc: "1 month. Open to all." },
+      { label: "Advanced Life Support",            href: "/courses/advanced-life-support",          desc: "1 month. For registered health professionals." },
+      { label: "All courses",                      href: "/courses",                                desc: "Browse and compare all programmes." },
     ],
   },
   {
     label: "Admissions",
     children: [
-      { label: "How to enrol",          href: "/admissions/how-to-enrol",        desc: "Step-by-step guide to joining MTC." },
-      { label: "Fees and instalments",  href: "/admissions/fees",                desc: "Full fees and instalment options." },
-      { label: "Scholarships",          href: "/scholarships",                   desc: "Subsidised and full scholarship places." },
-      { label: "Payment options",       href: "/admissions/payment-options",     desc: "Mobile money, bank and more." },
+      { label: "Apply now",            href: "/apply",                      desc: "Submit your application for the November 2026 intake." },
+      { label: "How to enrol",         href: "/admissions/how-to-enrol",    desc: "Step-by-step guide to joining MTC." },
+      { label: "Fees and instalments", href: "/admissions/fees",            desc: "Full fees and instalment options." },
+      { label: "Payment options",      href: "/admissions/payment-options", desc: "Mobile money, bank and more." },
     ],
   },
   {
     label: "Learning",
     children: [
-      { label: "How you will learn",      href: "/learning/how-you-learn",    desc: "Our mobile-first online approach." },
-      { label: "Live classes",            href: "/learning/live-classes",     desc: "Twice-weekly sessions with your tutor." },
-      { label: "Exams and certificates",  href: "/learning/exams",            desc: "Assessments and digital certificates." },
-      { label: "Free resources",          href: "/resources",                 desc: "Study guides and reference materials." },
+      { label: "How you will learn",     href: "/learning/how-you-learn",  desc: "Hybrid and online approach with skills lab practicals." },
+      { label: "Live classes",           href: "/learning/live-classes",   desc: "Sessions with your tutor and fellow students." },
+      { label: "Exams and certificates", href: "/learning/exams",          desc: "Assessments and digital certificates." },
+      { label: "Free resources",         href: "/resources",               desc: "Study guides and reference materials." },
     ],
   },
   {
     label: "About",
     children: [
-      { label: "About MTC",      href: "/about",              desc: "Our story, mission and values." },
-      { label: "Accreditation",  href: "/about/accreditation",desc: "Ministry of Health and Education approval." },
-      { label: "Our trainers",   href: "/about/trainers",     desc: "Meet the clinical educators." },
-      { label: "FAQ",            href: "/faq",                desc: "Common questions answered." },
+      { label: "About MTC",      href: "/about",               desc: "Our story, mission and values." },
+      { label: "Accreditation",  href: "/about/accreditation", desc: "Accreditation details." },
+      { label: "Our trainers",   href: "/about/trainers",      desc: "Meet the clinical educators." },
+      { label: "FAQ",            href: "/faq",                 desc: "Common questions answered." },
     ],
   },
   { label: "Contact", href: "/contact" },
@@ -97,26 +101,18 @@ function UtilityBar() {
           >
             Visit musawo.ug <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
-          <a
-            href="https://musawo.ug/donate/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white no-underline transition-colors"
-          >
-            Support Musawo
-          </a>
         </div>
         {/* Right info */}
         <div className="flex items-center gap-5">
           <a
-            href="tel:+256785423523"
+            href="tel:+256709184468"
             className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
           >
             <Phone className="w-3 h-3" aria-hidden="true" />
-            +256 785 423 523
+            0709 184 468
           </a>
           <a
-            href="https://wa.me/256785423523"
+            href="https://wa.me/256709184468"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
@@ -125,11 +121,11 @@ function UtilityBar() {
             WhatsApp
           </a>
           <a
-            href="mailto:info@musawo.ug"
+            href="mailto:info@mtc.ac.ug"
             className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
           >
             <Mail className="w-3 h-3" aria-hidden="true" />
-            info@musawo.ug
+            info@mtc.ac.ug
           </a>
         </div>
       </div>
@@ -342,11 +338,24 @@ function MobileAccordion({
 /* ─────────────────────────────────────────────
    MAIN HEADER COMPONENT
    ───────────────────────────────────────────── */
-export default function PublicHeader() {
+export default function PublicHeader({ showAccreditation = false }: { showAccreditation?: boolean }) {
   const pathname        = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawer] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  // Build nav, filtering out the Accreditation item when setting is not filled
+  const nav: NavItem[] = NAV.map((item) => {
+    if (item.label === "About" && item.children) {
+      return {
+        ...item,
+        children: showAccreditation
+          ? item.children
+          : item.children.filter((c) => c.href !== "/about/accreditation"),
+      };
+    }
+    return item;
+  });
 
   const drawerRef    = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -448,7 +457,7 @@ export default function PublicHeader() {
                   Musawo Training Center
                 </span>
                 <span className="text-white/55 text-[10px] font-normal tracking-wide uppercase">
-                  Learn. Certify. Serve.
+                  Learn. Serve. Transform.
                 </span>
               </span>
             </Link>
@@ -458,7 +467,7 @@ export default function PublicHeader() {
               className="hidden lg:flex items-center gap-0.5 text-sm font-medium list-none"
               role="list"
             >
-              {NAV.map((item) => {
+              {nav.map((item) => {
                 if (item.children) {
                   return (
                     <li key={item.label}>
@@ -509,12 +518,12 @@ export default function PublicHeader() {
                 Log in
               </Link>
               <Link
-                href="/register"
+                href="/apply"
                 className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-600
                            active:scale-[0.97] text-white text-sm font-bold px-4 py-2.5 rounded-xl
                            no-underline transition-all shadow-cta"
               >
-                Enrol now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                Apply now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </Link>
 
               {/* Hamburger (mobile + tablet) */}
@@ -599,7 +608,7 @@ export default function PublicHeader() {
           aria-label="Mobile navigation links"
         >
           <ul className="space-y-1 list-none">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               if (item.children) {
                 return (
                   <MobileAccordion
@@ -638,7 +647,6 @@ export default function PublicHeader() {
             </p>
             {[
               { label: "Visit musawo.ug",  href: "https://musawo.ug", external: true },
-              { label: "Support Musawo",   href: "https://musawo.ug/donate/", external: true },
             ].map((l) => (
               <a
                 key={l.href}
@@ -655,13 +663,13 @@ export default function PublicHeader() {
               </a>
             ))}
             <div className="px-4 pt-1 space-y-1.5 text-xs text-white/50">
-              <a href="tel:+256785423523" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
+              <a href="tel:+256709184468" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
                 <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                +256 785 423 523
+                0709 184 468
               </a>
-              <a href="mailto:info@musawo.ug" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
+              <a href="mailto:info@mtc.ac.ug" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
                 <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                info@musawo.ug
+                info@mtc.ac.ug
               </a>
             </div>
           </div>
@@ -679,13 +687,13 @@ export default function PublicHeader() {
             Log in
           </Link>
           <Link
-            href="/register"
+            href="/apply"
             className="flex items-center justify-center gap-2 w-full py-3 text-sm font-bold
                        bg-accent hover:bg-accent-600 active:scale-[0.97] text-white rounded-xl
                        no-underline transition-all shadow-cta"
             onClick={() => setDrawer(false)}
           >
-            Enrol now <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            Apply now <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
       </div>

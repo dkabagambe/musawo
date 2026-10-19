@@ -1,9 +1,10 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { can } from "@/lib/rbac";
 import {
   LayoutDashboard, BookOpen, Users, GraduationCap, Calendar,
-  CreditCard, Gift, BarChart2, Handshake, Settings, Search,
+  CreditCard, BarChart2, Handshake, Settings, Search,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -13,7 +14,7 @@ const NAV: NavItem[] = [
   { href: "/admin/tutors",         label: "Tutors",        icon: <GraduationCap className="w-4 h-4" /> },
   { href: "/admin/intakes",        label: "Intakes",       icon: <Calendar className="w-4 h-4" /> },
   { href: "/admin/payments",       label: "Payments",      icon: <CreditCard className="w-4 h-4" /> },
-  { href: "/admin/scholarships",   label: "Scholarships",  icon: <Gift className="w-4 h-4" /> },
+  // scholarships nav removed (SCHOLARSHIPS_ENABLED=false)
   { href: "/admin/reports",        label: "Reports",       icon: <BarChart2 className="w-4 h-4" /> },
   { href: "/admin/partner-pages",  label: "Partner Pages", icon: <Handshake className="w-4 h-4" /> },
   { href: "/admin/settings",       label: "Settings",      icon: <Settings className="w-4 h-4" /> },
@@ -22,7 +23,7 @@ const NAV: NavItem[] = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN", "REGISTRAR", "ADMIN"].includes(session.user.role)) {
+  if (!session?.user || !can(session.user.role, "courses.view")) {
     redirect("/dashboard");
   }
   const name = session.user.name ?? "Admin";

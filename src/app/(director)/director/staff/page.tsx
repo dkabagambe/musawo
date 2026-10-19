@@ -1,16 +1,17 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { MAX_SUPERADMIN_ACCOUNTS } from "@/lib/rbac";
+import { MAX_SUPER_ADMIN_ACCOUNTS } from "@/lib/rbac";
 
 export const metadata = { title: "Staff Accounts - Director" };
 
 export default async function DirectorStaffPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "staff.create.approve") === false) redirect("/login");
 
   const staff = await db.user.findMany({
-    where: { role: { in: ["SUPERADMIN", "SYSTEM_IT", "REGISTRAR", "BURSAR", "TUTOR", "ADMIN"] } },
+    where: { role: { in: ["SUPER_ADMIN","SYSTEM_IT","ACADEMIC_REGISTRAR","FINANCE_OFFICER","INSTRUCTOR","TEACHING_ASSISTANT","HR_SYSTEM_ADMIN","AUDITOR_READONLY","BOARD_MEMBER","DEPUTY_PRINCIPAL","PRINCIPAL"] } },
     orderBy: [{ role: "asc" }, { name: "asc" }],
     select: {
       id: true, name: true, email: true, phone: true,
@@ -19,10 +20,10 @@ export default async function DirectorStaffPage() {
     },
   });
 
-  const superAdminCount = staff.filter((s) => s.role === "SUPERADMIN").length;
+  const superAdminCount = staff.filter((s) => s.role === "SUPER_ADMIN").length;
 
   const ROLE_COLORS: Record<string, string> = {
-    SUPERADMIN: "badge-danger",
+    SUPER_ADMIN: "badge-danger",
     SYSTEM_IT:  "badge-warning",
     REGISTRAR:  "badge-info",
     BURSAR:     "badge-info",
@@ -35,7 +36,7 @@ export default async function DirectorStaffPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl">Staff Accounts</h1>
         <p className="text-xs text-gray-400">
-          SUPERADMIN slots: {superAdminCount}/{MAX_SUPERADMIN_ACCOUNTS}
+          SUPER_ADMIN slots: {superAdminCount}/{MAX_SUPER_ADMIN_ACCOUNTS}
         </p>
       </div>
 
@@ -87,7 +88,7 @@ export default async function DirectorStaffPage() {
                 </td>
                 <td className="py-2">
                   {/* Suspension requires an approval request, not a direct button */}
-                  {s.role !== "SUPERADMIN" && s.status === "ACTIVE" && (
+                  {s.role !== "SUPER_ADMIN" && s.status === "ACTIVE" && (
                     <a
                       href={`/director/approvals/new?type=STAFF_ACCOUNT_SUSPEND&staffUserId=${s.id}`}
                       className="text-xs text-danger no-underline hover:underline"

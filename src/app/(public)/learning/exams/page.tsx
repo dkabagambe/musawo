@@ -56,7 +56,7 @@ export default async function ExamsPage() {
         image="/assets/healthcare-services.webp"
         imageAlt="Musawo Training Center student completing their certificate"
         title="Exams and Certificates"
-        description="Clear assessment structure and a nationally recognised digital certificate you can share anywhere."
+        description="Clear assessment structure and a digital certificate with QR verification you can share anywhere."
         breadcrumbs={[
           { label: "Learning", href: "/learning/how-you-learn" },
           { label: "Exams and certificates" },
@@ -164,7 +164,7 @@ export default async function ExamsPage() {
                   </div>
                   <h3 className="font-bold text-primary text-sm mb-2">QR verification</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Every certificate has a unique QR code. Employers can scan it to verify authenticity in seconds at verify.musawotraining.ug.
+                    Every certificate has a unique QR code. Employers can scan it to verify authenticity in seconds at verify.mtc.ac.ug.
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border p-6">
@@ -180,9 +180,9 @@ export default async function ExamsPage() {
                   <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center mb-4">
                     <CheckCircle className="w-4 h-4 text-success" aria-hidden="true" />
                   </div>
-                  <h3 className="font-bold text-primary text-sm mb-2">Ministry accredited</h3>
+                  <h3 className="font-bold text-primary text-sm mb-2">QR verified</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Our certificates are recognised by Uganda's Ministry of Health and Ministry of Education and Sports.
+                    Every certificate has a unique ID and QR code. Employers scan it to verify authenticity online in seconds.
                   </p>
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default async function ExamsPage() {
                   <div>
                     <h3 className="font-bold text-primary mb-2">Resit policy</h3>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@musawo.ug to discuss your options.
+                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@mtc.ac.ug to discuss your options.
                     </p>
                   </div>
                 </div>

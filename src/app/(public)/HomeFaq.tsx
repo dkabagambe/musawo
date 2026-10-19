@@ -5,11 +5,20 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 const FAQS = [
-  { q: 'Are the courses nationally recognised?',   a: "Yes. All Musawo Training Center courses are fully accredited by Uganda's Ministry of Health and Ministry of Education and Sports." },
-  { q: 'How do I pay?',                             a: 'You can pay with MTN Mobile Money, Airtel Money, a bank card, or a bank transfer. Instalment payment plans are available on all courses.' },
-  { q: 'Can I study on a basic smartphone?',        a: 'Yes. The platform is designed for low-data mobile connections. Content loads fast, and lesson notes can be downloaded for offline reading.' },
-  { q: 'Are scholarships available?',               a: 'Yes. A limited number of subsidised and full scholarship places are allocated each intake. Apply when you register.' },
-  { q: 'How long does each course take?',           a: 'Courses range from 6 to 12 weeks. You study at your own pace alongside live classes twice a week.' },
+  { q: 'Do the courses come with a certificate?',
+    a: 'Yes. Every Musawo Training Center course ends with a digital certificate that has a unique ID and QR code. Employers can scan the QR code to verify it online instantly.' },
+  { q: 'How do I pay?',
+    a: 'You can pay with MTN Mobile Money, Airtel Money, or a bank transfer. Flexible instalment payment plans are available so you can spread the cost across the course.' },
+  { q: 'Can I study on a basic smartphone?',
+    a: 'Yes. The platform is designed for mobile connections. Content loads fast and lesson notes can be downloaded for offline reading.' },
+  { q: 'How long does each course take?',
+    a: 'Courses run from 1 month to 3 months. Basic Life Support and Advanced Life Support are 1 month. Babysitting and Childcare is 2 months. All nursing care and mental health courses are 3 months.' },
+  { q: 'Are the classes really hands-on?',
+    a: 'Yes. 70% of each course is hands-on practicals in our skills lab in Kampala. The remaining 30% is online classes and self-study that you can do on your phone from anywhere.' },
+  { q: 'Who teaches the courses?',
+    a: 'All courses are taught by qualified doctors, nurses and clinicians. Content is reviewed and approved by the Principal before it is published.' },
+  { q: 'Who can apply?',
+    a: 'Most courses are open to all, including PLE leavers, S.4 and S.6 leavers, working carers, teachers and community workers. Medical Home Caregiver and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification.' },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {

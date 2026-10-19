@@ -1,13 +1,15 @@
+import { notFound } from "next/navigation";
 import PageHero from "@/components/public/PageHero";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, HeartHandshake, GraduationCap, BookOpen } from "lucide-react";
 import { getContactInfo } from "@/lib/contact";
+import { getSetting } from "@/lib/settings";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Scholarships & Financial Aid",
+  title: "Scholarships and Financial Aid",
   description: "Learn about scholarships and subsidised places available at Musawo Training Center for Ugandan healthcare students.",
 };
 
@@ -62,7 +64,16 @@ const PROCESS = [
 ];
 
 export default async function ScholarshipsPage() {
-  const contact = await getContactInfo();
+  const [contact, scholarshipsEnabled] = await Promise.all([
+    getContactInfo(),
+    getSetting("feature.scholarships", "false"),
+  ]);
+
+  // Scholarships are disabled by default (SCHOLARSHIPS_ENABLED=false).
+  // When the setting is not "true", this page returns 404.
+  if (scholarshipsEnabled !== "true") {
+    notFound();
+  }
 
   return (
     <div className="bg-surface">

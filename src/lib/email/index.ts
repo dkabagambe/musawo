@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const FROM = process.env.EMAIL_FROM ?? "MTC <noreply@musawotraining.ug>";
+const FROM = process.env.EMAIL_FROM ?? "MTC <noreply@mtc.ac.ug>";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mtc.ac.ug";
+const LOGO_URL = `${SITE_URL}/assets/logo-header.png`;
 
 function getResend(): Resend {
   const key = process.env.RESEND_API_KEY;
@@ -11,13 +13,17 @@ function getResend(): Resend {
 type EmailTemplate =
   | "welcome"
   | "email-verification"
+  | "student-invite"
+  | "staff-invite"
   | "payment-receipt"
   | "class-reminder"
   | "exam-result"
   | "certificate-issued"
   | "password-reset"
   | "otp"
-  | "approval-request";
+  | "approval-request"
+  | "application-confirmation"
+  | "application-received-registrar";
 
 interface SendEmailParams {
   to: string;
@@ -35,12 +41,12 @@ function renderTemplate(
       <h2>Welcome to Musawo Training Center, {{name}}!</h2>
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
-      <p>If you have any questions, email us at info@musawo.ug.</p>
+      <p>If you have any questions, email us at info@mtc.ac.ug or call 0709 184 468.</p>
     `,
     "email-verification": `
       <h2>Verify your email address</h2>
       <p>Hi {{name}},</p>
-      <p>Thanks for registering with Musawo Training Center. Please verify your email address by clicking the button below.</p>
+      <p>Please verify your email address by clicking the button below.</p>
       <p style="margin: 24px 0;">
         <a href="{{verifyUrl}}" style="background:#FF6900;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">
           Verify email address
@@ -50,12 +56,62 @@ function renderTemplate(
       <p style="word-break:break-all;font-size:13px;color:#6B7280;">{{verifyUrl}}</p>
       <p style="font-size:13px;color:#6B7280;">This link expires in {{expiresIn}}. If you did not create an account, you can safely ignore this email.</p>
     `,
+    "student-invite": `
+      <h2>Your Musawo Training Center account is ready</h2>
+      <p>Dear {{name}},</p>
+      <p>The Academic Registrar has created a student account for you at Musawo Training Center.</p>
+      <p>Please click the button below to confirm your details, set a password, and activate your account. This link is valid for 7 days.</p>
+      <p style="margin: 24px 0;">
+        <a href="{{inviteUrl}}" style="background:#0B6B5D;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">
+          Activate my account
+        </a>
+      </p>
+      <p>Or copy and paste this link: <span style="word-break:break-all;font-size:13px;color:#6B7280;">{{inviteUrl}}</span></p>
+      <p>Your student number is: <strong>{{studentNumber}}</strong></p>
+      <p>Course: {{courseName}}</p>
+      <p>If your details are not correct, use the "These details are wrong" option on the activation page and the Registrar will be notified.</p>
+      <p>If you have questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+    `,
+    "staff-invite": `
+      <h2>You have been invited to join Musawo Training Center</h2>
+      <p>Dear {{name}},</p>
+      <p>You have been invited to join the Musawo Training Center platform as {{role}}.</p>
+      <p style="margin: 24px 0;">
+        <a href="{{inviteUrl}}" style="background:#0B6B5D;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">
+          Accept invitation
+        </a>
+      </p>
+      <p>This link expires in 7 days. If you have questions, contact info@mtc.ac.ug.</p>
+    `,
+    "application-confirmation": `
+      <h2>Application received - Musawo Training Center</h2>
+      <p>Dear {{name}},</p>
+      <p>Thank you for applying to Musawo Training Center. We have received your application for:</p>
+      <p><strong>{{courseName}}</strong> ({{intakeLabel}} intake)</p>
+      <p>Our Academic Registrar will review your application. If you are accepted, you will receive a secure account activation link by email within 3 to 5 working days.</p>
+      <p>Your application reference: <strong>{{applicationRef}}</strong></p>
+      <p>If you have questions, email admissions@mtc.ac.ug or call 0709 184 468.</p>
+    `,
+    "application-received-registrar": `
+      <h2>New application received</h2>
+      <p>A new application has been submitted and is waiting for your review.</p>
+      <table style="border-collapse:collapse;width:100%;margin:16px 0;">
+        <tr><td style="padding:6px 0;color:#6B7280;">Name</td><td style="padding:6px 0;font-weight:600;">{{name}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Course</td><td style="padding:6px 0;">{{courseName}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Category</td><td style="padding:6px 0;">{{category}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Email</td><td style="padding:6px 0;">{{email}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Phone</td><td style="padding:6px 0;">{{phone}}</td></tr>
+        <tr><td style="padding:6px 0;color:#6B7280;">Submitted</td><td style="padding:6px 0;">{{submittedAt}}</td></tr>
+      </table>
+      <p><a href="{{reviewUrl}}" style="background:#0B6B5D;color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Review application</a></p>
+    `,
     "payment-receipt": `
-      <h2>Payment Received - {{courseName}}</h2>
+      <h2>Payment received - {{courseName}}</h2>
       <p>Dear {{name}},</p>
       <p>We have received your payment of <strong>{{amount}}</strong> on {{date}}.</p>
-      <p>Reference: {{paymentRef}}</p>
+      <p>Reference: <strong>{{paymentRef}}</strong></p>
       <p>You can now access your course. <a href="{{portalUrl}}">Go to your dashboard</a></p>
+      <p>We do not provide accommodation. Contact us at info@mtc.ac.ug or 0709 184 468 if you have questions.</p>
     `,
     "class-reminder": `
       <h2>Reminder: Live class in {{timeUntil}}</h2>
@@ -75,7 +131,7 @@ function renderTemplate(
       <p>Congratulations on completing <strong>{{courseName}}</strong>!</p>
       <p>Your certificate ID is: <strong>{{certId}}</strong></p>
       <p><a href="{{downloadUrl}}">Download your certificate</a></p>
-      <p><a href="{{verifyUrl}}">Verify your certificate</a></p>
+      <p><a href="{{verifyUrl}}">Verify your certificate online</a></p>
     `,
     "password-reset": `
       <h2>Reset your password</h2>
@@ -98,8 +154,8 @@ function renderTemplate(
         <tr><td style="padding:6px 0;color:#6B7280;">Amount</td><td style="padding:6px 0;">{{amount}}</td></tr>
         <tr><td style="padding:6px 0;color:#6B7280;">Reason</td><td style="padding:6px 0;">{{reason}}</td></tr>
       </table>
-      <p><a href="{{approvalUrl}}" style="background:#FF6900;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Review &amp; Decide</a></p>
-      <p style="font-size:12px;color:#9CA3AF;">This link expires in {{expiresIn}}. Login with your Director account and 2FA is required.</p>
+      <p><a href="{{approvalUrl}}" style="background:#FF6900;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Review and decide</a></p>
+      <p style="font-size:12px;color:#9CA3AF;">This link expires in {{expiresIn}}. TOTP is required.</p>
     `,
   };
 
@@ -117,15 +173,16 @@ function renderTemplate(
     </head>
     <body style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #313131;">
       <div style="margin-bottom: 24px;">
-        <img src="https://learn.musawotraining.ug/assets/logo.webp" alt="Musawo Training Center" height="48" />
+        <img src="${LOGO_URL}" alt="Musawo Training Center" height="48" />
       </div>
       ${html}
       <hr style="margin-top: 32px; border-color: #E5E7EB;" />
       <p style="font-size: 12px; color: #6B7280;">
-        Musawo Training Center - Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda<br />
-        <a href="mailto:info@musawo.ug">info@musawo.ug</a> ·
-        <a href="tel:+256785423523">+256 785 423 523</a> ·
-        <a href="https://wa.me/256785423523">WhatsApp</a>
+        Musawo Training Center - Luggala Trading Center, Lubaga Division, Kampala<br />
+        <a href="mailto:info@mtc.ac.ug">info@mtc.ac.ug</a> |
+        <a href="tel:+256709184468">0709 184 468</a> |
+        <a href="https://wa.me/256709184468">WhatsApp</a> |
+        <a href="https://mtc.ac.ug">mtc.ac.ug</a>
       </p>
     </body>
     </html>

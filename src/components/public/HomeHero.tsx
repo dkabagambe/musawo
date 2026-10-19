@@ -11,7 +11,7 @@ const SLIDES = [
   {
     id: 1,
     src: "/assets/images/hero-training.jpg",
-    alt: "Nursing care assistant in a clinical setting at Musawo Training Center",
+    alt: "Nursing care assistant in a clinical setting at Musawo Training Center skills lab",
     pos: "right 20%",
   },
   {
@@ -26,7 +26,8 @@ const HOLD_MS = 5500;
 const FADE_MS = 1200;
 
 /* ─── Shared card content ──────────────────────────────────── */
-function HeroCard() {
+function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
+  const label = intakeLabel ?? "November 2026 intake";
   return (
     <div
       className="rounded-2xl px-7 py-8 sm:px-9 sm:py-10"
@@ -42,7 +43,7 @@ function HeroCard() {
         className="font-bold uppercase tracking-widest mb-5"
         style={{ fontSize: "10px", color: "#FFB200", letterSpacing: "0.13em" }}
       >
-        ▪ Now enrolling - January 2027 intake
+        Now enrolling: {label}
       </p>
 
       {/* H1 */}
@@ -54,8 +55,8 @@ function HeroCard() {
           textShadow: "0 2px 12px rgba(0,0,0,0.3)",
         }}
       >
-        Train to become a certified{" "}
-        <span style={{ color: "#FFB200" }}>community health worker</span>
+        Train to become a{" "}
+        <span style={{ color: "#FFB200" }}>certified healthcare professional</span>
       </h1>
 
       {/* Sub-copy */}
@@ -67,14 +68,14 @@ function HeroCard() {
           lineHeight: 1.6,
         }}
       >
-        Accredited online courses in nursing care and child safety.
-        Study on your phone, pay with mobile money.
+        Hybrid and online classes with 70% hands-on practicals in our skills lab.
+        Taught by doctors, nurses and clinicians.
       </p>
 
       {/* Buttons */}
       <div className="flex flex-col xs:flex-row gap-3">
         <Link
-          href="/register"
+          href="/apply"
           className="inline-flex items-center justify-center gap-2 font-bold
                      text-white no-underline active:scale-[0.97] transition-all
                      whitespace-nowrap"
@@ -91,7 +92,7 @@ function HeroCard() {
             (e.currentTarget as HTMLElement).style.backgroundColor = "#FF9F1C";
           }}
         >
-          Enrol now <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+          Apply now <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
         </Link>
 
         <Link
@@ -129,13 +130,17 @@ function HeroCard() {
         }}
       >
         <span style={{ color: "#FFB200", fontWeight: 700 }}>87+</span>{" "}
-        health workers trained since 2018 &nbsp;·&nbsp; Ministry of Health accredited
+        health workers trained since 2018 &nbsp;·&nbsp; Digital certificate with QR verification
       </p>
     </div>
   );
 }
 
-export default function HomeHero() {
+interface HomeHeroProps {
+  intakeLabel?: string;
+}
+
+export default function HomeHero({ intakeLabel }: HomeHeroProps) {
   const [idx, setIdx] = useState(0);
   const reduced       = useReducedMotion();
   const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -154,19 +159,12 @@ export default function HomeHero() {
 
   return (
     <LazyMotion features={domAnimation}>
-      {/*
-        Full-viewport hero.
-        - Photos fill the entire section.
-        - Content is centred both axes on top of the photo.
-        - Semi-transparent backdrop behind the text card only, not a
-          full-screen overlay, so the photo breathes on both sides.
-      */}
       <section
         className="hero-section relative overflow-hidden w-full"
         aria-label="Welcome to Musawo Training Center"
       >
 
-        {/* ── Background photo slides ────────────────────────── */}
+        {/* Background photo slides */}
         <AnimatePresence initial={false}>
           <m.div
             key={slide.id}
@@ -195,7 +193,6 @@ export default function HomeHero() {
               />
             </m.div>
 
-            {/* Balanced dark vignette - stronger centre-bottom, lighter edges */}
             <div
               className="absolute inset-0"
               style={{
@@ -205,12 +202,6 @@ export default function HomeHero() {
             />
           </m.div>
         </AnimatePresence>
-
-        {/* ── Content card ───────────────────────────────────
-            Mobile (< 768px):  centred, standard padding
-            Tablet (768-1023px): centred
-            Desktop (1024px+): 20% from the left edge
-        ─────────────────────────────────────────────────── */}
 
         {/* Mobile + tablet: centred */}
         <div className="absolute inset-0 flex items-center justify-center px-5 sm:px-10 lg:hidden">
@@ -223,7 +214,7 @@ export default function HomeHero() {
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               style={{ maxWidth: "440px", width: "100%" }}
             >
-              <HeroCard />
+              <HeroCard intakeLabel={intakeLabel} />
             </m.div>
           </AnimatePresence>
         </div>
@@ -242,12 +233,12 @@ export default function HomeHero() {
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               style={{ maxWidth: "440px", width: "100%" }}
             >
-              <HeroCard />
+              <HeroCard intakeLabel={intakeLabel} />
             </m.div>
           </AnimatePresence>
         </div>
 
-        {/* ── Slide indicator dots (bottom centre) ──────────── */}
+        {/* Slide indicator dots */}
         <div
           className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2"
           role="tablist"

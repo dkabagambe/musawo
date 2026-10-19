@@ -82,10 +82,10 @@ export default async function GradebookPage() {
                           </span>
                         </td>
                         <td className="px-5 py-3.5 text-right text-gray-600">
-                          {entry.score != null && entry.maxScore != null ? `${entry.score}/${entry.maxScore}` : "—"}
+                          {entry.score != null && entry.maxScore != null ? `${entry.score}/${entry.maxScore}` : "-"}
                         </td>
                         <td className="px-5 py-3.5 text-right font-bold text-primary">
-                          {epct != null ? `${epct}%` : "—"}
+                          {epct != null ? `${epct}%` : "-"}
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           {entry.passed === true  ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-success"><CheckCircle2 className="w-3.5 h-3.5" />Pass</span> :

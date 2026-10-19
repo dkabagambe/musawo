@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { ClipboardList, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 
-export const metadata = { title: "Exams — Tutor" };
+export const metadata = { title: "Exams - Tutor" };
 
 export default async function TutorExamsPage() {
   const session = await auth();
@@ -86,7 +86,7 @@ export default async function TutorExamsPage() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-primary">{att.user.name}</p>
                             <p className="text-xs text-gray-400">
-                              {att.user.studentNumber ?? ""} · Submitted {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "—"}
+                              {att.user.studentNumber ?? ""} · Submitted {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "-"}
                             </p>
                           </div>
                           <span className="text-xs font-semibold text-amber-700 bg-warning/10 px-2.5 py-1 rounded-full flex-shrink-0">

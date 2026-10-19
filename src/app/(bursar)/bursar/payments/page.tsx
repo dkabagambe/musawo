@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -9,7 +10,7 @@ interface Props { searchParams: { status?: string; page?: string } }
 
 export default async function BursarPaymentsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN","BURSAR"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const take = 25;

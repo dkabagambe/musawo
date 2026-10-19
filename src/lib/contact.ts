@@ -9,37 +9,48 @@ import { getSetting } from "@/lib/settings";
 export interface ContactInfo {
   email: string;
   phone: string;
-  whatsappNumber: string; // digits only, e.g. "256785423523"
+  phone2: string;
+  admissionsEmail: string;
+  whatsappNumber: string; // digits only, e.g. "256709184468"
   whatsappUrl: string;
   address: string;
   instagramUrl: string;
   tiktokUrl: string;
   tagline: string;
+  websiteUrl: string;
 }
 
 export async function getContactInfo(): Promise<ContactInfo> {
-  const [email, phone, whatsappNumber, address, instagramUrl, tiktokUrl, tagline] =
-    await Promise.all([
-      getSetting("site.supportEmail", "info@musawo.ug"),
-      getSetting("site.supportPhone", "+256 785 423 523"),
-      getSetting("site.whatsappNumber", "256785423523"),
-      getSetting("site.address", "Plot 5, ADFA Building, Zone 8 Lungujja, Kampala, Uganda"),
-      getSetting("site.instagramUrl", "https://www.instagram.com/musawotm"),
-      getSetting("site.tiktokUrl", "https://www.tiktok.com/@musawoadfa"),
-      getSetting(
-        "site.tagline",
-        "Bringing quality healthcare to Ugandan homes and communities since 2018 through testing, treatment, training and trust."
-      ),
-    ]);
+  const [
+    email, admissionsEmail, phone, phone2, whatsappNumber,
+    address, instagramUrl, tiktokUrl, tagline, websiteUrl,
+  ] = await Promise.all([
+    getSetting("site.supportEmail",    "info@mtc.ac.ug"),
+    getSetting("site.admissionsEmail", "admissions@mtc.ac.ug"),
+    getSetting("site.supportPhone",    "0709 184 468"),
+    getSetting("site.supportPhone2",   "0790 192 270"),
+    getSetting("site.whatsappNumber",  "256709184468"),
+    getSetting(
+      "site.address",
+      "Luggala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)"
+    ),
+    getSetting("site.instagramUrl", "https://www.instagram.com/musawotm"),
+    getSetting("site.tiktokUrl",    "https://www.tiktok.com/@musawoadfa"),
+    getSetting("site.tagline",      "Learn. Serve. Transform."),
+    getSetting("site.websiteUrl",   "www.musawo.ug"),
+  ]);
 
   return {
     email,
+    admissionsEmail,
     phone,
+    phone2,
     whatsappNumber,
     whatsappUrl: `https://wa.me/${whatsappNumber}`,
     address,
     instagramUrl,
     tiktokUrl,
     tagline,
+    websiteUrl,
   };
 }

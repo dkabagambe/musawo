@@ -106,7 +106,7 @@ export default async function ResultsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-primary">{att.exam.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Attempt {att.number} · {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "—"}
+                      Attempt {att.number} · {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "-"}
                       {att.score != null && att.maxScore ? ` · ${att.score}/${att.maxScore} marks` : ""}
                     </p>
                   </div>

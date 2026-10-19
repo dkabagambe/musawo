@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { can } from "@/lib/rbac";
 import { LayoutDashboard, BookOpen, Video, ClipboardList, Users } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -13,12 +14,12 @@ const NAV: NavItem[] = [
 
 export default async function TutorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role)) {
+  if (!session?.user || !can(session.user.role, "content.upload")) {
     redirect("/dashboard");
   }
-  const name = session.user.name ?? "Tutor";
+  const name = session.user.name ?? "Instructor";
   return (
-    <AppShell nav={NAV} role="Tutor Portal" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Instructor Portal" userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

@@ -33,7 +33,7 @@ const TUTOR_COMMITMENT = [
   "Respond to forum posts within one working day.",
   "Provide constructive written feedback on all submissions.",
   "Notify students in advance if a live class must be rescheduled.",
-  "Support practical days at the Lungujja clinic with on-site supervision.",
+  "Support practical days at the skills lab with on-site supervision.",
 ];
 
 export default async function TrainersPage() {
@@ -109,7 +109,7 @@ export default async function TrainersPage() {
               <div className="bg-primary text-white rounded-2xl p-6 sm:p-8">
                 <h3 className="font-bold text-white mb-3">Part of the ADFA clinical team</h3>
                 <p className="text-white/80 text-sm leading-relaxed mb-4">
-                  Our tutors are part of the broader Allied Doctors and Friends of Uganda (ADFA) clinical network. They participate in outreach events, community health drives, and the Lungujja clinic, giving them continuous exposure to the healthcare challenges your future patients face.
+                  Our tutors are part of the broader Allied Doctors and Friends of Uganda (ADFA) clinical network. They participate in outreach events, community health drives, and the skills lab, giving them continuous exposure to the healthcare challenges your future patients face.
                 </p>
                 <a
                   href="https://musawo.ug"

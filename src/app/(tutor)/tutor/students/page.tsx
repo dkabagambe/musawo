@@ -74,10 +74,10 @@ export default async function TutorStudentsPage() {
                           </div>
                         </td>
                         <td className="px-5 py-3.5 hidden sm:table-cell">
-                          <span className="font-mono text-xs text-gray-500">{enr.user.studentNumber ?? "—"}</span>
+                          <span className="font-mono text-xs text-gray-500">{enr.user.studentNumber ?? "-"}</span>
                         </td>
                         <td className="px-5 py-3.5 hidden md:table-cell text-xs text-gray-400">
-                          {enr.user.email ?? enr.user.phone ?? "—"}
+                          {enr.user.email ?? enr.user.phone ?? "-"}
                         </td>
                         <td className="px-5 py-3.5">
                           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${enr.status === "COMPLETED" ? "bg-success/10 text-success" : "bg-primary/10 text-primary"}`}>

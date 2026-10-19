@@ -3,9 +3,11 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
 import { getContactInfo } from "@/lib/contact";
+import { existsSync } from "fs";
+import { join } from "path";
 import {
-  CheckCircle, BookOpen, Video, Award, Smartphone, Banknote,
-  Users, ArrowRight, ShieldCheck, GraduationCap,
+  CheckCircle, BookOpen, Video, Award, Banknote,
+  Users, ArrowRight, GraduationCap, Briefcase,
 } from "lucide-react";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
@@ -14,6 +16,14 @@ import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
 import HomeHero from "@/components/public/HomeHero";
 import HomeFaq from "./HomeFaq";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Musawo Training Center | Healthcare Training in Uganda",
+  description:
+    "Hybrid and online healthcare training with 70% hands-on practicals. Courses in nursing care, childcare, mental health, life support and more. November 2026 intake now open.",
+  keywords: "healthcare training Uganda, nursing care certificate, caregiver course Kampala, Musawo Training Center",
+};
 
 /* ─── Data ────────────────────────────────────────────────────── */
 
@@ -23,109 +33,85 @@ async function getPublicCourses() {
     select: {
       id: true, title: true, slug: true,
       shortDescription: true, thumbnailUrl: true,
-      fullFeeUgx: true, durationWeeks: true, instalmentCount: true,
+      fullFeeUgx: true, feeContactOnly: true,
+      durationMonths: true, instalmentCount: true,
+      category: true,
     },
     orderBy: { createdAt: "asc" },
-    take: 3,
+    take: 6,
   });
 }
 
 /* ─── Constants ───────────────────────────────────────────────── */
 
 const FACTS = [
-  { icon: ShieldCheck, label: "Ministry of Health accredited" },
-  { icon: Smartphone,  label: "100% online - study on your phone" },
-  { icon: Banknote,    label: "Pay with MTN or Airtel Money" },
-  { icon: Users,       label: "Scholarships available every intake" },
+  { icon: Video,    label: "Hybrid and online classes with 70% practicals" },
+  { icon: Banknote, label: "Pay with MTN, Airtel or bank transfer" },
+  { icon: Users,    label: "Taught by doctors, nurses and clinicians" },
+  { icon: Briefcase, label: "Job placement support included" },
 ];
 
 const HOW_STEPS = [
   { n: "01", icon: BookOpen, title: "Choose your course",
-    body: "Browse our three accredited programmes - Certified Nursing Care Assistant, Basic Nursing Care, or Child Care and Safety. Pick the one that fits your goals and schedule." },
-  { n: "02", icon: Banknote, title: "Pay with mobile money",
-    body: "MTN MoMo or Airtel Money - pay the full fee or spread it across instalments as you progress through the course." },
-  { n: "03", icon: Video,    title: "Learn and attend live classes",
-    body: "Study pre-recorded lessons on any device at your own pace, then join live video sessions with your tutor twice a week." },
-  { n: "04", icon: Award,    title: "Pass your exam and certify",
-    body: "Complete your assessments and download your nationally recognised digital certificate, accredited by Uganda's Ministry of Health." },
+    body: "Browse our seven healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support. Pick the one that fits your goals and background." },
+  { n: "02", icon: Banknote, title: "Apply and pay",
+    body: "Submit your application. The Registrar creates your account and sends you a secure login link. Pay with MTN MoMo, Airtel Money or bank transfer, in full or in instalments." },
+  { n: "03", icon: Video,    title: "Learn and attend practicals",
+    body: "Study online lessons on any device, then attend hands-on sessions in our skills lab. Hybrid delivery means 70% of your learning is practical." },
+  { n: "04", icon: Award,    title: "Pass and certify",
+    body: "Complete assessments and log book. Receive your digital certificate with QR verification, shareable with any employer." },
 ];
 
 const STATS = [
   { value: "1,000+", label: "Households served" },
   { value: "87+",    label: "Health workers trained" },
   { value: "52+",    label: "Outreach events" },
-  { value: "8",      label: "Years of service" },
-];
-
-const PLACEHOLDER_COURSES = [
-  {
-    title: "Certified Nursing Care Assistant (CNA)",
-    desc: "Our flagship certification equips learners with practical skills to work as qualified nursing care assistants in homes, hospitals, clinics, and community care settings across Uganda.",
-    slug: "cna", weeks: 12 as number | null, fee: 850000,
-    img: "/assets/images/cna-course.png", instalments: 3,
-  },
-  {
-    title: "Basic Nursing Care Assistant",
-    desc: "An accessible, practical entry point into healthcare work for learners who want to begin serving patients quickly with a strong, recognised foundation in patient care.",
-    slug: "basic-nursing-care", weeks: 8 as number | null, fee: 600000,
-    img: "/assets/images/basic-nursing.png", instalments: 2,
-  },
-  {
-    title: "Babysitting, Child Care and Safety Management",
-    desc: "For anyone stepping into a childcare role. Child development, daily care routines, first aid, and safety management in home and community care environments.",
-    slug: "child-care-safety", weeks: 6 as number | null, fee: 480000,
-    img: "/assets/images/first-aid-child-safety.jpg", instalments: 1,
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    quote: "Musawo Training Center gave me the skills and confidence to work as a nursing care assistant. The online format meant I could study around my family.",
-    name: "Grace Namutebi", role: "Graduate, Certified Nursing Care Assistant",
-    img: "/assets/images/graduates-field.webp", initial: "G",
-  },
-  {
-    quote: "I was worried about studying online, but the tutors were so supportive. I passed my exam on the first attempt and now work at a clinic in Kawempe.",
-    name: "Samuel Okello", role: "Graduate, Basic Nursing Care Assistant",
-    img: "/assets/images/mobile-care.webp", initial: "S",
-  },
-  {
-    quote: "The scholarship programme made it possible for me to train without the full fee upfront. I am now employed and can support my family.",
-    name: "Amara Birungi", role: "Graduate, Child Care & Safety",
-    img: "/assets/images/graduates-field.webp", initial: "A",
-  },
+  { value: "7",      label: "Programmes offered" },
 ];
 
 const PLACEMENT_POINTS = [
-  "Nationally recognised digital certificate with QR verification",
-  "Job placement support through the Musawo employer network",
+  "Digital certificate with QR verification",
+  "Job placement support in Uganda",
+  "Job opportunities abroad through licensed recruitment agencies with pre-departure preparation",
   "Access to the free resource library after graduation",
   "Alumni community of health workers across Uganda",
 ];
 
+const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
+  PROFESSIONAL: { label: "Professionals only", cls: "bg-primary/10 text-primary" },
+  OPEN:         { label: "Open to all",        cls: "bg-success/10 text-success" },
+};
+
+const COURSE_IMAGES: Record<string, string> = {
+  "medical-home-caregiver":       "/assets/images/cna-course.png",
+  "basic-home-caregiver":         "/assets/images/basic-nursing.png",
+  "babysitting-childcare-safety": "/assets/images/first-aid-child-safety.jpg",
+  "mental-health-support-advocacy":             "/assets/community-outreach.webp",
+  "care-older-persons-disability":              "/assets/clinical-training.webp",
+  "basic-life-support-first-aid":               "/assets/training-session.webp",
+  "advanced-life-support":                      "/assets/healthcare-services.webp",
+};
+
 /* ─── Page ────────────────────────────────────────────────────── */
 
 export default async function HomePage() {
-  const [courses, contact] = await Promise.all([
+  const [courses, contact, intakeEyebrow] = await Promise.all([
     getPublicCourses(),
     getContactInfo(),
-    getSetting("site.name", "Musawo Training Center"),
+    getSetting("site.intakeEyebrow", "Now enrolling: November 2026 intake"),
   ]);
 
-  const displayCourses = courses.length > 0
-    ? courses.map((c) => ({
-        title: c.title, desc: c.shortDescription ?? "", slug: c.slug,
-        weeks: c.durationWeeks ?? null, fee: c.fullFeeUgx,
-        img: c.thumbnailUrl ?? "/assets/images/course-cna.webp",
-        instalments: c.instalmentCount,
-      }))
-    : PLACEHOLDER_COURSES;
+  // Extract intake label from eyebrow (e.g. "Now enrolling: November 2026 intake" -> "November 2026 intake")
+  const intakeLabel = intakeEyebrow.replace(/^Now enrolling:\s*/i, "").trim() || "November 2026 intake";
+
+  // Check if the flyer file has been uploaded to the public folder
+  const flyerExists = existsSync(join(process.cwd(), "public", "assets", "flyer-nov-2026.png"));
 
   return (
     <div>
 
-      {/* Hero slideshow + content block */}
-      <HomeHero />
+      {/* Hero slideshow */}
+      <HomeHero intakeLabel={intakeLabel} />
 
       {/* ── Facts strip ─────────────────────────────────────── */}
       <div className="bg-[#F1F7F5]">
@@ -151,9 +137,61 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════
-          WHAT WE OFFER - 3 course cards
-      ══════════════════════════════════════════════════════════ */}
+      {/* Call for applications flyer section */}
+      <section
+        className="py-10 sm:py-14 px-4 sm:px-6 bg-accent/5 border-y border-accent/20"
+        aria-label="Call for applications"
+      >
+        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center gap-8">
+          <div className="flex-1 min-w-0">
+            <p className="section-eyebrow text-accent mb-2">Now accepting applications</p>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-primary mb-3">
+              {intakeEyebrow}
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-5 max-w-lg">
+              Seven healthcare programmes are open for the November 2026 intake. Hybrid delivery with hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/apply"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl no-underline transition-all"
+              >
+                Apply now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+              </Link>
+              {flyerExists && (
+                <a
+                  href="/assets/flyer-nov-2026.png"
+                  download="MTC-November-2026-Flyer.jpeg"
+                  className="inline-flex items-center gap-2 bg-white border border-border text-primary font-semibold text-sm px-5 py-2.5 rounded-xl no-underline hover:border-accent/40 transition-all"
+                >
+                  Download flyer
+                </a>
+              )}
+            </div>
+          </div>
+          {/* Flyer thumbnail - shown only when file has been uploaded */}
+          {flyerExists && (
+            <div className="flex-shrink-0 w-40 sm:w-48">
+              <a
+                href="/assets/flyer-nov-2026.png"
+                download="MTC-November-2026-Flyer.jpeg"
+                aria-label="Download November 2026 intake flyer"
+                className="block rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-card-hover transition-shadow"
+              >
+                <Image
+                  src="/assets/flyer-nov-2026.png"
+                  alt="Musawo Training Center November 2026 intake flyer"
+                  width={192}
+                  height={272}
+                  className="w-full object-cover"
+                />
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Courses ─────────────────────────────────────────── */}
       <section
         className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface"
         id="courses"
@@ -163,58 +201,77 @@ export default async function HomePage() {
           <AnimateIn className="mb-12">
             <p className="section-eyebrow">What we offer</p>
             <h2 className="mt-3 mb-4" style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)" }}>
-              Accredited healthcare courses
+              Healthcare training courses
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
-              Fully accredited by Uganda&apos;s Ministry of Health &amp; Ministry of Education and Sports.
+              Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Seven programmes across nursing, childcare, mental health and life support.
             </p>
           </AnimateIn>
 
           <StaggerGrid className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayCourses.map((c) => (
-              <article
-                key={c.slug}
-                className="bg-white rounded-2xl overflow-hidden shadow-card border border-border
-                           flex flex-col group hover:shadow-card-hover hover:-translate-y-1
-                           transition-all duration-200"
-              >
-                <div className="relative h-52 overflow-hidden flex-shrink-0">
-                  <Image
-                    src={c.img} alt={c.title} fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(min-width:1024px) 33vw,(min-width:640px) 50vw,100vw"
-                  />
-                  {c.weeks && (
-                    <span className="absolute top-3 right-3 bg-white/95 text-primary
-                                     text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                      {c.weeks} weeks
-                    </span>
-                  )}
-                </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-base font-bold text-primary mb-2 leading-snug">{c.title}</h3>
-                  <p className="text-sm text-gray-500 flex-1 leading-relaxed line-clamp-2 mb-6">{c.desc}</p>
-                  <div className="pt-6 border-t border-border flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-accent font-extrabold text-lg leading-none">
-                        UGX {c.fee.toLocaleString()}
-                      </p>
-                      {(c.instalments ?? 1) > 1 && (
-                        <p className="text-xs text-gray-400 mt-1">or {c.instalments} instalments</p>
-                      )}
-                    </div>
-                    <Link
-                      href={`/courses/${c.slug}`}
-                      className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-600
-                                 text-white text-xs font-bold px-4 py-2.5 rounded-xl
-                                 no-underline transition-colors flex-shrink-0"
-                    >
-                      View course <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </Link>
+            {courses.map((c) => {
+              const badge = CATEGORY_BADGE[c.category] ?? CATEGORY_BADGE.OPEN;
+              const img   = c.thumbnailUrl ?? COURSE_IMAGES[c.slug] ?? "/assets/training-session.webp";
+              const duration = c.durationMonths
+                ? `${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""}`
+                : null;
+
+              return (
+                <article
+                  key={c.slug}
+                  className="bg-white rounded-2xl overflow-hidden shadow-card border border-border
+                             flex flex-col group hover:shadow-card-hover hover:-translate-y-1
+                             transition-all duration-200"
+                >
+                  <div className="relative h-52 overflow-hidden flex-shrink-0">
+                    <Image
+                      src={img} alt={c.title} fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(min-width:1024px) 33vw,(min-width:640px) 50vw,100vw"
+                    />
+                    {duration && (
+                      <span className="absolute top-3 right-3 bg-white/95 text-primary
+                                       text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                        {duration}
+                      </span>
+                    )}
                   </div>
-                </div>
-              </article>
-            ))}
+                  <div className="p-8 flex flex-col flex-1">
+                    <span className={`self-start text-xs font-semibold px-2.5 py-0.5 rounded-full mb-3 ${badge.cls}`}>
+                      {badge.label}
+                    </span>
+                    <h3 className="text-base font-bold text-primary mb-2 leading-snug">{c.title}</h3>
+                    <p className="text-sm text-gray-500 flex-1 leading-relaxed line-clamp-2 mb-6">
+                      {c.shortDescription ?? ""}
+                    </p>
+                    <div className="pt-6 border-t border-border flex items-center justify-between gap-4">
+                      <div>
+                        {c.feeContactOnly || !c.fullFeeUgx ? (
+                          <p className="text-sm font-semibold text-gray-500">Fee: contact admissions</p>
+                        ) : (
+                          <>
+                            <p className="text-accent font-extrabold text-lg leading-none">
+                              UGX {c.fullFeeUgx.toLocaleString()}
+                            </p>
+                            {(c.instalmentCount ?? 1) > 1 && (
+                              <p className="text-xs text-gray-400 mt-1">or {c.instalmentCount} instalments</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <Link
+                        href={`/courses/${c.slug}`}
+                        className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-600
+                                   text-white text-xs font-bold px-4 py-2.5 rounded-xl
+                                   no-underline transition-colors flex-shrink-0"
+                      >
+                        View course <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </StaggerGrid>
 
           <AnimateIn className="mt-10">
@@ -229,9 +286,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          HOW IT WORKS - 4 steps
-      ══════════════════════════════════════════════════════════ */}
+      {/* ── How it works ─────────────────────────────────────── */}
       <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6" id="how" aria-label="How it works">
         <div className="max-w-[1200px] mx-auto">
           <AnimateIn className="mb-12">
@@ -261,33 +316,30 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          WHY MUSAWO - large photo + 3 points
-      ══════════════════════════════════════════════════════════ */}
+      {/* ── Why Musawo ───────────────────────────────────────── */}
       <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface" aria-label="Why Musawo">
         <div className="max-w-[1200px] mx-auto lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           <AnimateIn className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-12 lg:mb-0 shadow-xl">
             <Image
               src="/assets/images/musawo-session.webp"
-              alt="Musawo Training Center practical training session"
+              alt="Hands-on training in the Musawo Training Center skills lab"
               fill
               className="object-cover"
               style={{ objectPosition: "center 30%" }}
             />
-            {/* caption card */}
             <div className="absolute bottom-0 left-0 right-0 p-5">
               <div className="bg-white/96 rounded-xl p-4 shadow">
-                <p className="text-primary font-bold text-sm">Employment support included</p>
+                <p className="text-primary font-bold text-sm">Job placement support included</p>
                 <p className="text-gray-500 text-xs mt-0.5 leading-snug">
-                  Musawo connects graduates with healthcare employers across Uganda
+                  Musawo connects graduates with healthcare employers in Uganda and abroad
                 </p>
               </div>
             </div>
           </AnimateIn>
           <AnimateIn delay={0.1}>
-            <p className="section-eyebrow">Your career after graduation</p>
+            <p className="section-eyebrow">After you graduate</p>
             <h2 className="mt-3 mb-6" style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)" }}>
-              Your career starts the moment you certify
+              Learn. Serve. Transform.
             </h2>
             <ul className="space-y-5 list-none mb-10">
               {PLACEMENT_POINTS.map((item) => (
@@ -298,20 +350,18 @@ export default async function HomePage() {
               ))}
             </ul>
             <Link
-              href="/register"
+              href="/apply"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600
                          active:scale-[0.97] text-white font-bold px-7 py-3.5 rounded-xl
                          no-underline transition-all shadow-cta"
             >
-              Start your journey <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              Apply now <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
           </AnimateIn>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          NUMBERS ROW
-      ══════════════════════════════════════════════════════════ */}
+      {/* ── Impact numbers ───────────────────────────────────── */}
       <section className="bg-primary py-14 sm:py-20 px-4 sm:px-6" aria-label="Impact numbers">
         <div className="max-w-[1200px] mx-auto">
           <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
@@ -325,61 +375,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          SCHOLARSHIPS CTA BAND
-      ══════════════════════════════════════════════════════════ */}
-      <section
-        className="relative py-14 sm:py-20 lg:py-24 px-4 sm:px-6 overflow-hidden"
-        aria-label="Scholarships"
-      >
-        <div className="absolute inset-0">
-          <Image
-            src="/assets/community-outreach.webp"
-            alt="" fill
-            className="object-cover"
-            style={{ objectPosition: "center 40%" }}
-            aria-hidden="true"
-          />
-          {/* Solid teal overlay - intentional for this full-bleed CTA band */}
-          <div className="absolute inset-0 bg-primary/85" aria-hidden="true" />
-        </div>
-        <AnimateIn className="relative max-w-[680px] mx-auto text-center text-white">
-          <p className="section-eyebrow text-accent mb-3">Access &amp; funding</p>
-          <h2
-            className="font-extrabold text-white mb-5"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)" }}
-          >
-            Scholarships &amp; financial access
-          </h2>
-          <p className="text-white/80 mb-10 leading-[1.65] text-lg max-w-lg mx-auto">
-            Cost should never be a barrier. We reserve subsidised and full scholarship places every intake.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/scholarships"
-              className="inline-flex items-center justify-center gap-2 bg-accent
-                         hover:bg-accent-600 active:scale-[0.97] text-white font-bold
-                         text-base px-8 py-4 rounded-xl no-underline transition-all shadow-cta"
-            >
-              Learn about scholarships <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-            <a
-              href={contact.whatsappUrl}
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-white/10
-                         hover:bg-white/20 border border-white/30 text-white font-semibold
-                         text-base px-8 py-4 rounded-xl no-underline transition-all"
-            >
-              💬 Ask on WhatsApp
-            </a>
-          </div>
-        </AnimateIn>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          TESTIMONIALS
-      ══════════════════════════════════════════════════════════ */}
-      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6" aria-label="Student testimonials">
+      {/* ── Graduates and testimonials ───────────────────────── */}
+      <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6" aria-label="Our graduates">
         <div className="max-w-[1200px] mx-auto">
           <AnimateIn className="mb-12">
             <p className="section-eyebrow">Our graduates</p>
@@ -388,24 +385,37 @@ export default async function HomePage() {
             </h2>
           </AnimateIn>
           <StaggerGrid className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t) => (
+            {[
+              {
+                quote: "Musawo Training Center gave me the skills and confidence to work as a caregiver. The hybrid format meant I could study and still attend the skills lab.",
+                name: "Grace Namutebi", role: "Graduate, Basic Home Caregiver Course",
+                img: "/assets/images/graduates-field.webp", initial: "G",
+              },
+              {
+                quote: "I was a community teacher and had no medical background. The Mental Health Support course gave me practical tools I use every day with my students.",
+                name: "Samuel Okello", role: "Graduate, Mental Health Support and Advocacy Certificate",
+                img: "/assets/images/mobile-care.webp", initial: "S",
+              },
+              {
+                quote: "The skills lab practicals made all the difference. I now work as a certified caregiver and am looking at opportunities abroad through the recruitment agency the centre connected me with.",
+                name: "Amara Birungi", role: "Graduate, Medical Home Caregiver Course",
+                img: "/assets/images/graduates-field.webp", initial: "A",
+              },
+            ].map((t) => (
               <blockquote
                 key={t.name}
                 className="bg-white rounded-2xl border border-border p-8 flex flex-col
                            hover:shadow-card-hover transition-shadow duration-200"
               >
-                <div
-                  className="text-5xl text-accent/20 font-serif leading-none select-none mb-4"
-                  aria-hidden="true"
-                >
+                <div className="text-5xl text-accent/20 font-serif leading-none select-none mb-4" aria-hidden="true">
                   &ldquo;
                 </div>
                 <p className="text-gray-600 text-base italic leading-[1.65] flex-1 mb-8">
                   {t.quote}
                 </p>
                 <footer className="flex items-center gap-4">
-                  <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
-                    <Image src={t.img} alt="" fill className="object-cover" sizes="44px" />
+                  <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">{t.initial}</span>
                   </div>
                   <div>
                     <p className="font-bold text-primary text-sm">{t.name}</p>
@@ -418,9 +428,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          FAQ PREVIEW
-      ══════════════════════════════════════════════════════════ */}
+      {/* ── FAQ ──────────────────────────────────────────────── */}
       <section className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface" id="faq" aria-label="Frequently asked questions">
         <div className="max-w-[760px] mx-auto">
           <AnimateIn className="mb-12">
@@ -443,8 +451,10 @@ export default async function HomePage() {
       </section>
 
       <CTABand
-        heading="Ready to become a health worker?"
-        subheading="Join the January 2027 intake. Enrol in minutes, study on your phone, certify in weeks."
+        heading="Ready to become a healthcare professional?"
+        subheading={`Apply for the ${intakeLabel}. Hybrid classes with hands-on practicals in our skills lab.`}
+        primaryLabel="Apply now"
+        primaryHref="/apply"
         whatsappUrl={contact.whatsappUrl}
       />
       <ContactBand whatsappUrl={contact.whatsappUrl} />

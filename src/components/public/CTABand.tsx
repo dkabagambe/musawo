@@ -18,8 +18,8 @@ export default function CTABand({
   heading = "Ready to start learning?",
   subheading = "Join the next intake. Enrol in minutes, study on your phone, certify in weeks.",
   primaryLabel = "Enrol now",
-  primaryHref = "/register",
-  whatsappUrl = "https://wa.me/256785423523",
+  primaryHref = "/apply",
+  whatsappUrl = "https://wa.me/256709184468",
   variant = "primary",
 }: CTABandProps) {
   const bg = variant === "primary" ? "bg-primary" : "bg-accent";

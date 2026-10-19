@@ -104,7 +104,7 @@ export default async function BankPaymentPage() {
           <BankPaymentForm
             courseId={course.id}
             courseName={course.title}
-            fullFeeUgx={course.fullFeeUgx}
+            fullFeeUgx={course.fullFeeUgx ?? 0}
             instalmentCount={course.instalmentCount}
           />
         </div>

@@ -12,48 +12,46 @@ import { getContactInfo } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Courses",
-  description: "Browse accredited healthcare training courses from Musawo Training Center, Uganda.",
+  description:
+    "Browse healthcare training courses from Musawo Training Center, Uganda. Hybrid and online classes with 70% hands-on practicals in our skills lab. November 2026 intake.",
 };
 
 const FALLBACK: Record<string, string> = {
-  "cna":                "/assets/images/cna-course.png",
-  "basic-nursing-care": "/assets/images/basic-nursing.png",
-  "child-care-safety":  "/assets/images/first-aid-child-safety.jpg",
+  "medical-home-caregiver":         "/assets/images/cna-course.png",
+  "basic-home-caregiver":           "/assets/images/basic-nursing.png",
+  "babysitting-childcare-safety":   "/assets/images/first-aid-child-safety.jpg",
+  "mental-health-support-advocacy": "/assets/community-outreach.webp",
+  "care-older-persons-disability":  "/assets/clinical-training.webp",
+  "basic-life-support-first-aid":   "/assets/training-session.webp",
+  "advanced-life-support":          "/assets/healthcare-services.webp",
 };
 
-const PLACEHOLDER_COURSES: CourseItem[] = [
-  {
-    id: "p1", title: "Certified Nursing Care Assistant (CNA)", slug: "cna",
-    shortDescription: "Our flagship certification for nursing care assistants across Uganda.",
-    thumbnailUrl: null, fullFeeUgx: 850000, durationWeeks: 12,
-    instalmentCount: 3, tutorName: "MTC Faculty", lessonCount: 48,
-    enrolmentCount: 0, img: "/assets/images/cna-course.png", category: "Nursing",
-  },
-  {
-    id: "p2", title: "Basic Nursing Care Assistant", slug: "basic-nursing-care",
-    shortDescription: "An accessible entry point with a strong foundation in patient care.",
-    thumbnailUrl: null, fullFeeUgx: 600000, durationWeeks: 8,
-    instalmentCount: 2, tutorName: "MTC Faculty", lessonCount: 32,
-    enrolmentCount: 0, img: "/assets/images/basic-nursing.png", category: "Nursing",
-  },
-  {
-    id: "p3", title: "Babysitting, Child Care and Safety Management", slug: "child-care-safety",
-    shortDescription: "Child care, first aid, and emergency response for child safety workers.",
-    thumbnailUrl: null, fullFeeUgx: 480000, durationWeeks: 6,
-    instalmentCount: 1, tutorName: "MTC Faculty", lessonCount: 24,
-    enrolmentCount: 0, img: "/assets/images/first-aid-child-safety.jpg", category: "Child Safety",
-  },
+const COMPARE_ROWS = [
+  { feature: "Duration",    values: ["3 months", "3 months", "2 months", "3 months", "3 months", "1 month", "1 month"] },
+  { feature: "Category",   values: ["Professional", "Open to all", "Open to all", "Open to all", "Open to all", "Open to all", "Professional"] },
+  { feature: "Instalments", values: ["3", "3", "2", "3", "3", "1", "1"] },
+  { feature: "Certificate", values: ["Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"] },
+  { feature: "Skills lab practicals", values: ["70%", "70%", "70%", "70%", "70%", "70%", "70%"] },
 ];
 
-const COMPARE = [
-  { feature: "Duration",         cna: "12 weeks", basic: "8 weeks",  child: "6 weeks" },
-  { feature: "Fee (UGX)",        cna: "850,000",  basic: "600,000",  child: "480,000" },
-  { feature: "Instalments",      cna: "3",        basic: "2",        child: "1" },
-  { feature: "MoH Accredited",   cna: "Yes",      basic: "Yes",      child: "Yes" },
-  { feature: "MoES Accredited",  cna: "Yes",      basic: "Yes",      child: "Yes" },
-  { feature: "Live classes",     cna: "2/week",   basic: "2/week",   child: "1/week" },
-  { feature: "Practical days",   cna: "4 days",   basic: "3 days",   child: "2 days" },
-  { feature: "Certificate",      cna: "CNA",      basic: "BNCA",     child: "CCS" },
+const COMPARE_COURSES = [
+  "Medical Home Caregiver",
+  "Basic Home Caregiver",
+  "Babysitting and Childcare",
+  "Mental Health Support",
+  "Care of Older Persons",
+  "Basic Life Support",
+  "Advanced Life Support",
+];
+
+const COMPARE_SLUGS = [
+  "medical-home-caregiver",
+  "basic-home-caregiver",
+  "babysitting-childcare-safety",
+  "mental-health-support-advocacy",
+  "care-older-persons-disability",
+  "basic-life-support-first-aid",
+  "advanced-life-support",
 ];
 
 export default async function CoursesPage() {
@@ -70,48 +68,58 @@ export default async function CoursesPage() {
     getContactInfo(),
   ]);
 
-  const courses: CourseItem[] = dbCourses.length > 0
-    ? dbCourses.map((c) => ({
-        id: c.id,
-        title: c.title,
-        slug: c.slug,
-        shortDescription: c.shortDescription,
-        thumbnailUrl: c.thumbnailUrl,
-        fullFeeUgx: c.fullFeeUgx,
-        durationWeeks: c.durationWeeks,
-        instalmentCount: c.instalmentCount,
-        tutorName: c.tutor.name,
-        lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
-        enrolmentCount: c._count.enrolments,
-        img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/images/hero-courses.webp",
-        category: c.slug === 'child-care-safety' ? 'Child Safety' : 'Nursing',
-      }))
-    : PLACEHOLDER_COURSES;
+  const courses: CourseItem[] = dbCourses.map((c) => ({
+    id: c.id,
+    title: c.title,
+    slug: c.slug,
+    shortDescription: c.shortDescription,
+    thumbnailUrl: c.thumbnailUrl,
+    fullFeeUgx: c.fullFeeUgx,
+    feeContactOnly: c.feeContactOnly,
+    durationMonths: c.durationMonths,
+    durationWeeks: c.durationWeeks,
+    instalmentCount: c.instalmentCount,
+    tutorName: c.tutor.name,
+    lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
+    enrolmentCount: c._count.enrolments,
+    img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/training-session.webp",
+    category: c.category,
+  }));
 
   return (
     <div className="bg-surface">
       <PageHero
         image="/assets/images/hero-courses.webp"
-        imageAlt="Healthcare students in a Musawo Training Center classroom"
-        title="Our Accredited Courses"
-        description="Nationally recognised healthcare training designed for Ugandan health workers. Learn on any device, pay with mobile money."
+        imageAlt="Healthcare students in a Musawo Training Center skills lab session"
+        title="Our Courses"
+        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Seven programmes across nursing, childcare, mental health and life support."
         breadcrumbs={[{ label: "Courses" }]}
-        cta={{ label: "Enrol now", href: "/register" }}
+        cta={{ label: "Apply now", href: "/apply" }}
         boxSide="left"
         objectPosition="center right"
       />
 
-      {/* Accreditation badge strip */}
+      {/* Key facts strip */}
       <div className="bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center gap-6 justify-center">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
-            Ministry of Health Uganda - Accredited
+            Hybrid and online classes
           </div>
           <div className="hidden sm:block w-px h-5 bg-border" aria-hidden="true" />
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
-            Ministry of Education &amp; Sports - Registered
+            70% hands-on practicals in our skills lab
+          </div>
+          <div className="hidden sm:block w-px h-5 bg-border" aria-hidden="true" />
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
+            Pay with MTN, Airtel or bank
+          </div>
+          <div className="hidden sm:block w-px h-5 bg-border" aria-hidden="true" />
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <CheckCircle className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
+            Digital certificate with QR verification
           </div>
         </div>
       </div>
@@ -121,45 +129,40 @@ export default async function CoursesPage() {
       </section>
 
       {/* Comparison table */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16" aria-label="Course comparison">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 overflow-x-auto" aria-label="Course comparison">
         <AnimateIn>
-          <h2 className="text-2xl font-bold text-primary mb-6">Compare courses</h2>
-          <div className="table-container">
-            <table className="table">
+          <h2 className="text-2xl font-bold text-primary mb-6">Compare courses at a glance</h2>
+          <div className="table-container min-w-[640px]">
+            <table className="table text-xs">
               <thead>
                 <tr>
-                  <th className="text-left">Feature</th>
-                  <th>Certified Nursing Care Assistant</th>
-                  <th>Basic Nursing Care</th>
-                  <th>Child Care &amp; Safety</th>
+                  <th className="text-left w-36">Feature</th>
+                  {COMPARE_COURSES.map((name) => (
+                    <th key={name} className="text-center text-xs">{name}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {COMPARE.map((row) => (
+                {COMPARE_ROWS.map((row) => (
                   <tr key={row.feature}>
                     <td className="font-medium text-primary">{row.feature}</td>
-                    <td className="text-center">{row.cna}</td>
-                    <td className="text-center">{row.basic}</td>
-                    <td className="text-center">{row.child}</td>
+                    {row.values.map((v, i) => (
+                      <td key={i} className="text-center">{v}</td>
+                    ))}
                   </tr>
                 ))}
                 <tr>
-                  <td className="font-medium text-primary">Enrol</td>
-                  <td className="text-center">
-                    <Link href="/register?course=cna" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
-                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                    </Link>
-                  </td>
-                  <td className="text-center">
-                    <Link href="/register?course=basic-nursing-care" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
-                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                    </Link>
-                  </td>
-                  <td className="text-center">
-                    <Link href="/register?course=child-care-safety" className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600">
-                      Enrol <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                    </Link>
-                  </td>
+                  <td className="font-medium text-primary">Apply</td>
+                  {COMPARE_SLUGS.map((slug) => (
+                    <td key={slug} className="text-center">
+                      <Link
+                        href={`/apply?course=${slug}`}
+                        className="inline-flex items-center gap-1 text-xs text-accent font-bold no-underline hover:text-accent-600"
+                      >
+                        Apply <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                      </Link>
+                    </td>
+                  ))}
                 </tr>
               </tbody>
             </table>
@@ -167,12 +170,11 @@ export default async function CoursesPage() {
         </AnimateIn>
       </section>
 
-      {/* CTA strip */}
       <CTABand
         heading="Not sure which course to pick?"
-        subheading="Chat with our admissions team on WhatsApp and we'll help you choose the right programme."
-        primaryLabel="Enrol now"
-        primaryHref="/register"
+        subheading="Chat with our admissions team on WhatsApp and we will help you choose the right programme."
+        primaryLabel="Apply now"
+        primaryHref="/apply"
         whatsappUrl={contact.whatsappUrl}
       />
       <ContactBand whatsappUrl={contact.whatsappUrl} />

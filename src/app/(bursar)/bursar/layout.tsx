@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { can } from "@/lib/rbac";
 import { LayoutDashboard, CreditCard, BookOpen, ClipboardList } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -12,10 +13,10 @@ const NAV: NavItem[] = [
 
 export default async function BursarLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN", "BURSAR"].includes(session.user.role)) redirect("/login");
-  const name = session.user.name ?? "Bursar";
+  if (!session?.user || !can(session.user.role, "payments.hold")) redirect("/login");
+  const name = session.user.name ?? "Finance";
   return (
-    <AppShell nav={NAV} role="Bursar" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Finance" userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

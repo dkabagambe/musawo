@@ -45,12 +45,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: discount.error }, { status: 400 });
     }
     discountId = discount.discountId;
+    const courseFee = course.fullFeeUgx ?? 0;
     if (discount.discountType === "PERCENTAGE") {
-      discountAmount = Math.round((course.fullFeeUgx * (discount.discountValue ?? 0)) / 100);
+      discountAmount = Math.round((courseFee * (discount.discountValue ?? 0)) / 100);
     } else if (discount.discountType === "FIXED_AMOUNT") {
       discountAmount = discount.discountValue ?? 0;
     } else if (discount.discountType === "SCHOLARSHIP") {
-      discountAmount = course.fullFeeUgx;
+      discountAmount = courseFee;
     }
     if (discountId) {
       await db.discountCode.update({
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const totalAmount = Math.max(0, course.fullFeeUgx - discountAmount);
+  const totalAmount = Math.max(0, (course.fullFeeUgx ?? 0) - discountAmount);
   const user = await db.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 

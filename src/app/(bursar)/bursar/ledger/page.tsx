@@ -1,11 +1,12 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 export const metadata = { title: "Ledger - Bursar" };
 
 export default async function BursarLedgerPage() {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN","BURSAR"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "ledger.view")) redirect("/login");
 
   const entries = await db.ledgerEntry.findMany({
     orderBy: { createdAt: "desc" },

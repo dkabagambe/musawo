@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -11,7 +12,7 @@ interface Props {
 
 export default async function ApprovalsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "approvals.decide") === false) redirect("/login");
 
   const status = searchParams.status ?? "PENDING";
 

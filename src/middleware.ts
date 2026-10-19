@@ -1,9 +1,7 @@
 /**
- * Next.js middleware - runs in the Edge runtime.
- *
- * IMPORTANT: only imports edge-safe modules.
- * - Uses authConfig (no argon2, no Prisma, no Redis)
- * - Role guards read from the JWT token only
+ * Next.js middleware - Edge runtime.
+ * Role guards read from JWT only (no DB, no Redis).
+ * All permission checks use canAccessPrefix / getHomeForRole -- no role names here.
  */
 
 import NextAuth from "next-auth";
@@ -18,30 +16,38 @@ const { auth } = NextAuth(authConfig);
 const PUBLIC_PATHS = [
   "/",
   "/courses",
+  "/apply",
+  "/about",
+  "/faq",
+  "/contact",
+  "/admissions",
+  "/learning",
   "/resources",
+  "/privacy",
+  "/terms",
+  "/refund",
   "/verify",
   "/partner",
   "/login",
-  "/register",
   "/otp",
   "/forgot-password",
   "/api/auth",
   "/api/webhooks",
+  "/api/apply",
   "/_next",
   "/assets",
   "/favicon.ico",
   "/manifest.json",
   "/sw.js",
   "/approval",
-  "/_rbac_redirect", // kept for backward compat - page now redirects server-side
+  "/_rbac_redirect",
   "/403",
   "/invite",
   "/check-email",
   "/resend-verification",
-  "/verify",       // certificate verification
 ];
 
-const AUTH_ONLY_PAGES = ["/login", "/register", "/otp", "/forgot-password"];
+const AUTH_ONLY_PAGES = ["/login", "/otp", "/forgot-password"];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some(
@@ -55,17 +61,36 @@ function isAuthPage(pathname: string): boolean {
   );
 }
 
+// All portal and API prefixes that require authentication
 const PROTECTED_PREFIXES = [
-  "/director", "/system", "/admin", "/bursar", "/tutor", "/dashboard",
-  "/api/admin", "/api/bursar", "/api/director", "/api/system",
+  "/director", "/board", "/principal", "/deputy", "/registrar",
+  "/admin", "/finance", "/bursar", "/tutor", "/auditor", "/system", "/dashboard",
+  "/api/admin", "/api/finance", "/api/bursar", "/api/director", "/api/system",
   "/api/tutor", "/api/profile", "/api/notifications", "/api/forum",
   "/api/exams", "/api/payments", "/api/certificates", "/api/courses",
-  "/api/settings", "/api/approvals",
+  "/api/settings", "/api/approvals", "/api/principal", "/api/registrar",
+  "/api/board", "/api/deputy", "/api/auditor",
 ];
 
 function requiresAuth(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
 }
+
+// Coarse API guards: map API prefix -> allowed portal prefix
+// canAccessPrefix handles the actual role check
+const API_PORTAL_MAP: Array<{ apiPrefix: string; portalPrefix: string }> = [
+  { apiPrefix: "/api/director",  portalPrefix: "/director"  },
+  { apiPrefix: "/api/board",     portalPrefix: "/board"     },
+  { apiPrefix: "/api/principal", portalPrefix: "/principal" },
+  { apiPrefix: "/api/deputy",    portalPrefix: "/deputy"    },
+  { apiPrefix: "/api/registrar", portalPrefix: "/registrar" },
+  { apiPrefix: "/api/system",    portalPrefix: "/system"    },
+  { apiPrefix: "/api/finance",   portalPrefix: "/finance"   },
+  { apiPrefix: "/api/bursar",    portalPrefix: "/finance"   }, // legacy alias
+  { apiPrefix: "/api/auditor",   portalPrefix: "/auditor"   },
+  { apiPrefix: "/api/admin",     portalPrefix: "/admin"     },
+  { apiPrefix: "/api/tutor",     portalPrefix: "/tutor"     },
+];
 
 export default auth(function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -85,48 +110,52 @@ export default auth(function middleware(req: NextRequest) {
   const isLoggedIn = !!session?.user;
   const role = session?.user?.role;
 
-  // Logged-in users hitting auth pages → send to their home portal
+  // /register -> /apply (self-registration is disabled)
+  if (pathname === "/register" || pathname.startsWith("/register?")) {
+    return NextResponse.redirect(new URL("/apply", req.url));
+  }
+
+  // /bursar -> /finance (legacy redirect for bookmarks)
+  if (pathname === "/bursar" || pathname.startsWith("/bursar/")) {
+    return NextResponse.redirect(
+      new URL(pathname.replace("/bursar", "/finance"), req.url)
+    );
+  }
+
+  // Logged-in users hitting auth pages -> send to their portal
   if (isLoggedIn && isAuthPage(pathname)) {
     const home = role ? getHomeForRole(role) : "/dashboard";
     return NextResponse.redirect(new URL(home, req.url));
   }
 
-  // Always allow public paths for unauthenticated users
   if (isPublic(pathname)) return response;
-
-  // Pass through non-protected routes
   if (!requiresAuth(pathname)) return response;
 
-  // Not logged in hitting a protected path → redirect to login
+  // Not logged in -> login page
   if (!isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Coarse-grained portal access - redirect to correct home if wrong portal
-  const PORTALS = ["/director", "/system", "/admin", "/bursar", "/tutor", "/dashboard"];
+  // Portal coarse guard: wrong portal -> redirect to correct home
+  const PORTALS = [
+    "/director", "/board", "/principal", "/deputy", "/registrar",
+    "/admin", "/finance", "/tutor", "/auditor", "/system", "/dashboard",
+  ];
   const portal = PORTALS.find((p) => pathname.startsWith(p));
-
   if (portal && role && !canAccessPrefix(role, portal)) {
     return NextResponse.redirect(new URL(getHomeForRole(role), req.url));
   }
 
-  // API role guards (coarse - fine-grained enforced in each handler)
-  if (pathname.startsWith("/api/director") && role !== "SUPERADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (pathname.startsWith("/api/system") && !["SUPERADMIN", "SYSTEM_IT"].includes(role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (pathname.startsWith("/api/bursar") && !["SUPERADMIN", "BURSAR"].includes(role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (pathname.startsWith("/api/admin") && !["SUPERADMIN", "REGISTRAR", "ADMIN"].includes(role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  if (pathname.startsWith("/api/tutor") && !["SUPERADMIN", "TUTOR", "REGISTRAR", "ADMIN"].includes(role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // API coarse guards using portal map
+  for (const { apiPrefix, portalPrefix } of API_PORTAL_MAP) {
+    if (pathname.startsWith(apiPrefix)) {
+      if (!role || !canAccessPrefix(role, portalPrefix)) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      break;
+    }
   }
 
   return response;

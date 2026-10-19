@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import CompleteReviewForm from "./CompleteReviewForm";
@@ -13,18 +14,18 @@ function currentQuarter(): string {
 
 export default async function AccessReviewPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") redirect("/login");
+  if (!session?.user || can(session.user.role, "access_review.complete") === false) redirect("/login");
 
   const quarter = currentQuarter();
 
   const [reviews, staffAccounts] = await Promise.all([
     db.accessReview.findMany({ orderBy: { completedAt: "desc" }, take: 8 }),
     db.user.findMany({
-      where: { role: { in: ["SUPERADMIN","SYSTEM_IT","REGISTRAR","BURSAR","TUTOR","ADMIN"] } },
+      where: { role: { in: ["SUPER_ADMIN","SYSTEM_IT","ACADEMIC_REGISTRAR","FINANCE_OFFICER","INSTRUCTOR","HR_SYSTEM_ADMIN"] } },
       select: { id: true, name: true, role: true, status: true, totpEnabled: true, lastAccessReviewAt: true, createdAt: true },
       orderBy: { role: "asc" },
     }),
-    db.user.count({ where: { role: "SUPERADMIN" } }),
+    db.user.count({ where: { role: "SUPER_ADMIN" } }),
   ]);
 
   const thisQuarterDone = reviews.some((r) => r.quarter === quarter);

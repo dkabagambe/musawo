@@ -9,9 +9,9 @@
 
 import { useEffect, useRef } from "react";
 
-// Lungujja / ADFA Building - verified coordinates
-export const LAT = 0.3040;
-export const LNG = 32.5441;
+// Luggala Trading Center, Lubaga Division, Kampala
+export const LAT = 0.3075;
+export const LNG = 32.5510;
 const ZOOM = 16;
 
 interface Props {
@@ -33,8 +33,15 @@ export default function LeafletMap({ onError }: Props) {
         // Dynamic import - keeps leaflet out of the server bundle
         const L = (await import("leaflet")).default;
 
-        // Leaflet CSS must be loaded; import it here so webpack bundles it
-        await import("leaflet/dist/leaflet.css");
+        // Leaflet CSS must be loaded at runtime; use a link tag injection
+        // instead of a static import to avoid TS module resolution errors
+        if (!document.getElementById("leaflet-css")) {
+          const link = document.createElement("link");
+          link.id   = "leaflet-css";
+          link.rel  = "stylesheet";
+          link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+          document.head.appendChild(link);
+        }
 
         if (cancelled || !containerRef.current) return;
 
@@ -86,7 +93,7 @@ export default function LeafletMap({ onError }: Props) {
           .addTo(map)
           .bindPopup(
             '<strong style="color:#0B6B5D">Musawo Training Center</strong><br>' +
-            "Plot 5, ADFA Building, Zone 8 Lungujja<br>Kampala, Uganda",
+            "Plot 5, ADFA Building, Luggala Trading Center, Lubaga Division<br>Kampala, Uganda",
           )
           .openPopup();
 
@@ -121,7 +128,7 @@ export default function LeafletMap({ onError }: Props) {
       ref={containerRef}
       className="w-full h-full rounded-2xl"
       role="application"
-      aria-label="Interactive map showing Musawo Training Center in Lungujja, Kampala"
+      aria-label="Interactive map showing Musawo Training Center in Luggala, Lubaga, Kampala"
     />
   );
 }

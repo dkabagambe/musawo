@@ -25,7 +25,7 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
-          email: form.email || `noreply+${Date.now()}@musawotraining.ug`,
+          email: form.email || `noreply+${Date.now()}@mtc.ac.ug`,
           subject: form.subject || 'Enquiry',
           message: form.message,
         }),
@@ -96,7 +96,7 @@ export default function ContactForm() {
           <option value="">Select a topic…</option>
           <option value="course">Course enquiry</option>
           <option value="payment">Payment / fees</option>
-          <option value="scholarship">Scholarship</option>
+          <option value="admissions">Admissions enquiry</option>
           <option value="technical">Technical support</option>
           <option value="other">Other</option>
         </select>
