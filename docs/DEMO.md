@@ -88,7 +88,11 @@ All accounts use password: **`Demo1234!`**
 ### 4. Student accepts invite
 
 1. Open `/dev/mail`, click the invite email, follow the link.
-2. Student confirms details, sets password, accepts data consent. Status becomes `ACTIVE`.
+2. Student sees their details: name, email, phone, student number.
+3. **Happy path:** Click **Accept and continue** - student sets password, accepts data consent. Status becomes `ACTIVE`.
+4. **Dispute path:** Click **These details are wrong** - student explains what is wrong, submits dispute. Status becomes `DETAILS_DISPUTED`. Registrar receives email notification.
+5. To demo disputed state: use `student.disputed@example.com` in the Registrar portal - visible with red "Details disputed" badge.
+6. Registrar can resend an invite (create a new one) after correcting details.
 
 ### 5. Student dashboard and payment
 

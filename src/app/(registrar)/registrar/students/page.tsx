@@ -82,6 +82,7 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
           <option value="SUSPENDED">Suspended</option>
           <option value="PENDING_VERIFICATION">Pending verification</option>
           <option value="PENDING_ACCEPTANCE">Pending acceptance</option>
+          <option value="DETAILS_DISPUTED">Details disputed</option>
         </select>
         <button type="submit" className="btn-primary text-sm">Search</button>
         {(q || statusFilter) && (
@@ -125,6 +126,8 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
                       <span className="badge badge-danger text-xs">Suspended</span>
                     ) : s.status === "PENDING_ACCEPTANCE" ? (
                       <span className="badge badge-info text-xs">Pending acceptance</span>
+                    ) : s.status === "DETAILS_DISPUTED" ? (
+                      <span className="badge badge-danger text-xs">Details disputed</span>
                     ) : (
                       <span className="badge badge-warning text-xs">Pending</span>
                     )}

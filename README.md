@@ -52,6 +52,8 @@ The seed creates accounts you can log in with — all use password **`Demo1234!`
 | Student (active)        | student.full@example.com           | `/dashboard`    |
 | Student (overdue)       | student.overdue@example.com        | `/dashboard`    |
 | Student (completed)     | student.completed@example.com      | `/dashboard`    |
+| Student (pending invite)| student.waiting@example.com        | invite link only (PENDING_ACCEPTANCE) |
+| Student (disputed)      | student.disputed@example.com       | invite link only (DETAILS_DISPUTED) |
 
 > **One-click dev login:** open [http://localhost:3000/dev/login](http://localhost:3000/dev/login) to sign in as any account instantly without typing credentials. See `docs/DEMO.md` for the full presentation walkthrough.
 

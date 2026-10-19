@@ -275,7 +275,9 @@ model User {
   breakGlassGrants  BreakGlassGrant[]
 
   // Staff invites created by this user
-  staffInvitesSent  StaffInvite[]
+  staffInvitesSent      StaffInvite[]
+  // Student invites sent to this user (resendable, so many)
+  studentInvites        StaffInvite[]  @relation("StudentInviteUser")
 
   // Manual payment claims
   fraudStrikes      Int                    @default(0)
@@ -1201,8 +1203,11 @@ model StaffInvite {
   acceptedAt  DateTime?
   createdById String
   createdAt   DateTime  @default(now())
+  // For student invites: points to the pre-created user account
+  userId      String?
 
-  createdBy User @relation(fields: [createdById], references: [id])
+  createdBy User  @relation(fields: [createdById], references: [id])
+  user      User? @relation("StudentInviteUser", fields: [userId], references: [id])
 
   @@map("staff_invites")
 }

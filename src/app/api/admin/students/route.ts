@@ -143,6 +143,7 @@ export async function POST(req: NextRequest) {
       token,
       expiresAt,
       createdById: session.user.id,
+      userId:      student.id,   // link to the pre-created student record
     },
   });
 

@@ -25,7 +25,9 @@ type EmailTemplate =
   | "application-confirmation"
   | "application-received-registrar"
   | "application-accepted"
-  | "application-rejected";
+  | "application-rejected"
+  | "plain"
+  | "student-details-disputed";
 
 interface SendEmailParams {
   to: string;
@@ -180,6 +182,20 @@ function renderTemplate(
       <p>After reviewing your application, we are unable to offer you a place at this time.</p>
       <p style="background:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;">{{reason}}</p>
       <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@mtc.ac.ug.</p>
+    `,
+    plain: `<p style="white-space:pre-wrap;">{{body}}</p>`,
+    "student-details-disputed": `
+      <h2>Student details dispute - action required</h2>
+      <p>A student has flagged their account details as incorrect and requires your attention.</p>
+      <table style="border-collapse:collapse;width:100%;margin:16px 0;">
+        <tr><td style="padding:8px;border:1px solid #E5E7EB;font-weight:600;background:#F9FAFB;">Student name</td><td style="padding:8px;border:1px solid #E5E7EB;">{{studentName}}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #E5E7EB;font-weight:600;background:#F9FAFB;">Student number</td><td style="padding:8px;border:1px solid #E5E7EB;">{{studentNumber}}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #E5E7EB;font-weight:600;background:#F9FAFB;">Email</td><td style="padding:8px;border:1px solid #E5E7EB;">{{studentEmail}}</td></tr>
+      </table>
+      <p><strong>Reason given:</strong></p>
+      <p style="background:#FFFBEB;border-left:4px solid #F59E0B;padding:12px 16px;border-radius:4px;white-space:pre-wrap;">{{reason}}</p>
+      <p>Please log in to the Registrar portal, correct the details, and send a new invitation link to the student.</p>
+      <p><a href="{{registrarUrl}}" style="background:#0B6B5D;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Go to Registrar portal</a></p>
     `,
   };
 

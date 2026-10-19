@@ -200,7 +200,38 @@ async function main() {
     }
   }
 
-  console.log(`  ✓ Students (${STUDENT_DEFS.length})`);
+  // ── Special-state students (not in STUDENT_DEFS loop) ─────────
+  // PENDING_ACCEPTANCE: Registrar created, invite not yet accepted
+  const studentPendingAcceptance = await prisma.user.upsert({
+    where: { email: "student.waiting@example.com" },
+    update: { status: "PENDING_ACCEPTANCE" },
+    create: {
+      name: "Annet Tumusiime",
+      email: "student.waiting@example.com",
+      phone: "+256700111010",
+      studentNumber: "MTC-2026-00010",
+      role: UserRole.STUDENT,
+      status: "PENDING_ACCEPTANCE",
+    },
+  });
+  void studentPendingAcceptance;
+
+  // DETAILS_DISPUTED: student flagged details as wrong
+  const studentDisputed = await prisma.user.upsert({
+    where: { email: "student.disputed@example.com" },
+    update: { status: "DETAILS_DISPUTED" },
+    create: {
+      name: "Brian Tendo",
+      email: "student.disputed@example.com",
+      phone: "+256700111011",
+      studentNumber: "MTC-2026-00011",
+      role: UserRole.STUDENT,
+      status: "DETAILS_DISPUTED",
+    },
+  });
+  void studentDisputed;
+
+  console.log(`  ✓ Students (${STUDENT_DEFS.length} + 2 special-state)`);
 
   // ── Courses ────────────────────────────────────────────────────
   const courses: Record<string, Awaited<ReturnType<typeof prisma.course.upsert>>> = {};
