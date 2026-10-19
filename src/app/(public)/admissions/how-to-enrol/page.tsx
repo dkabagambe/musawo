@@ -48,7 +48,7 @@ const STEPS = [
 
 const REQUIREMENTS = [
   "Most courses are open to all: PLE leavers, S.4 and S.6 leavers, working carers, teachers and community workers.",
-  "Medical Home Caregiver and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification and registration number.",
+  "Medical Home Care and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification and registration number.",
   "You must have a valid Ugandan phone number to receive SMS alerts.",
   "A smartphone with internet access is required for online classes. MTN or Airtel data is sufficient.",
   "All course materials are in English; a basic ability to read and write in English is needed.",

@@ -64,13 +64,13 @@ All accounts use password: **`Demo1234!`**
 1. Open **http://localhost:3000** - hero slider (3 images), stats, all 7 real course cards.
 2. Click **Apply now** - application form with all 7 courses, category eligibility checks.
 3. Click **Courses** - all 7 courses. Fees show "Fee: contact admissions" until set.
-4. Click **Medical Home Caregiver Course** - curriculum blocks, free-preview lessons, eligibility.
+4. Click **Medical Home Care Course** - curriculum blocks, free-preview lessons, eligibility.
 5. Click a free-preview lesson - plays without signing in.
 6. Check **Contact** - correct address (Luggala Trading Center, Lubaga Division, Kampala).
 
 ### 2. Application flow (no login needed)
 
-1. Go to `/apply`, fill in details, pick Medical Home Caregiver (Professional category).
+1. Go to `/apply`, fill in details, pick Medical Home Care (Professional category).
 2. Professional fields appear: title and registration number.
 3. Submit - confirmation email visible at `/dev/mail`. Registrar notified too.
 

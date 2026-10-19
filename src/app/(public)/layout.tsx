@@ -1,6 +1,7 @@
 import PublicHeader from "@/components/public/Header";
 import PublicFooter from "@/components/public/Footer";
 import { getSetting } from "@/lib/settings";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 /**
  * Header is fixed and consists of:
@@ -16,12 +17,14 @@ export default async function PublicLayout({ children }: { children: React.React
   const accreditationText = await getSetting("site.accreditationText", "");
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <PublicHeader showAccreditation={!!accreditationText} />
-      <main id="main" className="pt-[72px] lg:pt-[110px] flex-1">
-        {children}
-      </main>
-      <PublicFooter />
-    </div>
+    <LazyMotion features={domAnimation} strict>
+      <div className="min-h-screen flex flex-col">
+        <PublicHeader showAccreditation={!!accreditationText} />
+        <main id="main" className="pt-[72px] lg:pt-[110px] flex-1">
+          {children}
+        </main>
+        <PublicFooter />
+      </div>
+    </LazyMotion>
   );
 }

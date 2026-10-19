@@ -8,7 +8,7 @@ import {
   ArrowRight, Menu, X, ChevronDown, ChevronRight,
   Phone, Mail, MessageCircle, ExternalLink,
 } from "lucide-react";
-import { m, LazyMotion, domAnimation, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 /* ─────────────────────────────────────────────
    NAV STRUCTURE
@@ -30,7 +30,7 @@ const NAV: NavItem[] = [
   {
     label: "Courses",
     children: [
-      { label: "Medical Home Caregiver",           href: "/courses/medical-home-caregiver",         desc: "3 months. For registered health professionals." },
+      { label: "Medical Home Care",                 href: "/courses/medical-home-caregiver",         desc: "3 months. For registered health professionals." },
       { label: "Basic Home Caregiver",             href: "/courses/basic-home-caregiver",           desc: "3 months. Open to all." },
       { label: "Babysitting, Childcare and Safety",href: "/courses/babysitting-childcare-safety",   desc: "2 months. Open to all." },
       { label: "Mental Health Support",            href: "/courses/mental-health-support-advocacy", desc: "3 months. Open to all." },
@@ -154,7 +154,7 @@ function DropdownMenu({
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleClose = useCallback(() => {
-    timerRef.current = setTimeout(onClose, 120);
+    timerRef.current = setTimeout(onClose, 200);
   }, [onClose]);
 
   const cancelClose = useCallback(() => {
@@ -207,18 +207,19 @@ function DropdownMenu({
           <m.div
             ref={panelRef}
             key="dropdown"
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.13, ease: "easeOut" }}
             role="menu"
             aria-label={`${item.label} submenu`}
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
-            className="absolute top-full left-0 mt-1 w-72 bg-white rounded-[8px]
-                       shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-100
-                       py-2 z-[60]"
+            className="absolute top-full left-0 w-72 z-[60]"
+            style={{ paddingTop: 6 }}
           >
+          {/* invisible bridge covers the gap between button bottom and panel */}
+          <div className="bg-white rounded-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-100 py-2">
             {item.children?.map((child) => (
               <Link
                 key={child.href}
@@ -251,6 +252,7 @@ function DropdownMenu({
                 )}
               </Link>
             ))}
+          </div>
           </m.div>
         )}
       </AnimatePresence>
@@ -409,7 +411,7 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
   };
 
   return (
-    <LazyMotion features={domAnimation}>
+    <>
       {/* Skip nav */}
       <a
         href="#main"
@@ -697,6 +699,6 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
           </Link>
         </div>
       </div>
-    </LazyMotion>
+    </>
   );
 }

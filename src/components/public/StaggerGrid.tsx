@@ -1,6 +1,6 @@
 'use client';
 
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const containerVariants = {
   hidden: {},
@@ -24,24 +24,22 @@ interface StaggerGridProps {
 
 export default function StaggerGrid({ children, className, delay = 0 }: StaggerGridProps) {
   return (
-    <LazyMotion features={domAnimation}>
-      <m.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        transition={{ delay }}
-        className={className}
-        suppressHydrationWarning
-      >
-        {Array.isArray(children)
-          ? children.map((child, i) => (
-              <m.div key={i} variants={itemVariants} suppressHydrationWarning>
-                {child}
-              </m.div>
-            ))
-          : <m.div variants={itemVariants} suppressHydrationWarning>{children}</m.div>}
-      </m.div>
-    </LazyMotion>
+    <m.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ delay }}
+      className={className}
+      suppressHydrationWarning
+    >
+      {Array.isArray(children)
+        ? children.map((child, i) => (
+            <m.div key={i} variants={itemVariants} suppressHydrationWarning>
+              {child}
+            </m.div>
+          ))
+        : <m.div variants={itemVariants} suppressHydrationWarning>{children}</m.div>}
+    </m.div>
   );
 }

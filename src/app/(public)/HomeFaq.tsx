@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 const FAQS = [
@@ -18,15 +18,14 @@ const FAQS = [
   { q: 'Who teaches the courses?',
     a: 'All courses are taught by qualified doctors, nurses and clinicians. Content is reviewed and approved by the Principal before it is published.' },
   { q: 'Who can apply?',
-    a: 'Most courses are open to all, including PLE leavers, S.4 and S.6 leavers, working carers, teachers and community workers. Medical Home Caregiver and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification.' },
+    a: 'Most courses are open to all, including PLE leavers, S.4 and S.6 leavers, working carers, teachers and community workers. Medical Home Care and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification.' },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <LazyMotion features={domAnimation}>
-      <div className="bg-white rounded-2xl border border-border overflow-hidden">
+    <div className="bg-white rounded-2xl border border-border overflow-hidden">
         <button
           type="button"
           className="flex items-center justify-between w-full gap-4 px-6 py-4 text-left font-semibold text-primary text-sm hover:bg-surface/60 transition-colors"
@@ -62,7 +61,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
           )}
         </AnimatePresence>
       </div>
-    </LazyMotion>
   );
 }
 

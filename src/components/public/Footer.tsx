@@ -130,7 +130,7 @@ export default async function PublicFooter() {
             <FooterHeading>Courses</FooterHeading>
             <ul className="space-y-3 list-none">
               {[
-                { label: "Medical Home Caregiver",     href: "/courses/medical-home-caregiver" },
+                { label: "Medical Home Care",           href: "/courses/medical-home-caregiver" },
                 { label: "Basic Home Caregiver",       href: "/courses/basic-home-caregiver" },
                 { label: "Babysitting and Childcare",  href: "/courses/babysitting-childcare-safety" },
                 { label: "Mental Health Support",      href: "/courses/mental-health-support-advocacy" },

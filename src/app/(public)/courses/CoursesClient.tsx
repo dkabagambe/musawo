@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, Users, BookOpen } from 'lucide-react';
 
 export interface CourseItem {
@@ -42,7 +42,7 @@ export default function CoursesClient({ courses }: Props) {
         : courses.filter((c) => c.category !== 'PROFESSIONAL');
 
   return (
-    <LazyMotion features={domAnimation}>
+    <>
       {/* Filter chips */}
       <div className="flex flex-wrap gap-3 mb-10" role="group" aria-label="Filter courses by category">
         {FILTERS.map((f) => (
@@ -175,6 +175,6 @@ export default function CoursesClient({ courses }: Props) {
           )}
         </m.div>
       </AnimatePresence>
-    </LazyMotion>
+    </>
   );
 }

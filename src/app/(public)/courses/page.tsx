@@ -35,7 +35,7 @@ const COMPARE_ROWS = [
 ];
 
 const COMPARE_COURSES = [
-  "Medical Home Caregiver",
+  "Medical Home Care",
   "Basic Home Caregiver",
   "Babysitting and Childcare",
   "Mental Health Support",

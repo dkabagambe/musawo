@@ -398,7 +398,7 @@ export default async function HomePage() {
               },
               {
                 quote: "The skills lab practicals made all the difference. I now work as a certified caregiver and am looking at opportunities abroad through the recruitment agency the centre connected me with.",
-                name: "Amara Birungi", role: "Graduate, Medical Home Caregiver Course",
+                name: "Amara Birungi", role: "Graduate, Medical Home Care Course",
                 img: "/assets/images/graduates-field.webp", initial: "A",
               },
             ].map((t) => (

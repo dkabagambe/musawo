@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowRight, BookOpen } from "lucide-react";
-import { m, LazyMotion, domAnimation, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 
 /* ─── Slide data ────────────────────────────────────────────── */
 const SLIDES = [
@@ -28,8 +28,8 @@ const SLIDES = [
   },
 ];
 
-const HOLD_MS = 5500;
-const FADE_MS = 1200;
+const HOLD_MS = 12000;
+const FADE_MS = 1000;
 
 /* ─── Shared card content ──────────────────────────────────── */
 function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
@@ -164,11 +164,10 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
   const slide = SLIDES[idx];
 
   return (
-    <LazyMotion features={domAnimation}>
-      <section
-        className="hero-section relative overflow-hidden w-full"
-        aria-label="Welcome to Musawo Training Center"
-      >
+    <section
+      className="hero-section relative overflow-hidden w-full"
+      aria-label="Welcome to Musawo Training Center"
+    >
 
         {/* Background photo slides - all mounted, CSS opacity transition */}
         {SLIDES.map((s, i) => (
@@ -270,6 +269,5 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
           ))}
         </div>
       </section>
-    </LazyMotion>
   );
 }
