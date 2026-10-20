@@ -15,6 +15,15 @@ interface StudentInfo {
   phone: string | null;
   studentNumber: string | null;
   status: string;
+  professionalTitle: string | null;
+  registrationNumber: string | null;
+  dateOfBirth: string | null;
+  gender: string | null;
+  district: string | null;
+  highestQualification: string | null;
+  emergencyContact: string | null;
+  courseName: string | null;
+  intakeLabel: string | null;
 }
 
 interface Props {
@@ -116,6 +125,15 @@ export default function StudentAcceptForm({ token, student }: Props) {
           <Row label="Email"          value={student.email ?? "Not provided"} />
           <Row label="Phone"          value={student.phone ?? "Not provided"} />
           <Row label="Student number" value={student.studentNumber ?? "Being assigned"} />
+          <Row label="Course" value={student.courseName ?? "Not selected"} />
+          <Row label="Intake" value={student.intakeLabel ?? "Not selected"} />
+          {student.professionalTitle && <Row label="Professional title" value={student.professionalTitle} />}
+          {student.registrationNumber && <Row label="Registration number" value={student.registrationNumber} />}
+          {student.dateOfBirth && <Row label="Date of birth" value={student.dateOfBirth} />}
+          {student.gender && <Row label="Gender" value={student.gender} />}
+          {student.district && <Row label="District" value={student.district} />}
+          {student.highestQualification && <Row label="Highest qualification" value={student.highestQualification} />}
+          {student.emergencyContact && <Row label="Emergency contact" value={student.emergencyContact} />}
         </div>
 
         <div className="space-y-3">

@@ -23,7 +23,7 @@ export default async function PrincipalLayout({ children }: { children: React.Re
   }
   const name = session.user.name ?? "Principal";
   return (
-    <AppShell nav={NAV} role="Principal" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Principal" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

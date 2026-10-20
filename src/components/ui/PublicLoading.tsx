@@ -1,5 +1,5 @@
 /**
- * Public page loading skeleton — matches the PageHero + content layout.
+ * Public page loading skeleton - matches the PageHero + content layout.
  */
 export default function PublicLoading() {
   return (

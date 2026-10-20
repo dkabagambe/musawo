@@ -30,7 +30,7 @@ export default async function PrivacyPage() {
               <p>
                 Musawo Training Center (&ldquo;MTC&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is a division of Allied Doctors and Friends of Uganda (ADFA),
                 Plot 5 ADFA Building, Luggala Trading Center, Lubaga Division, Kampala, Uganda. We operate the online learning platform at{" "}
-                <strong>mtc.ac.ug</strong> (the &ldquo;Platform&rdquo;).
+                <strong>www.musawo.ug</strong> (the &ldquo;Platform&rdquo;).
               </p>
               <p>
                 We are committed to protecting the personal information of our students, visitors, and partners.

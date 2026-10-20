@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     "health worker certification Uganda",
     "hybrid online training Uganda",
   ],
-  authors: [{ name: "Musawo Training Center / ADFA", url: "https://mtc.ac.ug" }],
+  authors: [{ name: "Musawo Training Center / ADFA", url: "https://www.musawo.ug" }],
   openGraph: {
     type: "website",
     locale: "en_UG",
-    url: "https://mtc.ac.ug",
+    url: "https://www.musawo.ug",
     siteName: "Musawo Training Center",
   },
   manifest: "/manifest.json",

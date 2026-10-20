@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { Calendar, Video, PlayCircle } from "lucide-react";
+import StudentJoinClass from "./StudentJoinClass";
 
 export const metadata = { title: "Timetable" };
 
@@ -12,9 +14,9 @@ export default async function TimetablePage() {
   const [upcoming, past] = await Promise.all([
     db.liveClass.findMany({
       where: {
-        scheduledAt: { gt: new Date() },
+        OR: [{ scheduledAt: { gt: new Date() } }, { status: "LIVE" }],
         status: { in: ["SCHEDULED","LIVE"] },
-        course: { enrolments: { some: { userId: session.user.id, status: "ACTIVE" } } },
+        course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
       },
       orderBy: { scheduledAt: "asc" },
       include: { course: { select: { title: true } }, tutor: { select: { name: true } } },
@@ -22,6 +24,7 @@ export default async function TimetablePage() {
     db.liveClass.findMany({
       where: {
         scheduledAt: { lte: new Date() },
+        status: "COMPLETED",
         course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE","COMPLETED"] } } } },
       },
       orderBy: { scheduledAt: "desc" },
@@ -55,6 +58,7 @@ export default async function TimetablePage() {
               const date = new Date(cls.scheduledAt);
               const isLive = cls.status === "LIVE";
               const isToday = date.toDateString() === new Date().toDateString();
+              const isStartingSoon = !isLive && date.getTime() > Date.now() && date.getTime() - Date.now() <= 60 * 60 * 1000;
               return (
                 <div key={cls.id} className={`bg-white rounded-2xl border p-5 flex items-start gap-4 shadow-sm ${isLive ? "border-danger/30" : "border-border"}`}>
                   {/* Date block */}
@@ -74,6 +78,7 @@ export default async function TimetablePage() {
                       {isLive && (
                         <span className="text-xs font-bold bg-danger text-white px-2 py-0.5 rounded-full animate-pulse">🔴 LIVE</span>
                       )}
+                      {isStartingSoon && <span className="text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Starting soon</span>}
                       <span className="text-xs text-gray-400 bg-surface px-2 py-0.5 rounded-full">
                         {PLATFORM_LABEL[cls.platform] ?? cls.platform}
                       </span>
@@ -85,11 +90,7 @@ export default async function TimetablePage() {
                     </p>
                   </div>
 
-                  <a href={cls.joinUrl} target="_blank" rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl no-underline transition-colors flex-shrink-0 ${isLive ? "bg-danger hover:bg-danger/90 text-white" : "bg-primary hover:bg-primary/90 text-white"}`}>
-                    <Video className="w-3.5 h-3.5" />
-                    {isLive ? "Join now" : "Join"}
-                  </a>
+                  <StudentJoinClass classId={cls.id} isLive={isLive} />
                 </div>
               );
             })}
@@ -115,10 +116,10 @@ export default async function TimetablePage() {
                     </p>
                   </div>
                   {cls.recordingUrl ? (
-                    <a href={cls.recordingUrl} target="_blank" rel="noopener noreferrer"
+                    <Link href="/dashboard/recordings"
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent border border-accent/30 px-3 py-1.5 rounded-xl no-underline hover:bg-accent hover:text-white transition-colors flex-shrink-0">
-                      <PlayCircle className="w-3.5 h-3.5" /> Recording
-                    </a>
+                      <PlayCircle className="w-3.5 h-3.5" /> Replay
+                    </Link>
                   ) : (
                     <span className="text-xs text-gray-400 flex-shrink-0">No recording</span>
                   )}

@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { setSetting } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { UpdateSettingSchema } from "@/lib/validators";
-import { requirePermission, ForbiddenError } from "@/lib/rbac";
+import { can, requirePermission, ForbiddenError } from "@/lib/rbac";
 import { z } from "zod";
 
 export async function POST(req: NextRequest) {
@@ -17,6 +17,18 @@ export async function POST(req: NextRequest) {
     body = UpdateSettingSchema.parse(await req.json());
   } catch (err) {
     return NextResponse.json({ error: "Invalid input", details: err }, { status: 400 });
+  }
+
+  const publicSystemKeys = new Set([
+    "site.name", "site.domain", "site.url", "site.websiteUrl", "site.supportEmail", "site.admissionsEmail",
+    "site.supportPhone", "site.supportPhone2", "site.whatsappNumber", "site.address", "site.mapLat", "site.mapLng",
+    "site.tagline", "site.intakeEyebrow", "site.accreditationText", "intake.currentLabel", "site.flyerKey", "course.feeDisplay",
+  ]);
+  if (publicSystemKeys.has(body.key) && !can(session.user.role, "settings.edit.public")) {
+    return NextResponse.json({ error: "Only system administration can change public site settings." }, { status: 403 });
+  }
+  if (/secret|token|apiKey|AccessKey|password|privateKey/i.test(body.key) && !can(session.user.role, "settings.edit.secrets")) {
+    return NextResponse.json({ error: "You cannot change secret settings." }, { status: 403 });
   }
 
   await setSetting(body.key, body.value, session.user.id);

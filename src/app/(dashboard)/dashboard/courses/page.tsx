@@ -68,7 +68,7 @@ export default async function MyCoursesPage() {
             <BookOpen className="w-8 h-8 text-primary/40" />
           </div>
           <h2 className="text-lg font-bold text-primary mb-2">No courses yet</h2>
-          <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">Browse our accredited healthcare courses and enrol today.</p>
+          <p className="text-gray-500 text-sm mb-6 max-w-xs mx-auto">Browse our healthcare courses and enrol today.</p>
           <Link href="/courses" className="btn-primary no-underline inline-flex items-center gap-2">
             Browse courses <ArrowRight className="w-4 h-4" />
           </Link>

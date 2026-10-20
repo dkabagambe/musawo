@@ -10,16 +10,16 @@
 import { useEffect, useRef } from "react";
 
 // Luggala Trading Center, Lubaga Division, Kampala
-export const LAT = 0.3075;
-export const LNG = 32.5510;
 const ZOOM = 16;
 
 interface Props {
+  latitude: number;
+  longitude: number;
   /** Called when the map tiles fail to load */
   onError: () => void;
 }
 
-export default function LeafletMap({ onError }: Props) {
+export default function LeafletMap({ latitude, longitude, onError }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
 
@@ -47,7 +47,7 @@ export default function LeafletMap({ onError }: Props) {
 
         // Create the map, scroll-wheel zoom disabled until user clicks
         const map = L.map(containerRef.current, {
-          center: [LAT, LNG],
+          center: [latitude, longitude],
           zoom: ZOOM,
           scrollWheelZoom: false,   // re-enabled on click/tap (see below)
           zoomControl: true,
@@ -89,7 +89,7 @@ export default function LeafletMap({ onError }: Props) {
           popupAnchor: [0, -44],
         });
 
-        L.marker([LAT, LNG], { icon: pin })
+        L.marker([latitude, longitude], { icon: pin })
           .addTo(map)
           .bindPopup(
             '<strong style="color:#0B6B5D">Musawo Training Center</strong><br>' +

@@ -23,12 +23,12 @@ const NAV: NavItem[] = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "courses.view")) {
+  if (!session?.user || !["courses.view", "students.view", "staff.view", "settings.view"].some((permission) => can(session.user.role, permission as Parameters<typeof can>[1]))) {
     redirect("/dashboard");
   }
   const name = session.user.name ?? "Admin";
   return (
-    <AppShell nav={NAV} role="Administration" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Administration" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

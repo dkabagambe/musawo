@@ -5,17 +5,36 @@ import { can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import Link from "next/link";
 import { FileSearch, Users, BarChart2, FileText, ChevronRight, Eye } from "lucide-react";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Auditor Overview" };
 
-export default async function AuditorPage() {
+const AUDITOR_TABS = new Set<string>(["general", "audit", "reports"]);
+
+export default async function AuditorPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "audit.view")) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && AUDITOR_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   // Log every page view by the auditor
   await audit({
     actorId:    session.user.id,
-    action:     "LOGIN", // closest available — VIEW not in enum; use LOGIN as a proxy for portal access
+    action:     "LOGIN", // closest available - VIEW not in enum; use LOGIN as a proxy for portal access
     entityType: "AuditorDashboard",
     entityId:   "overview",
     metadata:   { event: "auditor_dashboard_view", role: session.user.role },
@@ -46,7 +65,7 @@ export default async function AuditorPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Auditor / Legal Advisor</h1>
-          <p className="text-gray-500 text-sm mt-1">Read-only access — all views are logged</p>
+          <p className="text-gray-500 text-sm mt-1">Read-only access - all views are logged</p>
         </div>
         <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 text-primary text-xs font-semibold px-3 py-2 rounded-xl">
           <Eye className="w-3.5 h-3.5" />

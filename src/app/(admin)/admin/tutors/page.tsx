@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import InviteStaffForm from "./InviteStaffForm";
+import InviteActions from "@/components/ui/InviteActions";
+import { getAllSettings } from "@/lib/settings";
 export const metadata = { title: "Staff - Admin" };
 
 export default async function AdminTutorsPage() {
@@ -17,18 +19,22 @@ export default async function AdminTutorsPage() {
     orderBy: { createdAt: "desc" },
     include: {
       taughtCourses: { select: { id: true, title: true, status: true } },
+      coTaughtCourses: { include: { course: { select: { id: true, title: true, status: true } } } },
     },
   });
 
-  const courses = await db.course.findMany({
+  const [courses, settings] = await Promise.all([db.course.findMany({
     where: { status: "PUBLISHED" },
     select: { id: true, title: true },
     orderBy: { title: "asc" },
-  });
+  }), getAllSettings()]);
+  const roleLabels = Object.fromEntries(
+    Object.entries(settings).filter(([key]) => key.startsWith("role.label.")).map(([key, value]) => [key.slice("role.label.".length), value])
+  );
 
   // Pending invites
   const pendingInvites = await db.staffInvite.findMany({
-    where: { acceptedAt: null, expiresAt: { gt: new Date() } },
+    where: { acceptedAt: null, userId: null },
     orderBy: { createdAt: "desc" },
     select: { id: true, email: true, role: true, expiresAt: true, createdAt: true },
   });
@@ -40,7 +46,7 @@ export default async function AdminTutorsPage() {
       </div>
 
       {canInvite && (
-        <InviteStaffForm courses={courses} actorRole={session.user.role} />
+        <InviteStaffForm courses={courses} roleLabels={roleLabels} />
       )}
 
       {/* Pending invites */}
@@ -54,20 +60,22 @@ export default async function AdminTutorsPage() {
                   <th className="pb-2 font-medium pr-4">Email</th>
                   <th className="pb-2 font-medium pr-4">Role</th>
                   <th className="pb-2 font-medium pr-4">Sent</th>
-                  <th className="pb-2 font-medium">Expires</th>
+                  <th className="pb-2 font-medium pr-4">Expires</th>
+                  <th className="pb-2 font-medium">Manage</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {pendingInvites.map((inv) => (
                   <tr key={inv.id}>
                     <td className="py-2 pr-4">{inv.email}</td>
-                    <td className="py-2 pr-4 text-gray-500">{inv.role}</td>
+                    <td className="py-2 pr-4 text-gray-500">{roleLabels[inv.role] ?? inv.role}</td>
                     <td className="py-2 pr-4 text-gray-400 text-xs">
                       {new Date(inv.createdAt).toLocaleDateString("en-UG")}
                     </td>
                     <td className="py-2 text-gray-400 text-xs">
                       {new Date(inv.expiresAt).toLocaleDateString("en-UG")}
                     </td>
+                    <td className="py-2">{canInvite ? <InviteActions inviteId={inv.id} /> : null}</td>
                   </tr>
                 ))}
               </tbody>
@@ -101,7 +109,7 @@ export default async function AdminTutorsPage() {
                   <tr key={t.id}>
                     <td className="py-2 pr-4 font-medium">{t.name}</td>
                     <td className="py-2 pr-4 text-gray-500">{t.email ?? "-"}</td>
-                    <td className="py-2 pr-4 text-gray-400 text-xs">{t.role}</td>
+                    <td className="py-2 pr-4 text-gray-400 text-xs">{roleLabels[t.role] ?? t.role}</td>
                     <td className="py-2 pr-4">
                       {t.status === "ACTIVE" ? (
                         <span className="badge badge-success">Active</span>
@@ -111,13 +119,11 @@ export default async function AdminTutorsPage() {
                     </td>
                     <td className="py-2 pr-4">
                       <div className="flex flex-wrap gap-1">
-                        {t.taughtCourses.length === 0 ? (
+                        {[...t.taughtCourses, ...t.coTaughtCourses.map(({ course }) => course)].length === 0 ? (
                           <span className="text-gray-400 text-xs">None</span>
                         ) : (
-                          t.taughtCourses.map((c) => (
-                            <span key={c.id} className="badge badge-info text-xs">
-                              {c.title}
-                            </span>
+                          [...t.taughtCourses, ...t.coTaughtCourses.map(({ course }) => course)].map((c) => (
+                            <span key={c.id} className="badge badge-info text-xs">{c.title}</span>
                           ))
                         )}
                       </div>

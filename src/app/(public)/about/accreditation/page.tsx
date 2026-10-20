@@ -77,7 +77,7 @@ export default async function AccreditationPage() {
                 <div>
                   <h3 className="font-bold text-primary text-sm mb-2">{accreditationText}</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    This training programme has met the requirements set out by the relevant regulatory body. For verification, contact us at info@mtc.ac.ug.
+                    This training programme has met the requirements set out by the relevant regulatory body. For verification, contact us at info@musawo.ug.
                   </p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default async function AccreditationPage() {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Every Musawo certificate includes a unique verification code and QR code. Employers can verify authenticity online at any time. If you are an employer and need to verify a certificate, visit the verification portal or contact us at info@mtc.ac.ug.
+                    Every Musawo certificate includes a unique verification code and QR code. Employers can verify authenticity online at any time. If you are an employer and need to verify a certificate, visit the verification portal or contact us at info@musawo.ug.
                   </p>
                 </div>
               </div>

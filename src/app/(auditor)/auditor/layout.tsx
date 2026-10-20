@@ -17,7 +17,7 @@ export default async function AuditorLayout({ children }: { children: React.Reac
   if (!session?.user || !can(session.user.role, "audit.view")) redirect("/login");
   const name = session.user.name ?? "Auditor";
   return (
-    <AppShell nav={NAV} role="Auditor" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Auditor" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

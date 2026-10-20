@@ -5,12 +5,31 @@ import { can } from "@/lib/rbac";
 import Link from "next/link";
 import { TrendingUp, AlertCircle, Building2, ClipboardList, ChevronRight } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Finance Officer Dashboard" };
 
-export default async function BursarDashboardPage() {
+const FINANCE_TABS = new Set<string>(["general", "payments", "reconciliation"]);
+
+export default async function BursarDashboardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && FINANCE_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

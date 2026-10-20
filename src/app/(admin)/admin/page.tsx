@@ -1,25 +1,56 @@
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Admin Overview" };
 
-export default async function AdminDashboardPage() {
+const ADMIN_TABS = new Set<string>([
+  "general", "academics", "students", "staff", "finance", "reports", "settings", "audit",
+]);
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && ADMIN_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
+  const canViewStudents = can(session.user.role, "students.view");
+  const canViewCourses = can(session.user.role, "courses.view");
+  const canViewFinance = can(session.user.role, "payments.view") || can(session.user.role, "finance.totals.view");
+  const canViewPayments = can(session.user.role, "payments.view");
+  const canViewReviews = can(session.user.role, "exams.mark");
   const [
     studentCount,
     courseCount,
     totalRevenue,
     pendingExamReviews,
   ] = await Promise.all([
-    db.user.count({ where: { role: "STUDENT" } }),
-    db.course.count({ where: { status: "PUBLISHED" } }),
-    db.payment.aggregate({
+    canViewStudents ? db.user.count({ where: { role: "STUDENT" } }) : Promise.resolve(0),
+    canViewCourses ? db.course.count({ where: { status: "PUBLISHED" } }) : Promise.resolve(0),
+    canViewFinance ? db.payment.aggregate({
       where: { status: "COMPLETED" },
       _sum: { amount: true },
-    }),
-    db.examAttempt.count({ where: { status: "SUBMITTED" } }),
+    }) : Promise.resolve({ _sum: { amount: null } }),
+    canViewReviews ? db.examAttempt.count({ where: { status: "SUBMITTED" } }) : Promise.resolve(0),
   ]);
 
-  const recentPayments = await db.payment.findMany({
+  const recentPayments = canViewPayments ? await db.payment.findMany({
     where: { status: "COMPLETED" },
     orderBy: { paidAt: "desc" },
     take: 5,
@@ -31,7 +62,7 @@ export default async function AdminDashboardPage() {
         },
       },
     },
-  });
+  }) : [];
 
   const STATS = [
     { label: "Total students", value: studentCount.toLocaleString(), href: "/admin/students" },
@@ -46,7 +77,12 @@ export default async function AdminDashboardPage() {
       value: pendingExamReviews.toLocaleString(),
       href: "/admin/courses",
     },
-  ];
+  ].filter((stat) => {
+    if (stat.label === "Total students") return canViewStudents;
+    if (stat.label === "Active courses") return canViewCourses;
+    if (stat.label === "Revenue (UGX)") return canViewFinance;
+    return canViewReviews;
+  });
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -64,18 +100,19 @@ export default async function AdminDashboardPage() {
 
       {/* Quick actions */}
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
-        <Link href="/admin/courses" className="btn-primary no-underline text-center">
+        {can(session.user.role, "courses.create") && <Link href="/admin/courses" className="btn-primary no-underline text-center">
           + New Course
-        </Link>
-        <Link href="/admin/students" className="btn-secondary no-underline text-center">
+        </Link>}
+        {canViewStudents && <Link href="/admin/students" className="btn-secondary no-underline text-center">
           Manage Students
-        </Link>
-        <Link href="/admin/reports" className="btn-outline no-underline text-center">
+        </Link>}
+        {can(session.user.role, "reports.view") && <Link href="/admin/reports" className="btn-outline no-underline text-center">
           View Reports
-        </Link>
+        </Link>}
       </div>
 
       {/* Recent payments */}
+      {canViewPayments && <>
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Recent Payments</h2>
@@ -116,6 +153,7 @@ export default async function AdminDashboardPage() {
           </div>
         )}
       </div>
+      </>}
     </div>
   );
 }

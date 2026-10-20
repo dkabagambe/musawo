@@ -73,6 +73,26 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Start enrolment after the student accepts. Fees may still be unconfigured,
+    // in which case the Registrar or Finance Officer must complete that step.
+    const application = await db.application.findFirst({
+      where: { createdUserId: student.id },
+      include: { course: { select: { id: true, fullFeeUgx: true } } },
+    });
+    if (application?.course?.fullFeeUgx != null) {
+      await db.enrolment.upsert({
+        where: { userId_courseId: { userId: student.id, courseId: application.course.id } },
+        update: {},
+        create: {
+          userId: student.id,
+          courseId: application.course.id,
+          intakeId: application.intakeId,
+          totalAmountUgx: application.course.fullFeeUgx,
+          status: "PENDING_PAYMENT",
+        },
+      });
+    }
+
     // Mark invite consumed
     await db.staffInvite.update({
       where: { token },

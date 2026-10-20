@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getBunnySignedUrl } from "@/lib/bunny";
-import { getPresignedDownloadUrl } from "@/lib/s3";
 import { canAccessLesson, getAccessLevel } from "@/lib/enrolment/access";
 import CoursePlayerClient from "./CoursePlayerClient";
 
@@ -19,6 +18,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function CoursePlayerPage({ params, searchParams }: Props) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  const viewer = await db.user.findUnique({ where: { id: session.user.id }, select: { name: true, studentNumber: true } });
 
   const course = await db.course.findUnique({
     where: { slug: params.slug, status: "PUBLISHED" },
@@ -91,7 +91,7 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
         videoUrl = getBunnySignedUrl(activeLesson.bunnyVideoId, 3600);
       }
       if (activeLesson.type === "NOTES" && activeLesson.notesS3Key) {
-        try { notesUrl = await getPresignedDownloadUrl(activeLesson.notesS3Key, 1800); } catch { /* skip */ }
+        notesUrl = `/api/learning/materials/${activeLesson.id}`;
       }
     }
   }
@@ -112,11 +112,20 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
   return (
     <CoursePlayerClient
       course={{
-        ...course,
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        tutor: course.tutor,
         blocks: course.blocks.map((b) => ({
-          ...b,
+          id: b.id,
+          order: b.order,
+          title: b.title,
+          prerequisiteBlockOrder: b.prerequisiteBlockOrder,
+          lessons: b.lessons.map(({ id, order, title, type, isFree, durationSec }) => ({ id, order, title, type, isFree, durationSec })),
+          exams: b.exams,
           assignments: b.assignments.map((a) => ({
-            ...a,
+            id: a.id,
+            title: a.title,
             dueDate: a.dueDate ? a.dueDate.toISOString() : null,
           })),
         })),
@@ -127,6 +136,8 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
         status: enrolment.status,
       }}
       activeLessonId={activeLesson?.id ?? null}
+      viewerName={viewer?.name ?? session.user.name ?? "Student"}
+      studentNumber={viewer?.studentNumber ?? ""}
       videoUrl={videoUrl}
       notesUrl={notesUrl}
       completedLessonIds={Array.from(completedLessonIds)}

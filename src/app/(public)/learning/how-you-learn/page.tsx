@@ -153,7 +153,7 @@ export default async function HowYouLearnPage() {
                   { day: "Tuesday/Thursday", tasks: ["Attend the 60-minute live class with your tutor (7 pm to 8 pm EAT)", "Complete the lesson quiz"] },
                   { day: "Wednesday", tasks: ["Work on the week's written assignment (30 to 60 min)"] },
                   { day: "Friday", tasks: ["Review notes and post any questions in the forum", "Watch optional revision videos"] },
-                  { day: "Weekend", tasks: ["Catch up on anything missed during the week", "Practical day at clinic (scheduled once every 3 weeks)"] },
+                  { day: "Weekend", tasks: ["Catch up on anything missed during the week", "Practical day in the skills lab (scheduled once every 3 weeks)"] },
                 ].map(({ day, tasks }) => (
                   <div key={day} className="px-6 py-4 border-b border-border last:border-0 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6">
                     <span className="flex-shrink-0 font-bold text-primary text-sm w-40">{day}</span>

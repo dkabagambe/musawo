@@ -54,6 +54,14 @@ const config: Config = {
         teal: {
           DEFAULT: "#0B6B5D",
         },
+        portal: {
+          sidebar: "var(--portal-sidebar)",
+          page: "var(--portal-page)",
+          widget: "var(--portal-widget)",
+          "card-border": "var(--portal-card-border)",
+          text: "var(--portal-text)",
+          muted: "var(--portal-muted)",
+        },
       },
       fontFamily: {
         sans:    ["var(--font-jakarta)", "Inter", "system-ui", "sans-serif"],
@@ -65,6 +73,8 @@ const config: Config = {
         xs: "375px",
       },
       borderRadius: {
+        widget: "8px",
+        panel: "6px",
         "2xl": "1rem",
         "3xl": "1.5rem",
       },

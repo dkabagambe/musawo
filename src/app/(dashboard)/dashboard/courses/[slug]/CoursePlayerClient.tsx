@@ -11,8 +11,6 @@ interface Lesson {
   type: "VIDEO" | "NOTES" | "QUIZ";
   isFree: boolean;
   durationSec: number | null;
-  bunnyVideoId?: string | null;
-  notesS3Key?: string | null;
 }
 
 interface Block {
@@ -37,6 +35,8 @@ interface Props {
   course: { id: string; slug: string; title: string; tutor: { name: string }; blocks: Block[] };
   enrolment: { id: string; unlockedBlockOrder: number; status: string };
   activeLessonId: string | null;
+  viewerName: string;
+  studentNumber: string;
   videoUrl: string | null;
   notesUrl: string | null;
   completedLessonIds: string[];
@@ -48,6 +48,8 @@ export default function CoursePlayerClient({
   course,
   enrolment,
   activeLessonId,
+  viewerName,
+  studentNumber,
   videoUrl,
   notesUrl,
   completedLessonIds: initialCompleted,
@@ -300,33 +302,18 @@ export default function CoursePlayerClient({
                 <div className="mb-4">
                   {notesUrl ? (
                     <div>
-                      <div className="flex gap-3 mb-4">
-                        <a
-                          href={notesUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary no-underline"
-                          onClick={() => markLessonComplete(activeLesson.id)}
-                        >
-                          📄 Open notes (PDF)
-                        </a>
-                        <a
-                          href={notesUrl}
-                          download
-                          className="btn-outline no-underline"
-                          onClick={() => markLessonComplete(activeLesson.id)}
-                        >
-                          ⬇ Download
-                        </a>
-                      </div>
-                      {/* Embed PDF inline */}
-                      <div className="rounded-2xl overflow-hidden border border-border" style={{ height: "65vh" }}>
+                      <div className="relative rounded-2xl overflow-hidden border border-border" style={{ height: "65vh" }} onContextMenu={(event) => event.preventDefault()}>
                         <iframe
                           src={notesUrl}
                           className="w-full h-full"
                           title={`Notes: ${activeLesson.title}`}
+                          referrerPolicy="same-origin"
                         />
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.12] grid place-items-center">
+                          <span className="rotate-[-28deg] text-gray-900 text-xl font-bold whitespace-nowrap">{viewerName} {studentNumber && `· ${studentNumber}`} · {new Date().toLocaleDateString("en-UG")}</span>
+                        </div>
                       </div>
+                      <p className="text-xs text-gray-400 mt-2">For in-platform study only. Screenshots and photography cannot be fully prevented.</p>
                     </div>
                   ) : (
                     <div className="bg-primary/10 rounded-2xl p-10 text-center">

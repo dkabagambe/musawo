@@ -1,10 +1,15 @@
 import { db } from "@/lib/db";
 import { getAllSettings } from "@/lib/settings";
 import AdminSettingsForm from "./SettingsForm";
+import { auth } from "@/lib/auth";
+import { can } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Site Settings" };
 
 export default async function SettingsPage() {
+  const session = await auth();
+  if (!session?.user || !can(session.user.role, "settings.view")) redirect("/403");
   const settings = await getAllSettings();
   await db.siteSetting.findMany({
     orderBy: { key: "asc" },
@@ -27,6 +32,16 @@ export default async function SettingsPage() {
       label: "Course defaults",
       prefix: "course.",
       keys: ["course.freePreviewPercent"],
+    },
+    {
+      label: "Role labels and hierarchy",
+      prefix: "role.label.",
+      keys: [
+        "role.label.SUPER_ADMIN", "role.label.BOARD_MEMBER", "role.label.PRINCIPAL",
+        "role.label.DEPUTY_PRINCIPAL", "role.label.ACADEMIC_REGISTRAR", "role.label.INSTRUCTOR",
+        "role.label.TEACHING_ASSISTANT", "role.label.FINANCE_OFFICER", "role.label.HR_SYSTEM_ADMIN",
+        "role.label.AUDITOR_READONLY", "role.label.SYSTEM_IT", "role.label.STUDENT",
+      ],
     },
     {
       label: "Payments",
@@ -91,6 +106,19 @@ export default async function SettingsPage() {
     },
   ];
 
+  const publicKeys = new Set([
+    "site.name", "site.domain", "site.url", "site.websiteUrl", "site.supportEmail", "site.admissionsEmail",
+    "site.supportPhone", "site.supportPhone2", "site.whatsappNumber", "site.address", "site.mapLat", "site.mapLng",
+    "site.tagline", "site.intakeEyebrow", "site.accreditationText", "intake.currentLabel", "site.flyerKey", "course.feeDisplay",
+  ]);
+  const visibleGroups = GROUPS.map((group) => ({
+    ...group,
+    keys: group.keys.filter((key) =>
+      (!publicKeys.has(key) || can(session.user.role, "settings.edit.public")) &&
+      (!/secret|token|apiKey|AccessKey|password|privateKey/i.test(key) || can(session.user.role, "settings.edit.secrets"))
+    ),
+  })).filter((group) => group.keys.length > 0);
+
   return (
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl mb-2">Site Settings</h1>
@@ -100,7 +128,7 @@ export default async function SettingsPage() {
         environment variables so they can be updated without redeploy.
       </p>
 
-      <AdminSettingsForm groups={GROUPS} currentSettings={settings} />
+      <AdminSettingsForm groups={visibleGroups} currentSettings={settings} />
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
   if (!session?.user || !can(session.user.role, "approvals.decide")) redirect("/login");
   const name = session.user.name ?? "Director";
   return (
-    <AppShell nav={NAV} role="Executive" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Executive" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

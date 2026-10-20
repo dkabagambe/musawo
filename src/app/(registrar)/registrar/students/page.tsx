@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
+import InviteActions from "@/components/ui/InviteActions";
+import StudentCsvImport from "./StudentCsvImport";
 
 export const metadata = { title: "Students - Registrar" };
 
@@ -52,6 +54,14 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
     db.user.count({ where }),
   ]);
 
+  const pendingInvites = can(session.user.role, "students.create")
+    ? await db.staffInvite.findMany({
+        where: { acceptedAt: null, userId: { not: null }, user: { is: { role: "STUDENT" } } },
+        include: { user: { select: { name: true, studentNumber: true } } },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
   const totalPages = Math.ceil(total / take);
 
   return (
@@ -66,6 +76,8 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
           <a href="/api/admin/students/export" className="btn-outline text-sm no-underline">Export CSV</a>
         </div>
       </div>
+
+      {can(session.user.role, "students.create") && <StudentCsvImport />}
 
       {/* Search and filter */}
       <form method="GET" className="flex flex-wrap gap-3">
@@ -89,6 +101,30 @@ export default async function RegistrarStudentsPage({ searchParams }: Props) {
           <a href="/registrar/students" className="btn-ghost text-sm no-underline">Clear</a>
         )}
       </form>
+
+      {pendingInvites.length > 0 && (
+        <section className="card overflow-x-auto">
+          <h2 className="font-semibold text-lg mb-3">Student invitations</h2>
+          <table className="w-full text-sm">
+            <thead><tr className="text-left text-xs text-gray-400 border-b border-border">
+              <th className="pb-2 pr-4 font-medium">Student</th>
+              <th className="pb-2 pr-4 font-medium">Student number</th>
+              <th className="pb-2 pr-4 font-medium">Expires</th>
+              <th className="pb-2 font-medium">Manage</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {pendingInvites.map((invite) => (
+                <tr key={invite.id}>
+                  <td className="py-2 pr-4">{invite.user?.name ?? invite.email}</td>
+                  <td className="py-2 pr-4 font-mono text-xs">{invite.user?.studentNumber ?? "-"}</td>
+                  <td className="py-2 pr-4 text-xs text-gray-500">{new Date(invite.expiresAt).toLocaleDateString("en-UG")}</td>
+                  <td className="py-2"><InviteActions inviteId={invite.id} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       <div className="card overflow-x-auto">
         {students.length === 0 ? (

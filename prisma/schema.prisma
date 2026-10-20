@@ -1,4 +1,4 @@
-// Musawo Training Center — Prisma Schema
+// Musawo Training Center - Prisma Schema
 // Version 1.0
 
 generator client {
@@ -111,6 +111,13 @@ enum LiveClassStatus {
   CANCELLED
 }
 
+enum AttendanceMark {
+  PRESENT
+  LATE
+  ABSENT
+  EXCUSED
+}
+
 enum ExamStatus {
   DRAFT
   PUBLISHED
@@ -205,6 +212,14 @@ model User {
   name              String
   email             String?     @unique
   phone             String?     @unique
+  professionalTitle String?
+  registrationNumber String?
+  dateOfBirth       DateTime?
+  gender            String?
+  district          String?
+  highestQualification String?
+  idNumberEncrypted String?
+  emergencyContact  String?
   emailVerified     DateTime?
   phoneVerified     DateTime?
   passwordHash      String?
@@ -215,7 +230,7 @@ model User {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
-  // TOTP / 2FA — required for SUPERADMIN, optional for staff
+  // TOTP / 2FA - required for SUPERADMIN, optional for staff
   totpSecret        String?     // encrypted at app layer
   totpEnabled       Boolean     @default(false)
   totpVerifiedAt    DateTime?   // last successful TOTP verification in session
@@ -232,9 +247,11 @@ model User {
   lessonProgress    LessonProgress[]
   examAttempts      ExamAttempt[]
   attendance        Attendance[]
+  presence          PlatformPresence?
   certificates      Certificate[]
   notifications     Notification[]
   notificationPrefs NotificationPref[]
+  dashboardWidgetPreferences DashboardWidgetPreference[]
 
   // Staff
   taughtCourses     Course[]          @relation("CourseMainTutor")
@@ -287,6 +304,22 @@ model User {
   statementImports  StatementImport[]
 
   @@map("users")
+}
+
+model DashboardWidgetPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  tab       String
+  widgetId  String
+  visible   Boolean  @default(true)
+  column    Int      @default(0)
+  position  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tab, widgetId])
+  @@index([userId, tab, column, position])
 }
 
 // Auth.js required tables
@@ -362,6 +395,7 @@ model Course {
   eligibilityText    String?      @db.Text  // shown on apply form
   durationMonths     Int?         // preferred over durationWeeks for real courses
   freePreviewPercent Int          @default(12)
+  minimumAttendancePercent Int    @default(75)
   fullFeeUgx         Int?         // null means "contact admissions"
   feeContactOnly     Boolean      @default(false) // true = hide fee, show contact message
   instalmentCount    Int          @default(1)
@@ -682,7 +716,14 @@ model LiveClass {
   durationMin   Int             @default(60)
   joinUrl       String
   recordingUrl  String?
-  platform      String          @default("google_meet") // google_meet|zoom|jitsi
+  platform      String          @default("link") // link|bbb|jitsi
+  providerMeetingId String?
+  recordingEnabled Boolean      @default(true)
+  recordingStatus String        @default("PENDING")
+  studentsMaySpeak Boolean      @default(false)
+  selfCheckInOpensAt DateTime?
+  selfCheckInClosesAt DateTime?
+  minimumAttendancePercent Int  @default(75)
   status        LiveClassStatus @default(SCHEDULED)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -691,6 +732,7 @@ model LiveClass {
   block      Block?       @relation(fields: [blockId], references: [id])
   tutor      User         @relation(fields: [tutorId], references: [id])
   attendance Attendance[]
+  reminders  LiveClassReminder[]
 
   @@map("live_classes")
 }
@@ -700,6 +742,18 @@ model Attendance {
   liveClassId  String
   userId       String
   joinedAt     DateTime?
+  admissionRequestedAt DateTime?
+  admittedAt   DateTime?
+  leftAt       DateTime?
+  startMark    AttendanceMark?
+  endMark      AttendanceMark?
+  startComment String?   @db.Text
+  endComment   String?   @db.Text
+  selfCheckedInAt DateTime?
+  handRaisedAt DateTime?
+  canSpeak     Boolean   @default(false)
+  isMuted      Boolean   @default(true)
+  isPresenter  Boolean   @default(false)
   markedPresent Boolean  @default(false)
   createdAt    DateTime  @default(now())
 
@@ -708,6 +762,34 @@ model Attendance {
 
   @@unique([liveClassId, userId])
   @@map("attendance")
+}
+
+model PlatformPresence {
+  userId       String   @id
+  lastSeenAt   DateTime @default(now())
+  currentClassId String?
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([lastSeenAt])
+  @@map("platform_presence")
+}
+
+model LiveClassReminder {
+  id           String    @id @default(cuid())
+  liveClassId  String
+  channel      String
+  remindAt     DateTime
+  processingAt DateTime?
+  sentAt       DateTime?
+  attempts     Int       @default(0)
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  liveClass    LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+
+  @@unique([liveClassId, channel, remindAt])
+  @@index([remindAt, sentAt])
+  @@map("live_class_reminders")
 }
 
 // ─────────────────────────────────────────────
@@ -1205,6 +1287,8 @@ model StaffInvite {
   createdAt   DateTime  @default(now())
   // For student invites: points to the pre-created user account
   userId      String?
+  courseId    String?   // optional teaching assignment applied when the invite is accepted
+  intakeId    String?   // selected student intake shown on the invite review screen
 
   createdBy User  @relation(fields: [createdById], references: [id])
   user      User? @relation("StudentInviteUser", fields: [userId], references: [id])

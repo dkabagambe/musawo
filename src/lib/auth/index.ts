@@ -40,7 +40,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!user || !user.passwordHash) return null;
-        if (user.status === "SUSPENDED")  return null;
+        // Login is impossible before the account is accepted/active.
+        // PENDING_VERIFICATION: email not confirmed (registration flow - not used for invite flow)
+        // PENDING_ACCEPTANCE:   Registrar created the account; student has not confirmed details yet
+        // DETAILS_DISPUTED:     student flagged details as wrong; must contact Registrar
+        if (user.status === "SUSPENDED" ||
+            user.status === "PENDING_ACCEPTANCE" ||
+            user.status === "DETAILS_DISPUTED") return null;
 
         const valid = await verifyPassword(password, user.passwordHash);
         if (!valid) return null;
@@ -83,10 +89,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const code  = credentials.code  as string;
 
         const user = await db.user.findUnique({ where: { phone } });
-        if (!user || user.status === "SUSPENDED") return null;
+        if (!user ||
+            user.status === "SUSPENDED" ||
+            user.status === "PENDING_ACCEPTANCE" ||
+            user.status === "DETAILS_DISPUTED") return null;
 
-        // SUPERADMIN must use email + TOTP
-        if (user.role === "SUPERADMIN") return null;
+        // SUPER_ADMIN must use email + TOTP
+        if (user.role === "SUPER_ADMIN" || user.role === "SUPERADMIN") return null;
 
         const otp = await db.otpCode.findFirst({
           where: {

@@ -35,6 +35,7 @@ export default function CreateStudentForm({ courses, intakes, sourceApplicationI
     district:             "",
     highestQualification: prefill?.highestQualification ?? "",
     emergencyContact:     "",
+    idNumber:             "",
   });
 
   const [loading, setLoading]   = useState(false);
@@ -55,6 +56,7 @@ export default function CreateStudentForm({ courses, intakes, sourceApplicationI
     if (!form.name.trim()) { setError("Full name is required."); return; }
     if (!form.email.trim() && !form.phone.trim()) { setError("Provide at least an email or phone number."); return; }
     if (isProfessional && !form.professionalTitle.trim()) { setError("Professional title is required for professional category."); return; }
+    if (isProfessional && !form.registrationNumber.trim()) { setError("Professional registration number is required for professional category."); return; }
 
     setLoading(true);
     try {
@@ -75,6 +77,7 @@ export default function CreateStudentForm({ courses, intakes, sourceApplicationI
           district:             form.district.trim() || undefined,
           highestQualification: form.highestQualification.trim() || undefined,
           emergencyContact:     form.emergencyContact.trim() || undefined,
+          idNumber:             form.idNumber.trim() || undefined,
           sourceApplicationId:  sourceApplicationId,
         }),
       });
@@ -155,6 +158,10 @@ export default function CreateStudentForm({ courses, intakes, sourceApplicationI
           <div className="sm:col-span-2">
             <label className="label" htmlFor="emergency">Emergency contact</label>
             <input id="emergency" type="text" value={form.emergencyContact} onChange={(e) => set("emergencyContact", e.target.value)} className="input" placeholder="Name and phone number" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="label" htmlFor="id-number">ID number <span className="text-gray-400 font-normal">(optional, encrypted)</span></label>
+            <input id="id-number" type="text" value={form.idNumber} onChange={(e) => set("idNumber", e.target.value)} className="input" autoComplete="off" />
           </div>
         </div>
       </div>

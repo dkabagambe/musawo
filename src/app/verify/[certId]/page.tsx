@@ -25,7 +25,7 @@ export default async function VerifyCertificatePage({ params }: Props) {
         course: { select: { title: true, accreditationText: true } },
       },
     }),
-    getSetting("site.supportEmail", "info@mtc.ac.ug"),
+    getSetting("site.supportEmail", "info@musawo.ug"),
   ]);
 
   // Log verification
@@ -122,7 +122,7 @@ export default async function VerifyCertificatePage({ params }: Props) {
         <div className="mt-6 pt-6 border-t border-border text-center">
           <p className="text-xs text-gray-400">
             Issued by{" "}
-            <a href="https://mtc.ac.ug" className="text-primary">
+            <a href="https://www.musawo.ug" className="text-primary">
               Musawo Training Center
             </a>{" "}
             · Luggala Trading Center, Lubaga Division, Kampala

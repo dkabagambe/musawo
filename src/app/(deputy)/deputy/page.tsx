@@ -5,12 +5,32 @@ import { can } from "@/lib/rbac";
 import Link from "next/link";
 import { Users, Calendar, ClipboardList, BookOpen, ChevronRight, AlertCircle } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
+import PresenceOverview from "@/components/attendance/PresenceOverview";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Deputy Principal" };
 
-export default async function DeputyPage() {
+const DEPUTY_TABS = new Set<string>(["general", "academics", "support", "reports"]);
+
+export default async function DeputyPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "support.manage")) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && DEPUTY_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const now = new Date();
 
@@ -61,6 +81,8 @@ export default async function DeputyPage() {
         )}
       </div>
 
+      <PresenceOverview />
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Active Students"    value={activeStudents}    icon={<Users className="w-5 h-5" />}         href="/deputy/students"   color="primary" />
         <StatCard label="Active Enrolments"  value={totalEnrolments}   icon={<BookOpen className="w-5 h-5" />}      href="/deputy/students"   color="success" />
@@ -71,7 +93,7 @@ export default async function DeputyPage() {
       {suspendedStudents > 0 && (
         <div className="bg-danger/5 border border-danger/20 rounded-2xl p-4 flex items-center gap-4">
           <AlertCircle className="w-5 h-5 text-danger flex-shrink-0" />
-          <p className="text-sm text-red-800 font-medium">{suspendedStudents} suspended student{suspendedStudents !== 1 ? "s" : ""} — review in the Students section.</p>
+          <p className="text-sm text-red-800 font-medium">{suspendedStudents} suspended student{suspendedStudents !== 1 ? "s" : ""} - review in the Students section.</p>
           <Link href="/deputy/students" className="ml-auto text-xs font-bold text-danger no-underline hover:underline flex-shrink-0">Review</Link>
         </div>
       )}
@@ -100,7 +122,7 @@ export default async function DeputyPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-primary truncate">{cls.title}</p>
                       <p className="text-xs text-gray-400 truncate">{cls.course.title}</p>
-                      <p className="text-xs text-gray-400">{d.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" })} — {cls.tutor.name}</p>
+                      <p className="text-xs text-gray-400">{d.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" })} - {cls.tutor.name}</p>
                     </div>
                   </div>
                 );

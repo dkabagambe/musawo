@@ -15,7 +15,7 @@ export default async function SystemLayout({ children }: { children: React.React
   if (!session?.user || !can(session.user.role, "integrations.edit")) redirect("/login");
   const name = session.user.name ?? "IT Admin";
   return (
-    <AppShell nav={NAV} role="System IT" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="System IT" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

@@ -164,7 +164,7 @@ export default async function ExamsPage() {
                   </div>
                   <h3 className="font-bold text-primary text-sm mb-2">QR verification</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Every certificate has a unique QR code. Employers can scan it to verify authenticity in seconds at verify.mtc.ac.ug.
+                    Every certificate has a unique QR code. Employers can scan it to verify authenticity in seconds at www.musawo.ug/verify.
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border p-6">
@@ -196,7 +196,7 @@ export default async function ExamsPage() {
                   <div>
                     <h3 className="font-bold text-primary mb-2">Resit policy</h3>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@mtc.ac.ug to discuss your options.
+                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@musawo.ug to discuss your options.
                     </p>
                   </div>
                 </div>

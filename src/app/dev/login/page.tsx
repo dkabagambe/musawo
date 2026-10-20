@@ -16,7 +16,7 @@ const DEMO_ACCOUNTS = [
   { label: "Auditor (Read-only)",  email: "auditor@mtc.ac.ug",          role: "AUDITOR_READONLY",   landing: "/auditor",     icon: "🔍" },
   { label: "IT Admin",             email: "itadmin@mtc.ac.ug",          role: "SYSTEM_IT",          landing: "/system",      icon: "🖥" },
   { label: "Instructor",           email: "tutor@mtc.ac.ug",            role: "INSTRUCTOR",         landing: "/tutor",       icon: "👩" },
-  { label: "Instructor 2 (dual)",  email: "tutor2@mtc.ac.ug",           role: "INSTRUCTOR",         landing: "/tutor",       icon: "👩" },
+  { label: "Instructor 2",          email: "tutor2@mtc.ac.ug",           role: "INSTRUCTOR",         landing: "/tutor",       icon: "👩" },
   { label: "Teaching Assistant",   email: "assistant@mtc.ac.ug",        role: "TEACHING_ASSISTANT", landing: "/tutor",       icon: "🤝" },
   { label: "Student - new",        email: "student.new@example.com",    role: "STUDENT",            landing: "/dashboard",   icon: "📚" },
   { label: "Student - 25% paid",   email: "student.25@example.com",     role: "STUDENT",            landing: "/dashboard",   icon: "📚" },
@@ -24,9 +24,12 @@ const DEMO_ACCOUNTS = [
   { label: "Student - active",     email: "student.full@example.com",   role: "STUDENT",            landing: "/dashboard",   icon: "📚" },
   { label: "Student - overdue",    email: "student.overdue@example.com",role: "STUDENT",            landing: "/dashboard",   icon: "📚" },
   { label: "Student - completed",  email: "student.completed@example.com", role: "STUDENT",         landing: "/dashboard",   icon: "📚" },
+  { label: "Student - pending invite", email: "student.waiting@example.com", role: "STUDENT",       landing: "invite only",  icon: "⏳" },
+  { label: "Student - pending invite 2", email: "student.waiting2@example.com", role: "STUDENT",   landing: "invite only",  icon: "⏳" },
+  { label: "Student - disputed",   email: "student.disputed@example.com", role: "STUDENT",          landing: "invite only",  icon: "⚠" },
 ];
 
-export const DEMO_PASSWORD = "Demo1234!";
+const DEMO_PASSWORD = "Demo1234!";
 
 export default function DevLoginPage() {
   if (process.env.NODE_ENV === "production") notFound();

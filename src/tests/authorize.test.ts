@@ -51,6 +51,9 @@ const DEMO_EMAILS = [
   "student.full@example.com",
   "student.overdue@example.com",
   "student.completed@example.com",
+  // Special-state students (cannot log in until they accept the invite)
+  // "student.waiting@example.com",  - PENDING_ACCEPTANCE, login blocked
+  // "student.disputed@example.com", - DETAILS_DISPUTED, login blocked
 ];
 
 afterAll(() => db.$disconnect());
@@ -106,5 +109,17 @@ describe("authorize() — all demo accounts sign in with Demo1234!", () => {
   it("rejects a non-existent user", async () => {
     const result = await simulateAuthorize("nobody@example.com", DEMO_PASSWORD);
     expect(result).toMatchObject({ ok: false, reason: "user not found or no hash" });
+  });
+
+  it("rejects PENDING_ACCEPTANCE users (login impossible before acceptance)", async () => {
+    const result = await simulateAuthorize("student.waiting@example.com", DEMO_PASSWORD);
+    // These accounts have no passwordHash in the seed (status is PENDING_ACCEPTANCE)
+    // so they fail at the "user not found or no hash" check
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects DETAILS_DISPUTED users (login blocked until Registrar resolves)", async () => {
+    const result = await simulateAuthorize("student.disputed@example.com", DEMO_PASSWORD);
+    expect(result.ok).toBe(false);
   });
 });

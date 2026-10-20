@@ -142,8 +142,8 @@ export default function LoginPage() {
   /* ─ Main credentials step ───────────────────────────────────── */
   return (
     <div className="auth-card">
-      <h1 className="text-2xl font-bold text-primary text-center">Welcome back</h1>
-      <p className="text-gray-500 text-sm text-center mt-2 mb-8">
+      <h1 className="text-2xl font-bold text-primary text-center tracking-tight">Welcome back</h1>
+      <p className="text-gray-500 text-sm text-center mt-2 mb-7">
         Sign in to your Musawo Training Center account
       </p>
 
@@ -172,13 +172,13 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* Mode tabs - segmented control */}
-      <div className="relative flex rounded-xl border border-border bg-surface p-1 mb-8" role="tablist" aria-label="Sign-in method">
-        {/* sliding indicator */}
+      {/* Sign-in methods stay separate from account roles. The account's permissions
+          determine the portal after authentication. */}
+      <div className="relative grid grid-cols-2 gap-1 rounded-2xl border border-border/70 bg-surface p-1.5 mb-7" role="tablist" aria-label="Sign-in method">
         <motion.div
-          className="absolute top-1 bottom-1 rounded-lg bg-white shadow-sm border border-border/60"
-          style={{ width: "calc(50% - 4px)" }}
-          animate={{ x: mode === "email" ? 0 : "calc(100% + 8px)" }}
+          className="absolute left-1.5 inset-y-1.5 rounded-xl bg-white shadow-sm ring-1 ring-black/[0.04]"
+          style={{ width: "calc(50% - 6px)" }}
+          animate={{ x: mode === "email" ? 0 : "calc(100% + 6px)" }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
           aria-hidden="true"
         />
@@ -187,20 +187,20 @@ export default function LoginPage() {
           role="tab"
           aria-selected={mode === "email"}
           onClick={() => setMode("email")}
-          className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${mode === "email" ? "text-primary" : "text-gray-500 hover:text-gray-700"}`}
+          className={`relative z-10 min-w-0 flex items-center justify-center gap-2.5 rounded-xl px-2 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${mode === "email" ? "text-primary" : "text-gray-500 hover:text-gray-800"}`}
         >
           <Mail className="w-4 h-4" aria-hidden="true" />
-          Email
+          <span>Email</span>
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={mode === "phone"}
           onClick={() => setMode("phone")}
-          className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-colors ${mode === "phone" ? "text-primary" : "text-gray-500 hover:text-gray-700"}`}
+          className={`relative z-10 min-w-0 flex items-center justify-center gap-2.5 rounded-xl px-2 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${mode === "phone" ? "text-primary" : "text-gray-500 hover:text-gray-800"}`}
         >
           <Phone className="w-4 h-4" aria-hidden="true" />
-          Phone / OTP
+          <span>Phone OTP</span>
         </button>
       </div>
 
@@ -331,8 +331,8 @@ export default function LoginPage() {
       {/* Footer links */}
       <p className="text-center text-sm text-gray-500">
         New to Musawo Training Center?{" "}
-        <Link href="/register" className="text-primary font-bold no-underline hover:underline underline-offset-4">
-          Create an account
+        <Link href="/apply" className="text-primary font-bold no-underline hover:underline underline-offset-4">
+          Apply now
         </Link>
       </p>
       <p className="text-center text-xs text-gray-400 mt-3">

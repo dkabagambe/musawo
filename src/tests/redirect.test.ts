@@ -11,30 +11,46 @@ import type { UserRole } from "@prisma/client";
 
 describe("getHomePathForRole", () => {
   const cases: Array<[UserRole | string | null | undefined, string]> = [
-    ["SUPERADMIN",  "/director"],
-    ["SYSTEM_IT",   "/system"],
-    ["REGISTRAR",   "/admin/students"],
-    ["BURSAR",      "/bursar"],
-    ["TUTOR",       "/tutor"],
-    ["STUDENT",     "/dashboard"],
-    ["ADMIN",       "/admin/students"],   // legacy alias
-    ["SPONSOR",     "/dashboard"],
-    ["EMPLOYER",    "/dashboard"],
-    [null,          "/dashboard"],
-    [undefined,     "/dashboard"],
-    ["UNKNOWN_ROLE","/dashboard"],        // never a 404
+    // Canonical roles
+    ["SUPER_ADMIN",           "/director"],
+    ["BOARD_MEMBER",          "/board"],
+    ["PRINCIPAL",            "/principal"],
+    ["DEPUTY_PRINCIPAL",     "/deputy"],
+    ["ACADEMIC_REGISTRAR",   "/registrar"],
+    ["INSTRUCTOR",           "/tutor"],
+    ["TEACHING_ASSISTANT",   "/tutor"],
+    ["FINANCE_OFFICER",      "/finance"],
+    ["HR_SYSTEM_ADMIN",      "/admin"],
+    ["AUDITOR_READONLY",     "/auditor"],
+    ["SYSTEM_IT",            "/system"],
+    ["STUDENT",              "/dashboard"],
+    // Legacy aliases
+    ["SUPERADMIN",            "/director"],
+    ["REGISTRAR",             "/registrar"],
+    ["BURSAR",                "/finance"],
+    ["TUTOR",                 "/tutor"],
+    ["ADMIN",                 "/admin"],
+    ["ADMINISTRATOR",         "/admin"],
+    // Edge cases
+    ["SPONSOR",               "/dashboard"],
+    ["EMPLOYER",              "/dashboard"],
+    [null,                    "/dashboard"],
+    [undefined,               "/dashboard"],
+    ["UNKNOWN_ROLE",          "/dashboard"],        // never a 404
   ];
 
   for (const [role, expected] of cases) {
-    it(`role ${String(role)} → ${expected}`, () => {
+    it(`role ${String(role)} -> ${expected}`, () => {
       expect(getHomePathForRole(role as UserRole)).toBe(expected);
     });
   }
 
   it("never returns /_rbac_redirect", () => {
     const allRoles: Array<UserRole | string | null | undefined> = [
-      "SUPERADMIN","SYSTEM_IT","REGISTRAR","BURSAR","TUTOR",
-      "STUDENT","ADMIN","SPONSOR","EMPLOYER",null,undefined,
+      "SUPER_ADMIN","SUPERADMIN","BOARD_MEMBER","PRINCIPAL","DEPUTY_PRINCIPAL",
+      "ACADEMIC_REGISTRAR","REGISTRAR","INSTRUCTOR","TUTOR","TEACHING_ASSISTANT",
+      "FINANCE_OFFICER","BURSAR","HR_SYSTEM_ADMIN","ADMINISTRATOR","ADMIN",
+      "AUDITOR_READONLY","SYSTEM_IT","STUDENT","SPONSOR","EMPLOYER",null,undefined,
     ];
     for (const role of allRoles) {
       expect(getHomePathForRole(role as UserRole)).not.toBe("/_rbac_redirect");
@@ -44,7 +60,10 @@ describe("getHomePathForRole", () => {
   it("never returns a path that would 404 in a known route", () => {
     const knownUnknownPaths = ["/_rbac_redirect", "/unknown", "/404-path"];
     const allRoles: UserRole[] = [
-      "SUPERADMIN","SYSTEM_IT","REGISTRAR","BURSAR","TUTOR","STUDENT","ADMIN",
+      "SUPER_ADMIN","SUPERADMIN","BOARD_MEMBER","PRINCIPAL","DEPUTY_PRINCIPAL",
+      "ACADEMIC_REGISTRAR","REGISTRAR","INSTRUCTOR","TUTOR","TEACHING_ASSISTANT",
+      "FINANCE_OFFICER","BURSAR","HR_SYSTEM_ADMIN","ADMINISTRATOR","ADMIN",
+      "AUDITOR_READONLY","SYSTEM_IT","STUDENT",
     ];
     for (const role of allRoles) {
       const path = getHomePathForRole(role);
@@ -60,16 +79,26 @@ describe("getPostLoginPath", () => {
 
   it("returns role home when no callbackUrl", () => {
     expect(getPostLoginPath("STUDENT")).toBe("/dashboard");
-    expect(getPostLoginPath("REGISTRAR")).toBe("/admin/students");
-    expect(getPostLoginPath("BURSAR")).toBe("/bursar");
+    expect(getPostLoginPath("ACADEMIC_REGISTRAR")).toBe("/registrar");
+    expect(getPostLoginPath("REGISTRAR")).toBe("/registrar");
+    expect(getPostLoginPath("FINANCE_OFFICER")).toBe("/finance");
+    expect(getPostLoginPath("BURSAR")).toBe("/finance");
+    expect(getPostLoginPath("INSTRUCTOR")).toBe("/tutor");
     expect(getPostLoginPath("TUTOR")).toBe("/tutor");
+    expect(getPostLoginPath("TEACHING_ASSISTANT")).toBe("/tutor");
+    expect(getPostLoginPath("SUPER_ADMIN")).toBe("/director");
     expect(getPostLoginPath("SUPERADMIN")).toBe("/director");
+    expect(getPostLoginPath("BOARD_MEMBER")).toBe("/board");
+    expect(getPostLoginPath("PRINCIPAL")).toBe("/principal");
+    expect(getPostLoginPath("DEPUTY_PRINCIPAL")).toBe("/deputy");
+    expect(getPostLoginPath("HR_SYSTEM_ADMIN")).toBe("/admin");
+    expect(getPostLoginPath("AUDITOR_READONLY")).toBe("/auditor");
     expect(getPostLoginPath("SYSTEM_IT")).toBe("/system");
   });
 
   it("honours a safe same-origin callbackUrl", () => {
     expect(getPostLoginPath("STUDENT", "/dashboard/courses", origin)).toBe("/dashboard/courses");
-    expect(getPostLoginPath("REGISTRAR", "/admin/students/abc123", origin)).toBe("/admin/students/abc123");
+    expect(getPostLoginPath("ACADEMIC_REGISTRAR", "/registrar/students/abc123", origin)).toBe("/registrar/students/abc123");
   });
 
   it("honours a safe absolute same-origin callbackUrl", () => {
@@ -79,7 +108,7 @@ describe("getPostLoginPath", () => {
 
   it("rejects a callbackUrl to a different origin", () => {
     expect(getPostLoginPath("STUDENT", "https://evil.com/steal", origin)).toBe("/dashboard");
-    expect(getPostLoginPath("SUPERADMIN", "http://evil.com/admin", origin)).toBe("/director");
+    expect(getPostLoginPath("SUPER_ADMIN", "http://evil.com/admin", origin)).toBe("/director");
   });
 
   it("rejects auth pages as callbackUrl", () => {

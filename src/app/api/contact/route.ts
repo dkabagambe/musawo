@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
   }
 
   await resend.emails.send({
-    from: "noreply@mtc.ac.ug",
-    to:   "info@mtc.ac.ug",
+    from: "noreply@musawo.ug",
+    to:   "info@musawo.ug",
     replyTo: body.email,
     subject: `[Contact] ${body.subject} - from ${body.name}`,
     text: `From: ${body.name} <${body.email}>\n\n${body.message}`,

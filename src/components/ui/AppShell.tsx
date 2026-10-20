@@ -2,213 +2,671 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Menu, X, LogOut, ChevronRight } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { filterNavByPermission } from "@/lib/rbac/navigation";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
+import {
+  DashboardPageHeader,
+  DashboardPreferenceProvider,
+  WidgetCustomizer,
+} from "@/components/ui/DashboardWidgets";
+import type { UserRole } from "@prisma/client";
+import {
+  ArrowLeftRight,
+  BookOpen,
+  Building2,
+  Bell,
+  CalendarDays,
+  ClipboardCheck,
+  ClipboardList,
+  ChevronDown,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  FileSearch,
+  GraduationCap,
+  Layers,
+  LifeBuoy,
+  LayoutDashboard as LayoutDashboardIcon,
+  LogOut,
+  Menu,
+  Settings2,
+  SlidersHorizontal,
+  ShieldCheck,
+  Settings,
+  UserRound,
+  Users,
+  Wallet,
+  X,
+} from "lucide-react";
 
 export interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  group?: string;
+  permission?: string;
 }
 
 interface AppShellProps {
   children: React.ReactNode;
   nav: NavItem[];
   role: string;
+  permissionRole: UserRole;
   userName: string;
   userInitial: string;
   accentClass?: string;
+}
+
+function titleFor(pathname: string, nav: NavItem[]) {
+  if (pathname === nav[0]?.href) return "Dashboard";
+  const current = [...nav]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    );
+  return current?.label ?? "Dashboard";
+}
+
+function dashboardGroup(href: string, root: string): DashboardTab {
+  const relative =
+    href === root ? "" : href.slice(root.length).replace(/^\//, "");
+  const section = relative.split("/")[0];
+  const groupsByRoot: Record<string, Record<string, DashboardTab>> = {
+    "/dashboard": {
+      courses: "studies",
+      gradebook: "studies",
+      results: "studies",
+      assignments: "studies",
+      forum: "studies",
+      payments: "finance",
+      recordings: "classes",
+    },
+    "/tutor": {
+      courses: "teaching",
+      materials: "teaching",
+      classes: "teaching",
+      students: "students",
+      exams: "assessment",
+      attendance: "assessment",
+      announcements: "support",
+    },
+    "/registrar": {
+      applications: "admissions",
+      students: "students",
+      enrolments: "academics",
+      results: "academics",
+      graduands: "academics",
+      audit: "reports",
+    },
+    "/principal": {
+      courses: "academics",
+      students: "academics",
+      results: "academics",
+      graduands: "academics",
+      reports: "reports",
+      audit: "reports",
+    },
+    "/deputy": {
+      students: "academics",
+      timetable: "academics",
+      complaints: "support",
+      reports: "reports",
+      policies: "support",
+    },
+    "/finance": {
+      payments: "payments",
+      ledger: "reconciliation",
+      approvals: "payments",
+    },
+    "/bursar": {
+      payments: "payments",
+      ledger: "reconciliation",
+      approvals: "payments",
+    },
+    "/admin": {
+      courses: "academics",
+      students: "students",
+      tutors: "staff",
+      intakes: "academics",
+      payments: "finance",
+      reports: "reports",
+      settings: "settings",
+      audit: "audit",
+      "partner-pages": "settings",
+    },
+    "/director": {
+      approvals: "approvals",
+      staff: "staff",
+      audit: "reports",
+      "access-review": "staff",
+      admin: "staff",
+    },
+    "/board": { reports: "reports", policies: "audit", graduates: "academics" },
+    "/auditor": {
+      students: "audit",
+      audit: "audit",
+      reports: "reports",
+      policies: "audit",
+    },
+    "/system": { settings: "system", audit: "logs" },
+  };
+  return groupsByRoot[root]?.[section] ?? "general";
+}
+
+const TAB_LABELS: Record<DashboardTab, string> = {
+  general: "General",
+  studies: "Studies",
+  finance: "Finance",
+  classes: "Classes",
+  teaching: "Teaching",
+  students: "Students",
+  assessment: "Assessment",
+  support: "Support",
+  materials: "Materials",
+  admissions: "Admissions",
+  academics: "Academics",
+  approvals: "Approvals",
+  reports: "Reports",
+  payments: "Payments",
+  reconciliation: "Reconciliation",
+  staff: "Staff",
+  settings: "Settings",
+  audit: "Audit",
+  system: "System",
+  logs: "Logs",
+};
+
+function groupIcon(group: string) {
+  const props = { size: 18, "aria-hidden": true as const };
+  switch (group) {
+    case "general":
+      return <LayoutDashboardIcon {...props} />;
+    case "teaching":
+      return <GraduationCap {...props} />;
+    case "assessment":
+      return <ClipboardCheck {...props} />;
+    case "support":
+      return <LifeBuoy {...props} />;
+    case "students":
+      return <UserRound {...props} />;
+    case "studies":
+      return <BookOpen {...props} />;
+    case "classes":
+      return <CalendarDays {...props} />;
+    case "finance":
+    case "payments":
+      return <Wallet {...props} />;
+    case "reconciliation":
+      return <ArrowLeftRight {...props} />;
+    case "admissions":
+      return <ClipboardList {...props} />;
+    case "academics":
+      return <Building2 {...props} />;
+    case "reports":
+      return <FileSearch {...props} />;
+    case "audit":
+      return <ShieldCheck {...props} />;
+    case "staff":
+      return <Users {...props} />;
+    case "settings":
+      return <SlidersHorizontal {...props} />;
+    case "system":
+      return <Settings2 {...props} />;
+    default:
+      return <Layers {...props} />;
+  }
+}
+
+export function Sidebar({
+  nav,
+  pathname,
+  userName,
+  userInitial,
+  role,
+  collapsed,
+  onToggle,
+  onNavigate,
+}: {
+  nav: NavItem[];
+  pathname: string;
+  userName: string;
+  userInitial: string;
+  role: string;
+  collapsed: boolean;
+  onToggle: () => void;
+  onNavigate?: () => void;
+}) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+  const grouped = useMemo(() => {
+    const map = new Map<string, NavItem[]>();
+    nav.forEach((item) => {
+      const group = item.group ?? dashboardGroup(item.href, nav[0]?.href ?? "");
+      map.set(group, [...(map.get(group) ?? []), item]);
+    });
+    return Array.from(map.entries());
+  }, [nav]);
+
+  const active = (href: string) =>
+    href === pathname ||
+    (href !== nav[0]?.href && pathname.startsWith(`${href}/`));
+
+  return (
+    <aside
+      className={`portal-sidebar ${collapsed ? "portal-sidebar-collapsed" : ""}`}
+      aria-label="Main sidebar"
+    >
+      <div className="portal-brand">
+        <Link
+          href="/"
+          className="portal-brand-link"
+          aria-label="Musawo Training Center"
+        >
+          <span className="portal-logo">
+            <Image
+              src="/assets/logo-header.png"
+              alt=""
+              width={30}
+              height={30}
+              priority
+            />
+          </span>
+          <span className="portal-wordmark">
+            <strong>Musawo TC</strong>
+            <small>Learning system</small>
+          </span>
+        </Link>
+        <button
+          type="button"
+          className="portal-icon-button portal-sidebar-toggle"
+          onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
+        </button>
+      </div>
+
+      <nav className="portal-nav">
+        {grouped.map(([group, items]) => (
+          <section key={group} className="portal-nav-group" aria-label={group}>
+            {items.length > 1 && (
+              <button
+                type="button"
+                className="portal-nav-link portal-nav-parent"
+                aria-expanded={!collapsedGroups.includes(group)}
+                title={
+                  collapsed ? TAB_LABELS[group as DashboardTab] : undefined
+                }
+                onClick={() =>
+                  setCollapsedGroups((current) =>
+                    current.includes(group)
+                      ? current.filter((value) => value !== group)
+                      : [...current, group],
+                  )
+                }
+              >
+                <span className="portal-nav-icon" aria-hidden="true">
+                  {groupIcon(group)}
+                </span>
+                <span className="portal-nav-label">
+                  {TAB_LABELS[group as DashboardTab] ?? group}
+                </span>
+                <ChevronRight
+                  className={`portal-nav-parent-chevron ${collapsedGroups.includes(group) ? "" : "is-expanded"}`}
+                  size={16}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
+            {!collapsedGroups.includes(group) && (
+              <ul
+                className={items.length > 1 ? "portal-nav-subitems" : undefined}
+              >
+                {items.map((item) => {
+                  const selected = active(item.href);
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={onNavigate}
+                        title={collapsed ? item.label : undefined}
+                        aria-current={selected ? "page" : undefined}
+                        className={`portal-nav-link ${selected ? "is-active" : ""}`}
+                      >
+                        <span className="portal-nav-icon" aria-hidden="true">
+                          {item.icon}
+                        </span>
+                        <span className="portal-nav-label">{item.label}</span>
+                        {item.badge !== undefined && item.badge > 0 && (
+                          <span className="portal-nav-badge">
+                            {item.badge > 99 ? "99+" : item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        ))}
+      </nav>
+
+      <div className="portal-user-area">
+        {userMenuOpen && (
+          <div className="portal-user-menu" role="menu">
+            <Link
+              href={
+                nav.find((item) => /profile/i.test(item.label))?.href ??
+                "/dashboard/profile"
+              }
+              onClick={() => {
+                setUserMenuOpen(false);
+                onNavigate?.();
+              }}
+              role="menuitem"
+            >
+              <UserRound size={16} /> Profile
+            </Link>
+            <Link href="/signout" role="menuitem" onClick={onNavigate}>
+              <LogOut size={16} /> Log out
+            </Link>
+          </div>
+        )}
+        <button
+          type="button"
+          className="portal-user-button"
+          onClick={() => setUserMenuOpen((value) => !value)}
+          aria-expanded={userMenuOpen}
+          aria-haspopup="menu"
+          title={collapsed ? userName : undefined}
+        >
+          <span className="portal-avatar">{userInitial}</span>
+          <span className="portal-user-copy">
+            <strong>{userName}</strong>
+            <small>{role}</small>
+          </span>
+          <ChevronDown className="portal-user-chevron" size={16} />
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+export function Topbar({
+  title,
+  onMenu,
+  nav,
+  menuButtonRef,
+}: {
+  title: string;
+  onMenu: () => void;
+  nav: NavItem[];
+  menuButtonRef: React.RefObject<HTMLButtonElement>;
+}) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!settingsOpen) return;
+    const dismiss = (event: MouseEvent) => {
+      if (
+        event.target instanceof Node &&
+        !menuRef.current?.contains(event.target)
+      )
+        setSettingsOpen(false);
+    };
+    document.addEventListener("mousedown", dismiss);
+    return () => document.removeEventListener("mousedown", dismiss);
+  }, [settingsOpen]);
+
+  const profile =
+    nav.find((item) => /profile/i.test(item.label))?.href ??
+    "/dashboard/profile";
+  const notifications = nav.find((item) =>
+    /notification/i.test(item.label),
+  )?.href;
+  return (
+    <header className="portal-topbar">
+      <div className="portal-topbar-title">
+        <button
+          ref={menuButtonRef}
+          type="button"
+          className="portal-icon-button portal-mobile-menu"
+          onClick={onMenu}
+          aria-label="Open navigation menu"
+        >
+          <Menu size={20} />
+        </button>
+        <h1>{title}</h1>
+      </div>
+      <div className="portal-settings-wrap" ref={menuRef}>
+        <button
+          type="button"
+          className="portal-settings-button"
+          aria-label="Settings"
+          aria-expanded={settingsOpen}
+          aria-haspopup="menu"
+          onClick={() => setSettingsOpen((value) => !value)}
+        >
+          <Settings size={19} />
+        </button>
+        {settingsOpen && (
+          <div className="portal-settings-menu" role="menu">
+            <Link
+              href={profile}
+              role="menuitem"
+              onClick={() => setSettingsOpen(false)}
+            >
+              <UserRound size={16} /> Profile
+            </Link>
+            {notifications && (
+              <Link
+                href={notifications}
+                role="menuitem"
+                onClick={() => setSettingsOpen(false)}
+              >
+                <Bell size={16} /> Notifications settings
+              </Link>
+            )}
+            <Link
+              href={`${profile}#password`}
+              role="menuitem"
+              onClick={() => setSettingsOpen(false)}
+            >
+              <Settings size={16} /> Change password
+            </Link>
+          </div>
+        )}
+      </div>
+    </header>
+  );
 }
 
 export default function AppShell({
   children,
   nav,
   role,
+  permissionRole,
   userName,
   userInitial,
-  accentClass = "bg-primary",
 }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [drawerOpen, setDrawer] = useState(false);
+  const searchParams = useSearchParams();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const visibleNav = useMemo(
+    () =>
+      filterNavByPermission(nav, permissionRole).map((item) => ({
+        ...item,
+        group: item.group ?? dashboardGroup(item.href, nav[0]?.href ?? ""),
+      })),
+    [nav, permissionRole],
+  );
+  const dashboardRoot = visibleNav[0]?.href;
+  const isPortalDashboard = pathname === dashboardRoot;
+  const dashboardTabs = useMemo(() => {
+    const tabs: DashboardTab[] = [];
+    visibleNav.forEach((item) => {
+      const tab = item.group as DashboardTab;
+      if (!tabs.includes(tab)) tabs.push(tab);
+    });
+    if (!tabs.includes("general")) tabs.unshift("general");
+    return tabs.map((id) => ({ id, label: TAB_LABELS[id] }));
+  }, [visibleNav]);
+  const currentTab =
+    dashboardTabs.find((tab) => tab.id === searchParams.get("tab"))?.id ??
+    "general";
 
-  // Eagerly prefetch every nav route on mount so clicks are instant
   useEffect(() => {
-    nav.forEach((item) => router.prefetch(item.href));
-  }, [nav, router]);
+    visibleNav.forEach((item) => router.prefetch(item.href));
+  }, [visibleNav, router]);
 
-  // Close drawer on route change
-  useEffect(() => { setDrawer(false); }, [pathname]);
+  useEffect(() => {
+    const beat = () =>
+      fetch("/api/presence/heartbeat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+        keepalive: true,
+      }).catch(() => undefined);
+    void beat();
+    const timer = setInterval(beat, 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // Lock body scroll when drawer open
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem("mtc-sidebar-collapsed") === "true");
+    } catch {
+      /* storage can be unavailable */
+    }
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false);
+    menuButtonRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [drawerOpen]);
+    if (!drawerOpen)
+      return () => {
+        document.body.style.overflow = "";
+      };
+    const dialog = dialogRef.current;
+    const first = dialog?.querySelector<HTMLElement>("a, button");
+    first?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+      if (event.key !== "Tab" || !dialog) return;
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
+      );
+      if (!focusable.length) return;
+      if (event.shiftKey && document.activeElement === focusable[0]) {
+        event.preventDefault();
+        focusable.at(-1)?.focus();
+      }
+      if (!event.shiftKey && document.activeElement === focusable.at(-1)) {
+        event.preventDefault();
+        focusable[0].focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [drawerOpen, closeDrawer]);
 
-  const isActive = (href: string) =>
-    href === pathname || (href !== "/dashboard" && href !== "/tutor" && href !== "/admin" && href !== "/director" && href !== "/bursar" && href !== "/system" && pathname.startsWith(href + "/"));
-
-  const NavLinks = ({ onClick }: { onClick?: () => void }) => (
-    <ul className="space-y-0.5 list-none">
-      {nav.map((item) => {
-        const active = isActive(item.href);
-        return (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              onClick={onClick}
-              prefetch={true}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium no-underline relative
-                transition-colors duration-100
-                ${active
-                  ? "bg-primary text-white shadow-primary-glow"
-                  : "text-gray-600 hover:bg-surface hover:text-primary"
-                }`}
-              aria-current={active ? "page" : undefined}
-            >
-              <span className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-100
-                ${active ? "bg-white/20" : "bg-surface"}`}>
-                {item.icon}
-              </span>
-              <span className="flex-1 truncate">{item.label}</span>
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center
-                  ${active ? "bg-white text-primary" : "bg-danger text-white"}`}>
-                  {item.badge > 99 ? "99+" : item.badge}
-                </span>
-              )}
-              {active && <ChevronRight className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
+  const toggleCollapsed = () =>
+    setCollapsed((value) => {
+      const next = !value;
+      try {
+        localStorage.setItem("mtc-sidebar-collapsed", String(next));
+      } catch {
+        /* storage can be unavailable */
+      }
+      return next;
+    });
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex flex-col">
-
-      {/* ── Top bar ──────────────────────────────────────────────── */}
-      <header className="bg-primary text-white h-16 flex items-center px-4 sm:px-6 gap-3 z-50 shadow-lg flex-shrink-0">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
-          <span className="flex items-center justify-center bg-white rounded-xl w-9 h-9 p-1.5 flex-shrink-0">
-            <Image src="/assets/logo-header.png" alt="MTC" width={28} height={28} className="w-full h-full object-contain" priority />
-          </span>
-          <span className="hidden sm:block">
-            <span className="font-extrabold text-white text-sm leading-tight block">Musawo TC</span>
-            <span className="text-white/50 text-[10px] uppercase tracking-widest">{role}</span>
-          </span>
-        </Link>
-
-        <div className="flex-1" />
-
-        {/* User pill */}
-        <div className="hidden sm:flex items-center gap-2.5 bg-white/10 rounded-xl px-3 py-1.5">
-          <span className="w-7 h-7 bg-accent rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            {userInitial}
-          </span>
-          <span className="text-sm text-white/90 font-medium max-w-[140px] truncate">{userName}</span>
-        </div>
-
-        {/* Sign out */}
-        <Link
-          href="/signout"
-          className="hidden sm:flex items-center gap-1.5 text-xs text-white/60 hover:text-white no-underline transition-colors px-2 py-1.5 rounded-lg hover:bg-white/10"
-          title="Sign out"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign out</span>
-        </Link>
-
-        {/* Hamburger */}
-        <button
-          type="button"
-          onClick={() => setDrawer((v) => !v)}
-          className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-          aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          aria-expanded={drawerOpen}
-        >
-          {drawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden">
-
-        {/* ── Desktop sidebar ───────────────────────────────────── */}
-        <aside className="hidden md:flex flex-col w-60 bg-white border-r border-border flex-shrink-0 overflow-y-auto">
-          <div className="p-3 flex-1">
-            <NavLinks />
-          </div>
-
-          {/* Sidebar footer */}
-          <div className="p-3 border-t border-border">
-            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-surface">
-              <span className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                {userInitial}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-primary truncate">{userName}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wide">{role}</p>
-              </div>
-              <Link href="/signout" className="text-gray-400 hover:text-danger transition-colors" title="Sign out">
-                <LogOut className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </aside>
-
-        {/* ── Mobile drawer backdrop ────────────────────────────── */}
-        {drawerOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
-            onClick={() => setDrawer(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* ── Mobile drawer ─────────────────────────────────────── */}
-        <div
-          className={`fixed top-16 left-0 bottom-0 z-50 w-72 bg-white shadow-2xl md:hidden
-            flex flex-col transition-transform duration-300 ease-out
-            ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation menu"
-        >
-          <div className="p-3 flex-1 overflow-y-auto">
-            <NavLinks onClick={() => setDrawer(false)} />
-          </div>
-          <div className="p-3 border-t border-border">
-            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-surface mb-2">
-              <span className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                {userInitial}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-primary truncate">{userName}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wide">{role}</p>
-              </div>
-            </div>
-            <Link
-              href="/signout"
-              onClick={() => setDrawer(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-danger hover:bg-danger/5 no-underline transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </Link>
-          </div>
-        </div>
-
-        {/* ── Main content ──────────────────────────────────────── */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
-            {children}
+    <div className={`portal-shell ${collapsed ? "has-collapsed-sidebar" : ""}`}>
+      <div className="portal-desktop-sidebar">
+        <Sidebar
+          nav={visibleNav}
+          pathname={pathname}
+          userName={userName}
+          userInitial={userInitial}
+          role={role}
+          collapsed={collapsed}
+          onToggle={toggleCollapsed}
+        />
+      </div>
+      <div className="portal-main-column">
+        <Topbar
+          title={titleFor(pathname, visibleNav)}
+          nav={visibleNav}
+          onMenu={() => setDrawerOpen(true)}
+          menuButtonRef={menuButtonRef}
+        />
+        <main className="portal-main" id="main-content">
+          <div className="portal-content">
+            {isPortalDashboard ? (
+              <DashboardPreferenceProvider tab={currentTab}>
+                <DashboardPageHeader
+                  firstName={userName.split(" ")[0] || "there"}
+                  tabs={dashboardTabs}
+                  customizer={<WidgetCustomizer tab={currentTab} />}
+                />
+                {children}
+              </DashboardPreferenceProvider>
+            ) : (
+              children
+            )}
           </div>
         </main>
+      </div>
+      {drawerOpen && (
+        <button
+          type="button"
+          className="portal-scrim"
+          aria-label="Close navigation"
+          onClick={closeDrawer}
+        />
+      )}
+      <div
+        ref={dialogRef}
+        className={`portal-mobile-drawer ${drawerOpen ? "is-open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        aria-hidden={!drawerOpen}
+      >
+        <Sidebar
+          nav={visibleNav}
+          pathname={pathname}
+          userName={userName}
+          userInitial={userInitial}
+          role={role}
+          collapsed={false}
+          onToggle={closeDrawer}
+          onNavigate={closeDrawer}
+        />
       </div>
     </div>
   );

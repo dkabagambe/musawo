@@ -1,7 +1,7 @@
 /**
  * Shared portal page loading skeleton.
  * Shown by Next.js while the server component fetches data.
- * The AppShell (sidebar + header) is already rendered — only the
+ * The AppShell (sidebar + header) is already rendered - only the
  * content area is replaced with this skeleton.
  */
 export default function PortalLoading() {

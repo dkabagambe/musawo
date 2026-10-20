@@ -19,7 +19,7 @@ const FAQS = [
     items: [
       { q: "How do I pay?",                              a: "You can pay with MTN Mobile Money, Airtel Money, or a bank transfer. Instalment payment plans are available on all courses. Pay the first instalment to confirm your place, then the remainder in further instalments as you progress." },
       { q: "What is your refund policy?",                a: "If you withdraw before the course start date you are entitled to a full refund. After the start date, a partial refund may be available depending on how much of the course has been completed. See our Refund Policy page for full details." },
-      { q: "Can I pay in instalments?",                  a: "Yes. Most courses offer an instalment plan. Each instalment unlocks the next block of course content. Contact admissions@mtc.ac.ug to discuss your options." },
+      { q: "Can I pay in instalments?",                  a: "Yes. Most courses offer an instalment plan. Each instalment unlocks the next block of course content. Contact admissions@musawo.ug to discuss your options." },
     ],
   },
   {

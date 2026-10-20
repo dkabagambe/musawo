@@ -1,6 +1,7 @@
 import PageHero from "@/components/public/PageHero";
 import { Mail, Phone, MapPin, ArrowRight, MessageCircle } from "lucide-react";
 import { getContactInfo } from "@/lib/contact";
+import { getSetting } from "@/lib/settings";
 import AnimateIn from "@/components/public/AnimateIn";
 import ContactForm from "./ContactForm";
 import ClinicMap from "./ClinicMap";
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const contact = await getContactInfo();
+  const [contact, latitude, longitude] = await Promise.all([
+    getContactInfo(), getSetting("site.mapLat", "0.3251859"), getSetting("site.mapLng", "32.539685"),
+  ]);
 
   return (
     <div className="bg-surface">
@@ -89,7 +92,7 @@ export default async function ContactPage() {
             </div>
 
             {/* Map */}
-            <ClinicMap address={contact.address} />
+            <ClinicMap address={contact.address} latitude={Number(latitude)} longitude={Number(longitude)} />
           </AnimateIn>
 
           {/* Form */}

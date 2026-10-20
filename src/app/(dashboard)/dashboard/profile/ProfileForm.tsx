@@ -137,7 +137,7 @@ export default function ProfileForm({ user }: Props) {
       </section>
 
       {/* Change password */}
-      <section className="card">
+      <section id="password" className="card">
         <h2 className="text-lg font-semibold mb-4">Change password</h2>
         {pwMsg && (
           <div role="status" className="bg-success/10 border border-success/20 text-green-800 text-sm rounded-xl px-4 py-3 mb-4">

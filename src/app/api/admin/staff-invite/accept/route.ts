@@ -43,6 +43,17 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const [assignment] = await db.$queryRaw<Array<{ courseId: string | null }>>`
+    SELECT "courseId" FROM staff_invites WHERE id = ${invite.id}
+  `;
+  if (assignment?.courseId) {
+    await db.coTutor.upsert({
+      where: { courseId_tutorId: { courseId: assignment.courseId, tutorId: user.id } },
+      create: { courseId: assignment.courseId, tutorId: user.id },
+      update: {},
+    });
+  }
+
   // Mark invite used
   await db.staffInvite.update({
     where: { token },

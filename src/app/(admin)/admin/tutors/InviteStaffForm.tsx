@@ -1,31 +1,26 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { UserRole } from "@prisma/client";
-
 interface Props {
   courses: Array<{ id: string; title: string }>;
-  actorRole: UserRole;
+  roleLabels: Record<string, string>;
 }
 
 const ROLE_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: "TUTOR",              label: "Tutor" },
+  { value: "INSTRUCTOR",         label: "Instructor / Teaching Staff" },
+  { value: "TEACHING_ASSISTANT", label: "Teaching Assistant / Supporting Staff" },
   { value: "ACADEMIC_REGISTRAR", label: "Academic Registrar" },
-  { value: "ADMINISTRATOR",      label: "Administrator" },
   { value: "PRINCIPAL",          label: "Principal" },
-  { value: "BURSAR",             label: "Bursar" },
-  { value: "SYSTEM_IT",          label: "IT Admin" },
+  { value: "DEPUTY_PRINCIPAL",   label: "Deputy Principal" },
+  { value: "FINANCE_OFFICER",    label: "Finance Officer" },
+  { value: "HR_SYSTEM_ADMIN",    label: "Human Resource and Administrator" },
+  { value: "SYSTEM_IT",          label: "System IT" },
 ];
 
-// ADMINISTRATOR can only invite TUTOR and ACADEMIC_REGISTRAR
-const ADMIN_ROLE_OPTIONS = ROLE_OPTIONS.filter((r) =>
-  ["TUTOR", "ACADEMIC_REGISTRAR"].includes(r.value)
-);
-
-export default function InviteStaffForm({ courses, actorRole }: Props) {
+export default function InviteStaffForm({ courses, roleLabels }: Props) {
   const [tab, setTab] = useState<"single" | "csv">("single");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("TUTOR");
+  const [role, setRole] = useState("INSTRUCTOR");
   const [courseId, setCourseId] = useState("");
   const [csvText, setCsvText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +28,7 @@ export default function InviteStaffForm({ courses, actorRole }: Props) {
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const roleOptions = actorRole === "ADMINISTRATOR" ? ADMIN_ROLE_OPTIONS : ROLE_OPTIONS;
+  const roleOptions = ROLE_OPTIONS;
 
   async function submit(invites: Array<{ email: string; role: string; courseId?: string }>) {
     setLoading(true);
@@ -73,7 +68,7 @@ export default function InviteStaffForm({ courses, actorRole }: Props) {
     const invites = lines.flatMap((line) => {
       const parts = line.split(",").map((p) => p.trim());
       const csvEmail = parts[0];
-      const csvRole = parts[1] ?? "TUTOR";
+      const csvRole = parts[1] ?? "INSTRUCTOR";
       if (!csvEmail) return [];
       return [{ email: csvEmail, role: csvRole }];
     });
@@ -136,11 +131,11 @@ export default function InviteStaffForm({ courses, actorRole }: Props) {
               onChange={(e) => setRole(e.target.value)}
             >
               {roleOptions.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
+                <option key={r.value} value={r.value}>{roleLabels[r.value] ?? r.label}</option>
               ))}
             </select>
           </div>
-          {role === "TUTOR" && courses.length > 0 && (
+          {(role === "INSTRUCTOR" || role === "TEACHING_ASSISTANT") && courses.length > 0 && (
             <div>
               <label className="label" htmlFor="invite-course">Assign to course (optional)</label>
               <select
@@ -165,7 +160,7 @@ export default function InviteStaffForm({ courses, actorRole }: Props) {
       {tab === "csv" && (
         <form onSubmit={handleCsv} className="space-y-4 max-w-lg">
           <p className="text-sm text-gray-500">
-            Upload a CSV with columns: <code className="bg-surface px-1 rounded">email, role</code>. Role defaults to TUTOR if omitted. Maximum 50 rows.
+            Upload a CSV with columns: <code className="bg-surface px-1 rounded">email, role</code>. Role defaults to INSTRUCTOR if omitted. Maximum 50 rows.
           </p>
           <div>
             <label className="label" htmlFor="csv-file">Upload CSV file</label>
@@ -186,7 +181,7 @@ export default function InviteStaffForm({ courses, actorRole }: Props) {
               rows={6}
               value={csvText}
               onChange={(e) => setCsvText(e.target.value)}
-              placeholder={"grace@example.com,TUTOR\nsamuel@example.com,ACADEMIC_REGISTRAR"}
+            placeholder={"grace@example.com,INSTRUCTOR\nsamuel@example.com,ACADEMIC_REGISTRAR"}
             />
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>

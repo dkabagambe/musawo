@@ -26,6 +26,19 @@ export async function getPresignedDownloadUrl(
   return getSignedUrl(s3, command, { expiresIn });
 }
 
+/** Read an object through the application so student material URLs never expose S3 credentials or keys. */
+export async function getInlineObject(key: string) {
+  const { Body, ContentType, ContentLength } = await s3.send(
+    new GetObjectCommand({ Bucket: BUCKET, Key: key, ResponseContentDisposition: "inline" })
+  );
+  if (!Body) throw new Error("Object has no body");
+  return {
+    body: Body.transformToWebStream(),
+    contentType: ContentType ?? "application/octet-stream",
+    contentLength: ContentLength,
+  };
+}
+
 export async function getPresignedUploadUrl(
   key: string,
   contentType: string,

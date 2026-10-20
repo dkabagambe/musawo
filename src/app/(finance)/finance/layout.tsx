@@ -16,7 +16,7 @@ export default async function BursarLayout({ children }: { children: React.React
   if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
   const name = session.user.name ?? "Finance";
   return (
-    <AppShell nav={NAV} role="Finance Officer" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Finance Officer" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

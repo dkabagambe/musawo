@@ -8,12 +8,32 @@ import {
   AlertCircle, CheckCircle2, Clock, BarChart2,
 } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
+import PresenceOverview from "@/components/attendance/PresenceOverview";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Principal Overview" };
 
-export default async function PrincipalPage() {
+const PRINCIPAL_TABS = new Set<string>(["general", "academics", "reports"]);
+
+export default async function PrincipalPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "content.approve")) redirect("/dashboard");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && PRINCIPAL_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -77,6 +97,8 @@ export default async function PrincipalPage() {
           </Link>
         )}
       </div>
+
+      <PresenceOverview />
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -161,7 +183,7 @@ export default async function PrincipalPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-primary truncate">{cls.title}</p>
-                      <p className="text-xs text-gray-400 truncate">{cls.course.title} — {cls.tutor.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{cls.course.title} - {cls.tutor.name}</p>
                       <p className="text-xs text-gray-400">{d.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" })} EAT</p>
                     </div>
                   </div>

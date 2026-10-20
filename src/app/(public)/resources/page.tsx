@@ -2,9 +2,8 @@ import { db } from "@/lib/db";
 import PageHero from "@/components/public/PageHero";
 import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
-import { getPresignedDownloadUrl } from "@/lib/s3";
 import { getContactInfo } from "@/lib/contact";
-import { FileText, BookOpen, ClipboardList, FileCheck, Download } from "lucide-react";
+import { FileText, BookOpen, ClipboardList, FileCheck, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -112,7 +111,7 @@ export default async function ResourcesPage() {
         heading="Want full course access?"
         subheading="These free resources are just a sample. Enrolled students get the complete study library."
         primaryLabel="Enrol now"
-        primaryHref="/register"
+        primaryHref="/apply"
         whatsappUrl={contact.whatsappUrl}
       />
       <ContactBand whatsappUrl={contact.whatsappUrl} />
@@ -120,14 +119,7 @@ export default async function ResourcesPage() {
   );
 }
 
-async function ResourceCard({ resource }: { resource: { id: string; title: string; description: string | null; s3Key: string; mimeType: string; category: string | null; createdAt: Date } }) {
-  let downloadUrl = "#";
-  try {
-    downloadUrl = await getPresignedDownloadUrl(resource.s3Key, 3600);
-  } catch {
-    // if S3 fails, link is disabled
-  }
-
+function ResourceCard({ resource }: { resource: { id: string; title: string; description: string | null; mimeType: string; category: string | null; createdAt: Date } }) {
   const typeLabel = resource.mimeType.includes("pdf") ? "PDF"
     : resource.mimeType.includes("word") ? "Word"
     : resource.mimeType.includes("image") ? "Image"
@@ -149,13 +141,14 @@ async function ResourceCard({ resource }: { resource: { id: string; title: strin
         </div>
       </div>
       <a
-        href={downloadUrl}
-        download
+        href={`/api/resources/${resource.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
         className="flex-shrink-0 flex items-center gap-1.5 bg-accent/10 hover:bg-accent text-accent hover:text-white text-xs font-semibold px-3 py-2 rounded-xl no-underline transition-colors"
-        aria-label={`Download ${resource.title}`}
+        aria-label={`Open ${resource.title}`}
       >
-        <Download className="w-3.5 h-3.5" aria-hidden="true" />
-        Download
+        <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+        Open resource
       </a>
     </div>
   );

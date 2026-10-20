@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { Settings, FileSearch, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "System IT Dashboard" };
 
@@ -23,9 +25,26 @@ const ACTION_LABELS: Record<string, string> = {
   BREAK_GLASS_EXPIRED: "Break-glass expired",
 };
 
-export default async function SystemDashboardPage() {
+const SYSTEM_TABS = new Set<string>(["general", "system", "logs"]);
+
+export default async function SystemDashboardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !["SUPERADMIN", "SYSTEM_IT"].includes(session.user.role)) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && SYSTEM_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const [settings, recentSystemLogs] = await Promise.all([
     db.siteSetting.findMany({ orderBy: { key: "asc" } }),

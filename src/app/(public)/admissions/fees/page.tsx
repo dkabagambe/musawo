@@ -49,7 +49,9 @@ export default async function FeesPage() {
         image="/assets/images/hero-about.webp"
         imageAlt="Musawo Training Center skills lab"
         title="Fees and Instalments"
-        description="Affordable fees with flexible instalment options. Fees shown are placeholder demo values and will be confirmed by the Finance Officer before the November 2026 intake opens."
+        description={process.env.DEMO_MODE === "true"
+          ? "Indicative demo fees and flexible instalment options for the November 2026 intake. Confirm fees with admissions before payment."
+          : "Contact admissions for current course fees and flexible instalment options for the November 2026 intake."}
         breadcrumbs={[
           { label: "Admissions", href: "/admissions/how-to-enrol" },
           { label: "Fees and instalments" },
@@ -123,8 +125,8 @@ export default async function FeesPage() {
                           {course.feeContactOnly || !course.fullFeeUgx ? (
                             <p className="text-sm text-gray-600">
                               Contact admissions for fee details:{" "}
-                              <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
-                                admissions@mtc.ac.ug
+                              <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
+                                admissions@musawo.ug
                               </a>
                             </p>
                           ) : (
@@ -196,8 +198,8 @@ export default async function FeesPage() {
                 <p className="font-semibold text-primary mb-1">Fee enquiries</p>
                 <p>
                   For fee confirmations and payment arrangements, contact admissions at{" "}
-                  <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
-                    admissions@mtc.ac.ug
+                  <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
+                    admissions@musawo.ug
                   </a>{" "}
                   or call{" "}
                   <a href="tel:+256709184468" className="text-primary no-underline hover:underline">

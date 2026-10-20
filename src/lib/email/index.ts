@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
-const FROM = process.env.EMAIL_FROM ?? "MTC <noreply@mtc.ac.ug>";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mtc.ac.ug";
+const FROM = process.env.EMAIL_FROM ?? "Musawo Training Center <noreply@musawo.ug>";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.musawo.ug";
 const LOGO_URL = `${SITE_URL}/assets/logo-header.png`;
 
 function getResend(): Resend {
@@ -17,6 +17,7 @@ type EmailTemplate =
   | "staff-invite"
   | "payment-receipt"
   | "class-reminder"
+  | "class-recording-pending"
   | "exam-result"
   | "certificate-issued"
   | "password-reset"
@@ -45,7 +46,7 @@ function renderTemplate(
       <h2>Welcome to Musawo Training Center, {{name}}!</h2>
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
-      <p>If you have any questions, email us at info@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have any questions, email us at info@musawo.ug or call 0709 184 468.</p>
     `,
     "email-verification": `
       <h2>Verify your email address</h2>
@@ -74,7 +75,7 @@ function renderTemplate(
       <p>Your student number is: <strong>{{studentNumber}}</strong></p>
       <p>Course: {{courseName}}</p>
       <p>If your details are not correct, use the "These details are wrong" option on the activation page and the Registrar will be notified.</p>
-      <p>If you have questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have questions, contact us at admissions@musawo.ug or call 0709 184 468.</p>
     `,
     "staff-invite": `
       <h2>You have been invited to join Musawo Training Center</h2>
@@ -85,7 +86,7 @@ function renderTemplate(
           Accept invitation
         </a>
       </p>
-      <p>This link expires in 7 days. If you have questions, contact info@mtc.ac.ug.</p>
+      <p>This link expires in 7 days. If you have questions, contact info@musawo.ug.</p>
     `,
     "application-confirmation": `
       <h2>Application received - Musawo Training Center</h2>
@@ -94,7 +95,7 @@ function renderTemplate(
       <p><strong>{{courseName}}</strong> ({{intakeLabel}} intake)</p>
       <p>Our Academic Registrar will review your application. If you are accepted, you will receive a secure account activation link by email within 3 to 5 working days.</p>
       <p>Your application reference: <strong>{{applicationRef}}</strong></p>
-      <p>If you have questions, email admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have questions, email admissions@musawo.ug or call 0709 184 468.</p>
     `,
     "application-received-registrar": `
       <h2>New application received</h2>
@@ -115,13 +116,20 @@ function renderTemplate(
       <p>We have received your payment of <strong>{{amount}}</strong> on {{date}}.</p>
       <p>Reference: <strong>{{paymentRef}}</strong></p>
       <p>You can now access your course. <a href="{{portalUrl}}">Go to your dashboard</a></p>
-      <p>We do not provide accommodation. Contact us at info@mtc.ac.ug or 0709 184 468 if you have questions.</p>
+      <p>We do not provide accommodation. Contact us at info@musawo.ug or 0709 184 468 if you have questions.</p>
     `,
     "class-reminder": `
       <h2>Reminder: Live class in {{timeUntil}}</h2>
       <p>Dear {{name}},</p>
       <p><strong>{{className}}</strong> starts at {{time}} on {{date}}.</p>
       <p><a href="{{joinUrl}}">Join the class</a></p>
+    `,
+    "class-recording-pending": `
+      <h2>Add the replay for {{className}}</h2>
+      <p>Dear {{name}},</p>
+      <p>The class has ended. Recording is pending because the video provider does not deliver its replay automatically.</p>
+      <p>Please add the replay link in the Live Classes area after the provider finishes processing the recording.</p>
+      <p><a href="{{tutorUrl}}">Open the teaching portal</a></p>
     `,
     "exam-result": `
       <h2>Your exam result - {{examTitle}}</h2>
@@ -173,7 +181,7 @@ function renderTemplate(
       </p>
       <p>Intake: <strong>{{intakeLabel}}</strong></p>
       <p>Course fee: <strong>{{feeUgx}}</strong></p>
-      <p>If you have any questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have any questions, contact us at admissions@musawo.ug or call 0709 184 468.</p>
     `,
     "application-rejected": `
       <h2>Update on your application - Musawo Training Center</h2>
@@ -181,7 +189,7 @@ function renderTemplate(
       <p>Thank you for applying for <strong>{{courseName}}</strong> at Musawo Training Center.</p>
       <p>After reviewing your application, we are unable to offer you a place at this time.</p>
       <p style="background:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;">{{reason}}</p>
-      <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@mtc.ac.ug.</p>
+      <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@musawo.ug.</p>
     `,
     plain: `<p style="white-space:pre-wrap;">{{body}}</p>`,
     "student-details-disputed": `
@@ -219,10 +227,10 @@ function renderTemplate(
       <hr style="margin-top: 32px; border-color: #E5E7EB;" />
       <p style="font-size: 12px; color: #6B7280;">
         Musawo Training Center - Luggala Trading Center, Lubaga Division, Kampala<br />
-        <a href="mailto:info@mtc.ac.ug">info@mtc.ac.ug</a> |
+        <a href="mailto:info@musawo.ug">info@musawo.ug</a> |
         <a href="tel:+256709184468">0709 184 468</a> |
         <a href="https://wa.me/256709184468">WhatsApp</a> |
-        <a href="https://mtc.ac.ug">mtc.ac.ug</a>
+        <a href="https://www.musawo.ug">www.musawo.ug</a>
       </p>
     </body>
     </html>

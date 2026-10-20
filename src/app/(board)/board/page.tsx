@@ -4,12 +4,31 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import { Users, BookOpen, Award, TrendingUp, ChevronRight } from "lucide-react";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Board Overview" };
 
-export default async function BoardPage() {
+const BOARD_TABS = new Set<string>(["general", "reports", "audit", "academics"]);
+
+export default async function BoardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "reports.board")) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && BOARD_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -57,7 +76,7 @@ export default async function BoardPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Board Overview</h1>
-        <p className="text-gray-500 text-sm mt-1">Aggregated institutional performance — read-only</p>
+        <p className="text-gray-500 text-sm mt-1">Aggregated institutional performance - read-only</p>
       </div>
 
       {/* Key numbers */}

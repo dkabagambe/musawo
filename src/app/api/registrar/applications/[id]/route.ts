@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   const application = await db.application.findUnique({
     where: { id: params.id },
     include: {
-      course: { select: { id: true, title: true, fullFeeUgx: true } },
+      course: { select: { id: true, title: true, fullFeeUgx: true, category: true } },
       intake: { select: { id: true, label: true } },
     },
   });
@@ -112,7 +112,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       });
     } catch (emailErr) {
       console.error("[applications PATCH] rejection email failed:", emailErr);
-      // Don't block the response — rejection is saved regardless
+      // Don't block the response - rejection is saved regardless
     }
 
     return NextResponse.json({ status: "REJECTED" });
@@ -136,6 +136,25 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       return NextResponse.json({ status: "ACCEPTED", userId: existingUser.id, alreadyExisted: true });
     }
 
+    const { createStudentWithNumber } = await import("@/lib/students");
+    const { user: student, studentNumber } = await createStudentWithNumber({
+        name: application.fullName,
+        email: application.email,
+        phone: application.phone,
+        role: "STUDENT",
+        status: "PENDING_ACCEPTANCE",
+    });
+
+    const { saveStudentProfile } = await import("@/lib/students/profile");
+    await saveStudentProfile(student.id, {
+      professionalTitle: application.professionalTitle,
+      registrationNumber: application.registrationNumber,
+      dateOfBirth: application.dateOfBirth,
+      gender: application.gender,
+      district: application.district,
+      highestQualification: application.highestQualification,
+    });
+
     // Delete any previous unused invite for this email
     await db.staffInvite.deleteMany({ where: { email: application.email, acceptedAt: null } });
 
@@ -143,45 +162,44 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    await db.staffInvite.create({
+    const studentInvite = await db.staffInvite.create({
       data: {
         email: application.email,
         role: "STUDENT",
         token,
         expiresAt,
         createdById: session.user.id,
+        userId: student.id,
       },
     });
+    await db.$executeRaw`UPDATE staff_invites SET "courseId" = ${application.courseId}, "intakeId" = ${application.intakeId} WHERE id = ${studentInvite.id}`;
 
     const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
     const acceptUrl = `${siteUrl}/invite/${token}`;
 
-    // Send the invite email
+    // Send the invite email with the already assigned student number.
     try {
       await sendEmail({
         to: application.email,
-        subject: `Your application has been accepted - ${application.course?.title ?? "Musawo Training Center"}`,
-        template: "application-accepted",
+        subject: `Your Musawo Training Center account is ready - ${application.course?.title ?? ""}`,
+        template: "student-invite",
         variables: {
           name:        application.fullName,
+          studentNumber,
           courseName:  application.course?.title ?? "your course",
-          intakeLabel: application.intake?.label ?? "",
           inviteUrl:   acceptUrl,
-          expiresIn:   "7 days",
-          feeUgx:      application.course?.fullFeeUgx
-            ? `UGX ${application.course.fullFeeUgx.toLocaleString()}`
-            : "see course page",
         },
       });
     } catch (emailErr) {
       console.error("[applications PATCH] acceptance email failed:", emailErr);
     }
 
-    // Update the application status (createdUserId will be set when they accept the invite)
+    // The account and student number are created now, before payment or login.
     await db.application.update({
       where: { id: params.id },
       data: {
         status: "ACCEPTED",
+        createdUserId: student.id,
         reviewedById: session.user.id,
         reviewedAt: new Date(),
       },

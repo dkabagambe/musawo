@@ -5,8 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
-  ArrowRight, Menu, X, ChevronDown, ChevronRight,
-  Phone, Mail, MessageCircle, ExternalLink,
+  ArrowRight,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Phone,
+  Mail,
+  MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 
@@ -30,41 +37,117 @@ const NAV: NavItem[] = [
   {
     label: "Courses",
     children: [
-      { label: "Medical Home Care",                 href: "/courses/medical-home-caregiver",         desc: "3 months. For registered health professionals." },
-      { label: "Basic Home Caregiver",             href: "/courses/basic-home-caregiver",           desc: "3 months. Open to all." },
-      { label: "Babysitting, Childcare and Safety",href: "/courses/babysitting-childcare-safety",   desc: "2 months. Open to all." },
-      { label: "Mental Health Support",            href: "/courses/mental-health-support-advocacy", desc: "3 months. Open to all." },
-      { label: "Care of Older Persons (Geriatric)",href: "/courses/care-older-persons-disability",  desc: "3 months. Open to all." },
-      { label: "Basic Life Support and First Aid", href: "/courses/basic-life-support-first-aid",   desc: "1 month. Open to all." },
-      { label: "Advanced Life Support",            href: "/courses/advanced-life-support",          desc: "1 month. For registered health professionals." },
-      { label: "All courses",                      href: "/courses",                                desc: "Browse and compare all programmes." },
+      {
+        label: "Medical Home Caregiver Course",
+        href: "/courses/medical-home-caregiver",
+        desc: "3 months. For registered health professionals.",
+      },
+      {
+        label: "Basic Home Caregiver",
+        href: "/courses/basic-home-caregiver",
+        desc: "3 months. Open to all.",
+      },
+      {
+        label: "Babysitting, Childcare and Safety",
+        href: "/courses/babysitting-childcare-safety",
+        desc: "2 months. Open to all.",
+      },
+      {
+        label: "Mental Health Support",
+        href: "/courses/mental-health-support-advocacy",
+        desc: "3 months. Open to all.",
+      },
+      {
+        label: "Care of Older Persons (Geriatric)",
+        href: "/courses/care-older-persons-disability",
+        desc: "3 months. Open to all.",
+      },
+      {
+        label: "Basic Life Support and First Aid",
+        href: "/courses/basic-life-support-first-aid",
+        desc: "1 month. Open to all.",
+      },
+      {
+        label: "Advanced Life Support",
+        href: "/courses/advanced-life-support",
+        desc: "1 month. For registered health professionals.",
+      },
+      {
+        label: "All courses",
+        href: "/courses",
+        desc: "Browse and compare all programmes.",
+      },
     ],
   },
   {
     label: "Admissions",
     children: [
-      { label: "Apply now",            href: "/apply",                      desc: "Submit your application for the November 2026 intake." },
-      { label: "How to enrol",         href: "/admissions/how-to-enrol",    desc: "Step-by-step guide to joining MTC." },
-      { label: "Fees and instalments", href: "/admissions/fees",            desc: "Full fees and instalment options." },
-      { label: "Payment options",      href: "/admissions/payment-options", desc: "Mobile money, bank and more." },
+      {
+        label: "Apply now",
+        href: "/apply",
+        desc: "Submit your application for the November 2026 intake.",
+      },
+      {
+        label: "How to enrol",
+        href: "/admissions/how-to-enrol",
+        desc: "Step-by-step guide to joining MTC.",
+      },
+      {
+        label: "Fees and instalments",
+        href: "/admissions/fees",
+        desc: "Full fees and instalment options.",
+      },
+      {
+        label: "Payment options",
+        href: "/admissions/payment-options",
+        desc: "Mobile money, bank and more.",
+      },
     ],
   },
   {
     label: "Learning",
     children: [
-      { label: "How you will learn",     href: "/learning/how-you-learn",  desc: "Hybrid and online approach with skills lab practicals." },
-      { label: "Live classes",           href: "/learning/live-classes",   desc: "Sessions with your tutor and fellow students." },
-      { label: "Exams and certificates", href: "/learning/exams",          desc: "Assessments and digital certificates." },
-      { label: "Free resources",         href: "/resources",               desc: "Study guides and reference materials." },
+      {
+        label: "How you will learn",
+        href: "/learning/how-you-learn",
+        desc: "Hybrid and online approach with skills lab practicals.",
+      },
+      {
+        label: "Live classes",
+        href: "/learning/live-classes",
+        desc: "Sessions with your tutor and fellow students.",
+      },
+      {
+        label: "Exams and certificates",
+        href: "/learning/exams",
+        desc: "Assessments and digital certificates.",
+      },
+      {
+        label: "Free resources",
+        href: "/resources",
+        desc: "Study guides and reference materials.",
+      },
     ],
   },
   {
     label: "About",
     children: [
-      { label: "About MTC",      href: "/about",               desc: "Our story, mission and values." },
-      { label: "Accreditation",  href: "/about/accreditation", desc: "Accreditation details." },
-      { label: "Our trainers",   href: "/about/trainers",      desc: "Meet the clinical educators." },
-      { label: "FAQ",            href: "/faq",                 desc: "Common questions answered." },
+      {
+        label: "About MTC",
+        href: "/about",
+        desc: "Our story, mission and values.",
+      },
+      {
+        label: "Accreditation",
+        href: "/about/accreditation",
+        desc: "Accreditation details.",
+      },
+      {
+        label: "Our trainers",
+        href: "/about/trainers",
+        desc: "Meet the clinical educators.",
+      },
+      { label: "FAQ", href: "/faq", desc: "Common questions answered." },
     ],
   },
   { label: "Contact", href: "/contact" },
@@ -73,7 +156,10 @@ const NAV: NavItem[] = [
 /* ─────────────────────────────────────────────
    BREADCRUMB (used inside header on inner pages)
    ───────────────────────────────────────────── */
-export interface BreadcrumbItem { label: string; href?: string; }
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
 
 /* ─────────────────────────────────────────────
    UTILITY BAR
@@ -99,7 +185,8 @@ function UtilityBar() {
             rel="noopener noreferrer"
             className="hover:text-white no-underline transition-colors flex items-center gap-1"
           >
-            Visit musawo.ug <ExternalLink className="w-3 h-3" aria-hidden="true" />
+            Visit musawo.ug{" "}
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         </div>
         {/* Right info */}
@@ -121,11 +208,11 @@ function UtilityBar() {
             WhatsApp
           </a>
           <a
-            href="mailto:info@mtc.ac.ug"
+            href="mailto:info@musawo.ug"
             className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
           >
             <Mail className="w-3 h-3" aria-hidden="true" />
-            info@mtc.ac.ug
+            info@musawo.ug
           </a>
         </div>
       </div>
@@ -150,8 +237,8 @@ function DropdownMenu({
   isParentActive: boolean;
 }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef   = useRef<HTMLDivElement>(null);
-  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleClose = useCallback(() => {
     timerRef.current = setTimeout(onClose, 200);
@@ -163,8 +250,18 @@ function DropdownMenu({
 
   // Keyboard: arrow keys navigate items, Escape closes
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") { onClose(); triggerRef.current?.focus(); }
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (isOpen) { onClose(); } else { onOpen(); } }
+    if (e.key === "Escape") {
+      onClose();
+      triggerRef.current?.focus();
+    }
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (isOpen) {
+        onClose();
+      } else {
+        onOpen();
+      }
+    }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       const first = panelRef.current?.querySelector<HTMLAnchorElement>("a");
@@ -175,7 +272,10 @@ function DropdownMenu({
   return (
     <div
       className="relative"
-      onMouseEnter={() => { cancelClose(); onOpen(); }}
+      onMouseEnter={() => {
+        cancelClose();
+        onOpen();
+      }}
       onMouseLeave={scheduleClose}
     >
       <button
@@ -218,41 +318,46 @@ function DropdownMenu({
             className="absolute top-full left-0 w-72 z-[60]"
             style={{ paddingTop: 6 }}
           >
-          {/* invisible bridge covers the gap between button bottom and panel */}
-          <div className="bg-white rounded-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-100 py-2">
-            {item.children?.map((child) => (
-              <Link
-                key={child.href}
-                href={child.href}
-                role="menuitem"
-                className="flex flex-col px-4 py-3 no-underline hover:bg-[#F1F7F5]
+            {/* invisible bridge covers the gap between button bottom and panel */}
+            <div className="bg-white rounded-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-100 py-2">
+              {item.children?.map((child) => (
+                <Link
+                  key={child.href}
+                  href={child.href}
+                  role="menuitem"
+                  className="flex flex-col px-4 py-3 no-underline hover:bg-[#F1F7F5]
                            transition-colors group focus-visible:bg-[#F1F7F5]
                            focus-visible:outline-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") { onClose(); triggerRef.current?.focus(); }
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    const el = e.currentTarget.nextElementSibling as HTMLElement | null;
-                    el?.focus();
-                  }
-                  if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    const el = e.currentTarget.previousElementSibling as HTMLElement | null;
-                    el?.focus();
-                  }
-                }}
-              >
-                <span className="text-sm font-semibold text-[#1F2937] group-hover:text-primary transition-colors">
-                  {child.label}
-                </span>
-                {child.desc && (
-                  <span className="text-xs text-[#4B5563] mt-0.5 leading-snug">
-                    {child.desc}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      onClose();
+                      triggerRef.current?.focus();
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      const el = e.currentTarget
+                        .nextElementSibling as HTMLElement | null;
+                      el?.focus();
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      const el = e.currentTarget
+                        .previousElementSibling as HTMLElement | null;
+                      el?.focus();
+                    }
+                  }}
+                >
+                  <span className="text-sm font-semibold text-[#1F2937] group-hover:text-primary transition-colors">
+                    {child.label}
                   </span>
-                )}
-              </Link>
-            ))}
-          </div>
+                  {child.desc && (
+                    <span className="text-xs text-[#4B5563] mt-0.5 leading-snug">
+                      {child.desc}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
           </m.div>
         )}
       </AnimatePresence>
@@ -275,8 +380,8 @@ function MobileAccordion({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const childActive = item.children?.some((c) =>
-    pathname === c.href || pathname.startsWith(c.href + "/"),
+  const childActive = item.children?.some(
+    (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
   );
 
   return (
@@ -287,9 +392,10 @@ function MobileAccordion({
         onClick={() => setOpen((v) => !v)}
         className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm
                     font-semibold text-left transition-colors
-                    ${childActive || isActive
-                      ? "bg-white/15 text-white"
-                      : "text-white/75 hover:text-white hover:bg-white/10"
+                    ${
+                      childActive || isActive
+                        ? "bg-white/15 text-white"
+                        : "text-white/75 hover:text-white hover:bg-white/10"
                     }`}
       >
         {item.label}
@@ -311,7 +417,8 @@ function MobileAccordion({
           >
             {item.children?.map((child) => {
               const active =
-                pathname === child.href || pathname.startsWith(child.href + "/");
+                pathname === child.href ||
+                pathname.startsWith(child.href + "/");
               return (
                 <li key={child.href}>
                   <Link
@@ -319,12 +426,16 @@ function MobileAccordion({
                     onClick={onClose}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm
                                 no-underline transition-colors
-                                ${active
-                                  ? "text-accent font-semibold"
-                                  : "text-white/65 hover:text-white"
+                                ${
+                                  active
+                                    ? "text-accent font-semibold"
+                                    : "text-white/65 hover:text-white"
                                 }`}
                   >
-                    <ChevronRight className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+                    <ChevronRight
+                      className="w-3 h-3 flex-shrink-0"
+                      aria-hidden="true"
+                    />
                     {child.label}
                   </Link>
                 </li>
@@ -340,8 +451,12 @@ function MobileAccordion({
 /* ─────────────────────────────────────────────
    MAIN HEADER COMPONENT
    ───────────────────────────────────────────── */
-export default function PublicHeader({ showAccreditation = false }: { showAccreditation?: boolean }) {
-  const pathname        = usePathname();
+export default function PublicHeader({
+  showAccreditation = false,
+}: {
+  showAccreditation?: boolean;
+}) {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawer] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -359,7 +474,7 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
     return item;
   });
 
-  const drawerRef    = useRef<HTMLDivElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   // Scroll detection
@@ -371,12 +486,18 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
   }, []);
 
   // Close drawer on route change
-  useEffect(() => { setDrawer(false); setOpenMenu(null); }, [pathname]);
+  useEffect(() => {
+    setDrawer(false);
+    setOpenMenu(null);
+  }, [pathname]);
 
   // Esc key closes everything
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setDrawer(false); setOpenMenu(null); }
+      if (e.key === "Escape") {
+        setDrawer(false);
+        setOpenMenu(null);
+      }
     };
     document.addEventListener("keydown", fn);
     return () => document.removeEventListener("keydown", fn);
@@ -387,9 +508,12 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
     if (!drawerOpen) return;
     const fn = (e: MouseEvent) => {
       if (
-        drawerRef.current && !drawerRef.current.contains(e.target as Node) &&
-        hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)
-      ) setDrawer(false);
+        drawerRef.current &&
+        !drawerRef.current.contains(e.target as Node) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(e.target as Node)
+      )
+        setDrawer(false);
     };
     document.addEventListener("mousedown", fn);
     return () => document.removeEventListener("mousedown", fn);
@@ -398,12 +522,16 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
   // Lock body scroll when drawer open
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [drawerOpen]);
 
   const isItemActive = (item: NavItem): boolean => {
     if (item.href) {
-      return item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+      return item.href === "/"
+        ? pathname === "/"
+        : pathname.startsWith(item.href);
     }
     return (item.children ?? []).some(
       (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
@@ -459,7 +587,7 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                   Musawo Training Center
                 </span>
                 <span className="text-white/55 text-[10px] font-normal tracking-wide uppercase">
-                  Learn. Serve. Transform.
+                  Learn · Serve · Transform
                 </span>
               </span>
             </Link>
@@ -490,9 +618,10 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                       href={item.href!}
                       className={`relative px-3 py-2 rounded-lg no-underline transition-colors text-sm font-medium
                                   focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
-                                  ${active
-                                    ? "text-white"
-                                    : "text-white/75 hover:text-white hover:bg-white/10"
+                                  ${
+                                    active
+                                      ? "text-white"
+                                      : "text-white/75 hover:text-white hover:bg-white/10"
                                   }`}
                       aria-current={active ? "page" : undefined}
                     >
@@ -525,7 +654,8 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                            active:scale-[0.97] text-white text-sm font-bold px-4 py-2.5 rounded-xl
                            no-underline transition-all shadow-cta"
               >
-                Apply now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                Apply now{" "}
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </Link>
 
               {/* Hamburger (mobile + tablet) */}
@@ -539,7 +669,11 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                 aria-controls="mobile-drawer"
                 onClick={() => setDrawer((v) => !v)}
               >
-                {drawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {drawerOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
               </button>
             </div>
           </nav>
@@ -590,7 +724,9 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
               />
             </span>
             <span className="font-extrabold text-white text-sm leading-tight">
-              Musawo<br />Training Center
+              Musawo
+              <br />
+              Training Center
             </span>
           </Link>
           <button
@@ -628,9 +764,10 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                     href={item.href!}
                     className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold
                                 no-underline transition-colors
-                                ${active
-                                  ? "bg-white/15 text-white"
-                                  : "text-white/75 hover:text-white hover:bg-white/10"
+                                ${
+                                  active
+                                    ? "bg-white/15 text-white"
+                                    : "text-white/75 hover:text-white hover:bg-white/10"
                                 }`}
                     onClick={() => setDrawer(false)}
                     aria-current={active ? "page" : undefined}
@@ -648,7 +785,11 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
               More
             </p>
             {[
-              { label: "Visit musawo.ug",  href: "https://musawo.ug", external: true },
+              {
+                label: "Visit musawo.ug",
+                href: "https://musawo.ug",
+                external: true,
+              },
             ].map((l) => (
               <a
                 key={l.href}
@@ -661,17 +802,28 @@ export default function PublicHeader({ showAccreditation = false }: { showAccred
                 onClick={() => setDrawer(false)}
               >
                 {l.label}
-                {l.external && <ExternalLink className="w-3 h-3 opacity-50" aria-hidden="true" />}
+                {l.external && (
+                  <ExternalLink
+                    className="w-3 h-3 opacity-50"
+                    aria-hidden="true"
+                  />
+                )}
               </a>
             ))}
             <div className="px-4 pt-1 space-y-1.5 text-xs text-white/50">
-              <a href="tel:+256709184468" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
+              <a
+                href="tel:+256709184468"
+                className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5"
+              >
                 <Phone className="w-3.5 h-3.5" aria-hidden="true" />
                 0709 184 468
               </a>
-              <a href="mailto:info@mtc.ac.ug" className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5">
+              <a
+                href="mailto:info@musawo.ug"
+                className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5"
+              >
                 <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                info@mtc.ac.ug
+                info@musawo.ug
               </a>
             </div>
           </div>

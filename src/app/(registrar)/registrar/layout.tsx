@@ -23,7 +23,7 @@ export default async function RegistrarLayout({ children }: { children: React.Re
   }
   const name = session.user.name ?? "Registrar";
   return (
-    <AppShell nav={NAV} role="Academic Registrar" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Academic Registrar" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

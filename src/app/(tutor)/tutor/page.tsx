@@ -1,182 +1,376 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import Link from "next/link";
-import { BookOpen, Users, Video, ClipboardList, ChevronRight, AlertCircle } from "lucide-react";
-import StatCard from "@/components/ui/StatCard";
+import { can } from "@/lib/rbac";
+import { AlertCircle, ChevronRight, Users, ClipboardCheck, Video, FileText } from "lucide-react";
+import {
+  CalendarMeta,
+  ClockMeta,
+  DashboardWidgetVisibility,
+  ListRow,
+  MiniCard,
+  ProfileCard,
+  ViewMoreLink,
+  Widget,
+} from "@/components/ui/DashboardWidgets";
+import { teachingCourseWhere } from "@/lib/teaching/scope";
+import { formatCount } from "@/lib/dashboard/format";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Tutor Dashboard" };
 
-export default async function TutorDashboardPage() {
+const VALID_TABS = new Set<string>([
+  "general", "teaching", "students", "assessment", "support",
+]);
+
+export default async function TutorDashboardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const [courses, upcomingClasses, pendingReviews, recentStudents] = await Promise.all([
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && VALID_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
+  const canViewContacts = can(session.user.role, "students.view.contacts");
+
+  const [
+    courses,
+    upcomingClasses,
+    pendingReviews,
+    recentStudents,
+    rollCallNeeded,
+    recordingPending,
+    pendingAssignment,
+  ] = await Promise.all([
     db.course.findMany({
-      where: { tutorId: session.user.id },
+      where: teachingCourseWhere(session.user.id),
       include: { _count: { select: { enrolments: true } } },
     }),
     db.liveClass.findMany({
-      where: { tutorId: session.user.id, scheduledAt: { gt: new Date() }, status: "SCHEDULED" },
+      where: {
+        course: teachingCourseWhere(session.user.id),
+        OR: [
+          { scheduledAt: { gt: new Date() }, status: "SCHEDULED" },
+          { status: "LIVE" },
+        ],
+      },
       orderBy: { scheduledAt: "asc" },
-      take: 4,
+      take: 5,
       include: { course: { select: { title: true } } },
     }),
     db.examAttempt.count({
-      where: { status: "SUBMITTED", exam: { course: { tutorId: session.user.id } } },
+      where: {
+        status: "SUBMITTED",
+        exam: { course: teachingCourseWhere(session.user.id) },
+      },
     }),
     db.enrolment.findMany({
-      where: { status: { in: ["ACTIVE","COMPLETED"] }, course: { tutorId: session.user.id } },
+      where: {
+        status: { in: ["ACTIVE", "COMPLETED"] },
+        course: teachingCourseWhere(session.user.id),
+      },
       orderBy: { createdAt: "desc" },
-      take: 6,
-      include: { user: { select: { name: true, studentNumber: true } }, course: { select: { title: true } } },
+      take: 100,
+      include: {
+        user: {
+          select: {
+            name: true,
+            studentNumber: true,
+            phone: canViewContacts,
+            email: canViewContacts,
+          },
+        },
+        course: { select: { title: true } },
+      },
+    }),
+    // classes completed today with no roll call yet
+    db.liveClass.findFirst({
+      where: {
+        course: teachingCourseWhere(session.user.id),
+        status: "COMPLETED",
+        attendance: { some: { startMark: null } },
+        scheduledAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      },
+      select: { id: true, title: true },
+    }),
+    // classes whose recording is pending upload
+    db.liveClass.count({
+      where: {
+        course: teachingCourseWhere(session.user.id),
+        status: "COMPLETED",
+        recordingEnabled: true,
+        recordingStatus: "PENDING",
+      },
+    }),
+    // published assignments awaiting grading
+    db.assignmentSubmission.findFirst({
+      where: {
+        status: "SUBMITTED",
+        assignment: { course: teachingCourseWhere(session.user.id) },
+      },
+      select: { id: true, assignment: { select: { title: true } } },
     }),
   ]);
 
-  const enrolledTotal = courses.reduce((s, c) => s + c._count.enrolments, 0);
-  const firstName = session.user.name?.split(" ")[0] ?? "there";
+  const enrolledTotal = courses.reduce(
+    (sum, course) => sum + course._count.enrolments,
+    0,
+  );
+  const sortedStudents = [...recentStudents].sort((left, right) => {
+    const lastName = (name: string | null) =>
+      (name ?? "").trim().split(/\s+/).at(-1)?.toLocaleLowerCase() ?? "";
+    const byLastName = lastName(left.user.name).localeCompare(
+      lastName(right.user.name),
+    );
+    return (
+      byLastName || (left.user.name ?? "").localeCompare(right.user.name ?? "")
+    );
+  });
+  const visibleClassCount =
+    upcomingClasses.length >= 4 ? 4 : Math.min(upcomingClasses.length, 2);
+  const visibleStudentCount =
+    sortedStudents.length >= 4 ? 4 : Math.min(sortedStudents.length, 2);
+  const visibleCourseCount =
+    courses.length >= 4 ? 4 : Math.min(courses.length, 2);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Welcome, {firstName}!</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {new Date().toLocaleDateString("en-UG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-        </p>
-      </div>
-
-      {/* Pending reviews alert */}
-      {pendingReviews > 0 && (
-        <div className="bg-warning/5 border border-warning/25 rounded-2xl p-4 flex items-center gap-4">
-          <div className="w-10 h-10 bg-warning/15 rounded-xl flex items-center justify-center flex-shrink-0">
-            <AlertCircle className="w-5 h-5 text-amber-600" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-sm text-amber-800">Short-answer reviews pending</p>
-            <p className="text-xs text-amber-700 mt-0.5">{pendingReviews} exam submission{pendingReviews !== 1 ? "s" : ""} await your review and marking.</p>
-          </div>
-          <Link href="/tutor/exams" className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline transition-colors flex-shrink-0">
-            Review now
-          </Link>
+    <div className="dashboard-role-content">
+      <div className="dashboard-widget-grid dashboard-widget-masonry">
+        <div className="dashboard-widget-column">
+          <DashboardWidgetVisibility id="todos" tab="general">
+            <Widget title="To Dos" href="/tutor/exams">
+              {pendingReviews === 0 && !rollCallNeeded && recordingPending === 0 && !pendingAssignment ? (
+                <p className="dashboard-widget-empty">You are all caught up.</p>
+              ) : (
+                <>
+                  {rollCallNeeded && (
+                    <ListRow href="/tutor/attendance" icon={<ClipboardCheck size={16} />}>
+                      Take roll call for today&apos;s class: {rollCallNeeded.title}
+                    </ListRow>
+                  )}
+                  {recordingPending > 0 && (
+                    <ListRow href="/tutor/classes" icon={<Video size={16} />}>
+                      {recordingPending === 1
+                        ? "Add the recording link for 1 completed class"
+                        : `Add recording links for ${recordingPending} completed classes`}
+                    </ListRow>
+                  )}
+                  {pendingReviews > 0 && (
+                    <ListRow href="/tutor/exams" icon={<AlertCircle size={16} />}>
+                      {pendingReviews === 1
+                        ? "1 exam submission awaits your review"
+                        : `${pendingReviews} exam submissions await your review`}
+                    </ListRow>
+                  )}
+                  {pendingAssignment && (
+                    <ListRow href="/tutor/exams" icon={<FileText size={16} />}>
+                      Mark assignment: {pendingAssignment.assignment.title}
+                    </ListRow>
+                  )}
+                </>
+              )}
+            </Widget>
+          </DashboardWidgetVisibility>
+          <DashboardWidgetVisibility id="upcoming-classes" tab="general">
+            <Widget
+              title="Upcoming Classes"
+              href="/tutor/classes"
+              footer={
+                upcomingClasses.length > visibleClassCount ? (
+                  <ViewMoreLink href="/tutor/classes">
+                    View {upcomingClasses.length - visibleClassCount} more
+                  </ViewMoreLink>
+                ) : undefined
+              }
+            >
+              {upcomingClasses.length === 0 ? (
+                <p className="dashboard-widget-empty">
+                  No upcoming classes scheduled.
+                </p>
+              ) : (
+                <div className="dashboard-mini-grid">
+                  {upcomingClasses.slice(0, visibleClassCount).map((cls) => {
+                    const date = new Date(cls.scheduledAt);
+                    const dateKey = (value: Date) =>
+                      new Intl.DateTimeFormat("en-CA", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        timeZone: "Africa/Kampala",
+                      }).format(value);
+                    const todayKey = dateKey(new Date());
+                    const classDayKey = dateKey(date);
+                    const dayDifference = Math.round(
+                      (new Date(`${classDayKey}T00:00:00Z`).getTime() -
+                        new Date(`${todayKey}T00:00:00Z`).getTime()) /
+                        86_400_000,
+                    );
+                    const classStatus =
+                      cls.status === "LIVE"
+                        ? { label: "Live now", tone: "live" as const }
+                        : dayDifference <= 0
+                          ? { label: "Today", tone: "today" as const }
+                          : {
+                              label: `In ${dayDifference} days`,
+                              tone: "soon" as const,
+                            };
+                    return (
+                      <MiniCard
+                        key={cls.id}
+                        title={cls.title}
+                        subtitle={cls.course.title}
+                        href="/tutor/classes"
+                        actionLabel="Manage"
+                        status={classStatus}
+                      >
+                        <CalendarMeta>
+                          {date
+                            .toLocaleDateString("en-GB", {
+                              weekday: "short",
+                              day: "2-digit",
+                              month: "short",
+                              timeZone: "Africa/Kampala",
+                            })
+                            .replace(",", "")}
+                        </CalendarMeta>
+                        <ClockMeta timeZone="East Africa Time">
+                          {date.toLocaleTimeString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                            timeZone: "Africa/Kampala",
+                          })}{" "}
+                          to{" "}
+                          {new Date(
+                            date.getTime() + cls.durationMin * 60_000,
+                          ).toLocaleTimeString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                            timeZone: "Africa/Kampala",
+                          })}
+                        </ClockMeta>
+                      </MiniCard>
+                    );
+                  })}
+                </div>
+              )}
+            </Widget>
+          </DashboardWidgetVisibility>
+          <DashboardWidgetVisibility id="my-students" tab="general">
+            <Widget
+              title="My Students"
+              href="/tutor/students"
+              footer={
+                sortedStudents.length > visibleStudentCount ? (
+                  <ViewMoreLink href="/tutor/students">
+                    View {sortedStudents.length - visibleStudentCount} more
+                  </ViewMoreLink>
+                ) : undefined
+              }
+            >
+              {recentStudents.length === 0 ? (
+                <p className="dashboard-widget-empty">
+                  No students enrolled yet.
+                </p>
+              ) : (
+                <div className="dashboard-profile-grid">
+                  {sortedStudents.slice(0, visibleStudentCount).map((enr) => (
+                    <ProfileCard
+                      key={enr.id}
+                      name={(enr.user.name ?? "Student")
+                        .trim()
+                        .split(/\s+/)
+                        .join(" ")}
+                      id={enr.user.studentNumber ?? undefined}
+                      phone={
+                        canViewContacts
+                          ? (enr.user.phone ?? undefined)
+                          : undefined
+                      }
+                      email={
+                        canViewContacts
+                          ? (enr.user.email ?? undefined)
+                          : undefined
+                      }
+                      status={
+                        enr.status === "COMPLETED" ? "Completed" : "Active"
+                      }
+                      href="/tutor/students"
+                    />
+                  ))}
+                </div>
+              )}
+            </Widget>
+          </DashboardWidgetVisibility>
+          {courses.length > 0 && (
+            <DashboardWidgetVisibility id="my-courses" tab="general">
+              <Widget
+                title="My Courses"
+                href="/tutor/courses"
+                footer={
+                  courses.length > visibleCourseCount ? (
+                    <ViewMoreLink href="/tutor/courses">
+                      View {courses.length - visibleCourseCount} more
+                    </ViewMoreLink>
+                  ) : undefined
+                }
+              >
+                <div className="dashboard-mini-grid">
+                  {courses.slice(0, visibleCourseCount).map((c) => (
+                    <MiniCard
+                      key={c.id}
+                      title={c.title}
+                      subtitle={formatCount(c._count.enrolments, "student")}
+                      subtitleIcon={<Users size={16} aria-hidden="true" />}
+                      href="/tutor/courses"
+                    />
+                  ))}
+                </div>
+              </Widget>
+            </DashboardWidgetVisibility>
+          )}
         </div>
-      )}
-
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="My Courses"       value={courses.length}   icon={<BookOpen className="w-5 h-5" />}     href="/tutor/courses"  color="primary" />
-        <StatCard label="Total Students"   value={enrolledTotal}    icon={<Users className="w-5 h-5" />}        href="/tutor/students" color="success" />
-        <StatCard label="Upcoming Classes" value={upcomingClasses.length} icon={<Video className="w-5 h-5" />} href="/tutor/classes"  color="accent"  />
-        <StatCard label="Pending Reviews"  value={pendingReviews}   icon={<ClipboardList className="w-5 h-5" />} href="/tutor/exams" color={pendingReviews > 0 ? "warning" : "primary"} />
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-6">
-
-        {/* Upcoming classes */}
-        <section className="bg-white rounded-2xl border border-border p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-primary">Upcoming Classes</h2>
-            <Link href="/tutor/classes" className="text-xs text-accent font-semibold no-underline hover:underline flex items-center gap-1">
-              All classes <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-          {upcomingClasses.length === 0 ? (
-            <div className="text-center py-6">
-              <Video className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-              <p className="text-gray-400 text-sm">No upcoming classes scheduled.</p>
-              <Link href="/tutor/classes" className="text-xs text-accent font-semibold no-underline hover:underline mt-2 inline-block">
-                + Schedule a class
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {upcomingClasses.map((cls) => {
-                const date = new Date(cls.scheduledAt);
-                const isToday = date.toDateString() === new Date().toDateString();
-                return (
-                  <div key={cls.id} className="flex items-center gap-3 p-3 rounded-xl bg-surface">
-                    <div className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center flex-shrink-0 text-white text-center ${isToday ? "bg-accent" : "bg-primary"}`}>
-                      <span className="text-[9px] font-bold uppercase leading-none">{date.toLocaleDateString("en-UG", { month: "short" })}</span>
-                      <span className="text-sm font-extrabold leading-none">{date.getDate()}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-primary truncate">{cls.title}</p>
-                      <p className="text-xs text-gray-400 truncate">{cls.course.title}</p>
-                      <p className="text-xs text-gray-400">{date.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" })} EAT</p>
-                    </div>
-                    <a href={cls.joinUrl} target="_blank" rel="noopener noreferrer"
-                      className="text-xs font-bold text-primary border border-primary/30 px-3 py-1.5 rounded-lg no-underline hover:bg-primary hover:text-white transition-colors flex-shrink-0">
-                      Join
-                    </a>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* Recent students */}
-        <section className="bg-white rounded-2xl border border-border p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-primary">Recent Students</h2>
-            <Link href="/tutor/students" className="text-xs text-accent font-semibold no-underline hover:underline flex items-center gap-1">
-              All students <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-          {recentStudents.length === 0 ? (
-            <div className="text-center py-6">
-              <Users className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-              <p className="text-gray-400 text-sm">No students enrolled yet.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {recentStudents.map((enr) => (
-                <div key={enr.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
-                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                    {enr.user.name.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-primary truncate">{enr.user.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{enr.user.studentNumber ?? enr.course.title}</p>
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${enr.status === "COMPLETED" ? "bg-success/10 text-success" : "bg-primary/10 text-primary"}`}>
-                    {enr.status === "COMPLETED" ? "Done" : "Active"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-
-      {/* My courses */}
-      {courses.length > 0 && (
-        <section className="bg-white rounded-2xl border border-border p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-primary">My Courses</h2>
-            <Link href="/tutor/courses" className="text-xs text-accent font-semibold no-underline hover:underline flex items-center gap-1">
-              View all <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {courses.map((c) => (
-              <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-surface transition-colors">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-primary leading-snug truncate">{c.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{c._count.enrolments} students enrolled</p>
-                </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${c.status === "PUBLISHED" ? "bg-success/10 text-success" : "bg-gray-100 text-gray-500"}`}>
-                  {c.status}
-                </span>
+        <div className="dashboard-widget-column">
+          <DashboardWidgetVisibility id="at-a-glance" tab="general">
+            <Widget title="At a glance">
+              <div className="dashboard-glance-grid">
+                <a href="/tutor/courses">
+                  <span>Courses</span>
+                  <strong>{courses.length}</strong>
+                  <ChevronRight size={16} />
+                </a>
+                <a href="/tutor/students">
+                  <span>Students</span>
+                  <strong>{enrolledTotal}</strong>
+                  <ChevronRight size={16} />
+                </a>
+                <a href="/tutor/classes">
+                  <span>Classes</span>
+                  <strong>{upcomingClasses.length}</strong>
+                  <ChevronRight size={16} />
+                </a>
+                <a href="/tutor/exams">
+                  <span>Reviews</span>
+                  <strong>{pendingReviews}</strong>
+                  <ChevronRight size={16} />
+                </a>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            </Widget>
+          </DashboardWidgetVisibility>
+        </div>
+      </div>
     </div>
   );
 }

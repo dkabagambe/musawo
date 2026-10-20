@@ -4,8 +4,6 @@ import { useState } from "react";
 
 type RequestType = "REFUND" | "WAIVER" | "FEE_CHANGE";
 
-export const metadata = { title: "Approval Requests - Finance Officer" };
-
 export default function FinanceApprovalsPage() {
   const [form, setForm] = useState({
     type: "REFUND" as RequestType,

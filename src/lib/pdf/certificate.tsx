@@ -120,7 +120,7 @@ export function CertificatePDF({
         )}
 
         <Text style={styles.footer}>
-          Verify this certificate at: mtc.ac.ug/verify/{uniqueId}
+          Verify this certificate at: www.musawo.ug/verify/{uniqueId}
         </Text>
       </Page>
     </Document>

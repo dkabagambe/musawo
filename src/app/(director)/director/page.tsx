@@ -5,12 +5,31 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { Users, BookOpen, TrendingUp, AlertCircle, Award, ClipboardCheck, ChevronRight, ArrowUpRight } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Executive Dashboard" };
 
-export default async function DirectorDashboardPage() {
+const DIRECTOR_TABS = new Set<string>(["general", "approvals", "staff", "reports"]);
+
+export default async function DirectorDashboardPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || can(session.user.role, "approvals.decide") === false) redirect("/login");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && DIRECTOR_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

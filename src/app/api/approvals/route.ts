@@ -105,9 +105,9 @@ export async function POST(req: NextRequest) {
     ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  // Email every SUPERADMIN
+  // Email every SUPER_ADMIN
   const superadmins = await db.user.findMany({
-    where: { role: "SUPERADMIN", status: "ACTIVE" },
+    where: { role: "SUPER_ADMIN", status: "ACTIVE" },
     select: { email: true, name: true },
   });
 

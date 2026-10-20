@@ -13,6 +13,45 @@
 
 import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
+import type { Prisma } from "@prisma/client";
+import { formatStudentNumber } from "./number-format";
+
+/** Assign the next number and create the account while holding a year-scoped DB lock. */
+export async function createStudentWithNumber(
+  data: Prisma.UserUncheckedCreateInput,
+) {
+  const [pattern, prefix] = await Promise.all([
+    getSetting("student.numberPattern", "{PREFIX}-{YYYY}-{SEQ:5}"),
+    getSetting("student.numberPrefix", "MTC"),
+  ]);
+  const year = new Date().getFullYear();
+  const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+  const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
+
+  return db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(${year}, hashtext('musawo_student_numbers'))`;
+    const count = await tx.user.count({
+      where: {
+        role: "STUDENT",
+        studentNumber: { not: null },
+        createdAt: { gte: startOfYear, lt: endOfYear },
+      },
+    });
+    let sequence = count + 1;
+    let studentNumber = formatStudentNumber(pattern, prefix, year, sequence);
+    while (
+      await tx.user.findUnique({
+        where: { studentNumber },
+        select: { id: true },
+      })
+    ) {
+      sequence += 1;
+      studentNumber = formatStudentNumber(pattern, prefix, year, sequence);
+    }
+    const user = await tx.user.create({ data: { ...data, studentNumber } });
+    return { user, studentNumber };
+  });
+}
 
 export async function generateStudentNumber(): Promise<string> {
   const [pattern, prefix] = await Promise.all([
@@ -24,7 +63,7 @@ export async function generateStudentNumber(): Promise<string> {
 
   // Count students created this year to get the next sequential number
   const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
-  const endOfYear   = new Date(`${year + 1}-01-01T00:00:00.000Z`);
+  const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
   const count = await db.user.count({
     where: {
       role: "STUDENT",
@@ -33,13 +72,5 @@ export async function generateStudentNumber(): Promise<string> {
     },
   });
 
-  // Parse padding from pattern e.g. {SEQ:5}
-  const seqMatch = pattern.match(/\{SEQ:(\d+)\}/);
-  const padLen   = seqMatch ? parseInt(seqMatch[1], 10) : 5;
-  const seq      = String(count + 1).padStart(padLen, "0");
-
-  return pattern
-    .replace("{PREFIX}", prefix)
-    .replace("{YYYY}",   String(year))
-    .replace(/\{SEQ:\d+\}/, seq);
+  return formatStudentNumber(pattern, prefix, year, count + 1);
 }

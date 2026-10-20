@@ -79,7 +79,7 @@ export default async function PaymentOptionsPage() {
         `Branch: ${bankBranch}`,
         "Account name: Musawo Training Center",
         "Use your full name and course as the payment reference.",
-        `Email the transfer receipt to admissions@mtc.ac.ug or send on WhatsApp.`,
+        `Email the transfer receipt to admissions@musawo.ug or send on WhatsApp.`,
         "Allow 1 to 2 working days for confirmation.",
       ],
       note: "Bank transfers are verified manually. Please share your receipt so we can confirm quickly.",

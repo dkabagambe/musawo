@@ -311,7 +311,7 @@ export default async function CourseDetailPage({ params }: Props) {
                   Download and share the November 2026 intake flyer for this course.
                 </p>
                 <a
-                  href="/assets/flyer-nov-2026.png"
+                  href="/assets/flyer-nov-2026.jpeg"
                   download="MTC-November-2026-Flyer.jpeg"
                   className="inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-white font-bold px-5 py-2.5 rounded-xl no-underline transition-colors text-sm"
                 >
@@ -331,8 +331,8 @@ export default async function CourseDetailPage({ params }: Props) {
                   <p className="text-base font-semibold text-gray-600 mb-1">Course fee</p>
                   <p className="text-sm text-gray-500">
                     Fee: contact admissions at{" "}
-                    <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
-                      admissions@mtc.ac.ug
+                    <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
+                      admissions@musawo.ug
                     </a>
                   </p>
                 </div>

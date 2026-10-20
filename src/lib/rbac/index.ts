@@ -45,6 +45,52 @@ export const MAX_SUPER_ADMIN_ACCOUNTS = 3;
 // Legacy name kept so existing imports compile
 export const MAX_SUPERADMIN_ACCOUNTS = 3;
 
+/** Canonical reporting tree. Labels live in site settings; role keys remain stable. */
+export const ROLE_TREE: Record<string, { parent: string | null; level: number }> = {
+  SUPER_ADMIN: { parent: null, level: 0 },
+  PRINCIPAL: { parent: "SUPER_ADMIN", level: 1 },
+  DEPUTY_PRINCIPAL: { parent: "PRINCIPAL", level: 2 },
+  ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL", level: 3 },
+  INSTRUCTOR: { parent: "ACADEMIC_REGISTRAR", level: 4 },
+  TEACHING_ASSISTANT: { parent: "INSTRUCTOR", level: 5 },
+  STUDENT: { parent: "TEACHING_ASSISTANT", level: 6 },
+  FINANCE_OFFICER: { parent: "DEPUTY_PRINCIPAL", level: 3 },
+  HR_SYSTEM_ADMIN: { parent: "DEPUTY_PRINCIPAL", level: 3 },
+  BOARD_MEMBER: { parent: null, level: 1 },
+  AUDITOR_READONLY: { parent: null, level: 1 },
+  SYSTEM_IT: { parent: null, level: 1 },
+};
+
+const ROLE_ALIASES: Partial<Record<UserRole, UserRole>> = {
+  SUPERADMIN: "SUPER_ADMIN",
+  ADMINISTRATOR: "HR_SYSTEM_ADMIN",
+  BURSAR: "FINANCE_OFFICER",
+  TUTOR: "INSTRUCTOR",
+  REGISTRAR: "ACADEMIC_REGISTRAR",
+  ADMIN: "HR_SYSTEM_ADMIN",
+};
+
+const FINANCE_DETAIL_PERMISSIONS: Permission[] = [
+  "payments.view", "payments.initiate", "payments.export", "payments.hold", "ledger.view",
+  "refunds.initiate", "refunds.approve", "waivers.initiate", "waivers.approve",
+  "fees.change.initiate", "fees.change.approve", "claims.review", "claims.second_verify",
+  "statements.import", "reconciliation.view", "reports.financial",
+];
+
+const ROLE_PERMISSION_DENIES: Partial<Record<UserRole, Permission[]>> = {
+  SUPER_ADMIN: ["classes.join"],
+  BOARD_MEMBER: ["classes.join"],
+  PRINCIPAL: [...FINANCE_DETAIL_PERMISSIONS, "classes.join", "settings.edit", "settings.edit.secrets", "staff.create.initiate", "staff.suspend.initiate", "staff.leave.manage"],
+  DEPUTY_PRINCIPAL: [...FINANCE_DETAIL_PERMISSIONS, "classes.join", "courses.delete", "courses.publish", "exams.release", "graduands.approve", "certificates.issue", "settings.edit", "settings.edit.secrets", "staff.create.initiate", "staff.suspend.initiate", "staff.leave.manage"],
+  ACADEMIC_REGISTRAR: ["classes.join", "payments.view", "payments.initiate", "payments.export", "payments.hold", "ledger.view", "exams.release", "graduands.approve", "certificates.revoke", "staff.create.initiate", "staff.suspend.initiate"],
+  INSTRUCTOR: ["classes.join"],
+  TEACHING_ASSISTANT: ["classes.join"],
+  FINANCE_OFFICER: ["classes.join"],
+  HR_SYSTEM_ADMIN: ["classes.join"],
+  AUDITOR_READONLY: ["classes.join"],
+  SYSTEM_IT: ["classes.join"],
+};
+
 // ─── Permission definitions ────────────────────────────────────────────────
 
 export type Permission =
@@ -97,11 +143,13 @@ export type Permission =
   // Attendance and roll call
   | "attendance.take"          // INSTRUCTOR or TEACHING_ASSISTANT
   | "attendance.view"
+  | "attendance.view.all"
   | "attendance.export"
 
   // Live classes
   | "classes.manage"           // create, start, stop, admit
   | "classes.view"
+  | "classes.join"             // enrolled student requests entry to a live class
 
   // Certificates and graduands
   | "certificates.issue"
@@ -134,7 +182,8 @@ export type Permission =
   // Settings
   | "settings.view"
   | "settings.edit"            // HR_SYSTEM_ADMIN for non-secret; SUPER_ADMIN for all
-  | "settings.edit.secrets"    // SUPER_ADMIN only
+  | "settings.edit.public"     // SUPER_ADMIN or SYSTEM_IT for public-facing system data
+  | "settings.edit.secrets"    // SUPER_ADMIN and SYSTEM_IT
 
   // Integrations / infra
   | "integrations.edit"        // SYSTEM_IT
@@ -188,7 +237,7 @@ export type Permission =
 
 // ─── Role -> permission map ────────────────────────────────────────────────
 
-const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
   // ── SUPER_ADMIN: full access, final approver ──────────────────
   SUPER_ADMIN: [
@@ -202,11 +251,11 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "waivers.initiate", "waivers.approve",
     "fees.change.initiate", "fees.change.approve",
     "courses.view", "courses.create", "courses.edit", "courses.publish", "courses.delete",
-    "content.upload", "content.approve",
+    "content.upload", "content.approve", "content.view.own",
     "lessons.edit",
     "exams.create", "exams.mark", "exams.release",
-    "grades.view", "grades.edit",
-    "attendance.take", "attendance.view", "attendance.export",
+    "grades.view", "grades.edit", "grades.view.own",
+    "attendance.take", "attendance.view", "attendance.view.all", "attendance.export",
     "classes.manage", "classes.view",
     "certificates.issue", "certificates.revoke", "certificates.view",
     "graduands.prepare", "graduands.approve", "graduates.view",
@@ -216,9 +265,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "staff.view", "staff.create.initiate", "staff.create.approve",
     "staff.suspend.initiate", "staff.suspend.approve",
     "staff.role.change.approve", "staff.leave.manage",
-    "settings.view", "settings.edit", "settings.edit.secrets",
+    "settings.view", "settings.edit", "settings.edit.public", "settings.edit.secrets",
     "integrations.edit", "backups.manage", "health.view",
-    "audit.view", "audit.view.full",
+    "audit.view", "audit.view.full", "audit.comment",
     "access_review.view", "access_review.complete",
     "approvals.view", "approvals.decide",
     "reports.view", "reports.financial", "reports.academic", "reports.board",
@@ -226,7 +275,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "support.view", "support.manage",
     "partner_pages.edit",
     "intakes.manage",
-    "break_glass.approve",
+    "break_glass.approve", "break_glass.request",
     "announcements.manage",
     "claims.submit", "claims.review", "claims.second_verify",
     "statements.import", "reconciliation.view",
@@ -247,12 +296,12 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "students.view", "students.export", "students.view.contacts",
     "enrolments.view",
     "applications.view",
-    "payments.view", "finance.totals.view",  // read-only finance visibility
+    "finance.totals.view",  // read-only finance visibility
     "courses.view", "courses.create", "courses.edit", "courses.publish", "courses.delete",
     "content.approve", "content.upload",
     "exams.mark", "exams.release",
     "grades.view",
-    "attendance.view", "attendance.export",
+    "attendance.view", "attendance.view.all", "attendance.export",
     "classes.view",
     "certificates.issue", "certificates.view",
     "graduands.prepare", "graduands.approve", "graduates.view",
@@ -272,12 +321,12 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "students.view", "students.export", "students.view.contacts",
     "enrolments.view",
     "applications.view",
-    "payments.view", "finance.totals.view",  // read-only finance visibility
+    "finance.totals.view",  // read-only finance visibility
     "courses.view",
     "content.approve", "content.upload",  // when Principal delegates
     "exams.mark",
     "grades.view",
-    "attendance.view", "attendance.export",
+    "attendance.view", "attendance.view.all", "attendance.export",
     "classes.view",
     "certificates.view",
     "graduates.view",
@@ -304,7 +353,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "lessons.edit",
     "exams.create", "exams.mark",
     "grades.view", "grades.edit",
-    "attendance.view", "attendance.export",
+    "attendance.view", "attendance.view.all", "attendance.export",
     "classes.view",
     "certificates.issue", "certificates.view",
     "graduands.prepare", "graduates.view",
@@ -407,7 +456,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
   // ── SYSTEM_IT: technical only, no student or finance data ─────
   SYSTEM_IT: [
-    "settings.view", "settings.edit",
+    "settings.view", "settings.edit", "settings.edit.public", "settings.edit.secrets",
     "integrations.edit", "backups.manage", "health.view",
     "audit.view",
     "reports.view",
@@ -417,6 +466,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
   // ── STUDENT: own learning only ────────────────────────────────
   STUDENT: [
+    "classes.join",
     "courses.view",
     "grades.view",
     "certificates.view",
@@ -548,7 +598,22 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 // ─── Core checks ──────────────────────────────────────────────────────────
 
 export function can(role: UserRole, permission: Permission): boolean {
-  return (ROLE_PERMISSIONS[role] ?? []).includes(permission);
+  const canonicalRole = ROLE_ALIASES[role] ?? role;
+  if ((ROLE_PERMISSION_DENIES[canonicalRole] ?? []).includes(permission)) return false;
+  if (canonicalRole === "SUPER_ADMIN") {
+    return Object.values(ROLE_PERMISSIONS).some((permissions) => permissions.includes(permission));
+  }
+
+  const inheritedRoles = Object.keys(ROLE_TREE).filter((candidate) => {
+    let parent = ROLE_TREE[candidate].parent;
+    while (parent) {
+      if (parent === canonicalRole) return true;
+      parent = ROLE_TREE[parent]?.parent ?? null;
+    }
+    return candidate === canonicalRole;
+  }) as UserRole[];
+
+  return inheritedRoles.some((inheritedRole) => (ROLE_PERMISSIONS[inheritedRole] ?? []).includes(permission));
 }
 
 export function requirePermission(role: UserRole, permission: Permission): void {

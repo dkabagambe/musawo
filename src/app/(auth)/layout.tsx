@@ -56,7 +56,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Become a certified health worker from anywhere in Uganda
           </p>
           <p className="text-white/70 text-sm mt-1.5">
-            Accredited online courses. Study on your phone.
+            Hybrid and online learning, with practical skills training in our skills lab.
           </p>
         </motion.div>
       </div>

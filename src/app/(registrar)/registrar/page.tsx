@@ -4,12 +4,34 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { Users, BookOpen, Award, ClipboardList } from "lucide-react";
 import Link from "next/link";
+import PresenceOverview from "@/components/attendance/PresenceOverview";
+import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
+import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Academic Registrar Overview" };
 
-export default async function RegistrarPage() {
+const REGISTRAR_TABS = new Set<string>([
+  "general", "admissions", "students", "academics", "reports",
+]);
+
+export default async function RegistrarPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "students.create")) redirect("/dashboard");
+
+  const tab = searchParams.tab;
+  if (tab && tab !== "general" && REGISTRAR_TABS.has(tab)) {
+    return (
+      <DashboardTabBody
+        userId={session.user.id}
+        role={session.user.role}
+        tab={tab as DashboardTab}
+      />
+    );
+  }
 
   const [totalStudents, activeEnrolments, completedEnrolments, pendingApplications] = await Promise.all([
     db.user.count({ where: { role: "STUDENT", status: "ACTIVE" } }),
@@ -40,6 +62,8 @@ export default async function RegistrarPage() {
         <h1 className="text-2xl font-bold text-primary">Academic Registrar</h1>
         <p className="text-gray-500 text-sm mt-1">Student records, enrolments and graduands</p>
       </div>
+
+      <PresenceOverview />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, icon: Icon, href, highlight }) => (

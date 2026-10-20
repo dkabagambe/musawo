@@ -152,8 +152,8 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
         <p className="text-xs text-gray-400 mb-6">
           If you do not receive an email within 24 hours, check your spam folder or
           contact{" "}
-          <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
-            admissions@mtc.ac.ug
+          <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
+            admissions@musawo.ug
           </a>.
         </p>
         <button

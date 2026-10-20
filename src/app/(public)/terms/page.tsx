@@ -29,7 +29,7 @@ export default async function TermsPage() {
             <TermsSection title="1. Acceptance of terms">
               <p>
                 By accessing or using the Musawo Training Center platform (&ldquo;Platform&rdquo;) at{" "}
-                <strong>mtc.ac.ug</strong>, you agree to be bound by these Terms of Service.
+                <strong>www.musawo.ug</strong>, you agree to be bound by these Terms of Service.
                 If you do not agree, please do not use the Platform.
               </p>
               <p>

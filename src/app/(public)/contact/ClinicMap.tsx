@@ -13,16 +13,6 @@ import dynamic from "next/dynamic";
 import { useState, useCallback, useEffect } from "react";
 import { MapPin, Navigation, ExternalLink } from "lucide-react";
 
-// LAT/LNG re-exported from LeafletMap so they stay in one place
-const LAT = 0.3040;
-const LNG  = 32.5441;
-const DELTA = 0.004;
-
-const OSM_BBOX   = `${LNG - DELTA},${LAT - DELTA},${LNG + DELTA},${LAT + DELTA}`;
-const OSM_EMBED  = `https://www.openstreetmap.org/export/embed.html?bbox=${OSM_BBOX}&layer=mapnik&marker=${LAT},${LNG}`;
-const GMAPS_URL  = `https://www.google.com/maps/search/?api=1&query=${LAT},${LNG}`;
-const GMAPS_DIR  = `https://www.google.com/maps/dir/?api=1&destination=${LAT},${LNG}`;
-
 // Dynamically import Leaflet - ssr:false so it never runs on the server
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
@@ -40,11 +30,18 @@ function MapSkeleton() {
 
 interface Props {
   address: string;
+  latitude: number;
+  longitude: number;
 }
 
 type Level = "leaflet" | "iframe" | "card";
 
-export default function ClinicMap({ address }: Props) {
+export default function ClinicMap({ address, latitude, longitude }: Props) {
+  const delta = 0.004;
+  const bbox = `${longitude - delta},${latitude - delta},${longitude + delta},${latitude + delta}`;
+  const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${latitude},${longitude}`;
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  const gmapsDirections = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
   const [level, setLevel] = useState<Level>("leaflet");
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
@@ -72,14 +69,14 @@ export default function ClinicMap({ address }: Props) {
             style={{ animation: "fadeIn 0.4s 0.1s ease-out both" }}
             suppressHydrationWarning
           >
-            <LeafletMap onError={downgrade} />
+            <LeafletMap latitude={latitude} longitude={longitude} onError={downgrade} />
           </div>
         )}
 
         {level === "iframe" && (
           <>
             <iframe
-              src={OSM_EMBED}
+              src={osmEmbed}
               className="absolute inset-0 w-full h-full rounded-2xl"
               style={{
                 border: 0,
@@ -107,7 +104,7 @@ export default function ClinicMap({ address }: Props) {
               <p className="text-xs text-gray-500 leading-relaxed max-w-xs">{address}</p>
             </div>
             <a
-              href={GMAPS_URL}
+              href={gmapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600
@@ -123,7 +120,7 @@ export default function ClinicMap({ address }: Props) {
       {/* ── Action buttons ─────────────────────────────────────── */}
       <div className="flex flex-wrap gap-2">
         <a
-          href={GMAPS_URL}
+          href={gmapsUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-white hover:bg-surface border border-border
@@ -133,7 +130,7 @@ export default function ClinicMap({ address }: Props) {
           Open in Google Maps
         </a>
         <a
-          href={GMAPS_DIR}
+          href={gmapsDirections}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600

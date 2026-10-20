@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import { teachingCourseWhere } from "@/lib/teaching/scope";
+import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { Users } from "lucide-react";
@@ -8,9 +10,10 @@ export const metadata = { title: "My Students" };
 export default async function TutorStudentsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  if (!can(session.user.role, "students.view")) redirect("/403");
 
   const enrolments = await db.enrolment.findMany({
-    where: { status: { in: ["ACTIVE","COMPLETED"] }, course: { tutorId: session.user.id } },
+    where: { status: { in: ["ACTIVE","COMPLETED"] }, user: { role: "STUDENT" }, course: teachingCourseWhere(session.user.id) },
     include: {
       user: { select: { name: true, email: true, phone: true, studentNumber: true } },
       course: { select: { title: true, slug: true } },

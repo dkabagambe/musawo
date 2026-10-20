@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getPresignedDownloadUrl } from "@/lib/s3";
+import { getInlineObject } from "@/lib/s3";
 
 export async function GET(
   _req: NextRequest,
@@ -14,6 +14,6 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const url = await getPresignedDownloadUrl(resource.s3Key, 1800);
-  return NextResponse.redirect(url);
+  const object = await getInlineObject(resource.s3Key);
+  return new NextResponse(object.body, { headers: { "Content-Type": object.contentType, "Content-Disposition": `inline; filename="${resource.title.replace(/[^a-zA-Z0-9 _-]/g, "")}"`, "Cache-Control": "public, max-age=60", "X-Content-Type-Options": "nosniff" } });
 }

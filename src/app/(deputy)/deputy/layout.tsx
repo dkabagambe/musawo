@@ -18,7 +18,7 @@ export default async function DeputyLayout({ children }: { children: React.React
   if (!session?.user || !can(session.user.role, "support.manage")) redirect("/login");
   const name = session.user.name ?? "Deputy Principal";
   return (
-    <AppShell nav={NAV} role="Deputy Principal" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Deputy Principal" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

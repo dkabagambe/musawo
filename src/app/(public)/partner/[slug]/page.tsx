@@ -85,8 +85,8 @@ export default async function PartnerPage({ params }: Props) {
           Musawo Training Center - Allied Doctors and Friends of Uganda
         </p>
         <p className="mt-1">
-          <a href="https://mtc.ac.ug" className="text-primary no-underline hover:underline">
-            mtc.ac.ug
+          <a href="https://www.musawo.ug" className="text-primary no-underline hover:underline">
+            www.musawo.ug
           </a>
         </p>
       </footer>

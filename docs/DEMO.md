@@ -17,6 +17,8 @@ npm run dev
 
 Open **http://localhost:3000** and **http://localhost:3000/dev/login**.
 
+The authenticated portals share the responsive teal navigation shell. On a portal dashboard, use the tabs to open section shortcuts and **Edit My Widgets** to save your layout. See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for portal components and responsive sizes.
+
 ---
 
 ## Dev tools (local only, 404 in production)
@@ -84,6 +86,9 @@ All accounts use password: **`Demo1234!`**
 4. Invite email sent - visible at `/dev/mail`.
 5. **Students** - new student with status `PENDING_ACCEPTANCE` and auto-generated student number (e.g. `MTC-2026-00009`). Student number is assigned at creation, never at payment or login.
 6. Or click **+ New student** to create an account directly with full fields: name, DOB, gender, district, qualification, emergency contact, course, intake, category.
+7. Use **Import students from CSV** to upload a file, review per-row duplicate and validation results, then create only the valid rows. Optional ID numbers are encrypted before storage.
+
+The CSV header names are `name,email,phone,courseId,intakeId,category,professionalTitle,registrationNumber,dateOfBirth,gender,district,highestQualification,emergencyContact,idNumber`. Course and intake columns use database IDs.
 
 ### 4. Student accepts invite
 
@@ -92,7 +97,7 @@ All accounts use password: **`Demo1234!`**
 3. **Happy path:** Click **Accept and continue** - student sets password, accepts data consent. Status becomes `ACTIVE`.
 4. **Dispute path:** Click **These details are wrong** - student explains what is wrong, submits dispute. Status becomes `DETAILS_DISPUTED`. Registrar receives email notification.
 5. To demo disputed state: use `student.disputed@example.com` in the Registrar portal - visible with red "Details disputed" badge.
-6. Registrar can resend an invite (create a new one) after correcting details.
+6. Registrar can resend an expired or lost invite, or revoke an unused invite from the Students page.
 
 ### 5. Student dashboard and payment
 
@@ -109,13 +114,20 @@ All accounts use password: **`Demo1234!`**
 
 1. Sign in at `/dev/login`. Browse **My Courses**, watch a lesson, progress updates.
 2. **Assignments** - submit Personal Care Reflection.
-3. **Timetable** - upcoming live classes.
+3. **Timetable** - upcoming live classes. Select **Class replays** for authenticated replay pages, with absent students listed first.
 
 ### 7. Tutor: mark submissions
 
 **Account:** `tutor@mtc.ac.ug`
 
 1. **Exams** - pending short-answer reviews. Open one, enter score, submit.
+2. **My Courses** and **Materials** include courses where the account is either the primary instructor or assigned as a co-instructor. PDF, DOCX, PPTX, PNG and JPEG uploads are capped at 50 MB. Tutor rosters filter by student permission so instructor accounts such as `tutor2@mtc.ac.ug` cannot appear as learners.
+3. **Live Classes** supports link-provider classes and configured BigBlueButton rooms. Links appear to students only after Start class and instructor admission. The teacher can admit requests one by one or admit all enrolled students, enable self check-in, and end the class.
+4. **Attendance** supports start and end roll calls with Present, Late, Absent or Excused marks, plus CSV and PDF exports. It shows in-class and platform-online heartbeats. Teaching assistants can take roll call but cannot mark exams or grades.
+5. A student can request entry, raise a hand, and self-check-in during the configured window. In-room microphone and presenter controls depend on the video provider.
+6. After a link-provider class, add its replay URL in **Live Classes**. BigBlueButton replay links synchronize through the scheduled job. Students open recordings through **Class replays** with their name and student number watermark.
+
+The Batch B changes require the new database migration. Configure BigBlueButton, Redis, SMS or WhatsApp credentials as needed, and schedule the two routes listed in [CAPACITY.md](CAPACITY.md). Link-provider rooms must still be ended manually in Meet or Zoom. Screenshots cannot be fully prevented.
 
 ### 8. Certificate verification
 
@@ -158,6 +170,9 @@ No login needed. Open `/verify/MTC-2026-CNA-00001` - verified certificate detail
 - **TOTP** is off for all demo accounts. Enable via `/2fa-setup`.
 - **No self-registration.** `/register` redirects to `/apply`. All accounts created by the Registrar.
 - **Student numbers** auto-generated at account creation: `MTC-{YYYY}-{NNNNN}`. Pattern configurable in settings (`student.numberPattern`).
+- **Role labels** are editable in Site Settings. The role hierarchy is stored in `rbac.roleTree`; permission inheritance follows that hierarchy with explicit denials for restricted actions.
+- **Teaching scope** is based on primary course assignment or a co-instructor assignment, then filtered again for each operation.
+- **Course PDFs** are streamed through an authenticated, enrolment and payment checked route. The learner UI has no download button and overlays a name watermark. Screenshots and photography cannot be fully prevented.
 - **Accreditation** is off by default. Set `site.accreditationText` in Admin settings to enable.
 - **Scholarships** are off (`feature.scholarships=false`). No pages, links or codes exist.
 - **Fees** show "Fee: contact admissions" until Finance Officer sets them. Demo seed has placeholder fees.

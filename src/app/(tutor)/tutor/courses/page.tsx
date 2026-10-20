@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import { teachingCourseWhere } from "@/lib/teaching/scope";
 
 export const metadata = { title: "My Courses - Tutor" };
 
@@ -10,7 +11,7 @@ export default async function TutorCoursesPage() {
   if (!session?.user) redirect("/login");
 
   const courses = await db.course.findMany({
-    where: { tutorId: session.user.id },
+    where: teachingCourseWhere(session.user.id),
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { enrolments: true, blocks: true } },

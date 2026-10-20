@@ -16,7 +16,7 @@ export default async function BoardLayout({ children }: { children: React.ReactN
   if (!session?.user || !can(session.user.role, "reports.board")) redirect("/login");
   const name = session.user.name ?? "Board Member";
   return (
-    <AppShell nav={NAV} role="Board" userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell nav={NAV} role="Board" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
       {children}
     </AppShell>
   );

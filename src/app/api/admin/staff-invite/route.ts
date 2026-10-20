@@ -1,34 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { requirePermission, ForbiddenError, can } from "@/lib/rbac";
+import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { sendEmail } from "@/lib/email";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 import crypto from "crypto";
 import type { UserRole } from "@prisma/client";
+import { can } from "@/lib/rbac";
 
-// Roles that can be assigned via invite (never SUPERADMIN via invite)
+// Elevated oversight and SUPER_ADMIN roles require the dedicated approval flow.
 const INVITABLE_ROLES: UserRole[] = [
-  "ADMINISTRATOR",
+  "HR_SYSTEM_ADMIN",
   "PRINCIPAL",
+  "DEPUTY_PRINCIPAL",
   "ACADEMIC_REGISTRAR",
-  "BURSAR",
-  "TUTOR",
+  "INSTRUCTOR",
+  "TEACHING_ASSISTANT",
+  "FINANCE_OFFICER",
   "SYSTEM_IT",
 ];
-
-// Additional restriction: ADMINISTRATOR can only invite TUTOR and ACADEMIC_REGISTRAR
-const ADMINISTRATOR_INVITABLE: UserRole[] = ["TUTOR", "ACADEMIC_REGISTRAR"];
 
 const InviteSchema = z.object({
   email: z.string().email(),
   role: z.enum([
-    "ADMINISTRATOR",
+    "HR_SYSTEM_ADMIN",
     "PRINCIPAL",
+    "DEPUTY_PRINCIPAL",
     "ACADEMIC_REGISTRAR",
-    "BURSAR",
-    "TUTOR",
+    "INSTRUCTOR",
+    "TEACHING_ASSISTANT",
+    "FINANCE_OFFICER",
     "SYSTEM_IT",
   ] as [string, ...string[]]),
   courseId: z.string().optional(), // assign to course immediately if provided
@@ -44,17 +46,26 @@ async function sendInvite(
   initiatorId: string,
   courseId?: string
 ): Promise<{ ok: boolean; error?: string }> {
+  if (courseId && (!can(role, "courses.view") || can(role, "courses.create"))) {
+    return { ok: false, error: "Only assigned teaching staff can be linked to a course." };
+  }
+  if (courseId && !await db.course.findUnique({ where: { id: courseId }, select: { id: true } })) {
+    return { ok: false, error: "Course not found." };
+  }
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) return { ok: false, error: `User already exists: ${email}` };
 
   await db.staffInvite.deleteMany({ where: { email, acceptedAt: null } });
 
   const token = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  await db.staffInvite.create({
+  const invite = await db.staffInvite.create({
     data: { email, role, token, expiresAt, createdById: initiatorId },
   });
+  if (courseId) {
+    await db.$executeRaw`UPDATE staff_invites SET "courseId" = ${courseId} WHERE id = ${invite.id}`;
+  }
 
   const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const acceptUrl = `${siteUrl}/invite/${token}`;
@@ -62,23 +73,17 @@ async function sendInvite(
   await sendEmail({
     to: email,
     subject: "You have been invited to Musawo Training Center",
-    template: "welcome",
-    variables: { name: email, loginUrl: acceptUrl },
+    template: "staff-invite",
+    variables: { name: email, role, inviteUrl: acceptUrl },
   });
 
   await audit({
     actorId: initiatorId,
     action: "CREATE",
     entityType: "StaffInvite",
-    entityId: token,
+    entityId: invite.id,
     metadata: { email, role, courseId },
   });
-
-  // If courseId provided and role is TUTOR, pre-assign as co-tutor
-  if (courseId && role === "TUTOR") {
-    // Pre-assignment happens when they accept the invite and their account is created
-    // Store courseId in the invite metadata via a separate note - for now log it
-  }
 
   return { ok: true };
 }
@@ -110,26 +115,12 @@ export async function POST(req: NextRequest) {
     invites = [parsed.data];
   }
 
-  const actorRole = session.user.role;
   const results: Array<{ email: string; ok: boolean; error?: string }> = [];
 
   for (const invite of invites) {
     const targetRole = invite.role as UserRole;
 
-    // ADMINISTRATOR can only invite TUTOR and ACADEMIC_REGISTRAR
-    if (
-      actorRole === "ADMINISTRATOR" &&
-      !ADMINISTRATOR_INVITABLE.includes(targetRole)
-    ) {
-      results.push({ email: invite.email, ok: false, error: `ADMINISTRATOR cannot invite role: ${targetRole}` });
-      continue;
-    }
-
-    // Non-SUPERADMIN cannot invite roles outside the invitable list
-    if (
-      actorRole !== "SUPERADMIN" &&
-      !INVITABLE_ROLES.includes(targetRole)
-    ) {
+    if (!INVITABLE_ROLES.includes(targetRole)) {
       results.push({ email: invite.email, ok: false, error: `Cannot invite role: ${targetRole}` });
       continue;
     }

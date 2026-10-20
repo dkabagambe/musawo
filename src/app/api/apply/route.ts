@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const ApplySchema = z.object({
   fullName:             z.string().min(2).max(120),
-  email:                z.string().email(),
+  email:                z.string().trim().email().toLowerCase(),
   phone:                z.string().min(7).max(20),
   courseId:             z.string().cuid(),
   intakeLabel:          z.string().min(1).max(80),
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     });
     if (existingApplication) {
       return NextResponse.json(
-        { error: "An application for this course already exists for this email address. Please contact admissions@mtc.ac.ug if you need help." },
+        { error: "An application for this course already exists for this email address. Please contact admissions@musawo.ug if you need help." },
         { status: 409 }
       );
     }
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mtc.ac.ug";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.musawo.ug";
 
     // Email applicant confirmation
     await sendEmail({
@@ -136,7 +136,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[api/apply] error:", err);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again or contact admissions@mtc.ac.ug." },
+      { error: "Something went wrong. Please try again or contact admissions@musawo.ug." },
       { status: 500 }
     );
   }

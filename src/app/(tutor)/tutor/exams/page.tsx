@@ -1,23 +1,28 @@
 import { auth } from "@/lib/auth";
+import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { ClipboardList, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { can } from "@/lib/rbac";
+import ReviewAttempt from "./ReviewAttempt";
 
 export const metadata = { title: "Exams - Tutor" };
 
 export default async function TutorExamsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  if (!can(session.user.role, "exams.mark") && !can(session.user.role, "exams.create")) redirect("/403");
 
   const exams = await db.exam.findMany({
-    where: { course: { tutorId: session.user.id } },
+    where: { course: teachingCourseWhere(session.user.id) },
     orderBy: { createdAt: "desc" },
     include: {
       course: { select: { title: true } },
+      questions: { where: { type: "SHORT_ANSWER" }, select: { id: true, text: true, points: true } },
       _count: { select: { attempts: true } },
       attempts: {
         where: { status: "SUBMITTED" },
-        include: { user: { select: { name: true, studentNumber: true } } },
+        include: { user: { select: { name: true, studentNumber: true } }, shortAnswerReviews: { select: { questionId: true, score: true, feedback: true } } },
         orderBy: { submittedAt: "asc" },
       },
     },
@@ -79,7 +84,8 @@ export default async function TutorExamsPage() {
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Awaiting Review</p>
                     <div className="space-y-2">
                       {exam.attempts.map((att) => (
-                        <div key={att.id} className="flex items-center gap-3 p-3 bg-warning/5 rounded-xl border border-warning/20">
+                        <div key={att.id} className="rounded-xl border border-warning/20 bg-warning/5 p-3">
+                          <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-warning/15 rounded-lg flex items-center justify-center text-amber-700 text-xs font-bold flex-shrink-0">
                             {att.user.name.charAt(0)}
                           </div>
@@ -92,6 +98,8 @@ export default async function TutorExamsPage() {
                           <span className="text-xs font-semibold text-amber-700 bg-warning/10 px-2.5 py-1 rounded-full flex-shrink-0">
                             Review
                           </span>
+                          </div>
+                          <ReviewAttempt attemptId={att.id} questions={exam.questions} answers={att.answers as Record<string, string>} reviews={att.shortAnswerReviews} />
                         </div>
                       ))}
                     </div>

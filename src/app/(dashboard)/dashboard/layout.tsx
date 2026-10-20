@@ -3,13 +3,14 @@ import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import {
   LayoutDashboard, BookOpen, Calendar, BarChart2, ClipboardList,
-  FileText, MessageSquare, CreditCard, Award, LifeBuoy, Bell, User,
+  FileText, MessageSquare, CreditCard, Award, LifeBuoy, Bell, User, PlayCircle,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
   { href: "/dashboard",               label: "Dashboard",    icon: <LayoutDashboard className="w-4 h-4" /> },
   { href: "/dashboard/courses",       label: "My Courses",   icon: <BookOpen className="w-4 h-4" /> },
   { href: "/dashboard/timetable",     label: "Timetable",    icon: <Calendar className="w-4 h-4" /> },
+  { href: "/dashboard/recordings",    label: "Class replays",icon: <PlayCircle className="w-4 h-4" /> },
   { href: "/dashboard/gradebook",     label: "Gradebook",    icon: <BarChart2 className="w-4 h-4" /> },
   { href: "/dashboard/results",       label: "Results",      icon: <ClipboardList className="w-4 h-4" /> },
   { href: "/dashboard/assignments",   label: "Assignments",  icon: <FileText className="w-4 h-4" /> },
@@ -29,7 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const initial = name.charAt(0).toUpperCase();
 
   return (
-    <AppShell nav={NAV} role="Student Portal" userName={name} userInitial={initial}>
+    <AppShell nav={NAV} role="Student Portal" permissionRole={session.user.role} userName={name} userInitial={initial}>
       {children}
     </AppShell>
   );

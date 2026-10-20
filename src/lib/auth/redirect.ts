@@ -14,23 +14,41 @@ const AUTH_PAGES = new Set(["/login", "/register", "/otp", "/forgot-password", "
 /**
  * Returns the correct home path for a role.
  *
- *   SUPERADMIN  → /director
- *   SYSTEM_IT   → /system
- *   REGISTRAR   → /admin/students
- *   BURSAR      → /bursar
- *   TUTOR       → /tutor
- *   STUDENT     → /dashboard
- *   unknown     → /dashboard  (never a 404)
+ *   SUPER_ADMIN              → /director
+ *   BOARD_MEMBER             → /board
+ *   PRINCIPAL                → /principal
+ *   DEPUTY_PRINCIPAL         → /deputy
+ *   ACADEMIC_REGISTRAR       → /registrar
+ *   INSTRUCTOR               → /tutor
+ *   TEACHING_ASSISTANT       → /tutor
+ *   FINANCE_OFFICER          → /finance
+ *   HR_SYSTEM_ADMIN          → /admin
+ *   AUDITOR_READONLY         → /auditor
+ *   SYSTEM_IT                → /system
+ *   STUDENT                  → /dashboard
+ *   Legacy aliases follow their canonical equivalent.
+ *   unknown                  → /dashboard  (never a 404)
  */
 export function getHomePathForRole(role: UserRole | string | undefined | null): string {
   switch (role) {
-    case "SUPERADMIN": return "/director";
-    case "SYSTEM_IT":  return "/system";
-    case "REGISTRAR":  return "/admin/students";
-    case "BURSAR":     return "/bursar";
-    case "TUTOR":      return "/tutor";
-    case "ADMIN":      return "/admin/students"; // legacy alias
-    default:           return "/dashboard";
+    case "SUPER_ADMIN":
+    case "SUPERADMIN":           return "/director";
+    case "BOARD_MEMBER":         return "/board";
+    case "PRINCIPAL":            return "/principal";
+    case "DEPUTY_PRINCIPAL":     return "/deputy";
+    case "ACADEMIC_REGISTRAR":
+    case "REGISTRAR":            return "/registrar";
+    case "INSTRUCTOR":
+    case "TUTOR":                return "/tutor";
+    case "TEACHING_ASSISTANT":   return "/tutor";
+    case "FINANCE_OFFICER":
+    case "BURSAR":               return "/finance";
+    case "HR_SYSTEM_ADMIN":
+    case "ADMINISTRATOR":
+    case "ADMIN":                return "/admin";
+    case "AUDITOR_READONLY":     return "/auditor";
+    case "SYSTEM_IT":            return "/system";
+    default:                     return "/dashboard"; // STUDENT
   }
 }
 
