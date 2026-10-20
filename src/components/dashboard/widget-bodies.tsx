@@ -404,11 +404,18 @@ async function InboxListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   );
 }
 
+/** Display name with surname first, e.g. "Akello Florence" for compact cards. */
+function surnameFirst(raw: string | null): string {
+  const parts = (raw ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return parts[0] ?? "Student";
+  return `${parts.at(-1)} ${parts.slice(0, -1).join(" ")}`;
+}
+
 /* student-cards  (instructor - My Students) */
 async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   const canViewContacts = can(role, "students.view.contacts");
   const recent = await db.enrolment.findMany({
-    where: { status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] }, course: teachingCourseWhere(userId) },
+    where: { status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] }, user: { role: "STUDENT" }, course: teachingCourseWhere(userId) },
     orderBy: { createdAt: "desc" },
     take: 100,
     include: {
@@ -428,7 +435,7 @@ async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps)
         {visible.map((enr) => (
           <ProfileCard
             key={enr.id}
-            name={(enr.user.name ?? "Student").trim().split(/\s+/).join(" ")}
+            name={surnameFirst(enr.user.name)}
             id={enr.user.studentNumber ?? undefined}
             phone={canViewContacts ? (enr.user.phone ?? undefined) : undefined}
             email={canViewContacts ? (enr.user.email ?? undefined) : undefined}
@@ -1036,7 +1043,7 @@ async function StaffListBody({ fullPageHref }: WidgetBodyProps) {
         {visible.map((s) => (
           <ProfileCard
             key={s.id}
-            name={(s.name ?? "Staff").trim().split(/\s+/).join(" ")}
+            name={surnameFirst(s.name)}
             id={s.role.toLowerCase().replace(/_/g, " ")}
             email={s.email ?? undefined}
             href={href}

@@ -372,7 +372,7 @@ export function Sidebar({
             >
               <UserRound size={16} /> Profile
             </Link>
-            <Link href="/signout" role="menuitem" onClick={onNavigate}>
+            <Link href="/signout" role="menuitem" onClick={() => { setUserMenuOpen(false); onNavigate?.(); }}>
               <LogOut size={16} /> Log out
             </Link>
           </div>

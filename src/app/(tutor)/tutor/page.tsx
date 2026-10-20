@@ -78,6 +78,7 @@ export default async function TutorDashboardPage({
     db.enrolment.findMany({
       where: {
         status: { in: ["ACTIVE", "COMPLETED"] },
+        user: { role: "STUDENT" },
         course: teachingCourseWhere(session.user.id),
       },
       orderBy: { createdAt: "desc" },
@@ -289,10 +290,10 @@ export default async function TutorDashboardPage({
                   {sortedStudents.slice(0, visibleStudentCount).map((enr) => (
                     <ProfileCard
                       key={enr.id}
-                      name={(enr.user.name ?? "Student")
-                        .trim()
-                        .split(/\s+/)
-                        .join(" ")}
+                      name={(() => {
+                        const parts = (enr.user.name ?? "Student").trim().split(/\s+/).filter(Boolean);
+                        return parts.length > 1 ? `${parts.at(-1)} ${parts.slice(0, -1).join(" ")}` : (parts[0] ?? "Student");
+                      })()}
                       id={enr.user.studentNumber ?? undefined}
                       phone={
                         canViewContacts

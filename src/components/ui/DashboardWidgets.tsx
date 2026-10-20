@@ -64,10 +64,10 @@ export function TabBar({ tabs }: { tabs: DashboardTabItem[] }) {
     next.set("tab", tabs[0].id);
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }, [params, pathname, router, tabs]);
-  const select = (tab: DashboardTab) => {
+  const buildHref = (tabId: DashboardTab) => {
     const next = new URLSearchParams(params.toString());
-    next.set("tab", tab);
-    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+    next.set("tab", tabId);
+    return `${pathname}?${next.toString()}`;
   };
   return (
     <div
@@ -76,12 +76,14 @@ export function TabBar({ tabs }: { tabs: DashboardTabItem[] }) {
       aria-label="Dashboard sections"
     >
       {tabs.map((tab, index) => (
-        <button
+        <Link
           key={tab.id}
-          type="button"
           role="tab"
           aria-selected={current === tab.id}
           tabIndex={current === tab.id ? 0 : -1}
+          href={buildHref(tab.id)}
+          scroll={false}
+          prefetch={true}
           onKeyDown={(event) => {
             if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
             event.preventDefault();
@@ -89,17 +91,16 @@ export function TabBar({ tabs }: { tabs: DashboardTabItem[] }) {
               (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) %
               tabs.length;
             const next =
-              event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+              event.currentTarget.parentElement?.querySelectorAll<HTMLElement>(
                 "[role='tab']",
               )[nextIndex];
             next?.focus();
-            next?.click();
+            (next as HTMLAnchorElement)?.click();
           }}
           className={`portal-tab ${current === tab.id ? "is-active" : ""}`}
-          onClick={() => select(tab.id)}
         >
           {tab.label}
-        </button>
+        </Link>
       ))}
     </div>
   );
