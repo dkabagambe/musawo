@@ -2,15 +2,16 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
-import { LayoutDashboard, ClipboardCheck, Users, Search, Shield, Settings } from "lucide-react";
+import { LayoutDashboard, ClipboardCheck, Users, Search, Shield, Settings, GitBranch } from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/director",               label: "Overview",       icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/director/approvals",     label: "Approvals",      icon: <ClipboardCheck className="w-4 h-4" /> },
-  { href: "/director/staff",         label: "Staff",          icon: <Users className="w-4 h-4" /> },
-  { href: "/director/audit",         label: "Audit Log",      icon: <Search className="w-4 h-4" /> },
-  { href: "/director/access-review", label: "Access Review",  icon: <Shield className="w-4 h-4" /> },
-  { href: "/admin",                  label: "Administration", icon: <Settings className="w-4 h-4" /> },
+  { href: "/director",               label: "Overview",          icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/director/approvals",     label: "Approvals",         icon: <ClipboardCheck className="w-4 h-4" /> },
+  { href: "/director/staff",         label: "Staff",             icon: <Users className="w-4 h-4" /> },
+  { href: "/director/audit",         label: "Audit Log",         icon: <Search className="w-4 h-4" /> },
+  { href: "/director/access-review", label: "Access Review",     icon: <Shield className="w-4 h-4" /> },
+  { href: "/director/roles",         label: "Roles and Permissions", icon: <GitBranch className="w-4 h-4" /> },
+  { href: "/admin",                  label: "Administration",    icon: <Settings className="w-4 h-4" /> },
 ];
 
 // Tabs match DASHBOARD_WIDGETS for SUPER_ADMIN role

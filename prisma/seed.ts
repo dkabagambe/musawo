@@ -140,18 +140,18 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "rbac.roleTree",
     value: JSON.stringify({
-      SUPER_ADMIN: { parent: null, level: 0 },
-      PRINCIPAL: { parent: "SUPER_ADMIN", level: 1 },
-      DEPUTY_PRINCIPAL: { parent: "PRINCIPAL", level: 2 },
-      ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-      INSTRUCTOR: { parent: "ACADEMIC_REGISTRAR", level: 4 },
-      TEACHING_ASSISTANT: { parent: "INSTRUCTOR", level: 5 },
-      STUDENT: { parent: "TEACHING_ASSISTANT", level: 6 },
-      FINANCE_OFFICER: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-      HR_SYSTEM_ADMIN: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-      BOARD_MEMBER: { parent: null, level: 1 },
-      AUDITOR_READONLY: { parent: null, level: 1 },
-      SYSTEM_IT: { parent: null, level: 1 },
+      SUPER_ADMIN:        { parent: null,                 level: 1 },
+      BOARD_MEMBER:       { parent: null,                 level: 1 },
+      PRINCIPAL:          { parent: "SUPER_ADMIN",        level: 2 },
+      DEPUTY_PRINCIPAL:   { parent: "PRINCIPAL",          level: 3 },
+      ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL",   level: 4 },
+      FINANCE_OFFICER:    { parent: "DEPUTY_PRINCIPAL",   level: 4 },
+      HR_SYSTEM_ADMIN:    { parent: "DEPUTY_PRINCIPAL",   level: 4 },
+      AUDITOR_READONLY:   { parent: "DEPUTY_PRINCIPAL",   level: 4 },
+      INSTRUCTOR:         { parent: "ACADEMIC_REGISTRAR", level: 5 },
+      TEACHING_ASSISTANT: { parent: "INSTRUCTOR",         level: 6 },
+      STUDENT:            { parent: "TEACHING_ASSISTANT", level: 7 },
+      SYSTEM_IT:          { parent: null,                 level: 1 },
     }),
     description: "Canonical role hierarchy (role keys, parent role and level)",
   },
@@ -460,10 +460,10 @@ async function main() {
   // ── Staff accounts ─────────────────────────────────────────────
   const hashedPw = await pw(DEMO_PW);
 
-  const mkStaff = (email: string, name: string, role: UserRole) =>
+  const mkStaff = (email: string, name: string, role: UserRole, extra?: Record<string, unknown>) =>
     prisma.user.upsert({
       where: { email },
-      update: { role },
+      update: { role, ...(extra ?? {}) },
       create: {
         name,
         email,
@@ -473,6 +473,7 @@ async function main() {
         totpEnabled: false,
         emailVerified: new Date(),
         dataConsentAt: new Date(),
+        ...(extra ?? {}),
       },
     });
 
@@ -490,6 +491,13 @@ async function main() {
     "board@mtc.ac.ug",
     "Grace Akello",
     UserRole.BOARD_MEMBER,
+  );
+  // Second BOARD_MEMBER who is also Institution Secretary (gets policies.manage and board_documents.manage)
+  const institutionSecretary = await mkStaff(
+    "secretary@mtc.ac.ug",
+    "Robert Kasozi",
+    UserRole.BOARD_MEMBER,
+    { institutionSecretary: true },
   );
   const principal = await mkStaff(
     "principal@mtc.ac.ug",

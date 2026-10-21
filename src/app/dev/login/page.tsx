@@ -5,9 +5,10 @@ import DevLoginForm from "./DevLoginForm";
 export const metadata = { title: "Demo Accounts - Dev Login" };
 
 const DEMO_ACCOUNTS = [
-  { label: "CEO / Super Admin",    email: "ceo@mtc.ac.ug",              role: "SUPER_ADMIN",        landing: "/director",    icon: "👑" },
-  { label: "Deputy Director",      email: "deputy@mtc.ac.ug",           role: "SUPER_ADMIN",        landing: "/director",    icon: "👑" },
-  { label: "Board Member",         email: "board@mtc.ac.ug",            role: "BOARD_MEMBER",       landing: "/board",       icon: "🏛" },
+  { label: "CEO / Super Admin",            email: "ceo@mtc.ac.ug",              role: "SUPER_ADMIN",        landing: "/director",    icon: "👑" },
+  { label: "Deputy Director (Super Admin)",email: "deputy@mtc.ac.ug",           role: "SUPER_ADMIN",        landing: "/director",    icon: "👑" },
+  { label: "Board Member",                 email: "board@mtc.ac.ug",            role: "BOARD_MEMBER",       landing: "/board",       icon: "🏛" },
+  { label: "Board Member (Inst. Secretary)", email: "secretary@mtc.ac.ug",      role: "BOARD_MEMBER",       landing: "/board",       icon: "🏛" },
   { label: "Principal",            email: "principal@mtc.ac.ug",        role: "PRINCIPAL",          landing: "/principal",   icon: "🎓" },
   { label: "Deputy Principal",     email: "deputyprincipal@mtc.ac.ug",  role: "DEPUTY_PRINCIPAL",   landing: "/deputy",      icon: "🎓" },
   { label: "Academic Registrar",   email: "registrar@mtc.ac.ug",        role: "ACADEMIC_REGISTRAR", landing: "/registrar",   icon: "📋" },

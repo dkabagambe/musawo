@@ -45,20 +45,40 @@ export const MAX_SUPER_ADMIN_ACCOUNTS = 3;
 // Legacy name kept so existing imports compile
 export const MAX_SUPERADMIN_ACCOUNTS = 3;
 
-/** Canonical reporting tree. Labels live in site settings; role keys remain stable. */
+/**
+ * Canonical role tree.
+ * Levels follow the organogram spec (level 1 = top of normal hierarchy).
+ * Labels live in site settings (role.label.*); these keys are the stable identifiers.
+ * The tree is also stored in the database via the rbac.roleTree SiteSetting so
+ * it can be rendered in the read-only Roles and Permissions page.
+ *
+ * Hierarchy (per spec):
+ *   SUPER_ADMIN (level 1, max 3 accounts)
+ *   BOARD_MEMBER (level 1, oversight - read-only)
+ *   PRINCIPAL (level 2)
+ *   DEPUTY_PRINCIPAL (level 3)
+ *     ACADEMIC_REGISTRAR (level 4)
+ *       INSTRUCTOR (level 5)
+ *         TEACHING_ASSISTANT (level 6)
+ *           STUDENT (level 7)
+ *     FINANCE_OFFICER (level 4, parallel branch)
+ *     HR_SYSTEM_ADMIN (level 4, parallel branch)
+ *     AUDITOR_READONLY (level 4, read-only oversight under Deputy Principal)
+ *   SYSTEM_IT (technical, outside the chain)
+ */
 export const ROLE_TREE: Record<string, { parent: string | null; level: number }> = {
-  SUPER_ADMIN: { parent: null, level: 0 },
-  PRINCIPAL: { parent: "SUPER_ADMIN", level: 1 },
-  DEPUTY_PRINCIPAL: { parent: "PRINCIPAL", level: 2 },
-  ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-  INSTRUCTOR: { parent: "ACADEMIC_REGISTRAR", level: 4 },
-  TEACHING_ASSISTANT: { parent: "INSTRUCTOR", level: 5 },
-  STUDENT: { parent: "TEACHING_ASSISTANT", level: 6 },
-  FINANCE_OFFICER: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-  HR_SYSTEM_ADMIN: { parent: "DEPUTY_PRINCIPAL", level: 3 },
-  BOARD_MEMBER: { parent: null, level: 1 },
-  AUDITOR_READONLY: { parent: null, level: 1 },
-  SYSTEM_IT: { parent: null, level: 1 },
+  SUPER_ADMIN:        { parent: null,                level: 1 },
+  BOARD_MEMBER:       { parent: null,                level: 1 },  // oversight, read-only
+  PRINCIPAL:          { parent: "SUPER_ADMIN",       level: 2 },
+  DEPUTY_PRINCIPAL:   { parent: "PRINCIPAL",         level: 3 },
+  ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL",  level: 4 },
+  FINANCE_OFFICER:    { parent: "DEPUTY_PRINCIPAL",  level: 4 },  // parallel branch
+  HR_SYSTEM_ADMIN:    { parent: "DEPUTY_PRINCIPAL",  level: 4 },  // parallel branch
+  AUDITOR_READONLY:   { parent: "DEPUTY_PRINCIPAL",  level: 4 },  // read-only oversight
+  INSTRUCTOR:         { parent: "ACADEMIC_REGISTRAR", level: 5 },
+  TEACHING_ASSISTANT: { parent: "INSTRUCTOR",        level: 6 },
+  STUDENT:            { parent: "TEACHING_ASSISTANT", level: 7 },
+  SYSTEM_IT:          { parent: null,                level: 1 },  // technical, outside chain
 };
 
 const ROLE_ALIASES: Partial<Record<UserRole, UserRole>> = {
@@ -81,8 +101,15 @@ const ROLE_PERMISSION_DENIES: Partial<Record<UserRole, Permission[]>> = {
   SUPER_ADMIN: ["classes.join"],
   BOARD_MEMBER: ["classes.join"],
   PRINCIPAL: [...FINANCE_DETAIL_PERMISSIONS, "classes.join", "settings.edit", "settings.edit.secrets", "staff.create.initiate", "staff.suspend.initiate", "staff.leave.manage"],
-  DEPUTY_PRINCIPAL: [...FINANCE_DETAIL_PERMISSIONS, "classes.join", "courses.delete", "courses.publish", "exams.release", "graduands.approve", "certificates.issue", "settings.edit", "settings.edit.secrets", "staff.create.initiate", "staff.suspend.initiate", "staff.leave.manage"],
-  ACADEMIC_REGISTRAR: ["classes.join", "payments.view", "payments.initiate", "payments.export", "payments.hold", "ledger.view", "exams.release", "graduands.approve", "certificates.revoke", "staff.create.initiate", "staff.suspend.initiate"],
+  DEPUTY_PRINCIPAL: [...FINANCE_DETAIL_PERMISSIONS, "classes.join", "courses.delete", "courses.publish", "exams.release", "graduands.approve", "certificates.issue", "settings.edit", "settings.edit.secrets", "staff.create.initiate", "staff.suspend.initiate", "staff.leave.manage",
+    // AUDITOR_READONLY is a child for oversight purposes only; its read-only audit
+    // superpowers do NOT flow up the line to Deputy Principal or Academic Registrar.
+    "audit.view.full", "audit.comment",
+  ],
+  ACADEMIC_REGISTRAR: ["classes.join", "payments.view", "payments.initiate", "payments.export", "payments.hold", "ledger.view", "exams.release", "graduands.approve", "certificates.revoke", "staff.create.initiate", "staff.suspend.initiate",
+    // Same safeguard: AUDITOR_READONLY's read-only audit permissions don't inherit down.
+    "audit.view.full", "audit.comment",
+  ],
   INSTRUCTOR: ["classes.join"],
   TEACHING_ASSISTANT: ["classes.join"],
   FINANCE_OFFICER: ["classes.join"],
@@ -228,6 +255,10 @@ export type Permission =
   // Partner pages
   | "partner_pages.edit"
 
+  // Board documents (Institution Secretary only)
+  | "policies.manage"          // edit and version policies (Institution Secretary BOARD_MEMBER)
+  | "board_documents.manage"   // manage board-level documents
+
   // Manual payment claims
   | "claims.submit"
   | "claims.review"
@@ -271,7 +302,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "access_review.view", "access_review.complete",
     "approvals.view", "approvals.decide",
     "reports.view", "reports.financial", "reports.academic", "reports.board",
-    "policies.view", "policies.edit",
+    "policies.view", "policies.edit", "policies.manage",
+    "board_documents.manage",
     "support.view", "support.manage",
     "partner_pages.edit",
     "intakes.manage",
@@ -282,12 +314,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
 
   // ── BOARD_MEMBER: read-only aggregates, no individual contacts ─
+  // The Institution Secretary account also gets policies.manage and
+  // board_documents.manage (granted via the institutionSecretary flag in
+  // seed data; checked with canFor(user, "policies.manage")).
   BOARD_MEMBER: [
     "reports.view", "reports.board",
     "policies.view",
     "graduates.view",        // names, course, year only (scoped in query)
     "audit.view",
     "settings.view",
+    // Institution Secretary extensions (granted at account level, not role level):
+    //   policies.manage, board_documents.manage
     // Explicitly DENIED: students.view.contacts, payments.*, finance.*, grades.*
   ],
 
@@ -508,7 +545,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "access_review.view", "access_review.complete",
     "approvals.view", "approvals.decide",
     "reports.view", "reports.financial", "reports.academic", "reports.board",
-    "policies.view", "policies.edit",
+    "policies.view", "policies.edit", "policies.manage",
+    "board_documents.manage",
     "support.view", "support.manage",
     "partner_pages.edit",
     "intakes.manage",
@@ -597,6 +635,25 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 
 // ─── Core checks ──────────────────────────────────────────────────────────
 
+/**
+ * Returns all roles in the tree that are equal to `role` or are descendants
+ * (i.e., roles whose ancestor chain passes through `role`).
+ * Used for permission inheritance: a senior role inherits all permissions
+ * defined on roles beneath it in its own branch.
+ */
+export function getInheritedRolesFor(role: UserRole): UserRole[] {
+  const canonicalRole = ROLE_ALIASES[role] ?? role;
+  return Object.keys(ROLE_TREE).filter((candidate) => {
+    if (candidate === canonicalRole) return true;
+    let parent = ROLE_TREE[candidate]?.parent ?? null;
+    while (parent) {
+      if (parent === canonicalRole) return true;
+      parent = ROLE_TREE[parent]?.parent ?? null;
+    }
+    return false;
+  }) as UserRole[];
+}
+
 export function can(role: UserRole, permission: Permission): boolean {
   const canonicalRole = ROLE_ALIASES[role] ?? role;
   if ((ROLE_PERMISSION_DENIES[canonicalRole] ?? []).includes(permission)) return false;
@@ -604,16 +661,44 @@ export function can(role: UserRole, permission: Permission): boolean {
     return Object.values(ROLE_PERMISSIONS).some((permissions) => permissions.includes(permission));
   }
 
-  const inheritedRoles = Object.keys(ROLE_TREE).filter((candidate) => {
-    let parent = ROLE_TREE[candidate].parent;
-    while (parent) {
-      if (parent === canonicalRole) return true;
-      parent = ROLE_TREE[parent]?.parent ?? null;
-    }
-    return candidate === canonicalRole;
-  }) as UserRole[];
-
+  const inheritedRoles = getInheritedRolesFor(role);
   return inheritedRoles.some((inheritedRole) => (ROLE_PERMISSIONS[inheritedRole] ?? []).includes(permission));
+}
+
+/**
+ * Returns the role via which permission is granted (for audit log "via role X").
+ * Returns null if permission is denied.
+ * For SUPER_ADMIN always returns "SUPER_ADMIN".
+ */
+export function canVia(role: UserRole, permission: Permission): UserRole | null {
+  if (!can(role, permission)) return null;
+  const canonicalRole = ROLE_ALIASES[role] ?? role;
+  if (canonicalRole === "SUPER_ADMIN") return "SUPER_ADMIN";
+  // If the role's own permission list grants it, return the role itself
+  if ((ROLE_PERMISSIONS[canonicalRole] ?? []).includes(permission)) return canonicalRole;
+  // Otherwise find the most specific inherited role that grants it
+  const inheritedRoles = getInheritedRolesFor(role).filter(
+    (r) => r !== canonicalRole && (ROLE_PERMISSIONS[r] ?? []).includes(permission)
+  );
+  // Sort by level ascending to return the highest-level (most specific ancestor) granter
+  inheritedRoles.sort((a, b) => (ROLE_TREE[b]?.level ?? 0) - (ROLE_TREE[a]?.level ?? 0));
+  return (inheritedRoles[0] as UserRole) ?? canonicalRole;
+}
+
+/**
+ * Checks a permission for a user including account-level grants.
+ * The `institutionSecretary` flag on a BOARD_MEMBER account grants
+ * policies.manage and board_documents.manage without changing the role.
+ */
+export function canForUser(
+  role: UserRole,
+  permission: Permission,
+  userFlags?: { institutionSecretary?: boolean }
+): boolean {
+  if (userFlags?.institutionSecretary && role === "BOARD_MEMBER") {
+    if (permission === "policies.manage" || permission === "board_documents.manage") return true;
+  }
+  return can(role, permission);
 }
 
 export function requirePermission(role: UserRole, permission: Permission): void {
