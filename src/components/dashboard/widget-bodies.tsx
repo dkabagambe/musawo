@@ -201,12 +201,21 @@ async function MetricsBody({ userId }: WidgetBodyProps) {
     }),
     db.examAttempt.count({ where: { status: "SUBMITTED", exam: { course: teachingWhere } } }),
   ]);
+  const stats = [
+    { label: "Courses",  value: courses,  href: "/tutor/courses",  icon: <FileText size={18} /> },
+    { label: "Students", value: students, href: "/tutor/students", icon: <Users size={18} /> },
+    { label: "Classes",  value: classes,  href: "/tutor/classes",  icon: <Video size={18} /> },
+    { label: "Reviews",  value: reviews,  href: "/tutor/exams",    icon: <ClipboardCheck size={18} /> },
+  ];
   return (
     <div className="dashboard-glance-grid">
-      <a href="/tutor/courses"><span>Courses</span><strong>{courses}</strong><Users size={16} /></a>
-      <a href="/tutor/students"><span>Students</span><strong>{students}</strong><Users size={16} /></a>
-      <a href="/tutor/classes"><span>Classes</span><strong>{classes}</strong><Users size={16} /></a>
-      <a href="/tutor/exams"><span>Reviews</span><strong>{reviews}</strong><Users size={16} /></a>
+      {stats.map((s) => (
+        <a key={s.label} href={s.href} className="dashboard-stat-card">
+          <span className="dashboard-stat-icon">{s.icon}</span>
+          <span className="dashboard-stat-number">{s.value}</span>
+          <span className="dashboard-stat-label">{s.label}</span>
+        </a>
+      ))}
     </div>
   );
 }
