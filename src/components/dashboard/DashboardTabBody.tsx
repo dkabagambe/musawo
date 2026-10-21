@@ -114,7 +114,7 @@ export async function DashboardTabBody({
   );
 
   return (
-    <div className="dashboard-widget-grid dashboard-widget-masonry">
+    <div className="dashboard-widget-grid">
       <div className="dashboard-widget-column">{left.map(makeWidget)}</div>
       <div className="dashboard-widget-column">{right.map(makeWidget)}</div>
     </div>

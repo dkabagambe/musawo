@@ -494,8 +494,7 @@
 .portal-main { min-width: 0; flex: 1; overflow: auto; background: var(--portal-page); }
 .portal-content {
   width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
+  max-width: none;
   padding: var(--portal-page-padding);
   font-family: var(--portal-font-ui);
   font-size: var(--portal-size-body);
@@ -606,26 +605,19 @@
 }
 .dashboard-edit-widgets:hover { border-color: var(--portal-sidebar); color: var(--portal-sidebar); }
 
-/* ── Widget grid — balanced 2-column masonry ─────────────────────────── */
+/* ── Widget grid — two equal columns, each stacks widgets top-to-bottom ── */
 .dashboard-widget-grid {
   width: 100%;
-  display: block;
-  column-count: 2;
-  column-gap: var(--portal-space-column);
-  column-fill: balance;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--portal-space-column);
 }
-.dashboard-widget-masonry .dashboard-widget-column { display: contents; }
-.dashboard-widget-grid > .dashboard-widget-column > *,
-.dashboard-widget-grid > *:not(.dashboard-widget-column) {
-  display: inline-block;
-  width: 100%;
-  margin-bottom: var(--portal-space-widget);
-  break-inside: avoid;
-}
+/* Each column is an independent stack */
 .dashboard-widget-column {
   min-width: 0;
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: var(--portal-space-widget);
 }
 
@@ -1119,8 +1111,10 @@
     width: 40px; min-width: 40px; height: 40px; padding: 0;
   }
   .dashboard-page-header > .dashboard-edit-widgets span { display: none; }
-  /* 1-column widget grid */
-  .dashboard-widget-grid { column-count: 1; }
+  /* 1-column widget grid on phone */
+  .dashboard-widget-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .dashboard-widget-column:empty { display: none; }
 }
 
