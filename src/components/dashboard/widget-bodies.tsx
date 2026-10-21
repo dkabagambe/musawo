@@ -1150,6 +1150,75 @@ async function AuditListBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
+/* attendance-overview  (tutor teaching/students - Attendance Summary) */
+async function AttendanceOverviewBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const classes = await db.liveClass.findMany({
+    where: {
+      course: teachingCourseWhere(userId),
+      status: "COMPLETED",
+    },
+    orderBy: { scheduledAt: "desc" },
+    take: 5,
+    include: {
+      course: { select: { title: true } },
+      _count: { select: { attendance: true } },
+    },
+  });
+  if (!classes.length) return <Empty>No completed classes yet.</Empty>;
+  const href = fullPageHref ?? "/tutor/attendance";
+  return (
+    <>
+      {classes.map((cls) => (
+        <ListRow key={cls.id} href={href} icon={<ClipboardCheck size={16} />} date={fmtDay(cls.scheduledAt)}>
+          {cls.title} — {formatCount(cls._count.attendance, "student")}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* student-progress-overview  (tutor students - Course Progress) */
+async function StudentProgressOverviewBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const enrolments = await db.enrolment.findMany({
+    where: {
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+      course: teachingCourseWhere(userId),
+    },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    include: {
+      user: { select: { id: true, name: true } },
+      course: { select: { title: true, blocks: { select: { _count: { select: { lessons: true } } } } } },
+    },
+  });
+  if (!enrolments.length) return <Empty>No students enrolled yet.</Empty>;
+  const courseIds = Array.from(new Set(enrolments.map((e) => e.courseId)));
+  const allProgress = await db.lessonProgress.findMany({
+    where: { completedAt: { not: null }, lesson: { block: { courseId: { in: courseIds } } } },
+    select: { userId: true, lesson: { select: { block: { select: { courseId: true } } } } },
+  });
+  const doneMap = new Map<string, number>();
+  allProgress.forEach((p) => {
+    const key = `${p.userId}:${p.lesson.block.courseId}`;
+    doneMap.set(key, (doneMap.get(key) ?? 0) + 1);
+  });
+  const href = fullPageHref ?? "/tutor/students";
+  return (
+    <>
+      {enrolments.slice(0, 5).map((enr) => {
+        const total = enr.course.blocks.reduce((s, b) => s + b._count.lessons, 0);
+        const done = doneMap.get(`${enr.user.id}:${enr.courseId}`) ?? 0;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        return (
+          <ListRow key={enr.id} href={href} icon={<ClipboardList size={16} />}>
+            {displayName(enr.user.name)} — {pct}% complete
+          </ListRow>
+        );
+      })}
+    </>
+  );
+}
+
 /* ═══════════════════════════════════════════════
    GENERAL-TAB WIDGETS FOR ADMIN ROLES
    These replace the bespoke page.tsx general-tab layouts.
@@ -1687,4 +1756,6 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "recent-graduates-list": RecentGraduatesListBody,
   "course-enrolments": CourseEnrolmentsBody,
   "auditor-overview": AuditorOverviewBody,
+  "attendance-overview": AttendanceOverviewBody,
+  "student-progress-overview": StudentProgressOverviewBody,
 };
