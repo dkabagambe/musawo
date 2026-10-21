@@ -11,12 +11,22 @@ const NAV: NavItem[] = [
   { href: "/finance/approvals", label: "My Requests", icon: <ClipboardList className="w-4 h-4" /> },
 ];
 
-export default async function BursarLayout({ children }: { children: React.ReactNode }) {
+// Tabs match DASHBOARD_WIDGETS for FINANCE_OFFICER role
+const TABS = ["general", "payments", "reconciliation", "reports"] as const;
+
+export default async function FinanceLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
   const name = session.user.name ?? "Finance";
   return (
-    <AppShell nav={NAV} role="Finance Officer" permissionRole={session.user.role} userName={name} userInitial={name.charAt(0).toUpperCase()}>
+    <AppShell
+      nav={NAV}
+      role="Finance Officer"
+      permissionRole={session.user.role}
+      userName={name}
+      userInitial={name.charAt(0).toUpperCase()}
+      tabs={[...TABS]}
+    >
       {children}
     </AppShell>
   );

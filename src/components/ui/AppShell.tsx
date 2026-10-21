@@ -57,6 +57,10 @@ interface AppShellProps {
   userName: string;
   userInitial: string;
   accentClass?: string;
+  /** Explicit ordered tab list for the dashboard page header.
+   *  When provided, overrides the tabs derived from nav grouping.
+   *  Each entry is a valid DashboardTab id. */
+  tabs?: DashboardTab[];
 }
 
 function titleFor(pathname: string, nav: NavItem[]) {
@@ -492,6 +496,7 @@ export default function AppShell({
   permissionRole,
   userName,
   userInitial,
+  tabs: tabsProp,
 }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -511,14 +516,19 @@ export default function AppShell({
   const dashboardRoot = visibleNav[0]?.href;
   const isPortalDashboard = pathname === dashboardRoot;
   const dashboardTabs = useMemo(() => {
+    // If caller explicitly passes tabs, use those (ensures widget registry alignment)
+    if (tabsProp && tabsProp.length > 0) {
+      return tabsProp.map((id) => ({ id, label: TAB_LABELS[id] ?? id }));
+    }
+    // Fallback: derive from nav grouping
     const tabs: DashboardTab[] = [];
     visibleNav.forEach((item) => {
       const tab = item.group as DashboardTab;
       if (!tabs.includes(tab)) tabs.push(tab);
     });
     if (!tabs.includes("general")) tabs.unshift("general");
-    return tabs.map((id) => ({ id, label: TAB_LABELS[id] }));
-  }, [visibleNav]);
+    return tabs.map((id) => ({ id, label: TAB_LABELS[id] ?? id }));
+  }, [visibleNav, tabsProp]);
   const currentTab =
     dashboardTabs.find((tab) => tab.id === searchParams.get("tab"))?.id ??
     "general";
