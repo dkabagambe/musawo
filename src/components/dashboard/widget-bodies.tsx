@@ -9,7 +9,6 @@ import {
   ViewMoreLink,
   CalendarMeta,
   ClockMeta,
-  UsersMeta,
 } from "@/components/ui/DashboardWidgets";
 import {
   AlertCircle,
@@ -23,7 +22,6 @@ import {
   FileText,
   ClipboardList,
   ClipboardCheck,
-  Building2,
   ShieldCheck,
   Settings,
   FileSearch,
@@ -188,7 +186,7 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
 }
 
 /* metrics  (instructor general - At a glance) */
-async function MetricsBody({ userId, role }: WidgetBodyProps) {
+async function MetricsBody({ userId }: WidgetBodyProps) {
   const teachingWhere = teachingCourseWhere(userId);
   const [courses, students, classes, reviews] = await Promise.all([
     db.course.count({ where: teachingWhere }),
@@ -404,11 +402,14 @@ async function InboxListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/** Display name with surname first, e.g. "Akello Florence" for compact cards. */
-function surnameFirst(raw: string | null): string {
+/** Natural display order "First Last". Sort callers sort by last name separately. */
+function displayName(raw: string | null): string {
+  return (raw ?? "").trim() || "Unknown";
+}
+/** Sort key: last name then first name (for stable surname-first ordering in lists). */
+function lastNameKey(raw: string | null): string {
   const parts = (raw ?? "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 2) return parts[0] ?? "Student";
-  return `${parts.at(-1)} ${parts.slice(0, -1).join(" ")}`;
+  return `${parts.at(-1) ?? ""} ${parts.slice(0, -1).join(" ")}`.toLocaleLowerCase();
 }
 
 /* student-cards  (instructor - My Students) */
@@ -423,10 +424,10 @@ async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps)
     },
   });
   if (!recent.length) return <Empty>No students enrolled yet.</Empty>;
-  const sorted = [...recent].sort((a, b) => {
-    const ln = (n: string | null) => (n ?? "").trim().split(/\s+/).at(-1)?.toLocaleLowerCase() ?? "";
-    return ln(a.user.name).localeCompare(ln(b.user.name)) || (a.user.name ?? "").localeCompare(b.user.name ?? "");
-  });
+  const sorted = [...recent].sort((a, b) =>
+    lastNameKey(a.user.name).localeCompare(lastNameKey(b.user.name)) ||
+    (a.user.name ?? "").localeCompare(b.user.name ?? ""),
+  );
   const visible = sorted.slice(0, 4);
   const href = fullPageHref ?? "/tutor/students";
   return (
@@ -435,7 +436,7 @@ async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps)
         {visible.map((enr) => (
           <ProfileCard
             key={enr.id}
-            name={surnameFirst(enr.user.name)}
+            name={displayName(enr.user.name)}
             id={enr.user.studentNumber ?? undefined}
             phone={canViewContacts ? (enr.user.phone ?? undefined) : undefined}
             email={canViewContacts ? (enr.user.email ?? undefined) : undefined}
@@ -584,7 +585,7 @@ async function LogBookBody({ userId, fullPageHref }: WidgetBodyProps) {
 }
 
 /* simulations  (student studies - Simulations) */
-async function SimulationsBody({ userId, fullPageHref }: WidgetBodyProps) {
+async function SimulationsBody(_props: WidgetBodyProps) {
   return (
     <Empty>
       Simulations are being prepared for each course topic. Check back soon.
@@ -1043,7 +1044,7 @@ async function StaffListBody({ fullPageHref }: WidgetBodyProps) {
         {visible.map((s) => (
           <ProfileCard
             key={s.id}
-            name={surnameFirst(s.name)}
+            name={displayName(s.name)}
             id={s.role.toLowerCase().replace(/_/g, " ")}
             email={s.email ?? undefined}
             href={href}
@@ -1141,6 +1142,488 @@ async function AuditListBody({ fullPageHref }: WidgetBodyProps) {
 }
 
 /* ═══════════════════════════════════════════════
+   GENERAL-TAB WIDGETS FOR ADMIN ROLES
+   These replace the bespoke page.tsx general-tab layouts.
+   ═══════════════════════════════════════════════ */
+
+/* registrar-todos  (registrar general) */
+async function RegistrarTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [pendingApps, pendingAcceptance, disputed] = await Promise.all([
+    db.application.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.user.count({ where: { role: "STUDENT", status: "PENDING_ACCEPTANCE" } }),
+    db.user.count({ where: { role: "STUDENT", status: "DETAILS_DISPUTED" } }),
+  ]);
+  const allClear = pendingApps === 0 && pendingAcceptance === 0 && disputed === 0;
+  const href = fullPageHref ?? "/registrar/applications";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {pendingApps > 0 && (
+        <ListRow href={href} icon={<ClipboardList size={16} />}>
+          {formatCount(pendingApps, "new application")} awaiting review
+        </ListRow>
+      )}
+      {pendingAcceptance > 0 && (
+        <ListRow href="/registrar/students" icon={<Clock size={16} />}>
+          {formatCount(pendingAcceptance, "student")} pending acceptance
+        </ListRow>
+      )}
+      {disputed > 0 && (
+        <ListRow href="/registrar/students" icon={<AlertCircle size={16} />}>
+          {formatCount(disputed, "student")} disputed their details
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* deputy-todos  (deputy general) */
+async function DeputyTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [tickets, overdue, suspended] = await Promise.all([
+    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+    db.enrolment.count({ where: { status: "OVERDUE" } }),
+    db.user.count({ where: { role: "STUDENT", status: "SUSPENDED" } }),
+  ]);
+  const allClear = tickets === 0 && overdue === 0 && suspended === 0;
+  const href = fullPageHref ?? "/deputy/complaints";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {tickets > 0 && (
+        <ListRow href={href} icon={<ClipboardList size={16} />}>
+          {formatCount(tickets, "open support ticket")}
+        </ListRow>
+      )}
+      {overdue > 0 && (
+        <ListRow href="/deputy/students" icon={<AlertCircle size={16} />}>
+          {formatCount(overdue, "overdue enrolment")}
+        </ListRow>
+      )}
+      {suspended > 0 && (
+        <ListRow href="/deputy/students" icon={<AlertCircle size={16} />}>
+          {formatCount(suspended, "suspended student")}
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* principal-todos  (principal general) */
+async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [pendingResults, pendingApprovals, draftCourses] = await Promise.all([
+    db.examAttempt.count({ where: { status: "SUBMITTED" } }),
+    db.approvalRequest.count({ where: { status: "PENDING" } }),
+    db.course.count({ where: { status: "DRAFT" } }),
+  ]);
+  const allClear = pendingResults === 0 && pendingApprovals === 0 && draftCourses === 0;
+  const href = fullPageHref ?? "/principal/results";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {pendingResults > 0 && (
+        <ListRow href={href} icon={<ClipboardCheck size={16} />}>
+          {formatCount(pendingResults, "exam submission")} awaiting release
+        </ListRow>
+      )}
+      {pendingApprovals > 0 && (
+        <ListRow href="/director/approvals" icon={<ShieldCheck size={16} />}>
+          {formatCount(pendingApprovals, "approval")} pending your decision
+        </ListRow>
+      )}
+      {draftCourses > 0 && (
+        <ListRow href="/principal/courses" icon={<FileText size={16} />}>
+          {formatCount(draftCourses, "course")} in draft awaiting review
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* finance-todos  (finance general) */
+async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [pendingClaims, pendingPayments, pendingApprovals] = await Promise.all([
+    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
+    db.approvalRequest.count({ where: { status: "PENDING" } }),
+  ]);
+  const allClear = pendingClaims === 0 && pendingPayments === 0 && pendingApprovals === 0;
+  const href = fullPageHref ?? "/finance/payments";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {pendingClaims > 0 && (
+        <ListRow href={href} icon={<Receipt size={16} />}>
+          {formatCount(pendingClaims, "manual payment claim")} to verify
+        </ListRow>
+      )}
+      {pendingPayments > 0 && (
+        <ListRow href={href} icon={<Wallet size={16} />}>
+          {formatCount(pendingPayments, "payment")} awaiting approval
+        </ListRow>
+      )}
+      {pendingApprovals > 0 && (
+        <ListRow href="/finance/approvals" icon={<ShieldCheck size={16} />}>
+          {formatCount(pendingApprovals, "approval request")} pending
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* director-todos  (super admin / director general) */
+async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [pendingApprovals, pendingClaims, draftCourses] = await Promise.all([
+    db.approvalRequest.count({ where: { status: "PENDING" } }),
+    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.course.count({ where: { status: "DRAFT" } }),
+  ]);
+  const allClear = pendingApprovals === 0 && pendingClaims === 0 && draftCourses === 0;
+  const href = fullPageHref ?? "/director/approvals";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {pendingApprovals > 0 && (
+        <ListRow href={href} icon={<ShieldCheck size={16} />}>
+          {formatCount(pendingApprovals, "approval")} requiring your decision
+        </ListRow>
+      )}
+      {pendingClaims > 0 && (
+        <ListRow href="/finance/payments" icon={<Receipt size={16} />}>
+          {formatCount(pendingClaims, "payment claim")} awaiting verification
+        </ListRow>
+      )}
+      {draftCourses > 0 && (
+        <ListRow href="/principal/courses" icon={<FileText size={16} />}>
+          {formatCount(draftCourses, "course")} in draft
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* hr-todos  (HR system admin general) */
+async function HrTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [pendingInvites, openTickets] = await Promise.all([
+    db.staffInvite.count({ where: { acceptedAt: null, expiresAt: { gt: new Date() } } }).catch(() => 0),
+    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }).catch(() => 0),
+  ]);
+  const allClear = pendingInvites === 0 && openTickets === 0;
+  const href = fullPageHref ?? "/admin/staff";
+  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
+  return (
+    <>
+      {pendingInvites > 0 && (
+        <ListRow href={href} icon={<Users size={16} />}>
+          {formatCount(pendingInvites, "staff invite")} pending acceptance
+        </ListRow>
+      )}
+      {openTickets > 0 && (
+        <ListRow href="/deputy/complaints" icon={<ClipboardList size={16} />}>
+          {formatCount(openTickets, "open support ticket")}
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* system-todos  (system IT general) */
+async function SystemTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [unconfigured] = await Promise.all([
+    db.siteSetting.count({ where: { value: "" } }).catch(() => 0),
+  ]);
+  const href = fullPageHref ?? "/system/settings";
+  if (unconfigured === 0) return <Empty>All settings configured.</Empty>;
+  return (
+    <ListRow href={href} icon={<Settings size={16} />}>
+      {formatCount(unconfigured, "setting")} not yet configured
+    </ListRow>
+  );
+}
+
+/* upcoming-classes-overview  (registrar/deputy/principal/hr general) */
+async function UpcomingClassesOverviewBody({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const classes = await db.liveClass.findMany({
+    where: {
+      OR: [
+        { scheduledAt: { gt: now }, status: "SCHEDULED" },
+        { status: "LIVE" },
+      ],
+    },
+    orderBy: { scheduledAt: "asc" },
+    take: 5,
+    include: {
+      course: { select: { title: true } },
+      tutor: { select: { name: true } },
+    },
+  });
+  if (!classes.length) return <Empty>No classes scheduled.</Empty>;
+  const href = fullPageHref ?? "/principal/students";
+  return (
+    <>
+      {classes.map((cls) => {
+        const chip = classStatusChip(cls.scheduledAt, cls.status);
+        return (
+          <MiniCard
+            key={cls.id}
+            title={cls.title}
+            subtitle={cls.course.title}
+            href={href}
+            actionLabel="View"
+            status={chip}
+          >
+            <CalendarMeta>{fmtDate(cls.scheduledAt)}</CalendarMeta>
+            <ClockMeta timeZone="East Africa Time">
+              {fmtTime(cls.scheduledAt)}
+              {cls.durationMin
+                ? ` to ${fmtTime(new Date(cls.scheduledAt.getTime() + cls.durationMin * 60_000))}`
+                : ""}
+            </ClockMeta>
+          </MiniCard>
+        );
+      })}
+    </>
+  );
+}
+
+/* recent-students-list  (registrar/deputy general) */
+async function RecentStudentsListBody({ fullPageHref }: WidgetBodyProps) {
+  const students = await db.user.findMany({
+    where: { role: "STUDENT" },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    select: { id: true, name: true, studentNumber: true, status: true, createdAt: true },
+  });
+  if (!students.length) return <Empty>No students yet.</Empty>;
+  const visible = students.slice(0, 5);
+  const href = fullPageHref ?? "/registrar/students";
+  return (
+    <>
+      {visible.map((s) => (
+        <ListRow key={s.id} href={href} date={fmtDay(s.createdAt)}>
+          {displayName(s.name)}
+          {s.studentNumber ? ` - ${s.studentNumber}` : ""}
+        </ListRow>
+      ))}
+      {students.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {students.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* exam-submissions-list  (principal general) */
+async function ExamSubmissionsListBody({ fullPageHref }: WidgetBodyProps) {
+  const attempts = await db.examAttempt.findMany({
+    where: { status: { in: ["SUBMITTED", "MARKED"] } },
+    orderBy: { submittedAt: "desc" },
+    take: 6,
+    include: {
+      user: { select: { name: true } },
+      exam: { select: { title: true } },
+    },
+  });
+  if (!attempts.length) return <Empty>No exam submissions yet.</Empty>;
+  const visible = attempts.slice(0, 5);
+  const href = fullPageHref ?? "/principal/results";
+  return (
+    <>
+      {visible.map((a) => (
+        <ListRow
+          key={a.id}
+          href={href}
+          icon={
+            a.status === "MARKED"
+              ? a.passed
+                ? <CheckCircle2 size={16} />
+                : <AlertCircle size={16} />
+              : <Clock size={16} />
+          }
+          date={a.submittedAt ? fmtDay(a.submittedAt) : undefined}
+        >
+          {displayName(a.user.name)} - {a.exam.title}
+        </ListRow>
+      ))}
+      {attempts.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {attempts.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* recent-payments-list  (finance/director general) */
+async function RecentPaymentsListBody({ fullPageHref }: WidgetBodyProps) {
+  const payments = await db.payment.findMany({
+    where: { status: "COMPLETED" },
+    orderBy: { paidAt: "desc" },
+    take: 6,
+    include: {
+      enrolment: {
+        include: {
+          user: { select: { name: true } },
+          course: { select: { title: true } },
+        },
+      },
+    },
+  });
+  if (!payments.length) return <Empty>No payments recorded yet.</Empty>;
+  const visible = payments.slice(0, 5);
+  const href = fullPageHref ?? "/finance/payments";
+  return (
+    <>
+      {visible.map((p) => (
+        <ListRow key={p.id} href={href} icon={<Receipt size={16} />} date={p.paidAt ? fmtDay(p.paidAt) : undefined}>
+          {displayName(p.enrolment.user.name)} - {fmtUGX(p.amount)}
+        </ListRow>
+      ))}
+      {payments.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {payments.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* revenue-summary  (finance/director general) */
+async function RevenueSummaryBody({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const [monthRev, outstanding, pendingClaims] = await Promise.all([
+    db.payment.aggregate({ where: { status: "COMPLETED", paidAt: { gte: startOfMonth } }, _sum: { amount: true } }),
+    db.enrolment.aggregate({ where: { status: "ACTIVE" }, _sum: { totalAmountUgx: true, paidAmountUgx: true } }),
+    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+  ]);
+  const href = fullPageHref ?? "/finance/ledger";
+  const outstandingUgx = Math.max(0, (outstanding._sum.totalAmountUgx ?? 0) - (outstanding._sum.paidAmountUgx ?? 0));
+  return (
+    <>
+      <ListRow href={href} icon={<Wallet size={16} />}>
+        Revenue this month: {fmtUGX(monthRev._sum.amount ?? 0)}
+      </ListRow>
+      <ListRow href={href} icon={<AlertCircle size={16} />}>
+        Outstanding: {fmtUGX(outstandingUgx)}
+      </ListRow>
+      {pendingClaims > 0 && (
+        <ListRow href="/finance/payments" icon={<Receipt size={16} />}>
+          {formatCount(pendingClaims, "payment claim")} to review
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* board-overview  (board general - read-only aggregates) */
+async function BoardOverviewBody({ fullPageHref }: WidgetBodyProps) {
+  const [students, active, graduates, courses] = await Promise.all([
+    db.user.count({ where: { role: "STUDENT" } }),
+    db.enrolment.count({ where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } } }),
+    db.enrolment.count({ where: { status: "COMPLETED" } }),
+    db.course.count({ where: { status: "PUBLISHED" } }),
+  ]);
+  const href = fullPageHref ?? "/board/reports";
+  return (
+    <>
+      <ListRow href={href} icon={<Users size={16} />}>
+        {formatCount(students, "student")} total
+      </ListRow>
+      <ListRow href={href} icon={<ClipboardList size={16} />}>
+        {formatCount(active, "active enrolment")}
+      </ListRow>
+      <ListRow href={href} icon={<GraduationCap size={16} />}>
+        {formatCount(graduates, "graduate")}
+      </ListRow>
+      <ListRow href={href} icon={<FileText size={16} />}>
+        {formatCount(courses, "course")} offered
+      </ListRow>
+    </>
+  );
+}
+
+/* recent-graduates-list  (board general) */
+async function RecentGraduatesListBody({ fullPageHref }: WidgetBodyProps) {
+  const grads = await db.enrolment.findMany({
+    where: { status: "COMPLETED" },
+    orderBy: { updatedAt: "desc" },
+    take: 6,
+    include: {
+      user: { select: { name: true } },
+      course: { select: { title: true } },
+    },
+  });
+  if (!grads.length) return <Empty>No graduates yet.</Empty>;
+  const visible = grads.slice(0, 5);
+  const href = fullPageHref ?? "/board/graduates";
+  return (
+    <>
+      {visible.map((g) => (
+        <ListRow key={g.id} href={href} icon={<GraduationCap size={16} />}>
+          {displayName(g.user.name)} - {g.course.title}
+        </ListRow>
+      ))}
+      {grads.length > grads.length - visible.length && grads.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {grads.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* course-enrolments  (board general - enrolments per course) */
+async function CourseEnrolmentsBody({ fullPageHref }: WidgetBodyProps) {
+  const courses = await db.course.findMany({
+    where: { status: "PUBLISHED" },
+    select: { title: true, slug: true, _count: { select: { enrolments: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!courses.length) return <Empty>No published courses yet.</Empty>;
+  const href = fullPageHref ?? "/board/reports";
+  return (
+    <>
+      {courses.map((c) => (
+        <ListRow key={c.slug} href={href} icon={<FileText size={16} />}>
+          {c.title} - {formatCount(c._count.enrolments, "enrolment")}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* auditor-overview  (auditor general - summary) */
+async function AuditorOverviewBody({ fullPageHref }: WidgetBodyProps) {
+  const [students, payments, certs, tickets] = await Promise.all([
+    db.user.count({ where: { role: "STUDENT" } }),
+    db.payment.count({ where: { status: "COMPLETED" } }),
+    db.certificate.count(),
+    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+  ]);
+  const href = fullPageHref ?? "/auditor/reports";
+  return (
+    <>
+      <ListRow href={href} icon={<Users size={16} />}>
+        {formatCount(students, "student")} registered
+      </ListRow>
+      <ListRow href="/auditor/reports" icon={<Receipt size={16} />}>
+        {formatCount(payments, "payment")} verified
+      </ListRow>
+      <ListRow href="/auditor/reports" icon={<FileText size={16} />}>
+        {formatCount(certs, "certificate")} issued
+      </ListRow>
+      {tickets > 0 && (
+        <ListRow href="/auditor/reports" icon={<AlertCircle size={16} />}>
+          {formatCount(tickets, "open support ticket")}
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    WIDGET COMPONENT REGISTRY
    Maps the `component` string from DASHBOARD_WIDGETS to a server component.
    ═══════════════════════════════════════════════ */
@@ -1178,4 +1661,21 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "support-list": SupportListBody,
   "system-status": SystemStatusBody,
   "audit-list": AuditListBody,
+  // General-tab widgets for admin roles
+  "registrar-todos": RegistrarTodosBody,
+  "deputy-todos": DeputyTodosBody,
+  "principal-todos": PrincipalTodosBody,
+  "finance-todos": FinanceTodosBody,
+  "director-todos": DirectorTodosBody,
+  "hr-todos": HrTodosBody,
+  "system-todos": SystemTodosBody,
+  "upcoming-classes-overview": UpcomingClassesOverviewBody,
+  "recent-students-list": RecentStudentsListBody,
+  "exam-submissions-list": ExamSubmissionsListBody,
+  "recent-payments-list": RecentPaymentsListBody,
+  "revenue-summary": RevenueSummaryBody,
+  "board-overview": BoardOverviewBody,
+  "recent-graduates-list": RecentGraduatesListBody,
+  "course-enrolments": CourseEnrolmentsBody,
+  "auditor-overview": AuditorOverviewBody,
 };

@@ -38,7 +38,6 @@ import {
   UserRound,
   Users,
   Wallet,
-  X,
 } from "lucide-react";
 
 export interface NavItem {
@@ -544,13 +543,17 @@ export default function AppShell({
   useEffect(() => {
     setDrawerOpen(false);
   }, [pathname]);
+  // Use a per-portal key so collapsing as tutor doesn't affect other roles
+  const storageKey = `mtc-sidebar-collapsed${dashboardRoot ? `-${dashboardRoot.replace(/\//g, "")}` : ""}`;
   useEffect(() => {
     try {
-      setCollapsed(localStorage.getItem("mtc-sidebar-collapsed") === "true");
+      // Clear the old shared key that caused all roles to collapse together
+      localStorage.removeItem("mtc-sidebar-collapsed");
+      setCollapsed(localStorage.getItem(storageKey) === "true");
     } catch {
       /* storage can be unavailable */
     }
-  }, []);
+  }, [storageKey]);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -597,7 +600,7 @@ export default function AppShell({
     setCollapsed((value) => {
       const next = !value;
       try {
-        localStorage.setItem("mtc-sidebar-collapsed", String(next));
+        localStorage.setItem(storageKey, String(next));
       } catch {
         /* storage can be unavailable */
       }
