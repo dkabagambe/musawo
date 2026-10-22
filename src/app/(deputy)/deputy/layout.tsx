@@ -18,7 +18,7 @@ const TABS = ["general", "academics", "operations", "approvals"] as const;
 
 export default async function DeputyLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "support.manage")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "complaints.manage")) redirect("/login");
   const name = session.user.name ?? "Deputy Principal";
   return (
     <AppShell

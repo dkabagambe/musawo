@@ -16,7 +16,7 @@ export default async function DeputyPage({
   searchParams: { tab?: string };
 }) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "support.manage")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "complaints.manage")) redirect("/login");
 
   const tab = (searchParams.tab && VALID_TABS.has(searchParams.tab)
     ? searchParams.tab
