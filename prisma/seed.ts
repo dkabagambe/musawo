@@ -140,18 +140,19 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "rbac.roleTree",
     value: JSON.stringify({
-      SUPER_ADMIN:        { parent: null,                 level: 1 },
-      BOARD_MEMBER:       { parent: null,                 level: 1 },
-      PRINCIPAL:          { parent: "SUPER_ADMIN",        level: 2 },
-      DEPUTY_PRINCIPAL:   { parent: "PRINCIPAL",          level: 3 },
-      ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL",   level: 4 },
-      FINANCE_OFFICER:    { parent: "DEPUTY_PRINCIPAL",   level: 4 },
-      HR_SYSTEM_ADMIN:    { parent: "DEPUTY_PRINCIPAL",   level: 4 },
-      AUDITOR_READONLY:   { parent: "DEPUTY_PRINCIPAL",   level: 4 },
-      INSTRUCTOR:         { parent: "ACADEMIC_REGISTRAR", level: 5 },
-      TEACHING_ASSISTANT: { parent: "INSTRUCTOR",         level: 6 },
-      STUDENT:            { parent: "TEACHING_ASSISTANT", level: 7 },
-      SYSTEM_IT:          { parent: null,                 level: 1 },
+      SUPER_ADMIN: { parent: null, level: 1 },
+      BOARD_MEMBER: { parent: null, level: 1 },
+      PRINCIPAL: { parent: "SUPER_ADMIN", level: 2 },
+      DEPUTY_PRINCIPAL: { parent: "PRINCIPAL", level: 3 },
+      ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL", level: 4 },
+      FINANCE_OFFICER: { parent: "DEPUTY_PRINCIPAL", level: 4 },
+      HR_MANAGER: { parent: "DEPUTY_PRINCIPAL", level: 4 },
+      ADMINISTRATOR: { parent: "HR_MANAGER", level: 5 },
+      AUDITOR_READONLY: { parent: "DEPUTY_PRINCIPAL", level: 4 },
+      INSTRUCTOR: { parent: "ACADEMIC_REGISTRAR", level: 5 },
+      TEACHING_ASSISTANT: { parent: "INSTRUCTOR", level: 6 },
+      STUDENT: { parent: "TEACHING_ASSISTANT", level: 7 },
+      SYSTEM_IT: { parent: null, level: 1 },
     }),
     description: "Canonical role hierarchy (role keys, parent role and level)",
   },
@@ -196,9 +197,14 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     description: "Display label for FINANCE_OFFICER",
   },
   {
-    key: "role.label.HR_SYSTEM_ADMIN",
-    value: "Human Resource and Administrator",
-    description: "Display label for HR_SYSTEM_ADMIN",
+    key: "role.label.HR_MANAGER",
+    value: "Human Resource",
+    description: "Display label for HR_MANAGER",
+  },
+  {
+    key: "role.label.ADMINISTRATOR",
+    value: "Administrator",
+    description: "Display label for ADMINISTRATOR",
   },
   {
     key: "role.label.AUDITOR_READONLY",
@@ -460,7 +466,12 @@ async function main() {
   // ── Staff accounts ─────────────────────────────────────────────
   const hashedPw = await pw(DEMO_PW);
 
-  const mkStaff = (email: string, name: string, role: UserRole, extra?: Record<string, unknown>) =>
+  const mkStaff = (
+    email: string,
+    name: string,
+    role: UserRole,
+    extra?: Record<string, unknown>,
+  ) =>
     prisma.user.upsert({
       where: { email },
       update: { role, ...(extra ?? {}) },
@@ -522,7 +533,12 @@ async function main() {
   const hrAdmin = await mkStaff(
     "hr@mtc.ac.ug",
     "Carolyn Nabirye",
-    UserRole.HR_SYSTEM_ADMIN,
+    UserRole.HR_MANAGER,
+  );
+  const schoolAdmin = await mkStaff(
+    "admin@mtc.ac.ug",
+    "Rahiima Nakiyimba",
+    UserRole.ADMINISTRATOR,
   );
   const auditor = await mkStaff(
     "auditor@mtc.ac.ug",
@@ -554,6 +570,7 @@ async function main() {
   void boardMember;
   void deputyPrinc;
   void hrAdmin;
+  void schoolAdmin;
   void auditor;
   void itadmin;
   void ta;
@@ -684,7 +701,7 @@ async function main() {
   const COURSE_DEFS = [
     {
       slug: "medical-home-caregiver",
-      title: "Medical Home Caregiver Course",
+      title: "Certificate in Medical Home Care Course",
       category: "PROFESSIONAL",
       targetAudience: "Nurses, midwives and clinical officers",
       eligibilityText:
@@ -704,7 +721,7 @@ async function main() {
     },
     {
       slug: "basic-home-caregiver",
-      title: "Basic Home Caregiver Course",
+      title: "Certificate in Basic Home Care",
       category: "OPEN",
       targetAudience: "PLE, S.4 and S.6 leavers, and working carers",
       eligibilityText:
@@ -725,7 +742,7 @@ async function main() {
     {
       slug: "babysitting-childcare-safety",
       title:
-        "Basic Certificate in Babysitting, Childcare and Safety Management",
+        "Basic Certificate in Babysitting, Child Care and Safety Management",
       category: "OPEN",
       targetAudience: "Nannies, house helps, school leavers and parents",
       eligibilityText: "Open to all. No prior qualifications required.",
@@ -744,7 +761,7 @@ async function main() {
     },
     {
       slug: "mental-health-support-advocacy",
-      title: "Mental Health Support and Advocacy Certificate",
+      title: "Certificate in Mental Health Support and Advocacy",
       category: "OPEN",
       targetAudience: "Teachers, counsellors, community workers",
       eligibilityText:
@@ -765,7 +782,7 @@ async function main() {
     {
       slug: "care-older-persons-disability",
       title:
-        "Basic Certificate in Care of Older Persons and Persons with Disability (Geriatric)",
+        "Basic Certificate in Care of Older Persons and Persons with Disability",
       category: "OPEN",
       targetAudience: "Carers, families and health workers",
       eligibilityText:
@@ -785,7 +802,7 @@ async function main() {
     },
     {
       slug: "basic-life-support-first-aid",
-      title: "Basic Life Support and First Aid Certificate",
+      title: "Certificate in Basic Life Support",
       category: "OPEN",
       targetAudience: "Carers, teachers, drivers, workplace staff",
       eligibilityText: "Open to all. No prior qualifications required.",
@@ -804,7 +821,7 @@ async function main() {
     },
     {
       slug: "advanced-life-support",
-      title: "Advanced Life Support",
+      title: "Certificate in Advanced Life Support",
       category: "PROFESSIONAL",
       targetAudience: "Doctors, nurses, clinical officers",
       eligibilityText:
@@ -821,6 +838,26 @@ async function main() {
       intakeLabel: "November 2026",
       contentNote: "draft for Principal review",
       tutorId: tutor.id,
+    },
+    {
+      slug: "advanced-first-aid",
+      title: "Certificate in Advanced First Aid",
+      category: "OPEN",
+      targetAudience: "Non-health professionals aged 18 and above",
+      eligibilityText:
+        "Open to all aged 18 and above with an O-Level or A-Level certificate.",
+      shortDescription:
+        "Essential emergency response skills before professional medical help arrives.",
+      description: `[DRAFT for Principal review]\n\nThis one-month short course is designed for non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate. It equips participants with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately before professional medical help arrives.\n\nModule 1: Scene safety and emergency response\nModule 2: Primary assessment and calling for help\nModule 3: Bleeding, burns, fractures and shock\nModule 4: Practical first aid scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+      thumbnailUrl: "/assets/training-session.webp",
+      freePreviewPercent: 10,
+      fullFeeUgx: null,
+      feeContactOnly: true,
+      instalmentCount: 1,
+      durationMonths: 1,
+      intakeLabel: "November 2026",
+      contentNote: "draft for Principal review",
+      tutorId: tutor2.id,
     },
   ];
 
@@ -1334,6 +1371,72 @@ async function main() {
             isFree: false,
             isFreePreview: false,
             durationSec: 480,
+          },
+        ],
+      },
+    ],
+    "advanced-first-aid": [
+      {
+        order: 1,
+        title: "Emergency Scene Safety",
+        description:
+          "Draft for Principal review: safe scene approach and emergency response.",
+        lessons: [
+          {
+            order: 1,
+            title: "Scene safety and emergency response",
+            type: "NOTES",
+            isFree: false,
+            isFreePreview: true,
+            durationSec: 600,
+          },
+        ],
+      },
+      {
+        order: 2,
+        title: "First Assessment",
+        description:
+          "Draft for Principal review: primary assessment and calling for help.",
+        lessons: [
+          {
+            order: 1,
+            title: "Primary assessment and calling for help",
+            type: "VIDEO",
+            isFree: false,
+            isFreePreview: false,
+            durationSec: 900,
+          },
+        ],
+      },
+      {
+        order: 3,
+        title: "Common Injuries",
+        description:
+          "Draft for Principal review: bleeding, burns, fractures and shock.",
+        lessons: [
+          {
+            order: 1,
+            title: "Immediate care for common injuries",
+            type: "NOTES",
+            isFree: false,
+            isFreePreview: false,
+            durationSec: 720,
+          },
+        ],
+      },
+      {
+        order: 4,
+        title: "Practical First Aid Scenarios",
+        description:
+          "Draft for Principal review: supervised response scenarios in the skills lab.",
+        lessons: [
+          {
+            order: 1,
+            title: "Practical first aid scenarios",
+            type: "QUIZ",
+            isFree: false,
+            isFreePreview: false,
+            durationSec: 900,
           },
         ],
       },
@@ -2891,6 +2994,208 @@ async function main() {
     console.log("  ✓ Access review record");
   }
 
+  const ticketCount = await prisma.supportTicket.count();
+  if (ticketCount < 8) {
+    const requesters = [
+      students["full"],
+      students["25"],
+      students["75"],
+      students["completed"],
+      students["50"],
+    ];
+    const ticketSamples = [
+      [
+        "Room changed for tomorrow's class",
+        "Please confirm whether the 9 AM session is still in the skills lab.",
+        "TIMETABLE",
+        TicketStatus.IN_PROGRESS,
+      ],
+      [
+        "Invite link expired",
+        "The account confirmation link says it has expired. Please resend it.",
+        "ACCOUNT_ACCESS",
+        TicketStatus.OPEN,
+      ],
+      [
+        "Need help finding the campus",
+        "I need directions to Luggala Trading Center for practicals.",
+        "FRONT_DESK",
+        TicketStatus.RESOLVED,
+      ],
+      [
+        "Attendance record correction",
+        "My roll call for the Monday practical appears to be missing.",
+        "ATTENDANCE",
+        TicketStatus.OPEN,
+      ],
+      [
+        "Class list confirmation",
+        "Please confirm the room and time for the next practical session.",
+        "TIMETABLE",
+        TicketStatus.CLOSED,
+      ],
+    ] as const;
+    const missing = 8 - ticketCount;
+    for (let index = 0; index < missing; index++) {
+      const [subject, body, category, status] =
+        ticketSamples[index % ticketSamples.length];
+      await prisma.supportTicket.create({
+        data: {
+          userId: requesters[index % requesters.length].id,
+          subject,
+          body,
+          category,
+          status,
+          priority:
+            index % 2 === 0 ? TicketPriority.NORMAL : TicketPriority.LOW,
+          createdAt: daysAgo(index + 1),
+        },
+      });
+    }
+  }
+
+  if ((await prisma.venue.count()) === 0) {
+    const skillsLab = await prisma.venue.create({
+      data: {
+        name: "Skills Lab",
+        location: "Luggala Training Center",
+        capacity: 24,
+      },
+    });
+    const classroom = await prisma.venue.create({
+      data: {
+        name: "Main Classroom",
+        location: "Luggala Training Center",
+        capacity: 36,
+      },
+    });
+    await prisma.venueBooking.createMany({
+      data: [
+        {
+          venueId: skillsLab.id,
+          title: "Care skills practice",
+          startsAt: new Date(daysFrom(1).setHours(9, 0, 0, 0)),
+          endsAt: new Date(daysFrom(1).setHours(12, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+        {
+          venueId: classroom.id,
+          title: "Student orientation",
+          startsAt: new Date(daysFrom(3).setHours(14, 0, 0, 0)),
+          endsAt: new Date(daysFrom(3).setHours(16, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+        {
+          venueId: skillsLab.id,
+          title: "First aid practical",
+          startsAt: new Date(daysFrom(7).setHours(18, 30, 0, 0)),
+          endsAt: new Date(daysFrom(7).setHours(20, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+      ],
+    });
+    const practicals = await Promise.all([
+      prisma.practicalSession.create({
+        data: {
+          venueId: skillsLab.id,
+          title: "Safe patient transfer",
+          courseName: "Medical Home Caregiver Course",
+          startsAt: new Date(daysFrom(2).setHours(9, 0, 0, 0)),
+          endsAt: new Date(daysFrom(2).setHours(11, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+      }),
+      prisma.practicalSession.create({
+        data: {
+          venueId: skillsLab.id,
+          title: "First aid response",
+          courseName: "Basic Life Support and First Aid Certificate",
+          startsAt: new Date(daysFrom(5).setHours(14, 0, 0, 0)),
+          endsAt: new Date(daysFrom(5).setHours(16, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+      }),
+      prisma.practicalSession.create({
+        data: {
+          venueId: classroom.id,
+          title: "Child safety scenarios",
+          courseName:
+            "Basic Certificate in Babysitting, Childcare and Safety Management",
+          startsAt: new Date(daysFrom(9).setHours(9, 0, 0, 0)),
+          endsAt: new Date(daysFrom(9).setHours(12, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+      }),
+      prisma.practicalSession.create({
+        data: {
+          venueId: skillsLab.id,
+          title: "Older person mobility support",
+          courseName:
+            "Basic Certificate in Care of Older Persons and Persons with Disability (Geriatric)",
+          startsAt: new Date(daysFrom(12).setHours(18, 30, 0, 0)),
+          endsAt: new Date(daysFrom(12).setHours(20, 0, 0, 0)),
+          createdById: schoolAdmin.id,
+        },
+      }),
+    ]);
+    const equipmentNames = [
+      ["Transfer belt", "Wheelchair", "Slide sheet"],
+      ["First aid kit", "AED trainer", "CPR manikin"],
+      ["Child safety kit", "Thermometer"],
+      ["Walking frame", "Gait belt", "Pressure cushion"],
+    ];
+    for (let index = 0; index < practicals.length; index++) {
+      const practical = practicals[index];
+      await prisma.practicalEquipmentItem.createMany({
+        data: equipmentNames[index].map((name, itemIndex) => ({
+          name,
+          practicalSessionId: practical.id,
+          needed: itemIndex === 0 ? 2 : 1,
+          available: 1,
+        })),
+      });
+    }
+    await prisma.operationalNotice.createMany({
+      data: [
+        {
+          title: "Skills lab session moved",
+          body: "The Friday first aid practical begins at 14:00 in the Skills Lab.",
+          audience: "STUDENTS",
+          channel: "IN_APP",
+          sentById: schoolAdmin.id,
+          sentAt: daysAgo(1),
+        },
+        {
+          title: "Front office hours",
+          body: "The front office closes at 16:00 on Saturday.",
+          audience: "ALL",
+          channel: "IN_APP",
+          sentById: schoolAdmin.id,
+          sentAt: daysAgo(3),
+        },
+      ],
+    });
+  }
+
+  if ((await prisma.leaveRequest.count()) === 0) {
+    await prisma.leaveRequest.createMany({
+      data: [
+        {
+          userId: tutor.id,
+          startsAt: daysFrom(14),
+          endsAt: daysFrom(15),
+          reason: "Family commitment. Lesson coverage has been arranged.",
+        },
+        {
+          userId: ta.id,
+          startsAt: daysFrom(20),
+          endsAt: daysFrom(21),
+          reason: "Medical appointment and recovery day.",
+        },
+      ],
+    });
+  }
+
   // ── Print summary ──────────────────────────────────────────────
   console.log("\n" + "=".repeat(62));
   console.log("  DEMO SEED COMPLETE");
@@ -2900,7 +3205,8 @@ async function main() {
   console.log("  " + "-".repeat(57));
   console.log("  SUPER_ADMIN     ceo@mtc.ac.ug          /director");
   console.log("  SUPER_ADMIN     deputy@mtc.ac.ug       /director");
-  console.log("  HR_SYSTEM_ADMIN hr@mtc.ac.ug           /admin");
+  console.log("  HR_MANAGER      hr@mtc.ac.ug           /admin");
+  console.log("  ADMINISTRATOR   admin@mtc.ac.ug        /admin");
   console.log("  PRINCIPAL       principal@mtc.ac.ug    /principal");
   console.log("  SYSTEM_IT       itadmin@mtc.ac.ug      /system");
   console.log("  REGISTRAR       registrar@mtc.ac.ug    /registrar");

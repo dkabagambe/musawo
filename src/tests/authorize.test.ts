@@ -37,6 +37,8 @@ const DEMO_EMAILS = [
   "registrar@mtc.ac.ug",
   "finance@mtc.ac.ug",
   "hr@mtc.ac.ug",
+  "admin@mtc.ac.ug",
+  "secretary@mtc.ac.ug",
   "auditor@mtc.ac.ug",
   "itadmin@mtc.ac.ug",
   "tutor@mtc.ac.ug",

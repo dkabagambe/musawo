@@ -38,39 +38,46 @@ const NAV: NavItem[] = [
     label: "Courses",
     children: [
       {
-        label: "Medical Home Caregiver Course",
+        label: "Certificate in Medical Home Care Course",
         href: "/courses/medical-home-caregiver",
         desc: "3 months. For registered health professionals.",
       },
       {
-        label: "Basic Home Caregiver",
+        label: "Certificate in Basic Home Care",
         href: "/courses/basic-home-caregiver",
         desc: "3 months. Open to all.",
       },
       {
-        label: "Babysitting, Childcare and Safety",
+        label:
+          "Basic Certificate in Babysitting, Child Care and Safety Management",
         href: "/courses/babysitting-childcare-safety",
         desc: "2 months. Open to all.",
       },
       {
-        label: "Mental Health Support",
+        label: "Certificate in Mental Health Support and Advocacy",
         href: "/courses/mental-health-support-advocacy",
         desc: "3 months. Open to all.",
       },
       {
-        label: "Care of Older Persons (Geriatric)",
+        label:
+          "Basic Certificate in Care of Older Persons and Persons with Disability",
         href: "/courses/care-older-persons-disability",
         desc: "3 months. Open to all.",
       },
       {
-        label: "Basic Life Support and First Aid",
+        label: "Certificate in Basic Life Support",
         href: "/courses/basic-life-support-first-aid",
         desc: "1 month. Open to all.",
       },
       {
-        label: "Advanced Life Support",
+        label: "Certificate in Advanced Life Support",
         href: "/courses/advanced-life-support",
         desc: "1 month. For registered health professionals.",
+      },
+      {
+        label: "Certificate in Advanced First Aid",
+        href: "/courses/advanced-first-aid",
+        desc: "1 month. Open to non-health professionals aged 18 and above.",
       },
       {
         label: "All courses",

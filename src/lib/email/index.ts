@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
-const FROM = process.env.EMAIL_FROM ?? "Musawo Training Center <noreply@musawo.ug>";
+const FROM =
+  process.env.EMAIL_FROM ?? "Musawo Training Center <noreply@musawo.ug>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.musawo.ug";
 const LOGO_URL = `${SITE_URL}/assets/logo-header.png`;
 
@@ -28,7 +29,10 @@ type EmailTemplate =
   | "application-accepted"
   | "application-rejected"
   | "plain"
-  | "student-details-disputed";
+  | "student-details-disputed"
+  | "support-ticket-created"
+  | "support-reply"
+  | "operational-notice";
 
 interface SendEmailParams {
   to: string;
@@ -39,7 +43,7 @@ interface SendEmailParams {
 
 function renderTemplate(
   template: EmailTemplate,
-  variables: Record<string, string>
+  variables: Record<string, string>,
 ): string {
   const templates: Record<EmailTemplate, string> = {
     welcome: `
@@ -205,6 +209,24 @@ function renderTemplate(
       <p>Please log in to the Registrar portal, correct the details, and send a new invitation link to the student.</p>
       <p><a href="{{registrarUrl}}" style="background:#0B6B5D;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600;">Go to Registrar portal</a></p>
     `,
+    "support-ticket-created": `
+      <h2>New support ticket: {{ticketTitle}}</h2>
+      <p>A {{category}} support ticket was submitted by {{requester}}.</p>
+      <p><a href="{{ticketUrl}}">Open the support desk</a></p>
+    `,
+    "support-reply": `
+      <h2>Reply to your support ticket</h2>
+      <p>Dear {{name}},</p>
+      <p>There is a new response to <strong>{{ticketTitle}}</strong>:</p>
+      <div style="white-space:pre-wrap;border-left:3px solid #0B6B5D;padding:12px 16px;">{{reply}}</div>
+      <p><a href="{{ticketUrl}}">Open your support ticket</a></p>
+    `,
+    "operational-notice": `
+      <h2>{{title}}</h2>
+      <p>Dear {{name}},</p>
+      <div style="white-space:pre-wrap;">{{body}}</div>
+      <p>For questions, contact the front office at info@musawo.ug.</p>
+    `,
   };
 
   let html = templates[template];
@@ -242,7 +264,11 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
 
   // In dev (or when no API key), store in memory for /dev/mail preview
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey || apiKey.startsWith("DEMO_") || process.env.NODE_ENV !== "production") {
+  if (
+    !apiKey ||
+    apiKey.startsWith("DEMO_") ||
+    process.env.NODE_ENV !== "production"
+  ) {
     const { pushDevEmail } = await import("./dev-store");
     pushDevEmail({ to: params.to, subject: params.subject, html });
     console.log(`[dev mail] to=${params.to} subject="${params.subject}"`);

@@ -6,7 +6,7 @@ import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Board Overview" };
 
-const VALID_TABS = new Set<string>(["general", "reports", "audit", "academics"]);
+const VALID_TABS = new Set<string>(["general", "reports", "policies"]);
 
 export default async function BoardPage({
   searchParams,

@@ -6,6 +6,7 @@ import { initiateOrder as initiateFlutterwave } from "@/lib/payments/flutterwave
 import { getActiveGateway } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { InitiatePaymentSchema } from "@/lib/validators";
+import { can } from "@/lib/rbac";
 import { z } from "zod";
 
 export async function POST(req: NextRequest) {
@@ -13,12 +14,18 @@ export async function POST(req: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (!can(session.user.role, "payments.initiate")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   let body: z.infer<typeof InitiatePaymentSchema>;
   try {
     body = InitiatePaymentSchema.parse(await req.json());
   } catch (err) {
-    return NextResponse.json({ error: "Invalid input", details: err }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid input", details: err },
+      { status: 400 },
+    );
   }
 
   const course = await db.course.findUnique({
@@ -29,7 +36,9 @@ export async function POST(req: NextRequest) {
   }
 
   const existing = await db.enrolment.findUnique({
-    where: { userId_courseId: { userId: session.user.id, courseId: course.id } },
+    where: {
+      userId_courseId: { userId: session.user.id, courseId: course.id },
+    },
   });
   if (existing && existing.status === "ACTIVE") {
     return NextResponse.json({ error: "Already enrolled" }, { status: 409 });
@@ -37,7 +46,8 @@ export async function POST(req: NextRequest) {
 
   const totalAmount = course.fullFeeUgx ?? 0;
   const user = await db.user.findUnique({ where: { id: session.user.id } });
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  if (!user)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const enrolment = existing
     ? await db.enrolment.update({
@@ -58,7 +68,8 @@ export async function POST(req: NextRequest) {
         },
       });
 
-  const instalmentCount = body.planType === "INSTALMENT" ? course.instalmentCount : 1;
+  const instalmentCount =
+    body.planType === "INSTALMENT" ? course.instalmentCount : 1;
   const firstAmount =
     body.planType === "INSTALMENT"
       ? Math.ceil(totalAmount / instalmentCount)
@@ -72,7 +83,12 @@ export async function POST(req: NextRequest) {
       enrolmentId: enrolment.id,
       amount: firstAmount,
       method: "MTN_MOMO",
-      gateway: gateway === "pesapal" ? "PESAPAL" : gateway === "flutterwave" ? "FLUTTERWAVE" : "MANUAL",
+      gateway:
+        gateway === "pesapal"
+          ? "PESAPAL"
+          : gateway === "flutterwave"
+            ? "FLUTTERWAVE"
+            : "MANUAL",
       gatewayOrderId: merchantRef,
       status: "PENDING",
     },
@@ -115,7 +131,7 @@ export async function POST(req: NextRequest) {
 
   const callbackUrl = `${process.env.NEXTAUTH_URL}/api/webhooks/pesapal`;
   const redirectUrl = `${process.env.NEXTAUTH_URL}/dashboard/payments?ref=${merchantRef}`;
-  const nameParts   = user.name.split(" ");
+  const nameParts = user.name.split(" ");
 
   let redirectPaymentUrl: string;
 
@@ -129,15 +145,15 @@ export async function POST(req: NextRequest) {
       notificationId: process.env.PESAPAL_IPN_ID ?? "",
       billingAddress: {
         firstName: nameParts[0],
-        lastName:  nameParts.slice(1).join(" ") || nameParts[0],
+        lastName: nameParts.slice(1).join(" ") || nameParts[0],
         emailAddress: user.email ?? undefined,
-        phoneNumber:  user.phone ?? undefined,
+        phoneNumber: user.phone ?? undefined,
       },
     });
     redirectPaymentUrl = result.redirectUrl;
     await db.payment.update({
       where: { id: payment.id },
-      data:  { gatewayRef: result.orderTrackingId },
+      data: { gatewayRef: result.orderTrackingId },
     });
   } else {
     const result = await initiateFlutterwave({
@@ -149,13 +165,16 @@ export async function POST(req: NextRequest) {
       redirectUrl,
       customer: {
         firstName: nameParts[0],
-        lastName:  nameParts.slice(1).join(" ") || nameParts[0],
-        email:  user.email ?? undefined,
-        phone:  user.phone ?? undefined,
+        lastName: nameParts.slice(1).join(" ") || nameParts[0],
+        email: user.email ?? undefined,
+        phone: user.phone ?? undefined,
       },
     });
     redirectPaymentUrl = result.redirectUrl;
   }
 
-  return NextResponse.json({ type: "redirect", redirectUrl: redirectPaymentUrl });
+  return NextResponse.json({
+    type: "redirect",
+    redirectUrl: redirectPaymentUrl,
+  });
 }

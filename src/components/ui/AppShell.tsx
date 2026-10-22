@@ -168,9 +168,12 @@ const TAB_LABELS: Record<DashboardTab, string> = {
   students: "Students",
   assessment: "Assessment",
   support: "Support",
+  timetable: "Timetable",
+  leave: "Leave",
   materials: "Materials",
   admissions: "Admissions",
   academics: "Academics",
+  operations: "Operations",
   approvals: "Approvals",
   reports: "Reports",
   payments: "Payments",
@@ -180,6 +183,7 @@ const TAB_LABELS: Record<DashboardTab, string> = {
   audit: "Audit",
   system: "System",
   logs: "Logs",
+  policies: "Policies",
 };
 
 function groupIcon(group: string) {

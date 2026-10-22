@@ -12,20 +12,23 @@ const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 /** All links expected in the nav dropdowns */
 const NAV_HREFS = [
   "/",
-  "/courses/cna",
-  "/courses/basic-nursing-care",
-  "/courses/child-care-safety",
+  "/courses/medical-home-caregiver",
+  "/courses/basic-home-caregiver",
+  "/courses/babysitting-childcare-safety",
+  "/courses/mental-health-support-advocacy",
+  "/courses/care-older-persons-disability",
+  "/courses/basic-life-support-first-aid",
+  "/courses/advanced-life-support",
+  "/courses/advanced-first-aid",
   "/courses",
   "/admissions/how-to-enrol",
   "/admissions/fees",
-  "/scholarships",
   "/admissions/payment-options",
   "/learning/how-you-learn",
   "/learning/live-classes",
   "/learning/exams",
   "/resources",
   "/about",
-  "/about/accreditation",
   "/about/trainers",
   "/faq",
   "/contact",
@@ -41,13 +44,17 @@ const FOOTER_HREFS = [
   "/learning/how-you-learn",
   "/about",
   "/resources",
-  "/scholarships",
   "/faq",
   "/contact",
   "/login",
-  "/courses/cna",
-  "/courses/basic-nursing-care",
-  "/courses/child-care-safety",
+  "/courses/medical-home-caregiver",
+  "/courses/basic-home-caregiver",
+  "/courses/babysitting-childcare-safety",
+  "/courses/mental-health-support-advocacy",
+  "/courses/care-older-persons-disability",
+  "/courses/basic-life-support-first-aid",
+  "/courses/advanced-life-support",
+  "/courses/advanced-first-aid",
   "/contact",
   "/privacy",
   "/terms",
@@ -64,20 +71,20 @@ test.describe("No dead internal links in nav or footer", () => {
         // Follow redirects (Next.js may redirect /courses to /courses/ etc.)
         maxRedirects: 5,
       });
-      expect(
-        res.status(),
-        `${href} returned ${res.status()}`,
-      ).toBeLessThan(400);
+      expect(res.status(), `${href} returned ${res.status()}`).toBeLessThan(
+        400,
+      );
     });
   }
 });
 
 test.describe("No '#' href links on the homepage", () => {
-  test("all <a> tags on / have non-empty href that is not '#'", async ({ page }) => {
+  test("all <a> tags on / have non-empty href that is not '#'", async ({
+    page,
+  }) => {
     await page.goto(`${BASE}/`);
-    const hrefs = await page.$$eval(
-      "a[href]",
-      (els) => els.map((a) => (a as HTMLAnchorElement).getAttribute("href") ?? ""),
+    const hrefs = await page.$$eval("a[href]", (els) =>
+      els.map((a) => (a as HTMLAnchorElement).getAttribute("href") ?? ""),
     );
     const dead = hrefs.filter((h) => h === "#" || h === "");
     expect(dead, `Found dead hrefs: ${dead.join(", ")}`).toHaveLength(0);
@@ -90,9 +97,38 @@ test.describe("Header navigation links exist on homepage", () => {
     await page.goto(`${BASE}/`);
     const nav = page.locator("nav[aria-label='Main navigation']");
     await expect(nav).toBeVisible();
-    for (const label of ["Home", "Courses", "Admissions", "Learning", "About", "Contact"]) {
+    for (const label of [
+      "Home",
+      "Courses",
+      "Admissions",
+      "Learning",
+      "About",
+      "Contact",
+    ]) {
       await expect(nav.locator(`text=${label}`).first()).toBeVisible();
     }
+  });
+
+  test("course hover menu shows only the current course list", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`${BASE}/`);
+    await page.getByRole("button", { name: "Courses" }).hover();
+    const menu = page.getByRole("menu", { name: "Courses submenu" });
+    await expect(menu).toBeVisible();
+    for (const title of [
+      "Certificate in Medical Home Care Course",
+      "Certificate in Basic Home Care",
+      "Basic Certificate in Babysitting, Child Care and Safety Management",
+      "Certificate in Mental Health Support and Advocacy",
+      "Basic Certificate in Care of Older Persons and Persons with Disability",
+      "Certificate in Basic Life Support",
+      "Certificate in Advanced Life Support",
+      "Certificate in Advanced First Aid",
+    ])
+      await expect(menu).toContainText(title);
+    await expect(menu).not.toContainText("Basic Home Caregiver");
   });
 
   test("mobile drawer opens and shows nav items", async ({ page }) => {

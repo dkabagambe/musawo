@@ -9,7 +9,13 @@
 
 import type { UserRole } from "@prisma/client";
 
-const AUTH_PAGES = new Set(["/login", "/register", "/otp", "/forgot-password", "/_rbac_redirect"]);
+const AUTH_PAGES = new Set([
+  "/login",
+  "/register",
+  "/otp",
+  "/forgot-password",
+  "/_rbac_redirect",
+]);
 
 /**
  * Returns the correct home path for a role.
@@ -29,26 +35,42 @@ const AUTH_PAGES = new Set(["/login", "/register", "/otp", "/forgot-password", "
  *   Legacy aliases follow their canonical equivalent.
  *   unknown                  → /dashboard  (never a 404)
  */
-export function getHomePathForRole(role: UserRole | string | undefined | null): string {
+export function getHomePathForRole(
+  role: UserRole | string | undefined | null,
+): string {
   switch (role) {
     case "SUPER_ADMIN":
-    case "SUPERADMIN":           return "/director";
-    case "BOARD_MEMBER":         return "/board";
-    case "PRINCIPAL":            return "/principal";
-    case "DEPUTY_PRINCIPAL":     return "/deputy";
+    case "SUPERADMIN":
+      return "/director";
+    case "BOARD_MEMBER":
+      return "/board";
+    case "PRINCIPAL":
+      return "/principal";
+    case "DEPUTY_PRINCIPAL":
+      return "/deputy";
     case "ACADEMIC_REGISTRAR":
-    case "REGISTRAR":            return "/registrar";
+    case "REGISTRAR":
+      return "/registrar";
     case "INSTRUCTOR":
-    case "TUTOR":                return "/tutor";
-    case "TEACHING_ASSISTANT":   return "/tutor";
+    case "TUTOR":
+      return "/tutor";
+    case "TEACHING_ASSISTANT":
+      return "/tutor";
     case "FINANCE_OFFICER":
-    case "BURSAR":               return "/finance";
+    case "BURSAR":
+      return "/finance";
     case "HR_SYSTEM_ADMIN":
+    case "ADMIN":
+      return "/admin";
+    case "HR_MANAGER":
     case "ADMINISTRATOR":
-    case "ADMIN":                return "/admin";
-    case "AUDITOR_READONLY":     return "/auditor";
-    case "SYSTEM_IT":            return "/system";
-    default:                     return "/dashboard"; // STUDENT
+      return "/admin";
+    case "AUDITOR_READONLY":
+      return "/auditor";
+    case "SYSTEM_IT":
+      return "/system";
+    default:
+      return "/dashboard"; // STUDENT
   }
 }
 
@@ -62,7 +84,7 @@ export function getHomePathForRole(role: UserRole | string | undefined | null): 
 export function getPostLoginPath(
   role: UserRole | string | undefined | null,
   callbackUrl?: string | null,
-  origin?: string
+  origin?: string,
 ): string {
   const home = getHomePathForRole(role);
 

@@ -14,7 +14,7 @@ const NAV: NavItem[] = [
 ];
 
 // Tabs match DASHBOARD_WIDGETS for DEPUTY_PRINCIPAL role
-const TABS = ["general", "academics", "support", "reports"] as const;
+const TABS = ["general", "academics", "operations", "approvals"] as const;
 
 export default async function DeputyLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();

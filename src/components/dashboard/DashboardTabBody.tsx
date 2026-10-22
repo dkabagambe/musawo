@@ -27,14 +27,6 @@ interface RenderedEntry {
   columnPinned: boolean;
 }
 
-/**
- * Server-side renderer for dashboard tab content.
- * Loads the widget definitions for the role + tab (filtered by permission),
- * merges saved per-user preferences, and renders real widget bodies.
- *
- * This replaces the old generic link-card fallback so every tab shows
- * real widgets populated with seed data (spec: "no empty tabs").
- */
 export async function DashboardTabBody({
   userId,
   role,
@@ -74,32 +66,30 @@ export async function DashboardTabBody({
   if (!visibleWidgets.length) {
     return (
       <div className="dashboard-tab-empty">
-        <p>There is nothing on this tab yet.</p>
+        <p>Nothing on this tab yet.</p>
       </div>
     );
   }
 
-  const rendered: RenderedEntry[] = await Promise.all(
-    visibleWidgets.map(async (w) => {
-      const Body = WIDGET_COMPONENTS[w.component];
-      const bodyProps: WidgetBodyProps = {
-        userId,
-        role,
-        fullPageHref: w.fullPageHref,
-      };
-      const content = Body
-        ? await Body(bodyProps)
-        : <p className="dashboard-widget-empty">No content available.</p>;
-      return {
-        widget: w,
-        content,
-        column: w.column,
-        columnPinned: w.columnPinned,
-      };
-    }),
-  );
+  // Separate full-width (span 2) from half-width (span 1)
+  const wideWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) === 2);
+  const halfWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) !== 2);
 
-  const [left, right] = balanceDashboardColumns(rendered, (entry) =>
+  const renderWidget = async (w: MergedWidget) => {
+    const Body = WIDGET_COMPONENTS[w.component];
+    const bodyProps: WidgetBodyProps = { userId, role, fullPageHref: w.fullPageHref };
+    const content = Body
+      ? await Body(bodyProps)
+      : <p className="dashboard-widget-empty">No content available.</p>;
+    return { widget: w, content, column: w.column, columnPinned: w.columnPinned };
+  };
+
+  const [wideRendered, halfRendered] = await Promise.all([
+    Promise.all(wideWidgets.map(renderWidget)),
+    Promise.all(halfWidgets.map(renderWidget)),
+  ]);
+
+  const [left, right] = balanceDashboardColumns(halfRendered, (entry) =>
     148 + Math.max(0, entry.widget.title.length - 24) * 0.5,
   );
 
@@ -115,8 +105,19 @@ export async function DashboardTabBody({
 
   return (
     <div className="dashboard-widget-grid">
-      <div className="dashboard-widget-column">{left.map(makeWidget)}</div>
-      <div className="dashboard-widget-column">{right.map(makeWidget)}</div>
+      {/* Full-width widgets span both columns */}
+      {wideRendered.map((entry) => (
+        <div key={entry.widget.id} className="dashboard-widget-full">
+          {makeWidget(entry)}
+        </div>
+      ))}
+      {/* Half-width widgets in balanced two-column layout */}
+      {halfRendered.length > 0 && (
+        <>
+          <div className="dashboard-widget-column">{left.map(makeWidget)}</div>
+          <div className="dashboard-widget-column">{right.map(makeWidget)}</div>
+        </>
+      )}
     </div>
   );
 }

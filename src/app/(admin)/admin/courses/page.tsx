@@ -8,7 +8,8 @@ export const metadata = { title: "Courses - Admin" };
 
 export default async function AdminCoursesPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "courses.view")) redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "courses.view"))
+    redirect("/403");
 
   const courses = await db.course.findMany({
     orderBy: { createdAt: "desc" },
@@ -27,7 +28,9 @@ export default async function AdminCoursesPage() {
 
       <div className="card overflow-x-auto">
         {courses.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-8">No courses yet.</p>
+          <p className="text-gray-400 text-sm text-center py-8">
+            No courses yet.
+          </p>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -43,12 +46,17 @@ export default async function AdminCoursesPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {courses.map((c) => {
-                const totalLessons = c.blocks.reduce((s, b) => s + b._count.lessons, 0);
+                const totalLessons = c.blocks.reduce(
+                  (s, b) => s + b._count.lessons,
+                  0,
+                );
                 return (
                   <tr key={c.id}>
                     <td className="py-2 pr-4 font-medium max-w-xs">
                       <p className="truncate">{c.title}</p>
-                      <p className="text-xs text-gray-400 font-mono">{c.slug}</p>
+                      <p className="text-xs text-gray-400 font-mono">
+                        {c.slug}
+                      </p>
                     </td>
                     <td className="py-2 pr-4 text-gray-500">{c.tutor.name}</td>
                     <td className="py-2 pr-4">
@@ -62,10 +70,16 @@ export default async function AdminCoursesPage() {
                     </td>
                     <td className="py-2 pr-4 text-center">{c._count.blocks}</td>
                     <td className="py-2 pr-4 text-center">{totalLessons}</td>
-                    <td className="py-2 pr-4 text-center">{c._count.enrolments}</td>
+                    <td className="py-2 pr-4 text-center">
+                      {c._count.enrolments}
+                    </td>
                     <td className="py-2">
                       <div className="flex gap-3">
-                        <Link href={`/courses/${c.slug}`} target="_blank" className="text-xs text-accent no-underline hover:underline">
+                        <Link
+                          href={`/courses/${c.slug}`}
+                          target="_blank"
+                          className="text-xs text-accent no-underline hover:underline"
+                        >
                           View ↗
                         </Link>
                         <ToggleStatusButton
@@ -86,7 +100,13 @@ export default async function AdminCoursesPage() {
 }
 
 // Inline client component for toggling publish status
-function ToggleStatusButton({ courseId, currentStatus }: { courseId: string; currentStatus: string }) {
+function ToggleStatusButton({
+  courseId,
+  currentStatus,
+}: {
+  courseId: string;
+  currentStatus: string;
+}) {
   const nextStatus = currentStatus === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
   const label = currentStatus === "PUBLISHED" ? "Unpublish" : "Publish";
   return (

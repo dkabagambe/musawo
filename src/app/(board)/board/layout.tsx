@@ -12,7 +12,7 @@ const NAV: NavItem[] = [
 ];
 
 // Tabs match DASHBOARD_WIDGETS for BOARD_MEMBER role
-const TABS = ["general", "reports", "audit", "academics"] as const;
+const TABS = ["general", "reports", "policies"] as const;
 
 export default async function BoardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();

@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { can } from "@/lib/rbac";
 import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
 import type { DashboardTab } from "@/lib/dashboard/widgets";
 
@@ -13,10 +14,7 @@ export default async function SystemDashboardPage({
   searchParams: { tab?: string };
 }) {
   const session = await auth();
-  if (
-    !session?.user ||
-    !["SUPER_ADMIN", "SYSTEM_IT", "SUPERADMIN"].includes(session.user.role)
-  )
+  if (!session?.user || !can(session.user.role, "integrations.edit"))
     redirect("/login");
 
   const tab = (searchParams.tab && VALID_TABS.has(searchParams.tab)

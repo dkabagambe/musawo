@@ -11,13 +11,17 @@ const CreateSchema = z.object({
   type: z.enum([
     "REFUND","WAIVER","FEE_CHANGE",
     "STAFF_ACCOUNT_CREATE","STAFF_ACCOUNT_SUSPEND","STAFF_ACCOUNT_ROLE_CHANGE",
+    "MARKS_CHANGE","BULK_EXPORT",
   ]),
-  reason:      z.string().min(10).max(2000),
-  amount:      z.number().int().positive().optional(),
-  studentId:   z.string().cuid().optional(),
-  enrolmentId: z.string().cuid().optional(),
-  paymentId:   z.string().cuid().optional(),
-  staffUserId: z.string().cuid().optional(),
+  reason:       z.string().min(10).max(2000),
+  amount:       z.number().int().positive().optional(),
+  studentId:    z.string().cuid().optional(),
+  enrolmentId:  z.string().cuid().optional(),
+  paymentId:    z.string().cuid().optional(),
+  staffUserId:  z.string().cuid().optional(),
+  gradeEntryId: z.string().cuid().optional(),  // MARKS_CHANGE
+  examId:       z.string().cuid().optional(),  // MARKS_CHANGE
+  proposedScore: z.number().int().min(0).optional(), // MARKS_CHANGE
 });
 
 export async function GET(_req: NextRequest) {
@@ -67,6 +71,8 @@ export async function POST(req: NextRequest) {
     STAFF_ACCOUNT_CREATE:     "staff.create.initiate",
     STAFF_ACCOUNT_SUSPEND:    "staff.suspend.initiate",
     STAFF_ACCOUNT_ROLE_CHANGE:"staff.suspend.initiate",
+    MARKS_CHANGE:             "marks.change.request",
+    BULK_EXPORT:              "students.export",  // any role allowed to export may request
   };
 
   try {
@@ -90,6 +96,9 @@ export async function POST(req: NextRequest) {
       enrolmentId:   data.enrolmentId ?? null,
       paymentId:     data.paymentId ?? null,
       staffUserId:   data.staffUserId ?? null,
+      gradeEntryId:  data.gradeEntryId ?? null,
+      examId:        data.examId ?? null,
+      proposedScore: data.proposedScore ?? null,
       approvalToken,
       approvalTokenExpires,
     },

@@ -7,7 +7,8 @@ export const metadata = { title: "Intakes - Admin" };
 
 export default async function AdminIntakesPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "courses.view")) redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "intakes.manage"))
+    redirect("/403");
 
   const courses = await db.course.findMany({
     where: { status: "PUBLISHED" },
@@ -68,7 +69,7 @@ export default async function AdminIntakesPage() {
               </table>
             </div>
           </section>
-        ) : null
+        ) : null,
       )}
     </div>
   );

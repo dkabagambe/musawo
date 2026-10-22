@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/DashboardWidgets";
 import {
   AlertCircle,
+  Calendar,
   Clock,
   CheckCircle2,
   Users,
@@ -100,11 +101,15 @@ function classStatusChip(
 async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   if (role === "STUDENT") {
     const enrolments = await db.enrolment.findMany({
-      where: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
+      where: {
+        userId,
+        status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+      },
       select: { courseId: true },
     });
     const courseIds = enrolments.map((e) => e.courseId);
-    if (!courseIds.length) return <Empty>Enrol in a course to get started.</Empty>;
+    if (!courseIds.length)
+      return <Empty>Enrol in a course to get started.</Empty>;
     const [exams, assignments] = await Promise.all([
       db.exam.findMany({
         where: { courseId: { in: courseIds }, status: "PUBLISHED" },
@@ -112,7 +117,11 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
         select: { id: true, title: true },
       }),
       db.assignment.findMany({
-        where: { courseId: { in: courseIds }, status: "PUBLISHED", dueDate: { gte: new Date() } },
+        where: {
+          courseId: { in: courseIds },
+          status: "PUBLISHED",
+          dueDate: { gte: new Date() },
+        },
         take: 3,
         select: { id: true, title: true, dueDate: true },
       }),
@@ -122,12 +131,21 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
     return (
       <>
         {exams.map((exam) => (
-          <ListRow key={exam.id} href="/dashboard/gradebook" icon={<ClipboardList size={16} />}>
+          <ListRow
+            key={exam.id}
+            href="/dashboard/gradebook"
+            icon={<ClipboardList size={16} />}
+          >
             Upcoming exam: {exam.title}
           </ListRow>
         ))}
         {assignments.map((a) => (
-          <ListRow key={a.id} href="/dashboard/assignments" icon={<FileText size={16} />} date={a.dueDate ? fmtDay(a.dueDate) : undefined}>
+          <ListRow
+            key={a.id}
+            href="/dashboard/assignments"
+            icon={<FileText size={16} />}
+            date={a.dueDate ? fmtDay(a.dueDate) : undefined}
+          >
             Assignment due: {a.title}
           </ListRow>
         ))}
@@ -156,7 +174,11 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
       ],
     },
   });
-  if (pendingReviews === 0 && pendingRecordings === 0 && pendingAttendance === 0)
+  if (
+    pendingReviews === 0 &&
+    pendingRecordings === 0 &&
+    pendingAttendance === 0
+  )
     return <Empty>You are all caught up.</Empty>;
   const href = fullPageHref ?? "/tutor/exams";
   return (
@@ -191,21 +213,49 @@ async function MetricsBody({ userId }: WidgetBodyProps) {
   const [courses, students, classes, reviews] = await Promise.all([
     db.course.count({ where: teachingWhere }),
     db.enrolment.count({
-      where: { course: teachingWhere, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
+      where: {
+        course: teachingWhere,
+        status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+      },
     }),
     db.liveClass.count({
       where: {
         course: teachingWhere,
-        OR: [{ scheduledAt: { gt: new Date() }, status: "SCHEDULED" }, { status: "LIVE" }],
+        OR: [
+          { scheduledAt: { gt: new Date() }, status: "SCHEDULED" },
+          { status: "LIVE" },
+        ],
       },
     }),
-    db.examAttempt.count({ where: { status: "SUBMITTED", exam: { course: teachingWhere } } }),
+    db.examAttempt.count({
+      where: { status: "SUBMITTED", exam: { course: teachingWhere } },
+    }),
   ]);
   const stats = [
-    { label: "Courses",  value: courses,  href: "/tutor/courses",  icon: <FileText size={18} /> },
-    { label: "Students", value: students, href: "/tutor/students", icon: <Users size={18} /> },
-    { label: "Classes",  value: classes,  href: "/tutor/classes",  icon: <Video size={18} /> },
-    { label: "Reviews",  value: reviews,  href: "/tutor/exams",    icon: <ClipboardCheck size={18} /> },
+    {
+      label: "Courses",
+      value: courses,
+      href: "/tutor/courses",
+      icon: <FileText size={18} />,
+    },
+    {
+      label: "Students",
+      value: students,
+      href: "/tutor/students",
+      icon: <Users size={18} />,
+    },
+    {
+      label: "Classes",
+      value: classes,
+      href: "/tutor/classes",
+      icon: <Video size={18} />,
+    },
+    {
+      label: "Reviews",
+      value: reviews,
+      href: "/tutor/exams",
+      icon: <ClipboardCheck size={18} />,
+    },
   ];
   return (
     <div className="dashboard-glance-grid">
@@ -249,11 +299,21 @@ async function ClassListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
       ? {
           scheduledAt: { gt: new Date() },
           status: "SCHEDULED",
-          course: { enrolments: { some: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
+          course: {
+            enrolments: {
+              some: {
+                userId,
+                status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] },
+              },
+            },
+          },
         }
       : {
           course: teachingCourseWhere(userId),
-          OR: [{ scheduledAt: { gt: new Date() }, status: "SCHEDULED" }, { status: "LIVE" }],
+          OR: [
+            { scheduledAt: { gt: new Date() }, status: "SCHEDULED" },
+            { status: "LIVE" },
+          ],
         };
   const upcoming = await db.liveClass.findMany({
     where,
@@ -263,7 +323,9 @@ async function ClassListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   });
   if (!upcoming.length) return <Empty>No upcoming classes scheduled.</Empty>;
   const visible = upcoming.slice(0, 4);
-  const href = fullPageHref ?? (role === "STUDENT" ? "/dashboard/timetable" : "/tutor/classes");
+  const href =
+    fullPageHref ??
+    (role === "STUDENT" ? "/dashboard/timetable" : "/tutor/classes");
   return (
     <>
       <div className="dashboard-mini-grid">
@@ -297,12 +359,27 @@ async function ClassListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
 }
 
 /* course-cards  (student/instructor general - My Courses) */
-async function CourseCardsBody({ userId, role, fullPageHref }: WidgetBodyProps) {
+async function CourseCardsBody({
+  userId,
+  role,
+  fullPageHref,
+}: WidgetBodyProps) {
   const isStudent = role === "STUDENT";
   const enrolments = isStudent
     ? await db.enrolment.findMany({
-        where: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
-        include: { course: { select: { title: true, slug: true, blocks: { select: { _count: { select: { lessons: true } } } } } } },
+        where: {
+          userId,
+          status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+        },
+        include: {
+          course: {
+            select: {
+              title: true,
+              slug: true,
+              blocks: { select: { _count: { select: { lessons: true } } } },
+            },
+          },
+        },
         take: 6,
       })
     : [];
@@ -313,13 +390,20 @@ async function CourseCardsBody({ userId, role, fullPageHref }: WidgetBodyProps) 
         take: 6,
       })
     : [];
-  if (isStudent && !enrolments.length) return <Empty>Browse our courses and enrol today.</Empty>;
-  if (!isStudent && !courses.length) return <Empty>No courses assigned yet.</Empty>;
-  const href = fullPageHref ?? (isStudent ? "/dashboard/courses" : "/tutor/courses");
+  if (isStudent && !enrolments.length)
+    return <Empty>Browse our courses and enrol today.</Empty>;
+  if (!isStudent && !courses.length)
+    return <Empty>No courses assigned yet.</Empty>;
+  const href =
+    fullPageHref ?? (isStudent ? "/dashboard/courses" : "/tutor/courses");
   if (isStudent) {
     const courseIds = enrolments.map((e) => e.courseId);
     const allProgress = await db.lessonProgress.findMany({
-      where: { userId, completedAt: { not: null }, lesson: { block: { courseId: { in: courseIds } } } },
+      where: {
+        userId,
+        completedAt: { not: null },
+        lesson: { block: { courseId: { in: courseIds } } },
+      },
       select: { lesson: { select: { block: { select: { courseId: true } } } } },
     });
     const doneByCourse = new Map<string, number>();
@@ -332,7 +416,10 @@ async function CourseCardsBody({ userId, role, fullPageHref }: WidgetBodyProps) 
       <>
         <div className="dashboard-mini-grid">
           {visible.map((enr) => {
-            const total = enr.course.blocks.reduce((s, b) => s + b._count.lessons, 0);
+            const total = enr.course.blocks.reduce(
+              (s, b) => s + b._count.lessons,
+              0,
+            );
             const done = doneByCourse.get(enr.courseId) ?? 0;
             return (
               <MiniCard
@@ -394,7 +481,9 @@ async function InboxListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   });
   if (!announcements.length) return <Empty>No announcements yet.</Empty>;
   const visible = announcements.slice(0, 5);
-  const href = fullPageHref ?? (isStudent ? "/dashboard/notifications" : "/tutor/announcements");
+  const href =
+    fullPageHref ??
+    (isStudent ? "/dashboard/notifications" : "/tutor/announcements");
   return (
     <>
       {visible.map((a) => (
@@ -422,20 +511,36 @@ function lastNameKey(raw: string | null): string {
 }
 
 /* student-cards  (instructor - My Students) */
-async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps) {
+async function StudentCardsBody({
+  userId,
+  role,
+  fullPageHref,
+}: WidgetBodyProps) {
   const canViewContacts = can(role, "students.view.contacts");
   const recent = await db.enrolment.findMany({
-    where: { status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] }, user: { role: "STUDENT" }, course: teachingCourseWhere(userId) },
+    where: {
+      status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] },
+      user: { role: "STUDENT" },
+      course: teachingCourseWhere(userId),
+    },
     orderBy: { createdAt: "desc" },
     take: 100,
     include: {
-      user: { select: { name: true, studentNumber: true, phone: canViewContacts, email: canViewContacts } },
+      user: {
+        select: {
+          name: true,
+          studentNumber: true,
+          phone: canViewContacts,
+          email: canViewContacts,
+        },
+      },
     },
   });
   if (!recent.length) return <Empty>No students enrolled yet.</Empty>;
-  const sorted = [...recent].sort((a, b) =>
-    lastNameKey(a.user.name).localeCompare(lastNameKey(b.user.name)) ||
-    (a.user.name ?? "").localeCompare(b.user.name ?? ""),
+  const sorted = [...recent].sort(
+    (a, b) =>
+      lastNameKey(a.user.name).localeCompare(lastNameKey(b.user.name)) ||
+      (a.user.name ?? "").localeCompare(b.user.name ?? ""),
   );
   const visible = sorted.slice(0, 4);
   const href = fullPageHref ?? "/tutor/students";
@@ -466,14 +571,29 @@ async function StudentCardsBody({ userId, role, fullPageHref }: WidgetBodyProps)
 /* progress  (student studies - Course Progress) */
 async function CourseProgressBody({ userId, fullPageHref }: WidgetBodyProps) {
   const enrolments = await db.enrolment.findMany({
-    where: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
-    include: { course: { select: { title: true, slug: true, blocks: { select: { _count: { select: { lessons: true } } } } } } },
+    where: {
+      userId,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+    },
+    include: {
+      course: {
+        select: {
+          title: true,
+          slug: true,
+          blocks: { select: { _count: { select: { lessons: true } } } },
+        },
+      },
+    },
     take: 6,
   });
   if (!enrolments.length) return <Empty>No active courses yet.</Empty>;
   const courseIds = enrolments.map((e) => e.courseId);
   const allProgress = await db.lessonProgress.findMany({
-    where: { userId, completedAt: { not: null }, lesson: { block: { courseId: { in: courseIds } } } },
+    where: {
+      userId,
+      completedAt: { not: null },
+      lesson: { block: { courseId: { in: courseIds } } },
+    },
     select: { lesson: { select: { block: { select: { courseId: true } } } } },
   });
   const doneByCourse = new Map<string, number>();
@@ -486,7 +606,10 @@ async function CourseProgressBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((enr) => {
-        const total = enr.course.blocks.reduce((s, b) => s + b._count.lessons, 0);
+        const total = enr.course.blocks.reduce(
+          (s, b) => s + b._count.lessons,
+          0,
+        );
         const done = doneByCourse.get(enr.courseId) ?? 0;
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
         return (
@@ -507,7 +630,10 @@ async function CourseProgressBody({ userId, fullPageHref }: WidgetBodyProps) {
 /* exam-list  (student studies - Exams) */
 async function ExamListBody({ userId, fullPageHref }: WidgetBodyProps) {
   const enrolments = await db.enrolment.findMany({
-    where: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
+    where: {
+      userId,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+    },
     select: { courseId: true, course: { select: { title: true } } },
   });
   if (!enrolments.length) return <Empty>No exams available yet.</Empty>;
@@ -542,7 +668,14 @@ async function ResultsBody({ userId, fullPageHref }: WidgetBodyProps) {
     where: { userId, status: "MARKED" },
     orderBy: { submittedAt: "desc" },
     take: 6,
-    select: { id: true, score: true, maxScore: true, passed: true, submittedAt: true, exam: { select: { title: true } } },
+    select: {
+      id: true,
+      score: true,
+      maxScore: true,
+      passed: true,
+      submittedAt: true,
+      exam: { select: { title: true } },
+    },
   });
   if (!attempts.length) return <Empty>No results yet.</Empty>;
   const visible = attempts.slice(0, 5);
@@ -550,9 +683,21 @@ async function ResultsBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((att) => {
-        const pct = att.maxScore ? Math.round(((att.score ?? 0) / att.maxScore) * 100) : 0;
+        const pct = att.maxScore
+          ? Math.round(((att.score ?? 0) / att.maxScore) * 100)
+          : 0;
         return (
-          <ListRow key={att.id} href={href} icon={att.passed ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}>
+          <ListRow
+            key={att.id}
+            href={href}
+            icon={
+              att.passed ? (
+                <CheckCircle2 size={16} />
+              ) : (
+                <AlertCircle size={16} />
+              )
+            }
+          >
             {att.exam.title} ({pct}%)
           </ListRow>
         );
@@ -570,17 +715,29 @@ async function ResultsBody({ userId, fullPageHref }: WidgetBodyProps) {
 async function LogBookBody({ userId, fullPageHref }: WidgetBodyProps) {
   const attendance = await db.attendance.findMany({
     where: { userId, markedPresent: true },
-    include: { liveClass: { select: { title: true, course: { select: { title: true } } } } },
+    include: {
+      liveClass: {
+        select: { title: true, course: { select: { title: true } } },
+      },
+    },
     orderBy: { createdAt: "desc" },
     take: 6,
   });
-  if (!attendance.length) return <Empty>Your log book is empty. Attend live classes to build it.</Empty>;
+  if (!attendance.length)
+    return (
+      <Empty>Your log book is empty. Attend live classes to build it.</Empty>
+    );
   const visible = attendance.slice(0, 5);
   const href = fullPageHref ?? "/dashboard/courses";
   return (
     <>
       {visible.map((att) => (
-        <ListRow key={att.id} href={href} icon={<CheckCircle2 size={16} />} date={att.joinedAt ? fmtDay(att.joinedAt) : undefined}>
+        <ListRow
+          key={att.id}
+          href={href}
+          icon={<CheckCircle2 size={16} />}
+          date={att.joinedAt ? fmtDay(att.joinedAt) : undefined}
+        >
           {att.liveClass.course.title}
         </ListRow>
       ))}
@@ -605,7 +762,18 @@ async function SimulationsBody(_props: WidgetBodyProps) {
 /* fee-summary  (student finance - Fees Summary) */
 async function FeeSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
   const enrolments = await db.enrolment.findMany({
-    where: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE", "PENDING_PAYMENT"] } },
+    where: {
+      userId,
+      status: {
+        in: [
+          "ACTIVE",
+          "PARTIALLY_PAID",
+          "COMPLETED",
+          "OVERDUE",
+          "PENDING_PAYMENT",
+        ],
+      },
+    },
     include: { course: { select: { title: true } } },
     take: 6,
   });
@@ -618,7 +786,8 @@ async function FeeSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
         const balance = enr.totalAmountUgx - enr.paidAmountUgx;
         return (
           <ListRow key={enr.id} href={href} icon={<Wallet size={16} />}>
-            {enr.course.title}: {fmtUGX(enr.paidAmountUgx)} of {fmtUGX(enr.totalAmountUgx)}
+            {enr.course.title}: {fmtUGX(enr.paidAmountUgx)} of{" "}
+            {fmtUGX(enr.totalAmountUgx)}
             {balance > 0 ? ` (balance ${fmtUGX(balance)})` : " (cleared)"}
           </ListRow>
         );
@@ -634,14 +803,24 @@ async function FeeSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
 
 /* payment-history  (student finance - Payment History) */
 async function PaymentHistoryBody({ userId, fullPageHref }: WidgetBodyProps) {
-  const enrolmentIds = await db.enrolment.findMany({ where: { userId }, select: { id: true } });
+  const enrolmentIds = await db.enrolment.findMany({
+    where: { userId },
+    select: { id: true },
+  });
   const ids = enrolmentIds.map((e) => e.id);
   if (!ids.length) return <Empty>No payments yet.</Empty>;
   const payments = await db.payment.findMany({
     where: { enrolmentId: { in: ids } },
     orderBy: { createdAt: "desc" },
     take: 6,
-    select: { id: true, amount: true, status: true, method: true, createdAt: true, enrolment: { select: { course: { select: { title: true } } } } },
+    select: {
+      id: true,
+      amount: true,
+      status: true,
+      method: true,
+      createdAt: true,
+      enrolment: { select: { course: { select: { title: true } } } },
+    },
   });
   if (!payments.length) return <Empty>No payments recorded yet.</Empty>;
   const visible = payments.slice(0, 5);
@@ -664,11 +843,18 @@ async function PaymentHistoryBody({ userId, fullPageHref }: WidgetBodyProps) {
 
 /* receipts  (student finance - Receipts) */
 async function ReceiptsBody({ userId, fullPageHref }: WidgetBodyProps) {
-  const enrolmentIds = await db.enrolment.findMany({ where: { userId }, select: { id: true } });
+  const enrolmentIds = await db.enrolment.findMany({
+    where: { userId },
+    select: { id: true },
+  });
   const ids = enrolmentIds.map((e) => e.id);
   if (!ids.length) return <Empty>No receipts yet.</Empty>;
   const payments = await db.payment.findMany({
-    where: { enrolmentId: { in: ids }, status: "COMPLETED", receiptNumber: { not: null } },
+    where: {
+      enrolmentId: { in: ids },
+      status: "COMPLETED",
+      receiptNumber: { not: null },
+    },
     orderBy: { paidAt: "desc" },
     take: 6,
     select: { id: true, amount: true, receiptNumber: true, paidAt: true },
@@ -679,7 +865,12 @@ async function ReceiptsBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((pay) => (
-        <ListRow key={pay.id} href={href} icon={<Receipt size={16} />} date={pay.paidAt ? fmtDay(pay.paidAt) : undefined}>
+        <ListRow
+          key={pay.id}
+          href={href}
+          icon={<Receipt size={16} />}
+          date={pay.paidAt ? fmtDay(pay.paidAt) : undefined}
+        >
           {pay.receiptNumber} ({fmtUGX(pay.amount)})
         </ListRow>
       ))}
@@ -695,7 +886,10 @@ async function ReceiptsBody({ userId, fullPageHref }: WidgetBodyProps) {
 /* payment-action  (student finance - Pay now) */
 async function PaymentActionBody({ userId, fullPageHref }: WidgetBodyProps) {
   const enrolments = await db.enrolment.findMany({
-    where: { userId, status: { in: ["PENDING_PAYMENT", "PARTIALLY_PAID", "OVERDUE"] } },
+    where: {
+      userId,
+      status: { in: ["PENDING_PAYMENT", "PARTIALLY_PAID", "OVERDUE"] },
+    },
     include: { course: { select: { title: true } } },
     take: 5,
   });
@@ -721,13 +915,21 @@ async function TimetableBody({ userId, fullPageHref }: WidgetBodyProps) {
     where: {
       scheduledAt: { gt: new Date() },
       status: "SCHEDULED",
-      course: { enrolments: { some: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
+      course: {
+        enrolments: {
+          some: {
+            userId,
+            status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] },
+          },
+        },
+      },
     },
     orderBy: { scheduledAt: "asc" },
     take: 6,
     include: { course: { select: { title: true } } },
   });
-  if (!upcoming.length) return <Empty>No upcoming classes in your timetable.</Empty>;
+  if (!upcoming.length)
+    return <Empty>No upcoming classes in your timetable.</Empty>;
   const visible = upcoming.slice(0, 5);
   const href = fullPageHref ?? "/dashboard/timetable";
   return (
@@ -756,7 +958,14 @@ async function RecordingsBody({ userId, fullPageHref }: WidgetBodyProps) {
     where: {
       status: "COMPLETED",
       recordingUrl: { not: null },
-      course: { enrolments: { some: { userId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
+      course: {
+        enrolments: {
+          some: {
+            userId,
+            status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] },
+          },
+        },
+      },
     },
     orderBy: { scheduledAt: "desc" },
     take: 6,
@@ -768,7 +977,12 @@ async function RecordingsBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((cls) => (
-        <ListRow key={cls.id} href={href} icon={<Video size={16} />} date={fmtDay(cls.scheduledAt)}>
+        <ListRow
+          key={cls.id}
+          href={href}
+          icon={<Video size={16} />}
+          date={fmtDay(cls.scheduledAt)}
+        >
           {cls.title}
         </ListRow>
       ))}
@@ -795,7 +1009,11 @@ async function AttendanceBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((att) => (
-        <ListRow key={att.id} href={href} date={att.joinedAt ? fmtDay(att.joinedAt) : undefined}>
+        <ListRow
+          key={att.id}
+          href={href}
+          date={att.joinedAt ? fmtDay(att.joinedAt) : undefined}
+        >
           {att.liveClass.title} ({(att.startMark ?? "n/a").toLowerCase()})
         </ListRow>
       ))}
@@ -870,7 +1088,10 @@ async function TeacherClassesBody({ userId, fullPageHref }: WidgetBodyProps) {
 /* marking-queue  (instructor assessment - Exams and marking queue) */
 async function MarkingQueueBody({ userId, fullPageHref }: WidgetBodyProps) {
   const attempts = await db.examAttempt.findMany({
-    where: { status: "SUBMITTED", exam: { course: teachingCourseWhere(userId) } },
+    where: {
+      status: "SUBMITTED",
+      exam: { course: teachingCourseWhere(userId) },
+    },
     orderBy: { submittedAt: "asc" },
     take: 6,
     include: {
@@ -906,7 +1127,13 @@ async function ApplicationListBody({ fullPageHref }: WidgetBodyProps) {
   const applications = await db.application.findMany({
     orderBy: { createdAt: "desc" },
     take: 6,
-    select: { id: true, fullName: true, status: true, createdAt: true, course: { select: { title: true } } },
+    select: {
+      id: true,
+      fullName: true,
+      status: true,
+      createdAt: true,
+      course: { select: { title: true } },
+    },
   });
   if (!applications.length) return <Empty>No applications yet.</Empty>;
   const visible = applications.slice(0, 5);
@@ -930,10 +1157,19 @@ async function ApplicationListBody({ fullPageHref }: WidgetBodyProps) {
 /* pending-students  (registrar/admin students - Students pending acceptance) */
 async function PendingStudentsBody({ fullPageHref }: WidgetBodyProps) {
   const students = await db.user.findMany({
-    where: { role: "STUDENT", status: { in: ["PENDING_ACCEPTANCE", "DETAILS_DISPUTED"] } },
+    where: {
+      role: "STUDENT",
+      status: { in: ["PENDING_ACCEPTANCE", "DETAILS_DISPUTED"] },
+    },
     orderBy: { createdAt: "desc" },
     take: 6,
-    select: { id: true, name: true, studentNumber: true, status: true, email: true },
+    select: {
+      id: true,
+      name: true,
+      studentNumber: true,
+      status: true,
+      email: true,
+    },
   });
   if (!students.length) return <Empty>No students pending acceptance.</Empty>;
   const visible = students.slice(0, 5);
@@ -942,7 +1178,8 @@ async function PendingStudentsBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {visible.map((stu) => (
         <ListRow key={stu.id} href={href} icon={<Users size={16} />}>
-          {stu.name} ({stu.status === "DETAILS_DISPUTED" ? "details disputed" : "pending"})
+          {stu.name} (
+          {stu.status === "DETAILS_DISPUTED" ? "details disputed" : "pending"})
         </ListRow>
       ))}
       {students.length > visible.length && (
@@ -960,7 +1197,10 @@ async function GraduandListBody({ fullPageHref }: WidgetBodyProps) {
     where: { status: "COMPLETED" },
     orderBy: { updatedAt: "desc" },
     take: 6,
-    include: { user: { select: { name: true, studentNumber: true } }, course: { select: { title: true } } },
+    include: {
+      user: { select: { name: true, studentNumber: true } },
+      course: { select: { title: true } },
+    },
   });
   if (!enrolments.length) return <Empty>No graduands yet.</Empty>;
   const visible = enrolments.slice(0, 5);
@@ -969,7 +1209,8 @@ async function GraduandListBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {visible.map((enr) => (
         <ListRow key={enr.id} href={href} icon={<GraduationCap size={16} />}>
-          {(enr.user.name ?? "Student").trim().split(/\s+/).join(" ")} - {enr.course.title}
+          {(enr.user.name ?? "Student").trim().split(/\s+/).join(" ")} -{" "}
+          {enr.course.title}
         </ListRow>
       ))}
       {enrolments.length > visible.length && (
@@ -999,7 +1240,12 @@ async function ApprovalListBody({ fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((apr) => (
-        <ListRow key={apr.id} href={href} icon={<ShieldCheck size={16} />} date={fmtDay(apr.createdAt)}>
+        <ListRow
+          key={apr.id}
+          href={href}
+          icon={<ShieldCheck size={16} />}
+          date={fmtDay(apr.createdAt)}
+        >
           {apr.type.toLowerCase().replace(/_/g, " ")}
           {apr.amount ? ` (${fmtUGX(apr.amount)})` : ""}
         </ListRow>
@@ -1016,7 +1262,10 @@ async function ApprovalListBody({ fullPageHref }: WidgetBodyProps) {
 /* financial-reports  (finance/board/auditor reconciliation/reports - Financial Reports) */
 async function FinancialReportsBody({ fullPageHref }: WidgetBodyProps) {
   const [totalPaid, pendingCount, pendingApprovalCount] = await Promise.all([
-    db.payment.aggregate({ _sum: { amount: true }, where: { status: "COMPLETED" } }),
+    db.payment.aggregate({
+      _sum: { amount: true },
+      where: { status: "COMPLETED" },
+    }),
     db.payment.count({ where: { status: "PENDING" } }),
     db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
   ]);
@@ -1137,8 +1386,14 @@ async function AuditListBody({ fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((log) => (
-        <ListRow key={log.id} href={href} icon={<FileSearch size={16} />} date={fmtDay(log.createdAt)}>
-          {log.action.toLowerCase().replace(/_/g, " ")} by {log.actor?.name ?? "system"}
+        <ListRow
+          key={log.id}
+          href={href}
+          icon={<FileSearch size={16} />}
+          date={fmtDay(log.createdAt)}
+        >
+          {log.action.toLowerCase().replace(/_/g, " ")} by{" "}
+          {log.actor?.name ?? "system"}
         </ListRow>
       ))}
       {logs.length > visible.length && (
@@ -1151,7 +1406,10 @@ async function AuditListBody({ fullPageHref }: WidgetBodyProps) {
 }
 
 /* attendance-overview  (tutor teaching/students - Attendance Summary) */
-async function AttendanceOverviewBody({ userId, fullPageHref }: WidgetBodyProps) {
+async function AttendanceOverviewBody({
+  userId,
+  fullPageHref,
+}: WidgetBodyProps) {
   const classes = await db.liveClass.findMany({
     where: {
       course: teachingCourseWhere(userId),
@@ -1169,8 +1427,13 @@ async function AttendanceOverviewBody({ userId, fullPageHref }: WidgetBodyProps)
   return (
     <>
       {classes.map((cls) => (
-        <ListRow key={cls.id} href={href} icon={<ClipboardCheck size={16} />} date={fmtDay(cls.scheduledAt)}>
-          {cls.title} — {formatCount(cls._count.attendance, "student")}
+        <ListRow
+          key={cls.id}
+          href={href}
+          icon={<ClipboardCheck size={16} />}
+          date={fmtDay(cls.scheduledAt)}
+        >
+          {cls.title} - {formatCount(cls._count.attendance, "student")}
         </ListRow>
       ))}
     </>
@@ -1178,7 +1441,10 @@ async function AttendanceOverviewBody({ userId, fullPageHref }: WidgetBodyProps)
 }
 
 /* student-progress-overview  (tutor students - Course Progress) */
-async function StudentProgressOverviewBody({ userId, fullPageHref }: WidgetBodyProps) {
+async function StudentProgressOverviewBody({
+  userId,
+  fullPageHref,
+}: WidgetBodyProps) {
   const enrolments = await db.enrolment.findMany({
     where: {
       status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
@@ -1188,14 +1454,25 @@ async function StudentProgressOverviewBody({ userId, fullPageHref }: WidgetBodyP
     take: 6,
     include: {
       user: { select: { id: true, name: true } },
-      course: { select: { title: true, blocks: { select: { _count: { select: { lessons: true } } } } } },
+      course: {
+        select: {
+          title: true,
+          blocks: { select: { _count: { select: { lessons: true } } } },
+        },
+      },
     },
   });
   if (!enrolments.length) return <Empty>No students enrolled yet.</Empty>;
   const courseIds = Array.from(new Set(enrolments.map((e) => e.courseId)));
   const allProgress = await db.lessonProgress.findMany({
-    where: { completedAt: { not: null }, lesson: { block: { courseId: { in: courseIds } } } },
-    select: { userId: true, lesson: { select: { block: { select: { courseId: true } } } } },
+    where: {
+      completedAt: { not: null },
+      lesson: { block: { courseId: { in: courseIds } } },
+    },
+    select: {
+      userId: true,
+      lesson: { select: { block: { select: { courseId: true } } } },
+    },
   });
   const doneMap = new Map<string, number>();
   allProgress.forEach((p) => {
@@ -1206,12 +1483,15 @@ async function StudentProgressOverviewBody({ userId, fullPageHref }: WidgetBodyP
   return (
     <>
       {enrolments.slice(0, 5).map((enr) => {
-        const total = enr.course.blocks.reduce((s, b) => s + b._count.lessons, 0);
+        const total = enr.course.blocks.reduce(
+          (s, b) => s + b._count.lessons,
+          0,
+        );
         const done = doneMap.get(`${enr.user.id}:${enr.courseId}`) ?? 0;
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
         return (
           <ListRow key={enr.id} href={href} icon={<ClipboardList size={16} />}>
-            {displayName(enr.user.name)} — {pct}% complete
+            {displayName(enr.user.name)} - {pct}% complete
           </ListRow>
         );
       })}
@@ -1227,11 +1507,14 @@ async function StudentProgressOverviewBody({ userId, fullPageHref }: WidgetBodyP
 /* registrar-todos  (registrar general) */
 async function RegistrarTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingApps, pendingAcceptance, disputed] = await Promise.all([
-    db.application.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.application.count({
+      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+    }),
     db.user.count({ where: { role: "STUDENT", status: "PENDING_ACCEPTANCE" } }),
     db.user.count({ where: { role: "STUDENT", status: "DETAILS_DISPUTED" } }),
   ]);
-  const allClear = pendingApps === 0 && pendingAcceptance === 0 && disputed === 0;
+  const allClear =
+    pendingApps === 0 && pendingAcceptance === 0 && disputed === 0;
   const href = fullPageHref ?? "/registrar/applications";
   if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
   return (
@@ -1258,7 +1541,9 @@ async function RegistrarTodosBody({ fullPageHref }: WidgetBodyProps) {
 /* deputy-todos  (deputy general) */
 async function DeputyTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [tickets, overdue, suspended] = await Promise.all([
-    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+    db.supportTicket.count({
+      where: { status: { in: ["OPEN", "IN_PROGRESS"] } },
+    }),
     db.enrolment.count({ where: { status: "OVERDUE" } }),
     db.user.count({ where: { role: "STUDENT", status: "SUSPENDED" } }),
   ]);
@@ -1293,7 +1578,8 @@ async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
     db.approvalRequest.count({ where: { status: "PENDING" } }),
     db.course.count({ where: { status: "DRAFT" } }),
   ]);
-  const allClear = pendingResults === 0 && pendingApprovals === 0 && draftCourses === 0;
+  const allClear =
+    pendingResults === 0 && pendingApprovals === 0 && draftCourses === 0;
   const href = fullPageHref ?? "/principal/results";
   if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
   return (
@@ -1320,11 +1606,14 @@ async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
 /* finance-todos  (finance general) */
 async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingClaims, pendingPayments, pendingApprovals] = await Promise.all([
-    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.manualPaymentClaim.count({
+      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+    }),
     db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
     db.approvalRequest.count({ where: { status: "PENDING" } }),
   ]);
-  const allClear = pendingClaims === 0 && pendingPayments === 0 && pendingApprovals === 0;
+  const allClear =
+    pendingClaims === 0 && pendingPayments === 0 && pendingApprovals === 0;
   const href = fullPageHref ?? "/finance/payments";
   if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
   return (
@@ -1352,10 +1641,13 @@ async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
 async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingApprovals, pendingClaims, draftCourses] = await Promise.all([
     db.approvalRequest.count({ where: { status: "PENDING" } }),
-    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.manualPaymentClaim.count({
+      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+    }),
     db.course.count({ where: { status: "DRAFT" } }),
   ]);
-  const allClear = pendingApprovals === 0 && pendingClaims === 0 && draftCourses === 0;
+  const allClear =
+    pendingApprovals === 0 && pendingClaims === 0 && draftCourses === 0;
   const href = fullPageHref ?? "/director/approvals";
   if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
   return (
@@ -1382,8 +1674,12 @@ async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
 /* hr-todos  (HR system admin general) */
 async function HrTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingInvites, openTickets] = await Promise.all([
-    db.staffInvite.count({ where: { acceptedAt: null, expiresAt: { gt: new Date() } } }).catch(() => 0),
-    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }).catch(() => 0),
+    db.staffInvite
+      .count({ where: { acceptedAt: null, expiresAt: { gt: new Date() } } })
+      .catch(() => 0),
+    db.supportTicket
+      .count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } })
+      .catch(() => 0),
   ]);
   const allClear = pendingInvites === 0 && openTickets === 0;
   const href = fullPageHref ?? "/admin/staff";
@@ -1396,10 +1692,138 @@ async function HrTodosBody({ fullPageHref }: WidgetBodyProps) {
         </ListRow>
       )}
       {openTickets > 0 && (
-        <ListRow href="/deputy/complaints" icon={<ClipboardList size={16} />}>
+        <ListRow href="/admin/support" icon={<ClipboardList size={16} />}>
           {formatCount(openTickets, "open support ticket")}
         </ListRow>
       )}
+    </>
+  );
+}
+
+async function AdminOperationsTodosBody({ fullPageHref }: WidgetBodyProps) {
+  const [openTickets, pendingInvites, upcomingPracticals] = await Promise.all([
+    db.supportTicket.count({
+      where: { status: { in: ["OPEN", "IN_PROGRESS"] } },
+    }),
+    db.staffInvite.count({
+      where: { acceptedAt: null, expiresAt: { gt: new Date() } },
+    }),
+    db.practicalSession.count({ where: { startsAt: { gte: new Date() } } }),
+  ]);
+  const href = fullPageHref ?? "/admin/support";
+  if (openTickets + pendingInvites + upcomingPracticals === 0)
+    return <Empty>No operational actions pending.</Empty>;
+  return (
+    <>
+      {openTickets > 0 && (
+        <ListRow href="/admin/support" icon={<ClipboardList size={16} />}>
+          {formatCount(openTickets, "ticket")} awaiting response
+        </ListRow>
+      )}
+      {pendingInvites > 0 && (
+        <ListRow href="/admin/students" icon={<Users size={16} />}>
+          {formatCount(pendingInvites, "invite")} pending acceptance
+        </ListRow>
+      )}
+      {upcomingPracticals > 0 && (
+        <ListRow href="/admin/equipment" icon={<ClipboardCheck size={16} />}>
+          {formatCount(upcomingPracticals, "practical session")} need
+          preparation
+        </ListRow>
+      )}
+      <ViewMoreLink href={href}>Open operations</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminOperationsOverviewBody({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const [venueCount, bookingCount, practicals, notice] = await Promise.all([
+    db.venue.count({ where: { active: true } }),
+    db.venueBooking.count({
+      where: { startsAt: { gte: now }, status: "CONFIRMED" },
+    }),
+    db.practicalSession.findMany({
+      where: { startsAt: { gte: now } },
+      include: { equipment: true },
+      orderBy: { startsAt: "asc" },
+      take: 10,
+    }),
+    db.operationalNotice.findFirst({
+      orderBy: { sentAt: "desc" },
+      select: { title: true, sentAt: true },
+    }),
+  ]);
+  const missingEquipment = practicals.filter((session) =>
+    session.equipment.some((item) => item.available < item.needed),
+  ).length;
+  return (
+    <>
+      <ListRow
+        href={fullPageHref ?? "/admin/timetable"}
+        icon={<Calendar size={16} />}
+      >
+        {formatCount(venueCount, "venue")} available
+      </ListRow>
+      <ListRow href="/admin/timetable" icon={<ClipboardList size={16} />}>
+        {formatCount(bookingCount, "room booking")} upcoming
+      </ListRow>
+      <ListRow href="/admin/equipment" icon={<ClipboardCheck size={16} />}>
+        {formatCount(missingEquipment, "practical session")} need equipment
+      </ListRow>
+      {notice && (
+        <ListRow
+          href="/admin/notices"
+          icon={<FileText size={16} />}
+          date={fmtDay(notice.sentAt)}
+        >
+          {notice.title}
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+async function LeaveListBody({ fullPageHref }: WidgetBodyProps) {
+  const requests = await db.leaveRequest.findMany({
+    include: { user: { select: { name: true } } },
+    orderBy: [{ status: "asc" }, { startsAt: "asc" }],
+    take: 5,
+  });
+  if (!requests.length) return <Empty>No leave requests submitted.</Empty>;
+  const href = fullPageHref ?? "/admin/leave";
+  return (
+    <>
+      {requests.map((request) => (
+        <ListRow key={request.id} href={href} date={fmtDay(request.startsAt)}>
+          {request.user.name}: {request.status.toLowerCase()} leave
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+async function AccessReviewSummaryBody({ fullPageHref }: WidgetBodyProps) {
+  const staff = await db.user.findMany({
+    where: { status: "ACTIVE" },
+    select: { id: true, role: true, lastAccessReviewAt: true },
+  });
+  const reviewable = staff.filter((user) => can(user.role, "staff.view"));
+  const staleBefore = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const stale = reviewable.filter(
+    (user) => !user.lastAccessReviewAt || user.lastAccessReviewAt < staleBefore,
+  ).length;
+  return (
+    <>
+      <ListRow
+        href={fullPageHref ?? "/admin/access-review"}
+        icon={<Users size={16} />}
+      >
+        {formatCount(reviewable.length, "staff account")} in review scope
+      </ListRow>
+      <ListRow href="/admin/access-review" icon={<AlertCircle size={16} />}>
+        {formatCount(stale, "account")} need review
+      </ListRow>
     </>
   );
 }
@@ -1470,7 +1894,13 @@ async function RecentStudentsListBody({ fullPageHref }: WidgetBodyProps) {
     where: { role: "STUDENT" },
     orderBy: { createdAt: "desc" },
     take: 6,
-    select: { id: true, name: true, studentNumber: true, status: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      studentNumber: true,
+      status: true,
+      createdAt: true,
+    },
   });
   if (!students.length) return <Empty>No students yet.</Empty>;
   const visible = students.slice(0, 5);
@@ -1513,11 +1943,15 @@ async function ExamSubmissionsListBody({ fullPageHref }: WidgetBodyProps) {
           key={a.id}
           href={href}
           icon={
-            a.status === "MARKED"
-              ? a.passed
-                ? <CheckCircle2 size={16} />
-                : <AlertCircle size={16} />
-              : <Clock size={16} />
+            a.status === "MARKED" ? (
+              a.passed ? (
+                <CheckCircle2 size={16} />
+              ) : (
+                <AlertCircle size={16} />
+              )
+            ) : (
+              <Clock size={16} />
+            )
           }
           date={a.submittedAt ? fmtDay(a.submittedAt) : undefined}
         >
@@ -1554,7 +1988,12 @@ async function RecentPaymentsListBody({ fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((p) => (
-        <ListRow key={p.id} href={href} icon={<Receipt size={16} />} date={p.paidAt ? fmtDay(p.paidAt) : undefined}>
+        <ListRow
+          key={p.id}
+          href={href}
+          icon={<Receipt size={16} />}
+          date={p.paidAt ? fmtDay(p.paidAt) : undefined}
+        >
           {displayName(p.enrolment.user.name)} - {fmtUGX(p.amount)}
         </ListRow>
       ))}
@@ -1572,12 +2011,24 @@ async function RevenueSummaryBody({ fullPageHref }: WidgetBodyProps) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const [monthRev, outstanding, pendingClaims] = await Promise.all([
-    db.payment.aggregate({ where: { status: "COMPLETED", paidAt: { gte: startOfMonth } }, _sum: { amount: true } }),
-    db.enrolment.aggregate({ where: { status: "ACTIVE" }, _sum: { totalAmountUgx: true, paidAmountUgx: true } }),
-    db.manualPaymentClaim.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
+    db.payment.aggregate({
+      where: { status: "COMPLETED", paidAt: { gte: startOfMonth } },
+      _sum: { amount: true },
+    }),
+    db.enrolment.aggregate({
+      where: { status: "ACTIVE" },
+      _sum: { totalAmountUgx: true, paidAmountUgx: true },
+    }),
+    db.manualPaymentClaim.count({
+      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+    }),
   ]);
   const href = fullPageHref ?? "/finance/ledger";
-  const outstandingUgx = Math.max(0, (outstanding._sum.totalAmountUgx ?? 0) - (outstanding._sum.paidAmountUgx ?? 0));
+  const outstandingUgx = Math.max(
+    0,
+    (outstanding._sum.totalAmountUgx ?? 0) -
+      (outstanding._sum.paidAmountUgx ?? 0),
+  );
   return (
     <>
       <ListRow href={href} icon={<Wallet size={16} />}>
@@ -1599,7 +2050,9 @@ async function RevenueSummaryBody({ fullPageHref }: WidgetBodyProps) {
 async function BoardOverviewBody({ fullPageHref }: WidgetBodyProps) {
   const [students, active, graduates, courses] = await Promise.all([
     db.user.count({ where: { role: "STUDENT" } }),
-    db.enrolment.count({ where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } } }),
+    db.enrolment.count({
+      where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } },
+    }),
     db.enrolment.count({ where: { status: "COMPLETED" } }),
     db.course.count({ where: { status: "PUBLISHED" } }),
   ]);
@@ -1643,11 +2096,12 @@ async function RecentGraduatesListBody({ fullPageHref }: WidgetBodyProps) {
           {displayName(g.user.name)} - {g.course.title}
         </ListRow>
       ))}
-      {grads.length > grads.length - visible.length && grads.length > visible.length && (
-        <ViewMoreLink href={href}>
-          View {grads.length - visible.length} more
-        </ViewMoreLink>
-      )}
+      {grads.length > grads.length - visible.length &&
+        grads.length > visible.length && (
+          <ViewMoreLink href={href}>
+            View {grads.length - visible.length} more
+          </ViewMoreLink>
+        )}
     </>
   );
 }
@@ -1656,7 +2110,11 @@ async function RecentGraduatesListBody({ fullPageHref }: WidgetBodyProps) {
 async function CourseEnrolmentsBody({ fullPageHref }: WidgetBodyProps) {
   const courses = await db.course.findMany({
     where: { status: "PUBLISHED" },
-    select: { title: true, slug: true, _count: { select: { enrolments: true } } },
+    select: {
+      title: true,
+      slug: true,
+      _count: { select: { enrolments: true } },
+    },
     orderBy: { createdAt: "asc" },
   });
   if (!courses.length) return <Empty>No published courses yet.</Empty>;
@@ -1678,7 +2136,9 @@ async function AuditorOverviewBody({ fullPageHref }: WidgetBodyProps) {
     db.user.count({ where: { role: "STUDENT" } }),
     db.payment.count({ where: { status: "COMPLETED" } }),
     db.certificate.count(),
-    db.supportTicket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+    db.supportTicket.count({
+      where: { status: { in: ["OPEN", "IN_PROGRESS"] } },
+    }),
   ]);
   const href = fullPageHref ?? "/auditor/reports";
   return (
@@ -1746,6 +2206,10 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "finance-todos": FinanceTodosBody,
   "director-todos": DirectorTodosBody,
   "hr-todos": HrTodosBody,
+  "admin-operations-todos": AdminOperationsTodosBody,
+  "admin-operations-overview": AdminOperationsOverviewBody,
+  "leave-list": LeaveListBody,
+  "access-review-summary": AccessReviewSummaryBody,
   "system-todos": SystemTodosBody,
   "upcoming-classes-overview": UpcomingClassesOverviewBody,
   "recent-students-list": RecentStudentsListBody,

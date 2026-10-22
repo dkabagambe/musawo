@@ -154,32 +154,38 @@ export default async function PublicFooter() {
             <ul className="space-y-3 list-none">
               {[
                 {
-                  label: "Medical Home Caregiver Course",
+                  label: "Certificate in Medical Home Care Course",
                   href: "/courses/medical-home-caregiver",
                 },
                 {
-                  label: "Basic Home Caregiver",
+                  label: "Certificate in Basic Home Care",
                   href: "/courses/basic-home-caregiver",
                 },
                 {
-                  label: "Babysitting and Childcare",
+                  label:
+                    "Basic Certificate in Babysitting, Child Care and Safety Management",
                   href: "/courses/babysitting-childcare-safety",
                 },
                 {
-                  label: "Mental Health Support",
+                  label: "Certificate in Mental Health Support and Advocacy",
                   href: "/courses/mental-health-support-advocacy",
                 },
                 {
-                  label: "Care of Older Persons",
+                  label:
+                    "Basic Certificate in Care of Older Persons and Persons with Disability",
                   href: "/courses/care-older-persons-disability",
                 },
                 {
-                  label: "Basic Life Support",
+                  label: "Certificate in Basic Life Support",
                   href: "/courses/basic-life-support-first-aid",
                 },
                 {
-                  label: "Advanced Life Support",
+                  label: "Certificate in Advanced Life Support",
                   href: "/courses/advanced-life-support",
+                },
+                {
+                  label: "Certificate in Advanced First Aid",
+                  href: "/courses/advanced-first-aid",
                 },
                 { label: "All courses", href: "/courses" },
               ].map(({ label, href }) => (

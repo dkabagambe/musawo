@@ -7,7 +7,7 @@ import type { DashboardTab } from "@/lib/dashboard/widgets";
 export const metadata = { title: "Deputy Principal" };
 
 const VALID_TABS = new Set<string>([
-  "general", "academics", "support", "reports",
+  "general", "academics", "operations", "approvals",
 ]);
 
 export default async function DeputyPage({

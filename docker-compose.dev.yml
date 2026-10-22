@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.dev
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://mtc_user:mtcpassword@postgres:5432/mtc_db
+      DATABASE_URL: postgresql://mtc:mtc12345@postgres:5432/mtc_db
       REDIS_URL: redis://redis:6379
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: dev-secret-do-not-use-in-production
@@ -30,8 +30,8 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: mtc_db
-      POSTGRES_USER: mtc_user
-      POSTGRES_PASSWORD: mtcpassword
+      POSTGRES_USER: mtc
+      POSTGRES_PASSWORD: mtc12345
     ports:
       - "5432:5432"
     volumes:

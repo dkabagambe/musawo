@@ -5,10 +5,16 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { getPresignedUploadUrl } from "@/lib/s3";
 import { getSetting } from "@/lib/settings";
+import { can } from "@/lib/rbac";
 
 const ClaimSchema = z.object({
   enrolmentId: z.string().cuid(),
-  method: z.enum(["BANK_TRANSFER", "MOBILE_MONEY_MTN", "MOBILE_MONEY_AIRTEL", "CASH"]),
+  method: z.enum([
+    "BANK_TRANSFER",
+    "MOBILE_MONEY_MTN",
+    "MOBILE_MONEY_AIRTEL",
+    "CASH",
+  ]),
   transactionId: z.string().min(3).max(100),
   amount: z.number().int().positive(),
   payerName: z.string().min(2).max(100),
@@ -25,13 +31,19 @@ export async function POST(req: NextRequest) {
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (!can(session.user.role, "claims.submit")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const userId = session.user.id;
 
   let body: z.infer<typeof ClaimSchema>;
   try {
     body = ClaimSchema.parse(await req.json());
   } catch (err) {
-    return NextResponse.json({ error: "Invalid input", details: err }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid input", details: err },
+      { status: 400 },
+    );
   }
 
   // Rate limit: count claims submitted by this user today
@@ -40,11 +52,14 @@ export async function POST(req: NextRequest) {
   const todayCount = await db.manualPaymentClaim.count({
     where: { claimantId: userId, createdAt: { gte: dayStart } },
   });
-  const dailyLimit = parseInt(await getSetting("payment.claimsPerStudentPerDay", "3"), 10);
+  const dailyLimit = parseInt(
+    await getSetting("payment.claimsPerStudentPerDay", "3"),
+    10,
+  );
   if (todayCount >= dailyLimit) {
     return NextResponse.json(
       { error: "Daily claim limit reached. Try again tomorrow." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -55,7 +70,7 @@ export async function POST(req: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { error: "A claim with this transaction ID already exists." },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
@@ -63,11 +78,17 @@ export async function POST(req: NextRequest) {
   const claimedAt = new Date(body.claimedAt);
   const now = new Date();
   if (claimedAt > now) {
-    return NextResponse.json({ error: "claimedAt cannot be in the future" }, { status: 400 });
+    return NextResponse.json(
+      { error: "claimedAt cannot be in the future" },
+      { status: 400 },
+    );
   }
   const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
   if (claimedAt < ninetyDaysAgo) {
-    return NextResponse.json({ error: "claimedAt cannot be more than 90 days ago" }, { status: 400 });
+    return NextResponse.json(
+      { error: "claimedAt cannot be more than 90 days ago" },
+      { status: 400 },
+    );
   }
 
   // Verify enrolment belongs to student and is in a valid status
@@ -77,10 +98,16 @@ export async function POST(req: NextRequest) {
   if (!enrolment || enrolment.userId !== userId) {
     return NextResponse.json({ error: "Enrolment not found" }, { status: 404 });
   }
-  if (enrolment.status !== "PENDING_PAYMENT" && enrolment.status !== "PARTIALLY_PAID") {
+  if (
+    enrolment.status !== "PENDING_PAYMENT" &&
+    enrolment.status !== "PARTIALLY_PAID"
+  ) {
     return NextResponse.json(
-      { error: "Claims can only be submitted for enrolments in PENDING_PAYMENT or PARTIALLY_PAID status." },
-      { status: 400 }
+      {
+        error:
+          "Claims can only be submitted for enrolments in PENDING_PAYMENT or PARTIALLY_PAID status.",
+      },
+      { status: 400 },
     );
   }
 
@@ -126,11 +153,18 @@ export async function POST(req: NextRequest) {
     action: "PAYMENT_CLAIM_SUBMITTED",
     entityType: "ManualPaymentClaim",
     entityId: claim.id,
-    metadata: { amount: body.amount, method: body.method, transactionId: body.transactionId },
+    metadata: {
+      amount: body.amount,
+      method: body.method,
+      transactionId: body.transactionId,
+    },
     ip: req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  return NextResponse.json({ claimId: claim.id, uploadUrl, s3Key }, { status: 201 });
+  return NextResponse.json(
+    { claimId: claim.id, uploadUrl, s3Key },
+    { status: 201 },
+  );
 }
 
 /**
@@ -145,10 +179,15 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const enrolmentId = searchParams.get("enrolmentId");
   if (!enrolmentId) {
-    return NextResponse.json({ error: "enrolmentId query param required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "enrolmentId query param required" },
+      { status: 400 },
+    );
   }
 
-  const enrolment = await db.enrolment.findUnique({ where: { id: enrolmentId } });
+  const enrolment = await db.enrolment.findUnique({
+    where: { id: enrolmentId },
+  });
   if (!enrolment || enrolment.userId !== session.user.id) {
     return NextResponse.json({ error: "Enrolment not found" }, { status: 404 });
   }

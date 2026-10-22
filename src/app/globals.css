@@ -14,21 +14,22 @@
     --color-muted: #4b5563;
     --color-border: #e4eae8;
     /* ── Brand colors from MTC logo ── */
-    --portal-primary: #0b6b5d;        /* deep teal — logo circle fill */
+    --portal-primary: #0b6b5d;        /* deep teal - logo circle fill */
     --portal-primary-dark: #094f45;   /* darker teal for hover */
     --portal-primary-light: #e8f4f1;  /* very light teal tint for icon bg */
-    --portal-accent: #e8971a;         /* amber — logo cross */
+    --portal-accent: #e8971a;         /* amber - logo cross */
     --portal-accent-light: #fef3e0;   /* light amber tint */
 
     /* ── Page structure ── */
     --portal-sidebar: #0b6b5d;
-    --portal-page: #f4f6f8;           /* neutral light gray — airy LMS feel */
-    --portal-widget: #ffffff;         /* white cards, no tint */
-    --portal-card-border: #e5e9ec;    /* subtle neutral border */
+    --portal-page: #f4f6f8;           /* neutral light gray */
+    --portal-widget: #e3edea;         /* tinted panel - reference spec */
+    --portal-widget-inner: #ffffff;   /* white inner cards inside tinted panels */
+    --portal-card-border: #dce6e3;    /* inner card border */
     --portal-card-border-hover: #0b6b5d;
 
     /* ── Typography ── */
-    --portal-text: #1a2332;           /* near-black, slightly blue-toned */
+    --portal-text: #1a2332;
     --portal-text-secondary: #4b5563;
     --portal-muted: #6b7280;
     --portal-font-ui: var(--font-inter), Inter, system-ui, sans-serif;
@@ -52,23 +53,23 @@
     --portal-line-card-title: 20px;
     --portal-size-body: 14px;
     --portal-line-body: 20px;
-    --portal-size-meta: 12px;
+    --portal-size-meta: 13px;
     --portal-line-meta: 18px;
     --portal-size-caption: 12px;
     --portal-line-caption: 16px;
 
     /* ── Spacing ── */
     --portal-page-padding: 24px;
-    --portal-space-section: 24px;     /* gap between section rows */
-    --portal-space-widget: 20px;      /* gap between cards in a column */
-    --portal-space-column: 20px;      /* gap between the two columns */
-    --portal-space-card: 20px;        /* internal card padding */
-    --portal-space-card-gap: 12px;    /* gap between inner rows */
+    --portal-space-section: 24px;
+    --portal-space-widget: 24px;      /* gap between widgets in a column */
+    --portal-space-column: 24px;      /* gap between the two columns */
+    --portal-space-card: 24px;        /* internal widget panel padding */
+    --portal-space-card-gap: 8px;     /* gap between inner rows */
 
     /* ── Card style ── */
     --portal-card-radius: 12px;
-    --portal-card-shadow: none;       /* flat design — no shadows */
-    --portal-icon-circle-size: 40px;
+    --portal-inner-radius: 8px;
+    --portal-card-shadow: none;
   }
 
   * {
@@ -123,7 +124,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    AUTHENTICATED PORTAL SHELL
    One shared system used by every role. Public pages never use these classes.
-   Design: LMS dashboard reference — flat white cards, teal sidebar, Inter font
+   Design: LMS dashboard reference - flat white cards, teal sidebar, Inter font
    Brand: MTC teal #0B6B5D (primary) + amber #E8971A (accent)
    ══════════════════════════════════════════════════════════════════════════ */
 
@@ -605,13 +606,17 @@
 }
 .dashboard-edit-widgets:hover { border-color: var(--portal-sidebar); color: var(--portal-sidebar); }
 
-/* ── Widget grid — two equal columns, each stacks widgets top-to-bottom ── */
+/* ── Widget grid - 12 virtual columns, two content columns ──────────── */
 .dashboard-widget-grid {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
   gap: var(--portal-space-column);
+}
+/* Full-width widget spans both columns */
+.dashboard-widget-full {
+  grid-column: 1 / -1;
 }
 /* Each column is an independent stack */
 .dashboard-widget-column {
@@ -621,13 +626,13 @@
   gap: var(--portal-space-widget);
 }
 
-/* ── Widget card — white, 12px radius, 1px border, flat ─────────────── */
+/* ── Widget panel - tinted (#E3EDEA), inner cards are white ─────────── */
 .dashboard-widget {
   min-width: 0;
   padding: var(--portal-space-card);
   border-radius: var(--portal-card-radius);
   border: 1px solid var(--portal-card-border);
-  background: var(--portal-widget);
+  background: var(--portal-widget);   /* tinted panel */
   container-type: inline-size;
 }
 .dashboard-widget-enter { animation: dashboard-widget-enter 200ms ease-out both; }
@@ -637,13 +642,15 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Widget header */
+/* Widget header - 48px high */
 .dashboard-widget-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 16px;
+  min-height: 48px;
+  margin-bottom: 0;
+  padding-bottom: 16px;
 }
 .dashboard-widget-header h2 {
   margin: 0;
@@ -669,11 +676,11 @@
   transition: color 120ms, background 120ms;
 }
 .dashboard-widget-open:hover { color: var(--portal-sidebar); background: var(--portal-primary-light); }
-.dashboard-widget-content { display: grid; gap: 8px; }
+.dashboard-widget-content { display: grid; gap: var(--portal-space-card-gap); }
 .dashboard-widget-footer { display: flex; justify-content: flex-end; margin-top: 12px; }
 .dashboard-widget-empty {
   margin: 8px 0;
-  padding: 20px 0;
+  padding: 24px 0;
   color: var(--portal-muted);
   font-size: 13px;
   text-align: center;
@@ -682,10 +689,10 @@
 /* Skeleton shimmer */
 .dashboard-widget-skeleton { display: grid; gap: 8px; }
 .dashboard-widget-skeleton i {
-  height: 42px;
+  height: 48px;
   display: block;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #f4f6f8 20%, #eaecee 45%, #f4f6f8 70%);
+  border-radius: var(--portal-inner-radius);
+  background: linear-gradient(90deg, #dce7e3 20%, #ccddd8 45%, #dce7e3 70%);
   background-size: 200% 100%;
   animation: dashboard-shimmer 1.4s ease-in-out infinite;
 }
@@ -693,25 +700,18 @@
 
 /* Error boundary */
 .dashboard-widget-error {
-  padding: 16px;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  background: #fef9f9;
-  color: #991b1b;
+  padding: 16px; border: 1px solid #fecaca;
+  border-radius: var(--portal-inner-radius); background: #fef9f9; color: #991b1b;
 }
 .dashboard-widget-error p { margin: 0 0 10px; font-size: 13px; }
 .dashboard-widget-error button { color: var(--portal-sidebar); text-decoration: underline; font-weight: 600; }
 
-/* Tab content empty state */
 .dashboard-tab-empty {
-  padding: 48px 0;
-  text-align: center;
-  color: var(--portal-muted);
-  font-size: 14px;
+  padding: 48px 0; text-align: center; color: var(--portal-muted); font-size: 14px;
 }
 
 /* ── STAT CARD (At a glance) ─────────────────────────────────────────── */
-/* Icon circle top-left, bold 28px number, 12px gray label — per reference */
+/* Icon circle top-left, bold 28px number, 12px gray label - per reference */
 .dashboard-glance-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -897,7 +897,7 @@
 }
 .dashboard-profile-card:hover { border-color: var(--portal-sidebar); background: var(--portal-primary-light); }
 
-/* Round avatar — pastel teal tones */
+/* Round avatar - pastel teal tones */
 .dashboard-profile-avatar {
   width: 44px; height: 44px;
   display: grid; place-items: center;
@@ -1041,7 +1041,7 @@
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Tablet: 768–1023px — icon-only sidebar rail */
+/* Tablet: 768-1023px - icon-only sidebar rail */
 @media (min-width: 768px) and (max-width: 1023px) {
   .portal-desktop-sidebar { width: 72px; flex-basis: 72px; }
   .portal-sidebar { padding-right: 8px; padding-left: 8px; }
@@ -1068,7 +1068,7 @@
   .dashboard-page-header .portal-tabbar { order: 3; flex-basis: 100%; justify-content: space-between; }
 }
 
-/* Phone: <768px — hidden sidebar, hamburger + drawer */
+/* Phone: <768px - hidden sidebar, hamburger + drawer */
 @media (max-width: 767px) {
   .portal-desktop-sidebar { display: none; }
   .portal-topbar { padding: 0 16px; }
@@ -1171,7 +1171,7 @@
   }
 
   /* ── Auth-specific card and button ─────────────────────────────── */
-  /* Wider padding, softer shadow — used by all (auth) pages */
+  /* Wider padding, softer shadow - used by all (auth) pages */
   .auth-card {
     @apply bg-white rounded-2xl shadow-card border border-border/60 p-6 sm:p-10;
   }
@@ -1361,7 +1361,7 @@
     @apply text-gray-500 text-base sm:text-lg leading-relaxed max-w-2xl;
   }
 
-  /* ── Hero gradient overlays — REMOVED
+  /* ── Hero gradient overlays - REMOVED
      Old .hero-overlay and .hero-overlay-center are no longer used.
      Photos render at full brightness; text sits in a solid panel.
   ────────────────────────────────────────────────────────────────── */
@@ -1377,7 +1377,7 @@
     scrollbar-color: theme("colors.border") transparent;
   }
 
-  /* Animate on scroll — add class via IntersectionObserver or use Tailwind animate- */
+  /* Animate on scroll - add class via IntersectionObserver or use Tailwind animate- */
   .animate-on-scroll {
     @apply opacity-0 translate-y-4 transition-all duration-500;
   }
@@ -1441,7 +1441,7 @@
   }
 }
 
-/* Fade + slide up — used on sign-out page and other micro-transitions */
+/* Fade + slide up - used on sign-out page and other micro-transitions */
 @keyframes fadeInUp {
   from {
     opacity: 0;

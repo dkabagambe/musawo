@@ -7,7 +7,12 @@ import type { DashboardTab } from "@/lib/dashboard/widgets";
 export const metadata = { title: "Admin Overview" };
 
 const VALID_TABS = new Set<string>([
-  "general", "academics", "students", "staff", "finance", "reports", "settings", "audit",
+  "general",
+  "staff",
+  "leave",
+  "support",
+  "timetable",
+  "operations",
 ]);
 
 export default async function AdminDashboardPage({
@@ -17,13 +22,19 @@ export default async function AdminDashboardPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  // HR_SYSTEM_ADMIN is the canonical admin role; also allow SUPER_ADMIN
-  if (!can(session.user.role, "staff.view") && !can(session.user.role, "students.view"))
+  if (
+    !can(session.user.role, "staff.view") &&
+    !can(session.user.role, "support.manage") &&
+    !can(session.user.role, "settings.edit.operational") &&
+    !can(session.user.role, "students.lookup")
+  )
     redirect("/login");
 
-  const tab = (searchParams.tab && VALID_TABS.has(searchParams.tab)
-    ? searchParams.tab
-    : "general") as DashboardTab;
+  const tab = (
+    searchParams.tab && VALID_TABS.has(searchParams.tab)
+      ? searchParams.tab
+      : "general"
+  ) as DashboardTab;
 
   return (
     <DashboardTabBody

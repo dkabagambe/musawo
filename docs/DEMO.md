@@ -17,17 +17,22 @@ npm run dev
 
 Open **http://localhost:3000** and **http://localhost:3000/dev/login**.
 
+To sign in, open `/dev/login` and click **Sign in** on the account row. The
+Administrator account is `admin@mtc.ac.ug`; the Human Resource account is
+`hr@mtc.ac.ug`. Both use the shared demo password `Demo1234!`. To sign in
+manually, use those email addresses and password on `/login`.
+
 The authenticated portals share the responsive teal navigation shell. On a portal dashboard, use the tabs to open section shortcuts and **Edit My Widgets** to save your layout. See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for portal components and responsive sizes.
 
 ---
 
 ## Dev tools (local only, 404 in production)
 
-| Tool | URL | Purpose |
-|------|-----|---------|
-| One-click login | `/dev/login` | Sign in as any demo account instantly |
-| Email preview | `/dev/mail` | See all emails sent by the platform |
-| Prisma Studio | `npx prisma studio` | Browse and edit database records live |
+| Tool            | URL                 | Purpose                               |
+| --------------- | ------------------- | ------------------------------------- |
+| One-click login | `/dev/login`        | Sign in as any demo account instantly |
+| Email preview   | `/dev/mail`         | See all emails sent by the platform   |
+| Prisma Studio   | `npx prisma studio` | Browse and edit database records live |
 
 ---
 
@@ -35,27 +40,28 @@ The authenticated portals share the responsive teal navigation shell. On a porta
 
 All accounts use password: **`Demo1234!`**
 
-| Role | Email | Portal |
-|------|-------|--------|
-| CEO / Super Admin | `ceo@mtc.ac.ug` | `/director` |
-| Deputy Director | `deputy@mtc.ac.ug` | `/director` |
-| Board Member | `board@mtc.ac.ug` | `/board` |
-| Principal | `principal@mtc.ac.ug` | `/principal` |
-| Deputy Principal | `deputyprincipal@mtc.ac.ug` | `/deputy` |
-| Academic Registrar | `registrar@mtc.ac.ug` | `/registrar` |
-| Finance Officer | `finance@mtc.ac.ug` | `/finance` |
-| HR / System Admin | `hr@mtc.ac.ug` | `/admin` |
-| Auditor (read-only) | `auditor@mtc.ac.ug` | `/auditor` |
-| IT Admin | `itadmin@mtc.ac.ug` | `/system` |
-| Instructor | `tutor@mtc.ac.ug` | `/tutor` |
-| Instructor 2 (dual) | `tutor2@mtc.ac.ug` | `/tutor` |
-| Teaching Assistant | `assistant@mtc.ac.ug` | `/tutor` |
-| Student (new, pending payment) | `student.new@example.com` | `/dashboard` |
-| Student (25% paid) | `student.25@example.com` | `/dashboard` |
-| Student (50% paid) | `student.50@example.com` | `/dashboard` |
-| Student (active, 100%) | `student.full@example.com` | `/dashboard` |
-| Student (overdue) | `student.overdue@example.com` | `/dashboard` |
-| Student (completed) | `student.completed@example.com` | `/dashboard` |
+| Role                           | Email                           | Portal       |
+| ------------------------------ | ------------------------------- | ------------ |
+| CEO / Super Admin              | `ceo@mtc.ac.ug`                 | `/director`  |
+| Deputy Director                | `deputy@mtc.ac.ug`              | `/director`  |
+| Board Member                   | `board@mtc.ac.ug`               | `/board`     |
+| Principal                      | `principal@mtc.ac.ug`           | `/principal` |
+| Deputy Principal               | `deputyprincipal@mtc.ac.ug`     | `/deputy`    |
+| Academic Registrar             | `registrar@mtc.ac.ug`           | `/registrar` |
+| Finance Officer                | `finance@mtc.ac.ug`             | `/finance`   |
+| Human Resource Manager         | `hr@mtc.ac.ug`                  | `/admin`     |
+| Administrator                  | `admin@mtc.ac.ug`               | `/admin`     |
+| Auditor (read-only)            | `auditor@mtc.ac.ug`             | `/auditor`   |
+| IT Admin                       | `itadmin@mtc.ac.ug`             | `/system`    |
+| Instructor                     | `tutor@mtc.ac.ug`               | `/tutor`     |
+| Instructor 2 (dual)            | `tutor2@mtc.ac.ug`              | `/tutor`     |
+| Teaching Assistant             | `assistant@mtc.ac.ug`           | `/tutor`     |
+| Student (new, pending payment) | `student.new@example.com`       | `/dashboard` |
+| Student (25% paid)             | `student.25@example.com`        | `/dashboard` |
+| Student (50% paid)             | `student.50@example.com`        | `/dashboard` |
+| Student (active, 100%)         | `student.full@example.com`      | `/dashboard` |
+| Student (overdue)              | `student.overdue@example.com`   | `/dashboard` |
+| Student (completed)            | `student.completed@example.com` | `/dashboard` |
 
 ---
 
@@ -159,6 +165,45 @@ No login needed. Open `/verify/MTC-2026-CNA-00001` - verified certificate detail
 
 1. **Settings** - all platform settings, sensitive keys masked.
 2. Change support phone, save - audit log entry created.
+
+### 13. Administrator: front desk and operations
+
+**Account:** `admin@mtc.ac.ug`
+
+**Password:** `Demo1234!`
+
+**Portal:** `/admin`
+
+1. Open `/dev/login`, find the **Administrator** row, and click **Sign in**.
+   For manual login, enter `admin@mtc.ac.ug` and `Demo1234!` at `/login`.
+2. **Student Lookup** searches by full name or student number and shows only
+   course, intake, status, phone, and email. Searches are recorded in the audit
+   log. Pending student invites can be resent; password reset links go only to
+   the registered email address.
+3. **Support** lists tickets, supports assignment, replies, and status changes.
+4. **Timetable** manages venues, room bookings, and practical sessions. A room
+   booking is rejected when it overlaps another booking or practical session.
+5. **Equipment** updates available quantities for each practical checklist.
+6. **Notices** sends logistics notices as in-platform notifications or email.
+7. **Settings** is limited to contact display, intake label, support categories,
+   and reminder templates. Fees, accreditation text, payment keys, student
+   creation, staff creation, marks, and audit logs are not available.
+
+### 14. Human Resource Manager
+
+**Account:** `hr@mtc.ac.ug`
+
+**Password:** `Demo1234!`
+
+**Portal:** `/admin`
+
+1. Sign in from `/dev/login` using the **Human Resource** row, or use the email
+   and password above at `/login`.
+2. **Staff** manages staff invites and records. **Leave** reviews staff leave
+   requests. **Access Review** records quarterly staff account reviews.
+3. HR inherits Administrator operations in the shared portal. HR does not get
+   student creation, payment, marks, academic timetable, secret settings, or
+   audit-log access.
 
 ---
 

@@ -11,7 +11,8 @@ import { can } from "@/lib/rbac";
 
 // Elevated oversight and SUPER_ADMIN roles require the dedicated approval flow.
 const INVITABLE_ROLES: UserRole[] = [
-  "HR_SYSTEM_ADMIN",
+  "HR_MANAGER",
+  "ADMINISTRATOR",
   "PRINCIPAL",
   "DEPUTY_PRINCIPAL",
   "ACADEMIC_REGISTRAR",
@@ -24,7 +25,8 @@ const INVITABLE_ROLES: UserRole[] = [
 const InviteSchema = z.object({
   email: z.string().email(),
   role: z.enum([
-    "HR_SYSTEM_ADMIN",
+    "HR_MANAGER",
+    "ADMINISTRATOR",
     "PRINCIPAL",
     "DEPUTY_PRINCIPAL",
     "ACADEMIC_REGISTRAR",
@@ -44,12 +46,21 @@ async function sendInvite(
   email: string,
   role: UserRole,
   initiatorId: string,
-  courseId?: string
+  courseId?: string,
 ): Promise<{ ok: boolean; error?: string }> {
   if (courseId && (!can(role, "courses.view") || can(role, "courses.create"))) {
-    return { ok: false, error: "Only assigned teaching staff can be linked to a course." };
+    return {
+      ok: false,
+      error: "Only assigned teaching staff can be linked to a course.",
+    };
   }
-  if (courseId && !await db.course.findUnique({ where: { id: courseId }, select: { id: true } })) {
+  if (
+    courseId &&
+    !(await db.course.findUnique({
+      where: { id: courseId },
+      select: { id: true },
+    }))
+  ) {
     return { ok: false, error: "Course not found." };
   }
   const existing = await db.user.findUnique({ where: { email } });
@@ -91,27 +102,42 @@ async function sendInvite(
 /** POST /api/admin/staff-invite - send one or many staff invite emails */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  try { requirePermission(session.user.role, "staff.create.initiate"); }
-  catch (e) {
-    if (e instanceof ForbiddenError) return NextResponse.json({ error: (e as Error).message }, { status: 403 });
+  try {
+    requirePermission(session.user.role, "staff.create.initiate");
+  } catch (e) {
+    if (e instanceof ForbiddenError)
+      return NextResponse.json(
+        { error: (e as Error).message },
+        { status: 403 },
+      );
     throw e;
   }
 
   const body = (await req.json()) as unknown;
 
   // Support both single invite {email, role} and bulk {invites: [...]}
-  const isBulk = typeof body === "object" && body !== null && "invites" in (body as object);
+  const isBulk =
+    typeof body === "object" && body !== null && "invites" in (body as object);
 
   let invites: Array<{ email: string; role: string; courseId?: string }>;
   if (isBulk) {
     const parsed = BulkInviteSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+    if (!parsed.success)
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.flatten() },
+        { status: 400 },
+      );
     invites = parsed.data.invites;
   } else {
     const parsed = InviteSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+    if (!parsed.success)
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.flatten() },
+        { status: 400 },
+      );
     invites = [parsed.data];
   }
 
@@ -121,11 +147,20 @@ export async function POST(req: NextRequest) {
     const targetRole = invite.role as UserRole;
 
     if (!INVITABLE_ROLES.includes(targetRole)) {
-      results.push({ email: invite.email, ok: false, error: `Cannot invite role: ${targetRole}` });
+      results.push({
+        email: invite.email,
+        ok: false,
+        error: `Cannot invite role: ${targetRole}`,
+      });
       continue;
     }
 
-    const result = await sendInvite(invite.email, targetRole, session.user.id, invite.courseId);
+    const result = await sendInvite(
+      invite.email,
+      targetRole,
+      session.user.id,
+      invite.courseId,
+    );
     results.push({ email: invite.email, ...result });
   }
 
@@ -136,12 +171,25 @@ export async function POST(req: NextRequest) {
 /** GET /api/admin/staff-invite?token=xxx - validate an invite token (public) */
 export async function GET(req: NextRequest) {
   const token = new URL(req.url).searchParams.get("token");
-  if (!token) return NextResponse.json({ error: "Missing token" }, { status: 400 });
+  if (!token)
+    return NextResponse.json({ error: "Missing token" }, { status: 400 });
 
   const invite = await db.staffInvite.findUnique({ where: { token } });
-  if (!invite) return NextResponse.json({ error: "Invalid invite link." }, { status: 404 });
-  if (invite.acceptedAt) return NextResponse.json({ error: "This invite has already been used." }, { status: 410 });
-  if (invite.expiresAt < new Date()) return NextResponse.json({ error: "This invite has expired." }, { status: 410 });
+  if (!invite)
+    return NextResponse.json(
+      { error: "Invalid invite link." },
+      { status: 404 },
+    );
+  if (invite.acceptedAt)
+    return NextResponse.json(
+      { error: "This invite has already been used." },
+      { status: 410 },
+    );
+  if (invite.expiresAt < new Date())
+    return NextResponse.json(
+      { error: "This invite has expired." },
+      { status: 410 },
+    );
 
   return NextResponse.json({ email: invite.email, role: invite.role });
 }

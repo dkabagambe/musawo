@@ -9,7 +9,13 @@ export const metadata = { title: "Site Settings" };
 
 export default async function SettingsPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "settings.view")) redirect("/403");
+  const canViewAll = Boolean(
+    session?.user && can(session.user.role, "settings.view"),
+  );
+  const canEditOperational = Boolean(
+    session?.user && can(session.user.role, "settings.edit.operational"),
+  );
+  if (!session?.user || (!canViewAll && !canEditOperational)) redirect("/403");
   const settings = await getAllSettings();
   await db.siteSetting.findMany({
     orderBy: { key: "asc" },
@@ -37,10 +43,19 @@ export default async function SettingsPage() {
       label: "Role labels and hierarchy",
       prefix: "role.label.",
       keys: [
-        "role.label.SUPER_ADMIN", "role.label.BOARD_MEMBER", "role.label.PRINCIPAL",
-        "role.label.DEPUTY_PRINCIPAL", "role.label.ACADEMIC_REGISTRAR", "role.label.INSTRUCTOR",
-        "role.label.TEACHING_ASSISTANT", "role.label.FINANCE_OFFICER", "role.label.HR_SYSTEM_ADMIN",
-        "role.label.AUDITOR_READONLY", "role.label.SYSTEM_IT", "role.label.STUDENT",
+        "role.label.SUPER_ADMIN",
+        "role.label.BOARD_MEMBER",
+        "role.label.PRINCIPAL",
+        "role.label.DEPUTY_PRINCIPAL",
+        "role.label.ACADEMIC_REGISTRAR",
+        "role.label.INSTRUCTOR",
+        "role.label.TEACHING_ASSISTANT",
+        "role.label.FINANCE_OFFICER",
+        "role.label.HR_MANAGER",
+        "role.label.ADMINISTRATOR",
+        "role.label.AUDITOR_READONLY",
+        "role.label.SYSTEM_IT",
+        "role.label.STUDENT",
       ],
     },
     {
@@ -107,28 +122,73 @@ export default async function SettingsPage() {
   ];
 
   const publicKeys = new Set([
-    "site.name", "site.domain", "site.url", "site.websiteUrl", "site.supportEmail", "site.admissionsEmail",
-    "site.supportPhone", "site.supportPhone2", "site.whatsappNumber", "site.address", "site.mapLat", "site.mapLng",
-    "site.tagline", "site.intakeEyebrow", "site.accreditationText", "intake.currentLabel", "site.flyerKey", "course.feeDisplay",
+    "site.name",
+    "site.domain",
+    "site.url",
+    "site.websiteUrl",
+    "site.supportEmail",
+    "site.admissionsEmail",
+    "site.supportPhone",
+    "site.supportPhone2",
+    "site.whatsappNumber",
+    "site.address",
+    "site.mapLat",
+    "site.mapLng",
+    "site.tagline",
+    "site.intakeEyebrow",
+    "site.accreditationText",
+    "intake.currentLabel",
+    "site.flyerKey",
+    "course.feeDisplay",
   ]);
   const visibleGroups = GROUPS.map((group) => ({
     ...group,
-    keys: group.keys.filter((key) =>
-      (!publicKeys.has(key) || can(session.user.role, "settings.edit.public")) &&
-      (!/secret|token|apiKey|AccessKey|password|privateKey/i.test(key) || can(session.user.role, "settings.edit.secrets"))
+    keys: group.keys.filter(
+      (key) =>
+        (!publicKeys.has(key) ||
+          can(session.user.role, "settings.edit.public")) &&
+        (!/secret|token|apiKey|AccessKey|password|privateKey/i.test(key) ||
+          can(session.user.role, "settings.edit.secrets")),
     ),
   })).filter((group) => group.keys.length > 0);
+  const operationalGroups = [
+    {
+      label: "Contacts and intake",
+      prefix: "site.",
+      keys: [
+        "site.supportEmail",
+        "site.admissionsEmail",
+        "site.supportPhone",
+        "site.supportPhone2",
+        "site.whatsappNumber",
+        "site.address",
+        "intake.currentLabel",
+        "support.ticketCategories",
+        "reminder.templates",
+      ],
+    },
+  ];
+  const operationalSettings = Object.fromEntries(
+    operationalGroups.flatMap((group) =>
+      group.keys.map((key) => [key, settings[key] ?? ""]),
+    ),
+  );
 
   return (
     <div className="max-w-3xl mx-auto">
-      <h1 className="text-2xl mb-2">Site Settings</h1>
+      <h1 className="text-2xl mb-2">
+        {canViewAll ? "Site Settings" : "Operational Settings"}
+      </h1>
       <p className="text-gray-500 text-sm mb-6">
-        All settings are stored in the database and take effect immediately.
-        Sensitive keys (API keys, secrets) should be set here rather than in
-        environment variables so they can be updated without redeploy.
+        {canViewAll
+          ? "Settings are stored in the database and take effect immediately."
+          : "Update operational contact details, intake label, support categories, and reminder templates."}
       </p>
 
-      <AdminSettingsForm groups={visibleGroups} currentSettings={settings} />
+      <AdminSettingsForm
+        groups={canViewAll ? visibleGroups : operationalGroups}
+        currentSettings={canViewAll ? settings : operationalSettings}
+      />
     </div>
   );
 }

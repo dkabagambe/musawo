@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
-import { LayoutDashboard, Users, BookOpen, FileText, Award, Search, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, Award, Search, ClipboardList, Calendar } from "lucide-react";
 
 const NAV: NavItem[] = [
   { href: "/registrar",              label: "Overview",     icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -11,6 +11,7 @@ const NAV: NavItem[] = [
   { href: "/registrar/enrolments",   label: "Enrolments",   icon: <BookOpen className="w-4 h-4" /> },
   { href: "/registrar/results",      label: "Results",      icon: <FileText className="w-4 h-4" /> },
   { href: "/registrar/graduands",    label: "Graduands",    icon: <Award className="w-4 h-4" /> },
+  { href: "/registrar/timetable",    label: "Timetable",    icon: <Calendar className="w-4 h-4" /> },
   { href: "/registrar/audit",        label: "Audit Log",    icon: <Search className="w-4 h-4" /> },
 ];
 

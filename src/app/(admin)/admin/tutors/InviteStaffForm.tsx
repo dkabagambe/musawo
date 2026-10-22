@@ -7,14 +7,18 @@ interface Props {
 }
 
 const ROLE_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: "INSTRUCTOR",         label: "Instructor / Teaching Staff" },
-  { value: "TEACHING_ASSISTANT", label: "Teaching Assistant / Supporting Staff" },
+  { value: "INSTRUCTOR", label: "Instructor / Teaching Staff" },
+  {
+    value: "TEACHING_ASSISTANT",
+    label: "Teaching Assistant / Supporting Staff",
+  },
   { value: "ACADEMIC_REGISTRAR", label: "Academic Registrar" },
-  { value: "PRINCIPAL",          label: "Principal" },
-  { value: "DEPUTY_PRINCIPAL",   label: "Deputy Principal" },
-  { value: "FINANCE_OFFICER",    label: "Finance Officer" },
-  { value: "HR_SYSTEM_ADMIN",    label: "Human Resource and Administrator" },
-  { value: "SYSTEM_IT",          label: "System IT" },
+  { value: "PRINCIPAL", label: "Principal" },
+  { value: "DEPUTY_PRINCIPAL", label: "Deputy Principal" },
+  { value: "FINANCE_OFFICER", label: "Finance Officer" },
+  { value: "HR_MANAGER", label: "Human Resource" },
+  { value: "ADMINISTRATOR", label: "Administrator" },
+  { value: "SYSTEM_IT", label: "System IT" },
 ];
 
 export default function InviteStaffForm({ courses, roleLabels }: Props) {
@@ -24,13 +28,19 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
   const [courseId, setCourseId] = useState("");
   const [csvText, setCsvText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<Array<{ email: string; ok: boolean; error?: string }> | null>(null);
+  const [results, setResults] = useState<Array<{
+    email: string;
+    ok: boolean;
+    error?: string;
+  }> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const roleOptions = ROLE_OPTIONS;
 
-  async function submit(invites: Array<{ email: string; role: string; courseId?: string }>) {
+  async function submit(
+    invites: Array<{ email: string; role: string; courseId?: string }>,
+  ) {
     setLoading(true);
     setError(null);
     setResults(null);
@@ -64,7 +74,10 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
 
   function handleCsv(e: React.FormEvent) {
     e.preventDefault();
-    const lines = csvText.split("\n").map((l) => l.trim()).filter(Boolean);
+    const lines = csvText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
     const invites = lines.flatMap((line) => {
       const parts = line.split(",").map((p) => p.trim());
       const csvEmail = parts[0];
@@ -72,7 +85,10 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
       if (!csvEmail) return [];
       return [{ email: csvEmail, role: csvRole }];
     });
-    if (invites.length === 0) { setError("No valid rows found"); return; }
+    if (invites.length === 0) {
+      setError("No valid rows found");
+      return;
+    }
     void submit(invites);
   }
 
@@ -99,7 +115,9 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
             key={t}
             type="button"
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              tab === t ? "bg-primary text-white" : "bg-surface text-gray-600 hover:bg-border"
+              tab === t
+                ? "bg-primary text-white"
+                : "bg-surface text-gray-600 hover:bg-border"
             }`}
             onClick={() => setTab(t)}
           >
@@ -111,7 +129,9 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
       {tab === "single" && (
         <form onSubmit={handleSingle} className="space-y-4 max-w-md">
           <div>
-            <label className="label" htmlFor="invite-email">Email address</label>
+            <label className="label" htmlFor="invite-email">
+              Email address
+            </label>
             <input
               id="invite-email"
               type="email"
@@ -123,7 +143,9 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
             />
           </div>
           <div>
-            <label className="label" htmlFor="invite-role">Role</label>
+            <label className="label" htmlFor="invite-role">
+              Role
+            </label>
             <select
               id="invite-role"
               className="input w-full"
@@ -131,26 +153,33 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
               onChange={(e) => setRole(e.target.value)}
             >
               {roleOptions.map((r) => (
-                <option key={r.value} value={r.value}>{roleLabels[r.value] ?? r.label}</option>
+                <option key={r.value} value={r.value}>
+                  {roleLabels[r.value] ?? r.label}
+                </option>
               ))}
             </select>
           </div>
-          {(role === "INSTRUCTOR" || role === "TEACHING_ASSISTANT") && courses.length > 0 && (
-            <div>
-              <label className="label" htmlFor="invite-course">Assign to course (optional)</label>
-              <select
-                id="invite-course"
-                className="input w-full"
-                value={courseId}
-                onChange={(e) => setCourseId(e.target.value)}
-              >
-                <option value="">No course selected</option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>{c.title}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          {(role === "INSTRUCTOR" || role === "TEACHING_ASSISTANT") &&
+            courses.length > 0 && (
+              <div>
+                <label className="label" htmlFor="invite-course">
+                  Assign to course (optional)
+                </label>
+                <select
+                  id="invite-course"
+                  className="input w-full"
+                  value={courseId}
+                  onChange={(e) => setCourseId(e.target.value)}
+                >
+                  <option value="">No course selected</option>
+                  {courses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? "Sending..." : "Send invite"}
           </button>
@@ -160,10 +189,14 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
       {tab === "csv" && (
         <form onSubmit={handleCsv} className="space-y-4 max-w-lg">
           <p className="text-sm text-gray-500">
-            Upload a CSV with columns: <code className="bg-surface px-1 rounded">email, role</code>. Role defaults to INSTRUCTOR if omitted. Maximum 50 rows.
+            Upload a CSV with columns:{" "}
+            <code className="bg-surface px-1 rounded">email, role</code>. Role
+            defaults to INSTRUCTOR if omitted. Maximum 50 rows.
           </p>
           <div>
-            <label className="label" htmlFor="csv-file">Upload CSV file</label>
+            <label className="label" htmlFor="csv-file">
+              Upload CSV file
+            </label>
             <input
               id="csv-file"
               type="file"
@@ -174,14 +207,18 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
             />
           </div>
           <div>
-            <label className="label" htmlFor="csv-text">Or paste CSV rows</label>
+            <label className="label" htmlFor="csv-text">
+              Or paste CSV rows
+            </label>
             <textarea
               id="csv-text"
               className="input w-full font-mono text-xs"
               rows={6}
               value={csvText}
               onChange={(e) => setCsvText(e.target.value)}
-            placeholder={"grace@example.com,INSTRUCTOR\nsamuel@example.com,ACADEMIC_REGISTRAR"}
+              placeholder={
+                "grace@example.com,INSTRUCTOR\nsamuel@example.com,ACADEMIC_REGISTRAR"
+              }
             />
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>

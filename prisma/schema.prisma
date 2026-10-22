@@ -24,17 +24,18 @@ enum UserRole {
   INSTRUCTOR           // Teaching staff (was TUTOR).
   TEACHING_ASSISTANT   // Supporting staff; limited upload and roll-call.
   FINANCE_OFFICER      // Payments, ledger, holds (was BURSAR).
-  HR_SYSTEM_ADMIN      // Staff accounts, leave, non-secret settings.
+  HR_MANAGER           // Human Resource staff records, invites, leave, access review.
+  ADMINISTRATOR        // Day-to-day school operations.
   AUDITOR_READONLY     // Legal advisor; view-only, every view logged.
   SYSTEM_IT            // Technical settings, integrations, backups.
   STUDENT              // Learner account.
   // ── Legacy aliases kept until data is migrated ────────────────
   SUPERADMIN           // -> SUPER_ADMIN
-  ADMINISTRATOR        // -> HR_SYSTEM_ADMIN
+  HR_SYSTEM_ADMIN      // -> HR_MANAGER
   BURSAR               // -> FINANCE_OFFICER
   TUTOR                // -> INSTRUCTOR
   REGISTRAR            // -> ACADEMIC_REGISTRAR
-  ADMIN                // -> ACADEMIC_REGISTRAR
+  ADMIN                // -> HR_MANAGER
   SPONSOR              // -> remove after seed migration
   EMPLOYER             // -> remove after seed migration
 }
@@ -171,6 +172,18 @@ enum AuditAction {
   STATEMENT_IMPORTED
   RECONCILIATION_ALERT
   ROLES_PERMISSIONS_VIEWED
+  GRADE_RELEASED
+  GRADE_CHANGE_REQUESTED
+  GRADE_CHANGE_APPROVED
+  DELEGATION_GRANTED
+  DELEGATION_REVOKED
+  BOARD_DOCUMENT_CREATED
+  BOARD_DOCUMENT_UPDATED
+  BOARD_DOCUMENT_DELETED
+  STUDENT_LOOKUP
+  ACCOUNT_RESET_SENT
+  SUPPORT_TICKET_REPLIED
+  OPERATIONAL_NOTICE_SENT
 }
 
 enum ClaimStatus {
@@ -194,6 +207,8 @@ enum ApprovalRequestType {
   STAFF_ACCOUNT_CREATE
   STAFF_ACCOUNT_SUSPEND
   STAFF_ACCOUNT_ROLE_CHANGE
+  MARKS_CHANGE      // Instructor or Registrar requests a mark change after results are released; Principal approves
+  BULK_EXPORT       // Any bulk export of personal data; SUPER_ADMIN approves
 }
 
 enum ApprovalRequestStatus {
@@ -218,6 +233,7 @@ model User {
   dateOfBirth       DateTime?
   gender            String?
   district          String?
+  countryCode       String      @default("UG")
   highestQualification String?
   idNumberEncrypted String?
   emergencyContact  String?
@@ -294,6 +310,8 @@ model User {
 
   // Break-glass
   breakGlassGrants  BreakGlassGrant[]
+  leaveRequests     LeaveRequest[] @relation("LeaveRequester")
+  leaveDecisions    LeaveRequest[] @relation("LeaveDecider")
 
   // Staff invites created by this user
   staffInvitesSent      StaffInvite[]
@@ -306,6 +324,9 @@ model User {
   claimsReviewed    ManualPaymentClaim[]   @relation("ClaimReviewer")
   claimsVerified    ManualPaymentClaim[]   @relation("ClaimVerifier")
   statementImports  StatementImport[]
+
+  // Board documents authored by this user
+  boardDocuments    BoardDocument[]        @relation("BoardDocAuthor")
 
   @@map("users")
 }
@@ -401,6 +422,7 @@ model Course {
   freePreviewPercent Int          @default(12)
   minimumAttendancePercent Int    @default(75)
   fullFeeUgx         Int?         // null means "contact admissions"
+  internationalFeeUgx Int?        // null means use the national fee
   feeContactOnly     Boolean      @default(false) // true = hide fee, show contact message
   instalmentCount    Int          @default(1)
   durationWeeks      Int?         // kept for backward compat
@@ -562,6 +584,7 @@ model Application {
   fullName             String
   email                String
   phone                String
+  countryCode          String            @default("UG")
   category             String            @default("OPEN") // "OPEN" | "PROFESSIONAL"
   professionalTitle    String?
   registrationNumber   String?
@@ -601,6 +624,7 @@ model Enrolment {
   intakeId        String?
   status          EnrolmentStatus @default(PENDING_PAYMENT)
   planType        String          @default("FULL") // "FULL" | "INSTALMENT"
+  countryCode     String          @default("UG")
   totalAmountUgx  Int
   paidAmountUgx   Int             @default(0)
   unlockedBlockOrder Int          @default(0) // highest block order unlocked
@@ -1005,6 +1029,12 @@ model GradeEntry {
   percentage   Float?
   passed       Boolean?
   gradedAt     DateTime?
+  // Release tracking: set when Principal publishes final results for this item.
+  // A grade cannot be changed after release without an approved MARKS_CHANGE request.
+  releasedAt       DateTime?  // null = not yet released (editable); set = released (locked)
+  // Change audit: populated when a released grade is altered via an approved MARKS_CHANGE approval.
+  changeReason     String?    @db.Text
+  changeApprovalId String?    // ApprovalRequest.id that authorised the change
   updatedAt    DateTime  @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1136,6 +1166,7 @@ model SupportTicket {
   userId      String
   subject     String
   body        String        @db.Text
+  category    String        @default("GENERAL")
   status      TicketStatus  @default(OPEN)
   priority    TicketPriority @default(NORMAL)
   assignedTo  String?
@@ -1148,6 +1179,86 @@ model SupportTicket {
   replies  SupportReply[]
 
   @@map("support_tickets")
+}
+
+model Venue {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  location  String?
+  capacity  Int?
+  notes     String?  @db.Text
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings          VenueBooking[]
+  practicalSessions PracticalSession[]
+
+  @@map("venues")
+}
+
+model VenueBooking {
+  id        String   @id @default(cuid())
+  venueId   String
+  title     String
+  startsAt  DateTime
+  endsAt    DateTime
+  status    String   @default("CONFIRMED")
+  notes     String?  @db.Text
+  createdById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([venueId, startsAt, endsAt])
+  @@map("venue_bookings")
+}
+
+model PracticalSession {
+  id        String   @id @default(cuid())
+  title     String
+  venueId   String
+  startsAt  DateTime
+  endsAt    DateTime
+  courseName String?
+  notes     String?  @db.Text
+  createdById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venue     Venue                    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  equipment PracticalEquipmentItem[]
+
+  @@index([venueId, startsAt, endsAt])
+  @@map("practical_sessions")
+}
+
+model PracticalEquipmentItem {
+  id                 String   @id @default(cuid())
+  practicalSessionId String
+  name               String
+  needed             Int      @default(1)
+  available          Int      @default(0)
+  notes              String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  practicalSession PracticalSession @relation(fields: [practicalSessionId], references: [id], onDelete: Cascade)
+
+  @@map("practical_equipment_items")
+}
+
+model OperationalNotice {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @db.Text
+  audience  String
+  channel   String   @default("IN_APP")
+  sentById  String
+  sentAt    DateTime @default(now())
+
+  @@map("operational_notices")
 }
 
 model SupportReply {
@@ -1216,6 +1327,9 @@ model ApprovalRequest {
   enrolmentId  String?
   paymentId    String?
   staffUserId  String?               // for staff account actions
+  gradeEntryId String?               // for MARKS_CHANGE requests
+  examId       String?               // for MARKS_CHANGE: the exam whose grade is disputed
+  proposedScore Int?                 // for MARKS_CHANGE: the corrected score being requested
   // Request details
   amount       Int?                  // for REFUND / WAIVER / FEE_CHANGE (UGX)
   reason       String                @db.Text
@@ -1272,6 +1386,26 @@ model AccessReview {
   completedAt  DateTime @default(now())
 
   @@map("access_reviews")
+}
+
+model LeaveRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  startsAt    DateTime
+  endsAt      DateTime
+  reason      String   @db.Text
+  status      String   @default("PENDING")
+  decidedById String?
+  decidedAt   DateTime?
+  decisionNote String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User  @relation("LeaveRequester", fields: [userId], references: [id])
+  decidedBy User? @relation("LeaveDecider", fields: [decidedById], references: [id])
+
+  @@index([status, startsAt])
+  @@map("leave_requests")
 }
 
 // ─────────────────────────────────────────────
@@ -1379,4 +1513,36 @@ model StatementLine {
   claims  ManualPaymentClaim[]
 
   @@map("statement_lines")
+}
+
+// ─────────────────────────────────────────────
+// BOARD DOCUMENTS
+// Managed by SUPER_ADMIN and by BOARD_MEMBER accounts where
+// institutionSecretary = true (policies.manage + board_documents.manage).
+// Read-only for all other BOARD_MEMBER accounts and AUDITOR_READONLY.
+// ─────────────────────────────────────────────
+
+enum BoardDocumentCategory {
+  GENERAL
+  POLICY
+  MINUTES
+  REPORT
+  FINANCIAL
+  GOVERNANCE
+}
+
+model BoardDocument {
+  id          String                 @id @default(cuid())
+  title       String
+  description String?                @db.Text
+  fileS3Key   String?
+  fileUrl     String?
+  category    BoardDocumentCategory  @default(GENERAL)
+  authorId    String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  author User @relation("BoardDocAuthor", fields: [authorId], references: [id])
+
+  @@map("board_documents")
 }
