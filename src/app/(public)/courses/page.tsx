@@ -54,6 +54,19 @@ const COMPARE_ROWS = [
       "Open to all",
     ],
   },
+  {
+    feature: "Fee (UGX)",
+    values: [
+      "2,300,000",
+      "1,800,000",
+      "1,200,000",
+      "1,800,000",
+      "1,800,000",
+      "600,000",
+      "900,000",
+      "Contact admissions",
+    ],
+  },
   { feature: "Instalments", values: ["3", "3", "2", "3", "3", "1", "1", "1"] },
   {
     feature: "Certificate",
@@ -85,6 +98,18 @@ const COMPARE_SLUGS = [
   "basic-life-support-first-aid",
   "advanced-life-support",
   "advanced-first-aid",
+];
+
+// Per-instalment amount (fee / instalments), or "-" for single payment / contact admissions
+const COMPARE_INSTALMENTS = [
+  "767,000 x 3",   // 2,300,000 / 3
+  "600,000 x 3",   // 1,800,000 / 3
+  "600,000 x 2",   // 1,200,000 / 2
+  "600,000 x 3",   // 1,800,000 / 3
+  "600,000 x 3",   // 1,800,000 / 3
+  "600,000",       // 1 payment
+  "900,000",       // 1 payment
+  "-",             // contact admissions
 ];
 
 export default async function CoursesPage() {
@@ -188,16 +213,19 @@ export default async function CoursesPage() {
         aria-label="Course comparison"
       >
         <AnimateIn>
-          <h2 className="text-2xl font-bold text-primary mb-6">
+          <h2 className="text-2xl font-bold text-primary mb-2">
             Compare courses at a glance
           </h2>
-          <div className="table-container min-w-[640px]">
+          <p className="text-sm text-gray-500 mb-6">
+            Fees shown are demo/indicative amounts. Contact admissions for confirmed pricing.
+          </p>
+          <div className="table-container min-w-[720px]">
             <table className="table text-xs">
               <thead>
                 <tr>
                   <th className="text-left w-36">Feature</th>
                   {COMPARE_COURSES.map((name) => (
-                    <th key={name} className="text-center text-xs">
+                    <th key={name} className="text-center text-xs leading-snug">
                       {name}
                     </th>
                   ))}
@@ -208,12 +236,29 @@ export default async function CoursesPage() {
                   <tr key={row.feature}>
                     <td className="font-medium text-primary">{row.feature}</td>
                     {row.values.map((v, i) => (
-                      <td key={i} className="text-center">
+                      <td
+                        key={i}
+                        className={`text-center ${
+                          row.feature === "Fee (UGX)"
+                            ? v === "Contact admissions"
+                              ? "text-gray-400 italic"
+                              : "font-semibold text-accent"
+                            : ""
+                        }`}
+                      >
                         {v}
                       </td>
                     ))}
                   </tr>
                 ))}
+                <tr>
+                  <td className="font-medium text-primary">Instalment amount</td>
+                  {COMPARE_INSTALMENTS.map((v, i) => (
+                    <td key={i} className="text-center text-gray-500">
+                      {v}
+                    </td>
+                  ))}
+                </tr>
                 <tr>
                   <td className="font-medium text-primary">Apply</td>
                   {COMPARE_SLUGS.map((slug) => (
