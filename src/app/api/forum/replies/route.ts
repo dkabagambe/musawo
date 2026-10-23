@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import { z } from "zod";
 
 const ReplySchema = z.object({
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
   if (thread.locked) return NextResponse.json({ error: "Thread is locked" }, { status: 403 });
 
   // Check enrolment or staff
-  const isStaff = ["SUPERADMIN", "REGISTRAR", "TUTOR", "ADMIN"].includes(session.user.role);
+  const isStaff = can(session.user.role, "courses.view") && !can(session.user.role, "learning.self.view");
   if (!isStaff) {
     const enrolment = await db.enrolment.findFirst({
       where: { userId: session.user.id, courseId: thread.courseId, status: { in: ["ACTIVE", "COMPLETED"] } },

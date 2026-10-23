@@ -31,8 +31,8 @@ export async function GET(_req: NextRequest) {
   const { role, id: userId } = session.user;
 
   let where: Record<string, unknown> = {};
-  if (role === "SUPERADMIN") {
-    // sees all
+  if (can(role, "approvals.decide")) {
+    // SUPER_ADMIN sees all; other approvers see all too (they need to action them)
   } else if (can(role, "approvals.view")) {
     // sees own requests only
     where = { initiatorId: userId };

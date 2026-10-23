@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { MAX_SUPER_ADMIN_ACCOUNTS } from "@/lib/rbac";
+import { MAX_SUPER_ADMIN_ACCOUNTS, STAFF_ROLES } from "@/lib/rbac";
 
 export const metadata = { title: "Staff Accounts - Director" };
 
@@ -11,7 +11,7 @@ export default async function DirectorStaffPage() {
   if (!session?.user || can(session.user.role, "staff.create.approve") === false) redirect("/login");
 
   const staff = await db.user.findMany({
-    where: { role: { in: ["SUPER_ADMIN","SYSTEM_IT","ACADEMIC_REGISTRAR","FINANCE_OFFICER","INSTRUCTOR","TEACHING_ASSISTANT","HR_SYSTEM_ADMIN","AUDITOR_READONLY","BOARD_MEMBER","DEPUTY_PRINCIPAL","PRINCIPAL"] } },
+    where: { role: { in: STAFF_ROLES } },
     orderBy: [{ role: "asc" }, { name: "asc" }],
     select: {
       id: true, name: true, email: true, phone: true,

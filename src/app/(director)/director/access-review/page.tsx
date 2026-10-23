@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { STAFF_ROLES } from "@/lib/rbac";
 import CompleteReviewForm from "./CompleteReviewForm";
 
 export const metadata = { title: "Access Review - Director" };
@@ -21,7 +22,7 @@ export default async function AccessReviewPage() {
   const [reviews, staffAccounts] = await Promise.all([
     db.accessReview.findMany({ orderBy: { completedAt: "desc" }, take: 8 }),
     db.user.findMany({
-      where: { role: { in: ["SUPER_ADMIN","SYSTEM_IT","ACADEMIC_REGISTRAR","FINANCE_OFFICER","INSTRUCTOR","HR_SYSTEM_ADMIN"] } },
+      where: { role: { in: STAFF_ROLES } },
       select: { id: true, name: true, role: true, status: true, totpEnabled: true, lastAccessReviewAt: true, createdAt: true },
       orderBy: { role: "asc" },
     }),

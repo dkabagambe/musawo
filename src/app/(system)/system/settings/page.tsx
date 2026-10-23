@@ -1,12 +1,13 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 
 export const metadata = { title: "Settings - System IT" };
 
 export default async function SystemSettingsPage() {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN","SYSTEM_IT"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "settings.view") && !can(session.user.role, "settings.edit")) redirect("/login");
 
   const settings = await db.siteSetting.findMany({ orderBy: { key: "asc" } });
 
@@ -27,9 +28,9 @@ export default async function SystemSettingsPage() {
   // SYSTEM_IT can only edit infra/integration keys, NOT payment amounts or academic settings
   const SYSTEM_IT_EDITABLE_PREFIXES = new Set(["storage","video","email","sms","whatsapp","site"]);
   const canEditKey = (key: string) => {
-    if (session.user.role === "SUPERADMIN") return true;
+    if (can(session.user.role, "settings.edit.secrets")) return true;
     const prefix = key.split(".")[0];
-    return SYSTEM_IT_EDITABLE_PREFIXES.has(prefix);
+    return SYSTEM_IT_EDITABLE_PREFIXES.has(prefix) && can(session.user.role, "settings.edit");
   };
 
   return (
@@ -37,7 +38,7 @@ export default async function SystemSettingsPage() {
       <h1 className="text-2xl mb-2">Site Settings</h1>
       <p className="text-xs text-gray-400 mb-6">
         Secret values are masked. Click Edit to update a value.
-        Payment and exam settings require SUPERADMIN.
+        Payment and exam settings require SUPER_ADMIN.
       </p>
 
       {Object.entries(grouped).map(([prefix, keys]) => (
@@ -68,7 +69,7 @@ export default async function SystemSettingsPage() {
                   </form>
                 )}
                 {!canEditKey(s.key) && (
-                  <span className="text-xs text-gray-400 italic">SUPERADMIN only</span>
+                  <span className="text-xs text-gray-400 italic">SUPER_ADMIN only</span>
                 )}
               </div>
             ))}

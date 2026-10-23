@@ -130,9 +130,9 @@ export async function POST(req: NextRequest) {
   const s3Key = `payment-claims/${userId}/${claim.id}/${Date.now()}`;
   const uploadUrl = await getPresignedUploadUrl(s3Key, "image/jpeg", 900);
 
-  // Notify BURSAR users in-app
+  // Notify staff with claims review permission (FINANCE_OFFICER and SUPER_ADMIN)
   const bursars = await db.user.findMany({
-    where: { role: { in: ["BURSAR", "SUPERADMIN"] }, status: "ACTIVE" },
+    where: { role: { in: ["FINANCE_OFFICER", "SUPER_ADMIN"] }, status: "ACTIVE" },
     select: { id: true },
   });
   if (bursars.length > 0) {

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import { notFound } from "next/navigation";
 import ApprovalDecisionForm from "./ApprovalDecisionForm";
 
@@ -13,11 +14,11 @@ export const metadata = { title: "Approval Request" };
 export default async function ApprovalLinkPage({ params }: Props) {
   const session = await auth();
 
-  // Must be logged in as SUPERADMIN
+  // Must be logged in with approval decision permission
   if (!session?.user) {
     redirect(`/login?callbackUrl=/approval/${params.token}`);
   }
-  if (session.user.role !== "SUPERADMIN") {
+  if (!can(session.user.role, "approvals.decide")) {
     redirect("/login?error=forbidden");
   }
 

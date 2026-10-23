@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 
 export const metadata = { title: "System Logs - System IT" };
 
@@ -8,7 +9,7 @@ interface Props { searchParams: { page?: string } }
 
 export default async function SystemAuditPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !["SUPERADMIN","SYSTEM_IT"].includes(session.user.role)) redirect("/login");
+  if (!session?.user || !can(session.user.role, "integrations.edit") && !can(session.user.role, "audit.view")) redirect("/login");
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const take = 50;

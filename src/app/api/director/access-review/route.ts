@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { can, STAFF_ROLES } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 
@@ -11,7 +12,7 @@ const Schema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "SUPERADMIN") {
+  if (!session?.user || !can(session.user.role, "access_review.complete")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -26,9 +27,9 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Stamp lastAccessReviewAt on all active staff
+  // Stamp lastAccessReviewAt on all active staff accounts
   await db.user.updateMany({
-    where: { role: { in: ["SUPERADMIN","SYSTEM_IT","REGISTRAR","BURSAR","TUTOR","ADMIN"] }, status: "ACTIVE" },
+    where: { role: { in: STAFF_ROLES }, status: "ACTIVE" },
     data:  { lastAccessReviewAt: new Date() },
   });
 

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import Link from "next/link";
 
 export const metadata = { title: "Discussion Forum" };
@@ -62,8 +63,8 @@ export default async function ForumPage() {
               <p className="font-medium text-primary">{thread.title}</p>
               <p className="text-xs text-gray-400 mt-1">
                 by {thread.author.name}
-                {thread.author.role === "TUTOR" && (
-                  <span className="ml-1 badge-success badge text-xs">Tutor</span>
+                {can(thread.author.role as Parameters<typeof can>[0], "courses.view") && !can(thread.author.role as Parameters<typeof can>[0], "learning.self.view") && (
+                  <span className="ml-1 badge-success badge text-xs">Staff</span>
                 )}
                 {" · "}
                 {new Date(thread.updatedAt).toLocaleDateString("en-UG")}

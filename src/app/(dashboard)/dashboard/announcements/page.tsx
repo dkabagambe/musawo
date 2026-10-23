@@ -24,7 +24,14 @@ export default async function AnnouncementsPage() {
   });
 
   const ROLE_LABEL: Record<string, string> = {
-    TUTOR: "Tutor", REGISTRAR: "Registrar", SUPERADMIN: "Director", BURSAR: "Bursar",
+    INSTRUCTOR: "Tutor", TEACHING_ASSISTANT: "Teaching Assistant",
+    ACADEMIC_REGISTRAR: "Registrar", FINANCE_OFFICER: "Finance",
+    PRINCIPAL: "Principal", DEPUTY_PRINCIPAL: "Deputy Principal",
+    SUPER_ADMIN: "Director", HR_MANAGER: "HR", ADMINISTRATOR: "Admin",
+    SYSTEM_IT: "IT", AUDITOR_READONLY: "Auditor", BOARD_MEMBER: "Board",
+    // Legacy aliases
+    TUTOR: "Tutor", REGISTRAR: "Registrar", SUPERADMIN: "Director", BURSAR: "Finance",
+    ADMIN: "Admin",
   };
 
   return (
