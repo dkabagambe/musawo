@@ -37,6 +37,7 @@ const HERO_IMAGES: Record<string, string> = {
   "care-older-persons-disability":  "/assets/clinical-training.webp",
   "basic-life-support-first-aid":   "/assets/training-session.webp",
   "advanced-life-support":          "/assets/healthcare-services.webp",
+  "advanced-first-aid":             "/assets/training-session.webp",
 };
 
 function LessonIcon({ type }: { type: string }) {

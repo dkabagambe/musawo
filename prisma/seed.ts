@@ -703,12 +703,12 @@ async function main() {
       slug: "medical-home-caregiver",
       title: "Certificate in Medical Home Care Course",
       category: "PROFESSIONAL",
-      targetAudience: "Nurses, midwives and clinical officers",
+      targetAudience: "Nurses, midwives, clinical officers and other healthcare providers",
       eligibilityText:
         "Applicants must hold a professional nursing, midwifery or clinical officer qualification and provide their professional title and registration number.",
       shortDescription:
-        "Advanced home care training for registered health professionals. Hybrid and online classes with 70% hands-on practicals in our skills lab.",
-      description: `[DRAFT for Principal review]\n\nThis course equips registered health professionals with advanced home caregiving skills for complex patient cases.\n\nModule 1: Advanced patient assessment in the home setting\nModule 2: Medication management and administration\nModule 3: Wound care and post-operative home nursing\nModule 4: Palliative and end-of-life care at home\nModule 5: Documentation and professional accountability\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
+      description: `[DRAFT for Principal review]\n\nThis three-months certificate course is designed for health professionals, including nurses, midwives, clinical officers, and other healthcare providers. It equips participants with the necessary medical knowledge and practical skills needed to provide competent, safe, and compassionate home-based care to patients in their homes and communities.\n\nModule 1: Advanced patient assessment in the home setting\nModule 2: Medication management and administration\nModule 3: Wound care and post-operative home nursing\nModule 4: Palliative and end-of-life care at home\nModule 5: Documentation and professional accountability\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/cna-course.png",
       freePreviewPercent: 10,
       fullFeeUgx: 2300000,
@@ -723,12 +723,12 @@ async function main() {
       slug: "basic-home-caregiver",
       title: "Certificate in Basic Home Care",
       category: "OPEN",
-      targetAudience: "PLE, S.4 and S.6 leavers, and working carers",
+      targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
       eligibilityText:
-        "Open to all. No prior qualifications required. A basic ability to read and write in English is helpful.",
+        "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.",
       shortDescription:
-        "Practical home caregiving skills for anyone who wants to care for patients in the home. Hybrid and online classes with 70% hands-on practicals.",
-      description: `[DRAFT for Principal review]\n\nThis course provides essential home caregiving skills for community carers, family members and school leavers entering care work.\n\nModule 1: Introduction to patient care and professional ethics\nModule 2: Personal hygiene, feeding and mobility assistance\nModule 3: Infection prevention and basic safety\nModule 4: Recognising and responding to health changes\nModule 5: Communication with patients and families\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care to patients in their homes and communities.",
+      description: `[DRAFT for Principal review]\n\nThis is a three-months certificate course designed for non-health professionals aged 18 years and above who hold an O'Level and/or A'Level certificate. The course equips participants with the basic knowledge and practical skills required to provide safe, competent, and compassionate home care to patients in their homes and communities.\n\nModule 1: Introduction to patient care and professional ethics\nModule 2: Personal hygiene, feeding and mobility assistance\nModule 3: Infection prevention and basic safety\nModule 4: Recognising and responding to health changes\nModule 5: Communication with patients and families\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/basic-nursing.png",
       freePreviewPercent: 12,
       fullFeeUgx: 1800000,
@@ -744,11 +744,12 @@ async function main() {
       title:
         "Basic Certificate in Babysitting, Child Care and Safety Management",
       category: "OPEN",
-      targetAudience: "Nannies, house helps, school leavers and parents",
-      eligibilityText: "Open to all. No prior qualifications required.",
+      targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
+      eligibilityText:
+        "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.",
       shortDescription:
-        "Child development, daily care routines, first aid and safety management for anyone caring for children in home or community settings.",
-      description: `[DRAFT for Principal review]\n\nThis certificate prepares carers to look after children safely and confidently.\n\nModule 1: Child development stages and age-appropriate care\nModule 2: Daily routines: feeding, hygiene, sleep and play\nModule 3: First aid for infants and children\nModule 4: Recognising signs of illness, abuse or neglect\nModule 5: Home and environment safety management\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters. Promotes responsible caregiving, child protection, professionalism and safety awareness.",
+      description: `[DRAFT for Principal review]\n\nThis is a two-months certificate course designed for non-health professionals aged 18 years and above who hold an O'Level and/or A'Level certificate. The course equips participants with the basic knowledge and practical skills required to provide childcare in homes, childcare settings or as professional babysitters. It also promotes responsible caregiving, child protection, professionalism and safety awareness.\n\nModule 1: Child development stages and age-appropriate care\nModule 2: Daily routines: feeding, hygiene, sleep and play\nModule 3: First aid for infants and children\nModule 4: Recognising signs of illness, abuse or neglect\nModule 5: Home and environment safety management\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
       freePreviewPercent: 15,
       fullFeeUgx: 1200000,
@@ -763,12 +764,12 @@ async function main() {
       slug: "mental-health-support-advocacy",
       title: "Certificate in Mental Health Support and Advocacy",
       category: "OPEN",
-      targetAudience: "Teachers, counsellors, community workers",
+      targetAudience: "Health professionals and non-health professionals aged 18 and above",
       eligibilityText:
-        "Open to all. Suitable for anyone working with people in distress.",
+        "Open to health professionals (nurses, midwives, clinical officers and other healthcare providers) and to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.",
       shortDescription:
-        "Practical mental health support skills and advocacy for teachers, counsellors and community workers. Hybrid and online classes.",
-      description: `[DRAFT for Principal review]\n\nThis certificate builds practical skills for supporting people experiencing mental health challenges in schools, workplaces and communities.\n\nModule 1: Understanding mental health and common conditions\nModule 2: Listening and first response skills\nModule 3: Crisis recognition and de-escalation\nModule 4: Referral pathways and community resources in Uganda\nModule 5: Stigma, advocacy and rights-based approaches\nModule 6: Self-care for helpers\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health, prevent mental health problems, recognise and respond to psychological distress, and advocate for people living with mental health conditions in Uganda.",
+      description: `[DRAFT for Principal review]\n\nThis is a three-month certificate course designed for health professionals, including nurses, midwives, clinical officers, and other healthcare providers, as well as non-health professionals aged 18 years and above who hold an O'Level and/or A'Level certificate.\n\nThe course aims to equip learners with the knowledge, practical skills, and professional attitudes required to promote mental health and well-being, prevent mental health problems, recognise and respond to psychological distress and crises, deliver supervised low-intensity psychological support, link individuals to treatment and recovery services, and advocate for the rights, dignity, and inclusion of people living with mental health conditions in Uganda.\n\nModule 1: Understanding mental health and common conditions\nModule 2: Listening and first response skills\nModule 3: Crisis recognition and de-escalation\nModule 4: Referral pathways and community resources in Uganda\nModule 5: Stigma, advocacy and rights-based approaches\nModule 6: Self-care for helpers\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/community-outreach.webp",
       freePreviewPercent: 12,
       fullFeeUgx: 1800000,
@@ -784,12 +785,12 @@ async function main() {
       title:
         "Basic Certificate in Care of Older Persons and Persons with Disability",
       category: "OPEN",
-      targetAudience: "Carers, families and health workers",
+      targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
       eligibilityText:
-        "Open to all. Suitable for carers, family members and community health workers.",
+        "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.",
       shortDescription:
-        "Specialist care skills for older persons and people with disability, including mobility support, dementia care and assistive technology.",
-      description: `[DRAFT for Principal review]\n\nThis certificate trains carers to support older persons and persons with disability with dignity and competence.\n\nModule 1: Ageing, disability and the Ugandan context\nModule 2: Mobility assistance, fall prevention and rehabilitation support\nModule 3: Dementia and cognitive impairment care\nModule 4: Personal care, nutrition and medication for older persons\nModule 5: Assistive devices and adaptive environments\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "Equips participants with the basic knowledge and practical skills to give safe, dignified and skilled care to older persons and adults with disabilities, including people living with dementia and children with special needs, in homes, care homes, day centres, special schools and communities.",
+      description: `[DRAFT for Principal review]\n\nThis is a three-months certificate course designed for non-health professionals aged 18 years and above who hold an O'level and/or A'level certificate. The course equips participants with the basic knowledge and practical skills required to provide to give safe, dignified and skilled care to older persons and adults with disabilities, including people living with dementia and children with special needs, in homes, care homes, day centres, special schools and communities.\n\nModule 1: Ageing, disability and the Ugandan context\nModule 2: Mobility assistance, fall prevention and rehabilitation support\nModule 3: Dementia and cognitive impairment care\nModule 4: Personal care, nutrition and medication for older persons\nModule 5: Assistive devices and adaptive environments\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/clinical-training.webp",
       freePreviewPercent: 12,
       fullFeeUgx: 1800000,
@@ -803,12 +804,13 @@ async function main() {
     {
       slug: "basic-life-support-first-aid",
       title: "Certificate in Basic Life Support",
-      category: "OPEN",
-      targetAudience: "Carers, teachers, drivers, workplace staff",
-      eligibilityText: "Open to all. No prior qualifications required.",
+      category: "PROFESSIONAL",
+      targetAudience: "Health professionals",
+      eligibilityText:
+        "Designed for health professionals. Applicants must provide their professional title and registration number.",
       shortDescription:
-        "CPR, AED, choking, bleeding and emergency first aid for anyone in a caregiving, teaching or workplace role.",
-      description: `[DRAFT for Principal review]\n\nThis one-month certificate teaches essential life-saving skills for everyday settings.\n\nModule 1: Recognising a life-threatening emergency\nModule 2: CPR and AED use for adults, children and infants\nModule 3: Choking, bleeding and burns management\nModule 4: Stroke, seizure and diabetic emergencies\nModule 5: Practical assessment in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies, activate emergency response systems, and provide high-quality care.",
+      description: `[DRAFT for Principal review]\n\nThis is a one-month short course designed for health professionals to develop the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies, activate emergency response systems, provide high-quality care.\n\nModule 1: Recognising a life-threatening emergency\nModule 2: CPR and AED use for adults, children and infants\nModule 3: Choking, bleeding and burns management\nModule 4: Stroke, seizure and diabetic emergencies\nModule 5: Practical assessment in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/training-session.webp",
       freePreviewPercent: 20,
       fullFeeUgx: 600000,
@@ -823,12 +825,12 @@ async function main() {
       slug: "advanced-life-support",
       title: "Certificate in Advanced Life Support",
       category: "PROFESSIONAL",
-      targetAudience: "Doctors, nurses, clinical officers",
+      targetAudience: "Eligible healthcare professionals",
       eligibilityText:
-        "Applicants must hold a professional medical, nursing or clinical officer qualification and provide their professional title and registration number.",
+        "Applicants must hold a professional medical, nursing or clinical officer qualification, demonstrate current Basic Life Support (BLS) competence, and provide their professional title and registration number.",
       shortDescription:
-        "Advanced resuscitation, airway management and emergency algorithms for registered health professionals.",
-      description: `[DRAFT for Principal review]\n\nThis one-month course covers advanced resuscitation and emergency management skills for qualified health professionals.\n\nModule 1: Advanced airway management\nModule 2: Advanced cardiac life support (ACLS) algorithms\nModule 3: Paediatric advanced life support (PALS)\nModule 4: Trauma and obstetric emergencies\nModule 5: Team leadership in resuscitation\nModule 6: Practical megacode scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies. Builds on BLS competence with ACLS, team leadership and post-resuscitation care.",
+      description: `[DRAFT for Principal review]\n\nThis is a one-month professional short course designed to strengthen the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies within their professional scope and local clinical protocols. It builds on current Basic Life Support (BLS) competence and emphasises early recognition, high-quality CPR, rhythm interpretation, defibrillation, airway and ventilation support, team leadership, reversible causes, and post-resuscitation care.\n\nModule 1: Advanced airway management\nModule 2: Advanced cardiac life support (ACLS) algorithms\nModule 3: Paediatric advanced life support (PALS)\nModule 4: Trauma and obstetric emergencies\nModule 5: Team leadership in resuscitation\nModule 6: Practical megacode scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/healthcare-services.webp",
       freePreviewPercent: 10,
       fullFeeUgx: 900000,
@@ -843,12 +845,12 @@ async function main() {
       slug: "advanced-first-aid",
       title: "Certificate in Advanced First Aid",
       category: "OPEN",
-      targetAudience: "Non-health professionals aged 18 and above",
+      targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
       eligibilityText:
         "Open to all aged 18 and above with an O-Level or A-Level certificate.",
       shortDescription:
-        "Essential emergency response skills before professional medical help arrives.",
-      description: `[DRAFT for Principal review]\n\nThis one-month short course is designed for non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate. It equips participants with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately before professional medical help arrives.\n\nModule 1: Scene safety and emergency response\nModule 2: Primary assessment and calling for help\nModule 3: Bleeding, burns, fractures and shock\nModule 4: Practical first aid scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
+        "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately to medical emergencies before professional medical help arrives.",
+      description: `[DRAFT for Principal review]\n\nThis one-month short course is designed for non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate. It equips participants with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately to medical emergencies before professional medical help arrives.\n\nModule 1: Scene safety and emergency response\nModule 2: Primary assessment and calling for help\nModule 3: Bleeding, burns, fractures and shock\nModule 4: Practical first aid scenarios in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
       thumbnailUrl: "/assets/training-session.webp",
       freePreviewPercent: 10,
       fullFeeUgx: null,
@@ -866,6 +868,8 @@ async function main() {
       where: { slug: cd.slug },
       update: {
         title: cd.title,
+        shortDescription: cd.shortDescription,
+        description: cd.description,
         fullFeeUgx: IS_DEMO_MODE ? cd.fullFeeUgx : null,
         feeContactOnly: !IS_DEMO_MODE || cd.feeContactOnly,
         instalmentCount: cd.instalmentCount,

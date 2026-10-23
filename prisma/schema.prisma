@@ -328,6 +328,7 @@ model User {
   // Board documents authored by this user
   boardDocuments    BoardDocument[]        @relation("BoardDocAuthor")
 
+  @@index([role, status])
   @@map("users")
 }
 
@@ -537,6 +538,7 @@ model LessonProgress {
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+  @@index([userId])
   @@map("lesson_progress")
 }
 
@@ -607,6 +609,8 @@ model Application {
   course      Course?  @relation(fields: [courseId], references: [id])
   intake      Intake?  @relation(fields: [intakeId], references: [id])
 
+  @@index([status, createdAt])
+  @@index([email])
   @@map("applications")
 }
 
@@ -647,6 +651,8 @@ model Enrolment {
   claims       ManualPaymentClaim[]
 
   @@unique([userId, courseId])
+  @@index([userId, status])
+  @@index([courseId, status])
   @@map("enrolments")
 }
 
@@ -689,6 +695,8 @@ model Payment {
   instalment Instalment?
   claim      ManualPaymentClaim? @relation(fields: [claimId], references: [id])
 
+  @@index([enrolmentId, createdAt])
+  @@index([status])
   @@map("payments")
 }
 
@@ -762,6 +770,8 @@ model LiveClass {
   attendance Attendance[]
   reminders  LiveClassReminder[]
 
+  @@index([courseId, scheduledAt])
+  @@index([status, scheduledAt])
   @@map("live_classes")
 }
 
@@ -789,6 +799,8 @@ model Attendance {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([liveClassId, userId])
+  @@index([liveClassId])
+  @@index([userId])
   @@map("attendance")
 }
 
@@ -867,6 +879,8 @@ model ExamAttempt {
   shortAnswerReviews ShortAnswerReview[]
 
   @@unique([examId, userId, number])
+  @@index([userId, status])
+  @@index([examId, status])
   @@map("exam_attempts")
 }
 
@@ -939,6 +953,8 @@ model Notification {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
   @@map("notifications")
 }
 
@@ -1178,6 +1194,9 @@ model SupportTicket {
   assignee User?             @relation("AssignedTickets", fields: [assignedTo], references: [id])
   replies  SupportReply[]
 
+  @@index([userId, status])
+  @@index([status])
+  @@index([assignedTo])
   @@map("support_tickets")
 }
 
@@ -1308,6 +1327,9 @@ model AuditLog {
 
   actor User? @relation("ActorAuditLog", fields: [actorId], references: [id])
 
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@index([createdAt])
   @@map("audit_logs")
 }
 
@@ -1348,6 +1370,8 @@ model ApprovalRequest {
   initiator  User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
   decidedBy  User? @relation("ApprovalDecider",   fields: [decidedById], references: [id])
 
+  @@index([status])
+  @@index([initiatorId, status])
   @@map("approval_requests")
 }
 

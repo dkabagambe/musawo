@@ -51,7 +51,7 @@ async function getPublicCourses() {
       category: true,
     },
     orderBy: { createdAt: "asc" },
-    take: 7,
+    take: 8,
   });
 }
 
@@ -69,7 +69,7 @@ const HOW_STEPS = [
     n: "01",
     icon: BookOpen,
     title: "Choose your course",
-    body: "Browse our seven healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support. Pick the one that fits your goals and background.",
+    body: "Browse our eight healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support. Pick the one that fits your goals and background.",
   },
   {
     n: "02",
@@ -95,7 +95,7 @@ const STATS = [
   { value: "1,000+", label: "Households served" },
   { value: "87+", label: "Health workers trained" },
   { value: "52+", label: "Outreach events" },
-  { value: "7", label: "Programmes offered" },
+  { value: "8", label: "Programmes offered" },
 ];
 
 const PLACEMENT_POINTS = [
@@ -122,6 +122,7 @@ const COURSE_IMAGES: Record<string, string> = {
   "care-older-persons-disability": "/assets/clinical-training.webp",
   "basic-life-support-first-aid": "/assets/training-session.webp",
   "advanced-life-support": "/assets/healthcare-services.webp",
+  "advanced-first-aid": "/assets/training-session.webp",
 };
 
 /* ─── Page ────────────────────────────────────────────────────── */
@@ -190,7 +191,7 @@ export default async function HomePage() {
               {intakeEyebrow}
             </h2>
             <p className="text-gray-600 text-sm leading-relaxed mb-5 max-w-lg">
-              Seven healthcare programmes are open for the November 2026 intake.
+              Eight healthcare programmes are open for the November 2026 intake.
               Hybrid delivery with hands-on practicals in our skills lab. Taught
               by doctors, nurses and clinicians.
             </p>
@@ -252,7 +253,7 @@ export default async function HomePage() {
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
               Hybrid and online classes with 70% hands-on practicals in our
-              skills lab. Taught by doctors, nurses and clinicians. Seven
+              skills lab. Taught by doctors, nurses and clinicians. Eight
               programmes across nursing, childcare, mental health and life
               support.
             </p>

@@ -27,7 +27,7 @@ const TIMELINE = [
   { year: "2021", title: "Skills lab", body: "Opened the dedicated skills lab for hands-on practical training, enabling the hybrid delivery model." },
   { year: "2023", title: "Growth", body: "Expanded training programmes and grew the network of community health workers across Kampala and surrounding districts." },
   { year: "2025", title: "Online platform", body: "Launched the online learning platform, extending training to students across Uganda with hybrid classes." },
-  { year: "2026", title: "Seven programmes", body: "Expanded to seven healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support." },
+  { year: "2026", title: "Eight programmes", body: "Expanded to eight healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support." },
 ];
 
 const VALUES = [
@@ -75,7 +75,7 @@ export default async function AboutPage() {
                   Our mission: to equip women and youth with practical, high-quality healthcare skills through innovative training, mentorship, and values-based education -- producing competent caregivers who bring safe, compassionate, and affordable care directly to patients, families and communities.
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Our seven programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by doctors, nurses and clinicians.
+                  Our eight programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by doctors, nurses and clinicians.
                 </p>
                 <ul className="space-y-3 list-none mb-8">
                   {[

@@ -376,3 +376,24 @@ CERTIFICATE IN BASIC LIFE SUPPORT
 The is a one-month short course designed for health professionals to develop the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies, activate emergency response systems, provide high-quality care.
 CERTIFICATE IN ADVANCED FIRST AID
 This one-month short course is designed for non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate. It equips participants with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately to medical emergencies before professional medical help arrives.
+
+### IMPLEMENT IT NOW
+
+Make every role's dashboard work end to end with the seed data, and make it fast. Audit first and report: crawl every sidebar item, tab, widget, button and link as each demo account (student, instructor, teaching assistant, registrar, principal, deputy, finance, HR, administrator, auditor, board, super admin, system IT) and list what is broken, empty, slow or not allowed. Then fix everything. Reuse the shared dashboard system. No em dashes or en dashes in any text.
+
+1. EVERYTHING CLICKABLE MUST WORK. No dead links, "#" links, empty pages, buttons that do nothing, or tabs without data. Each role's pages, tabs and widgets must open real pages, show seed data, and complete their actions, with success or error toasts. Every list needs a working detail page.
+2. KEY FLOWS TO MAKE WORK AND VERIFY (the result must show immediately where it belongs):
+
+- Instructor: upload a PDF or notes, upload a video or add a video link; it appears in the course and the student can open it in the protected viewer (no download).
+- Instructor: create and start a class, admit students, take roll call at start, end or both, stop the class, and download attendance (CSV and PDF) any time, before or after class, with seeded past classes so downloads have data.
+- Instructor: create an exam with start time and per-question minutes, a student takes it, it auto-marks, and the instructor downloads the results.
+- Student: sees released materials, joins an admitted live class, watches a recording, takes an exam, sees results, pays or submits a bank payment claim.
+- Registrar: creates a student, student accepts by link, appears in lists. Finance: verifies a payment and access unlocks. Principal: publishes results, approves a graduand. Super admin: approves a refund. Administrator: replies to a ticket, resends an invite. Auditor and board: read-only views and exports.
+
+3. SPEED. Targets in a production build: sidebar and tab navigation under 300 ms to first content, any page under 1 s with seed data.
+
+- Find the cause of slow loads (log query counts and timings per page) and fix it: remove N+1 queries and over-fetching, add missing database indexes (foreign keys, status, dates, userId, courseId), paginate lists, use select instead of include, cache per-role navigation and permissions per session (Redis or unstable_cache), avoid recomputing permissions on every request.
+- Render each widget as its own server component inside Suspense, so the shell and tabs appear instantly and widgets stream in with skeletons. Add loading.tsx to every route segment. Prefetch sidebar links, lazy-load heavy client code (charts, editors, PDF viewer, drag and drop), keep tab switching client-side without a full reload, and avoid fetching hidden tabs.
+- Make the seed realistic but not huge, and measure with a production build.
+
+4. VERIFY. Add scripts/check-roles.mjs (Playwright) that logs in as every demo account, visits every nav item and tab, runs the key flows above, and reports: HTTP status, console errors, empty pages, and load times (fail if over the targets). Run it against npm run build then npm start. Fix all findings, add it to the test run, run npm run demo:reset, tsc --noEmit and all tests, and report before and after timings per page and what you fixed.

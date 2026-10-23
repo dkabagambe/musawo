@@ -24,6 +24,7 @@ const FALLBACK: Record<string, string> = {
   "care-older-persons-disability": "/assets/clinical-training.webp",
   "basic-life-support-first-aid": "/assets/training-session.webp",
   "advanced-life-support": "/assets/healthcare-services.webp",
+  "advanced-first-aid": "/assets/training-session.webp",
 };
 
 const COMPARE_ROWS = [
@@ -37,6 +38,7 @@ const COMPARE_ROWS = [
       "3 months",
       "1 month",
       "1 month",
+      "1 month",
     ],
   },
   {
@@ -47,29 +49,31 @@ const COMPARE_ROWS = [
       "Open to all",
       "Open to all",
       "Open to all",
-      "Open to all",
       "Professional",
+      "Professional",
+      "Open to all",
     ],
   },
-  { feature: "Instalments", values: ["3", "3", "2", "3", "3", "1", "1"] },
+  { feature: "Instalments", values: ["3", "3", "2", "3", "3", "1", "1", "1"] },
   {
     feature: "Certificate",
-    values: ["Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"],
+    values: ["Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"],
   },
   {
     feature: "Skills lab practicals",
-    values: ["70%", "70%", "70%", "70%", "70%", "70%", "70%"],
+    values: ["70%", "70%", "70%", "70%", "70%", "70%", "70%", "70%"],
   },
 ];
 
 const COMPARE_COURSES = [
-  "Medical Home Caregiver Course",
-  "Basic Home Caregiver Course",
+  "Medical Home Caregiver",
+  "Basic Home Care",
   "Babysitting and Childcare",
   "Mental Health Support",
   "Care of Older Persons",
   "Basic Life Support",
   "Advanced Life Support",
+  "Advanced First Aid",
 ];
 
 const COMPARE_SLUGS = [
@@ -80,6 +84,7 @@ const COMPARE_SLUGS = [
   "care-older-persons-disability",
   "basic-life-support-first-aid",
   "advanced-life-support",
+  "advanced-first-aid",
 ];
 
 export default async function CoursesPage() {
@@ -120,7 +125,7 @@ export default async function CoursesPage() {
         image="/assets/images/hero-courses.webp"
         imageAlt="Healthcare students in a Musawo Training Center skills lab session"
         title="Our Courses"
-        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Seven programmes across nursing, childcare, mental health and life support."
+        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Eight programmes across nursing, childcare, mental health and life support."
         breadcrumbs={[{ label: "Courses" }]}
         cta={{ label: "Apply now", href: "/apply" }}
         boxSide="left"

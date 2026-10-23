@@ -159,6 +159,7 @@ export default function TutorClassesPage() {
                       <p className="font-medium text-sm">{cls.title}</p>
                       <p className="text-xs text-gray-400">{cls.course.title} · {new Date(cls.scheduledAt).toLocaleString("en-UG")} · {cls.durationMin} min</p>
                     </div>
+                    <a href={`/tutor/attendance`} className="btn-outline text-xs no-underline">Roll call</a>
                     {canManageClasses && <button type="button" className="btn-outline text-xs" onClick={async () => {
                       const action = cls.status === "LIVE" ? "stop" : "start";
                       const response = await fetch("/api/tutor/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ classId: cls.id, action }) });
@@ -185,6 +186,8 @@ export default function TutorClassesPage() {
                       <p className="text-sm font-medium">{cls.title}</p>
                       <p className="text-xs text-gray-400">{cls.course.title} · {new Date(cls.scheduledAt).toLocaleDateString("en-UG")}</p>
                     </div>
+                    <a href={`/api/tutor/attendance/export?classId=${cls.id}&format=csv`} className="btn-outline text-xs no-underline" download>Attendance CSV</a>
+                    <a href={`/api/tutor/attendance/export?classId=${cls.id}&format=pdf`} className="btn-outline text-xs no-underline" download>Attendance PDF</a>
                     {canManageClasses && !cls.recordingUrl && <div className="flex flex-1 gap-2 min-w-64"><input aria-label="Class replay link" className="input !py-1.5 text-xs" type="url" placeholder="Replay link, if available" value={recordingUrls[cls.id] ?? ""} onChange={(event) => setRecordingUrls((value) => ({ ...value, [cls.id]: event.target.value }))} /><button type="button" className="btn-outline text-xs" onClick={async () => { const response = await fetch("/api/tutor/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ classId: cls.id, action: "recording", recordingUrl: recordingUrls[cls.id] }) }); if (response.ok) { setClasses((rows) => rows.map((row) => row.id === cls.id ? { ...row, recordingUrl: recordingUrls[cls.id] } : row)); setClassMessage("Replay saved for enrolled students."); } }}>Save replay</button><span className="text-xs text-amber-700">Recording pending</span></div>}
                     {cls.recordingUrl && <a href={cls.recordingUrl} target="_blank" rel="noopener noreferrer" className="btn-outline text-xs">Replay saved</a>}
                   </div>

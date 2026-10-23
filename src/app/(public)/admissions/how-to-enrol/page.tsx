@@ -32,7 +32,7 @@ const STEPS = [
     n: "01",
     icon: FileText,
     title: "Choose your course",
-    body: "Browse our seven healthcare programmes and read what is included, the duration, category and fee. Not sure which to pick? Chat with us on WhatsApp.",
+    body: "Browse our eight healthcare programmes and read what is included, the duration, category and fee. Not sure which to pick? Chat with us on WhatsApp.",
     cta: { label: "Browse courses", href: "/courses" },
   },
   {

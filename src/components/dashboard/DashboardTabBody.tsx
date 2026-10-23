@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import {
@@ -5,7 +6,7 @@ import {
   type DashboardTab,
   type DashboardWidgetDefinition,
 } from "@/lib/dashboard/widgets";
-import { Widget } from "@/components/ui/DashboardWidgets";
+import { Widget, WidgetSkeleton } from "@/components/ui/DashboardWidgets";
 import { balanceDashboardColumns } from "@/lib/dashboard/format";
 import {
   WIDGET_COMPONENTS,
@@ -20,11 +21,42 @@ interface MergedWidget extends DashboardWidgetDefinition {
   position: number;
 }
 
-interface RenderedEntry {
+// Async wrapper that renders one widget body, used inside Suspense
+async function WidgetBodyAsync({
+  widget,
+  bodyProps,
+}: {
   widget: MergedWidget;
-  content: React.ReactNode;
-  column: number;
-  columnPinned: boolean;
+  bodyProps: WidgetBodyProps;
+}) {
+  const Body = WIDGET_COMPONENTS[widget.component];
+  const content = Body
+    ? await Body(bodyProps)
+    : <p className="dashboard-widget-empty">No content available.</p>;
+  return (
+    <Widget
+      key={widget.id}
+      title={widget.title}
+      href={widget.fullPageHref}
+    >
+      {content}
+    </Widget>
+  );
+}
+
+function WidgetWithSuspense({
+  widget,
+  bodyProps,
+}: {
+  widget: MergedWidget;
+  bodyProps: WidgetBodyProps;
+}) {
+  return (
+    <Suspense fallback={<WidgetSkeleton rows={3} />}>
+      {/* @ts-ignore async server component */}
+      <WidgetBodyAsync widget={widget} bodyProps={bodyProps} />
+    </Suspense>
+  );
 }
 
 export async function DashboardTabBody({
@@ -75,47 +107,44 @@ export async function DashboardTabBody({
   const wideWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) === 2);
   const halfWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) !== 2);
 
-  const renderWidget = async (w: MergedWidget) => {
-    const Body = WIDGET_COMPONENTS[w.component];
-    const bodyProps: WidgetBodyProps = { userId, role, fullPageHref: w.fullPageHref };
-    const content = Body
-      ? await Body(bodyProps)
-      : <p className="dashboard-widget-empty">No content available.</p>;
-    return { widget: w, content, column: w.column, columnPinned: w.columnPinned };
-  };
+  // Build placeholder entries for column balancing (no content needed — Suspense handles it)
+  const halfEntries = halfWidgets.map((w) => ({
+    widget: w,
+    column: w.column,
+    columnPinned: w.columnPinned,
+  }));
 
-  const [wideRendered, halfRendered] = await Promise.all([
-    Promise.all(wideWidgets.map(renderWidget)),
-    Promise.all(halfWidgets.map(renderWidget)),
-  ]);
-
-  const [left, right] = balanceDashboardColumns(halfRendered, (entry) =>
+  const [left, right] = balanceDashboardColumns(halfEntries, (entry) =>
     148 + Math.max(0, entry.widget.title.length - 24) * 0.5,
   );
 
-  const makeWidget = (entry: RenderedEntry) => (
-    <Widget
-      key={entry.widget.id}
-      title={entry.widget.title}
-      href={entry.widget.fullPageHref}
-    >
-      {entry.content}
-    </Widget>
-  );
+  const bodyProps: WidgetBodyProps = { userId, role };
+
+  const renderCol = (entries: typeof halfEntries) =>
+    entries.map((entry) => (
+      <WidgetWithSuspense
+        key={entry.widget.id}
+        widget={entry.widget}
+        bodyProps={{ ...bodyProps, fullPageHref: entry.widget.fullPageHref }}
+      />
+    ));
 
   return (
     <div className="dashboard-widget-grid">
       {/* Full-width widgets span both columns */}
-      {wideRendered.map((entry) => (
-        <div key={entry.widget.id} className="dashboard-widget-full">
-          {makeWidget(entry)}
+      {wideWidgets.map((w) => (
+        <div key={w.id} className="dashboard-widget-full">
+          <WidgetWithSuspense
+            widget={w}
+            bodyProps={{ ...bodyProps, fullPageHref: w.fullPageHref }}
+          />
         </div>
       ))}
       {/* Half-width widgets in balanced two-column layout */}
-      {halfRendered.length > 0 && (
+      {halfWidgets.length > 0 && (
         <>
-          <div className="dashboard-widget-column">{left.map(makeWidget)}</div>
-          <div className="dashboard-widget-column">{right.map(makeWidget)}</div>
+          <div className="dashboard-widget-column">{renderCol(left)}</div>
+          <div className="dashboard-widget-column">{renderCol(right)}</div>
         </>
       )}
     </div>

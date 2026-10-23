@@ -67,7 +67,7 @@ const NAV: NavItem[] = [
       {
         label: "Certificate in Basic Life Support",
         href: "/courses/basic-life-support-first-aid",
-        desc: "1 month. Open to all.",
+        desc: "1 month. For registered health professionals.",
       },
       {
         label: "Certificate in Advanced Life Support",

@@ -39,19 +39,17 @@ export default async function BoardGraduatesPage({ searchParams }: Props) {
         <p className="text-gray-500 text-sm mt-1">Names, course and year only - Board view</p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <form method="GET" className="flex flex-wrap gap-3">
         <input name="q" type="search" defaultValue={q}
-          onChange={(e) => {}} placeholder="Search by name..."
-          className="input max-w-xs text-sm" readOnly />
-        <form method="GET" className="flex gap-2">
-          <select name="year" defaultValue={yearFilter ?? ""} className="input text-sm w-auto">
-            <option value="">All years</option>
-            {years.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <button type="submit" className="btn-primary text-sm">Filter</button>
-          {(q || yearFilter) && <a href="/board/graduates" className="btn-ghost text-sm no-underline">Clear</a>}
-        </form>
-      </div>
+          placeholder="Search by name..."
+          className="input max-w-xs text-sm" />
+        <select name="year" defaultValue={yearFilter ?? ""} className="input text-sm w-auto">
+          <option value="">All years</option>
+          {years.map((y) => <option key={y} value={y}>{y}</option>)}
+        </select>
+        <button type="submit" className="btn-primary text-sm">Filter</button>
+        {(q || yearFilter) && <a href="/board/graduates" className="btn-ghost text-sm no-underline">Clear</a>}
+      </form>
 
       <p className="text-sm text-gray-500">{filtered.length} graduate{filtered.length !== 1 ? "s" : ""}</p>
 
