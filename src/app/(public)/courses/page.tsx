@@ -5,7 +5,6 @@ import ContactBand from "@/components/public/ContactBand";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import AnimateIn from "@/components/public/AnimateIn";
 import CoursesClient from "./CoursesClient";
 import type { CourseItem } from "./CoursesClient";
 import { getContactInfo } from "@/lib/contact";
@@ -212,7 +211,6 @@ export default async function CoursesPage() {
         className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 overflow-x-auto"
         aria-label="Course comparison"
       >
-        <AnimateIn>
           <h2 className="text-2xl font-bold text-primary mb-2">
             Compare courses at a glance
           </h2>
@@ -276,7 +274,6 @@ export default async function CoursesPage() {
               </tbody>
             </table>
           </div>
-        </AnimateIn>
       </section>
 
       <CTABand
