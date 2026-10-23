@@ -12,6 +12,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/dashboard/courses", permissions: ["courses.view"] },
   { prefix: "/dashboard/assignments", permissions: ["courses.view"] },
   { prefix: "/dashboard/forum", permissions: ["courses.view"] },
+  { prefix: "/dashboard/announcements", permissions: ["enrolments.view"] },
   { prefix: "/dashboard/support", permissions: ["enrolments.view"] },
   { prefix: "/dashboard/notifications", permissions: ["enrolments.view"] },
   { prefix: "/dashboard/profile", permissions: ["enrolments.view"] },

@@ -3200,6 +3200,24 @@ async function main() {
     });
   }
 
+  // ── Update partially-paid instalment due dates to show upcoming reminders ──
+  // Student "25" has instalments 2 and 3 unpaid — set instalment 2 due in 5 days
+  // so the HoldsBody widget shows a real upcoming payment reminder.
+  const student25 = await prisma.user.findUnique({ where: { email: "student.25@example.com" }, select: { id: true } });
+  if (student25) {
+    const enr25 = await prisma.enrolment.findFirst({ where: { userId: student25.id }, select: { id: true } });
+    if (enr25) {
+      await prisma.instalment.updateMany({
+        where: { enrolmentId: enr25.id, number: 2, paidAt: null },
+        data: { dueDate: daysFrom(5) },
+      });
+      await prisma.instalment.updateMany({
+        where: { enrolmentId: enr25.id, number: 3, paidAt: null },
+        data: { dueDate: daysFrom(35) },
+      });
+    }
+  }
+
   // ── Approval Requests (marks-change and fee-change for demo) ──
   const existingMarksApprovals = await prisma.approvalRequest.count({
     where: { type: ApprovalRequestType.MARKS_CHANGE },

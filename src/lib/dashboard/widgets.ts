@@ -80,7 +80,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
   {
     id: "holds",
-    title: "Payment Holds",
+    title: "Payment Holds & Upcoming Payments",
     requiredPermission: "payments.initiate",
     defaultTab: "general",
     defaultColumn: 0,
@@ -205,6 +205,17 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "payment-action",
     fullPageHref: "/dashboard/payments",
+    roles: ["STUDENT"],
+  },
+  {
+    id: "student-access-summary",
+    title: "What You Can Access",
+    requiredPermission: "payments.initiate",
+    defaultTab: "finance",
+    defaultColumn: 0,
+    component: "student-access-summary",
+    defaultSpan: 2,
+    fullPageHref: "/dashboard/courses",
     roles: ["STUDENT"],
   },
   // Classes tab

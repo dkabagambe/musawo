@@ -20,6 +20,14 @@ export default async function ProfilePage() {
       avatarUrl: true,
       createdAt: true,
       status: true,
+      dateOfBirth: true,
+      gender: true,
+      district: true,
+      countryCode: true,
+      highestQualification: true,
+      professionalTitle: true,
+      registrationNumber: true,
+      emergencyContact: true,
     },
   });
 
@@ -49,6 +57,11 @@ export default async function ProfilePage() {
               year: "numeric",
             })}
           </p>
+          {user.status === "DETAILS_DISPUTED" && (
+            <p className="text-xs text-danger mt-1 font-medium">
+              ⚠ Your details are being reviewed. Contact the Registrar if you have not yet done so.
+            </p>
+          )}
         </div>
       </div>
 
@@ -57,6 +70,16 @@ export default async function ProfilePage() {
           name: user.name,
           email: user.email ?? "",
           phone: user.phone ?? "",
+          dateOfBirth: user.dateOfBirth
+            ? user.dateOfBirth.toISOString().slice(0, 10)
+            : null,
+          gender: user.gender,
+          district: user.district,
+          countryCode: user.countryCode ?? "UG",
+          highestQualification: user.highestQualification,
+          professionalTitle: user.professionalTitle,
+          registrationNumber: user.registrationNumber,
+          emergencyContact: user.emergencyContact,
         }}
       />
     </div>

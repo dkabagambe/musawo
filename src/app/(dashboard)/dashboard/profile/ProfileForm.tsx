@@ -3,11 +3,46 @@
 import { useState } from "react";
 
 interface Props {
-  user: { name: string; email: string; phone: string };
+  user: {
+    name: string;
+    email: string;
+    phone: string;
+    dateOfBirth: string | null;
+    gender: string | null;
+    district: string | null;
+    countryCode: string;
+    highestQualification: string | null;
+    professionalTitle: string | null;
+    registrationNumber: string | null;
+    emergencyContact: string | null;
+  };
 }
 
+const UGANDAN_DISTRICTS = [
+  "Kampala", "Wakiso", "Mukono", "Jinja", "Mbarara", "Gulu", "Lira",
+  "Masaka", "Arua", "Fort Portal", "Mbale", "Kabale", "Soroti", "Tororo",
+  "Hoima", "Kasese", "Entebbe", "Other",
+];
+
+const QUALIFICATIONS = [
+  "O-Level (UCE)", "A-Level (UACE)", "Certificate", "Diploma",
+  "Bachelor's Degree", "Postgraduate Diploma", "Master's Degree",
+  "Doctorate (PhD)", "Professional Certificate", "Other",
+];
+
 export default function ProfileForm({ user }: Props) {
-  const [form, setForm] = useState({ name: user.name, phone: user.phone });
+  const [form, setForm] = useState({
+    name: user.name,
+    phone: user.phone,
+    dateOfBirth: user.dateOfBirth ?? "",
+    gender: user.gender ?? "",
+    district: user.district ?? "",
+    countryCode: user.countryCode,
+    highestQualification: user.highestQualification ?? "",
+    professionalTitle: user.professionalTitle ?? "",
+    registrationNumber: user.registrationNumber ?? "",
+    emergencyContact: user.emergencyContact ?? "",
+  });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileError, setProfileError] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
@@ -16,6 +51,9 @@ export default function ProfileForm({ user }: Props) {
   const [pwMsg, setPwMsg] = useState("");
   const [pwError, setPwError] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +64,18 @@ export default function ProfileForm({ user }: Props) {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name.trim(), phone: form.phone.trim() || undefined }),
+        body: JSON.stringify({
+          name: form.name.trim(),
+          phone: form.phone.trim() || undefined,
+          dateOfBirth: form.dateOfBirth || undefined,
+          gender: form.gender || undefined,
+          district: form.district || undefined,
+          countryCode: form.countryCode || "UG",
+          highestQualification: form.highestQualification || undefined,
+          professionalTitle: form.professionalTitle || undefined,
+          registrationNumber: form.registrationNumber || undefined,
+          emergencyContact: form.emergencyContact || undefined,
+        }),
       });
       if (!res.ok) {
         const d = await res.json();
@@ -45,7 +94,6 @@ export default function ProfileForm({ user }: Props) {
     e.preventDefault();
     setPwMsg("");
     setPwError("");
-
     if (pwForm.newPassword !== pwForm.confirmPassword) {
       setPwError("Passwords do not match.");
       return;
@@ -80,7 +128,7 @@ export default function ProfileForm({ user }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Profile details */}
+      {/* Personal details */}
       <section className="card">
         <h2 className="text-lg font-semibold mb-4">Personal details</h2>
         {profileMsg && (
@@ -94,42 +142,104 @@ export default function ProfileForm({ user }: Props) {
           </div>
         )}
         <form onSubmit={handleProfileSave} noValidate>
+          {/* Name */}
           <div className="mb-4">
             <label htmlFor="name" className="label">Full name</label>
-            <input
-              id="name"
-              type="text"
-              required
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="input"
-            />
+            <input id="name" type="text" required value={form.name}
+              onChange={set("name")} className="input" />
           </div>
+
+          {/* Email — read-only */}
           <div className="mb-4">
             <label htmlFor="email" className="label">Email address</label>
-            <input
-              id="email"
-              type="email"
-              disabled
-              value={user.email}
-              className="input opacity-60 cursor-not-allowed"
-              aria-describedby="email-hint"
-            />
+            <input id="email" type="email" disabled value={user.email}
+              className="input opacity-60 cursor-not-allowed" aria-describedby="email-hint" />
             <p id="email-hint" className="text-xs text-gray-400 mt-1">
               Contact support to change your email.
             </p>
           </div>
-          <div className="mb-6">
+
+          {/* Phone */}
+          <div className="mb-4">
             <label htmlFor="phone" className="label">Phone number</label>
-            <input
-              id="phone"
-              type="tel"
-              value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              className="input"
-              placeholder="+256 700 000000"
-            />
+            <input id="phone" type="tel" value={form.phone}
+              onChange={set("phone")} className="input" placeholder="+256 700 000000" />
           </div>
+
+          {/* Date of birth */}
+          <div className="mb-4">
+            <label htmlFor="dob" className="label">Date of birth</label>
+            <input id="dob" type="date" value={form.dateOfBirth}
+              onChange={set("dateOfBirth")} className="input" />
+          </div>
+
+          {/* Gender */}
+          <div className="mb-4">
+            <label htmlFor="gender" className="label">Gender</label>
+            <select id="gender" value={form.gender} onChange={set("gender")} className="input">
+              <option value="">— Select —</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other / Prefer not to say</option>
+            </select>
+          </div>
+
+          {/* District */}
+          <div className="mb-4">
+            <label htmlFor="district" className="label">District (Uganda)</label>
+            <select id="district" value={form.district} onChange={set("district")} className="input">
+              <option value="">— Select district —</option>
+              {UGANDAN_DISTRICTS.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Highest qualification */}
+          <div className="mb-4">
+            <label htmlFor="qualification" className="label">Highest qualification</label>
+            <select id="qualification" value={form.highestQualification}
+              onChange={set("highestQualification")} className="input">
+              <option value="">— Select —</option>
+              {QUALIFICATIONS.map((q) => (
+                <option key={q} value={q}>{q}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Professional title (for health workers) */}
+          <div className="mb-4">
+            <label htmlFor="profTitle" className="label">
+              Professional title{" "}
+              <span className="text-xs text-gray-400">(health professionals only)</span>
+            </label>
+            <input id="profTitle" type="text" value={form.professionalTitle}
+              onChange={set("professionalTitle")} className="input"
+              placeholder="e.g. Registered Nurse, Clinical Officer" />
+          </div>
+
+          {/* Registration number */}
+          <div className="mb-4">
+            <label htmlFor="regNum" className="label">
+              Professional registration number{" "}
+              <span className="text-xs text-gray-400">(health professionals only)</span>
+            </label>
+            <input id="regNum" type="text" value={form.registrationNumber}
+              onChange={set("registrationNumber")} className="input"
+              placeholder="e.g. NMS-12345" />
+          </div>
+
+          {/* Emergency contact */}
+          <div className="mb-6">
+            <label htmlFor="emergency" className="label">
+              Emergency contact{" "}
+              <span className="text-xs text-gray-400">(name and phone number)</span>
+            </label>
+            <input id="emergency" type="text" value={form.emergencyContact}
+              onChange={set("emergencyContact")} className="input"
+              placeholder="e.g. Jane Namutebi — +256 700 000000" />
+          </div>
+
           <button type="submit" disabled={profileLoading} className="btn-primary">
             {profileLoading ? "Saving…" : "Save changes"}
           </button>
@@ -152,40 +262,24 @@ export default function ProfileForm({ user }: Props) {
         <form onSubmit={handlePasswordChange} noValidate>
           <div className="mb-4">
             <label htmlFor="oldPassword" className="label">Current password</label>
-            <input
-              id="oldPassword"
-              type="password"
-              autoComplete="current-password"
-              required
+            <input id="oldPassword" type="password" autoComplete="current-password" required
               value={pwForm.oldPassword}
               onChange={(e) => setPwForm((f) => ({ ...f, oldPassword: e.target.value }))}
-              className="input"
-            />
+              className="input" />
           </div>
           <div className="mb-4">
             <label htmlFor="newPassword" className="label">New password</label>
-            <input
-              id="newPassword"
-              type="password"
-              autoComplete="new-password"
-              required
+            <input id="newPassword" type="password" autoComplete="new-password" required
               value={pwForm.newPassword}
               onChange={(e) => setPwForm((f) => ({ ...f, newPassword: e.target.value }))}
-              className="input"
-              placeholder="At least 8 characters"
-            />
+              className="input" />
           </div>
           <div className="mb-6">
             <label htmlFor="confirmPassword" className="label">Confirm new password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
+            <input id="confirmPassword" type="password" autoComplete="new-password" required
               value={pwForm.confirmPassword}
               onChange={(e) => setPwForm((f) => ({ ...f, confirmPassword: e.target.value }))}
-              className="input"
-            />
+              className="input" />
           </div>
           <button type="submit" disabled={pwLoading} className="btn-primary">
             {pwLoading ? "Changing…" : "Change password"}

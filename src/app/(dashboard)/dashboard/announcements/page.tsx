@@ -11,7 +11,10 @@ export default async function AnnouncementsPage() {
   if (!session?.user) redirect("/login");
 
   const enrolments = await db.enrolment.findMany({
-    where: { userId: session.user.id, status: { in: ["ACTIVE","COMPLETED"] } },
+    where: {
+      userId: session.user.id,
+      status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] },
+    },
     select: { courseId: true },
   });
   const courseIds = enrolments.map((e) => e.courseId);

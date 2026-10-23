@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import {
   LayoutDashboard, BookOpen, Calendar, BarChart2, ClipboardList,
-  FileText, MessageSquare, CreditCard, Award, LifeBuoy, Bell, User, PlayCircle,
+  FileText, MessageSquare, CreditCard, Award, LifeBuoy, Bell, User, PlayCircle, Megaphone,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -15,6 +15,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/results",       label: "Results",       icon: <ClipboardList className="w-4 h-4" /> },
   { href: "/dashboard/assignments",   label: "Assignments",   icon: <FileText className="w-4 h-4" /> },
   { href: "/dashboard/forum",         label: "Discussion",    icon: <MessageSquare className="w-4 h-4" /> },
+  { href: "/dashboard/announcements", label: "Announcements", icon: <Megaphone className="w-4 h-4" /> },
   { href: "/dashboard/payments",      label: "Payments",      icon: <CreditCard className="w-4 h-4" /> },
   { href: "/dashboard/certificates",  label: "Certificates",  icon: <Award className="w-4 h-4" /> },
   { href: "/dashboard/support",       label: "Support",       icon: <LifeBuoy className="w-4 h-4" /> },

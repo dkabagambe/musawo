@@ -10,9 +10,13 @@ export default async function ForumPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  // Get courses the student is enrolled in
+  // Get courses the student is enrolled in — PARTIALLY_PAID and OVERDUE
+  // students can access the forum per the enrolment access library (canAccess("forum"))
   const enrolments = await db.enrolment.findMany({
-    where: { userId: session.user.id, status: { in: ["ACTIVE", "COMPLETED"] } },
+    where: {
+      userId: session.user.id,
+      status: { in: ["ACTIVE", "COMPLETED", "PARTIALLY_PAID", "OVERDUE"] },
+    },
     include: { course: { select: { id: true, title: true, slug: true } } },
   });
 

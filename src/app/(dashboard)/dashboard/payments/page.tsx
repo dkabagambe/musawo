@@ -96,6 +96,26 @@ export default async function PaymentsPage() {
             {enr.instalments.length > 1 && (
               <div className="px-6 py-4 border-b border-border">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Instalment Plan</h3>
+                {/* Next due reminder */}
+                {(() => {
+                  const nextDue = enr.instalments.find(
+                    (i) => !i.paidAt && i.dueDate,
+                  );
+                  if (!nextDue?.dueDate) return null;
+                  const daysLeft = Math.round(
+                    (new Date(nextDue.dueDate).getTime() - Date.now()) / 86400000,
+                  );
+                  const urgent = daysLeft <= 3;
+                  return (
+                    <div className={`mb-3 px-3 py-2 rounded-xl text-xs font-medium ${urgent ? "bg-danger/10 text-danger" : "bg-warning/10 text-amber-700"}`}>
+                      {urgent && daysLeft < 0
+                        ? `⚠ Instalment ${nextDue.number} is overdue by ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? "s" : ""} — UGX ${nextDue.amount.toLocaleString()}`
+                        : daysLeft === 0
+                        ? `⏰ Instalment ${nextDue.number} is due today — UGX ${nextDue.amount.toLocaleString()}`
+                        : `📅 Instalment ${nextDue.number} due in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} — UGX ${nextDue.amount.toLocaleString()}`}
+                    </div>
+                  );
+                })()}
                 <div className="space-y-2">
                   {enr.instalments.map((inst) => (
                     <div key={inst.id} className="flex items-center gap-3 text-sm">
@@ -106,6 +126,11 @@ export default async function PaymentsPage() {
                       </div>
                       <span className="flex-1 text-gray-600">Instalment {inst.number}</span>
                       <span className="font-semibold text-primary">UGX {inst.amount.toLocaleString()}</span>
+                      {inst.dueDate && !inst.paidAt && (
+                        <span className="text-xs text-gray-400">
+                          Due {new Date(inst.dueDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                        </span>
+                      )}
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${inst.paidAt ? "bg-success/10 text-success" : "bg-warning/10 text-amber-700"}`}>
                         {inst.paidAt ? "Paid" : "Pending"}
                       </span>
@@ -147,9 +172,20 @@ export default async function PaymentsPage() {
             {/* Pay CTA */}
             {remaining > 0 && enr.status !== "PENDING_PAYMENT" && (
               <div className="px-6 py-4 bg-surface border-t border-border">
-                <Link href={`/courses/${enr.course.slug}`}
+                <Link href={`/dashboard/payments`}
                   className="btn-primary no-underline inline-flex items-center gap-2 text-sm">
                   Pay next instalment <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
+            {enr.status === "PENDING_PAYMENT" && remaining > 0 && (
+              <div className="px-6 py-4 bg-warning/5 border-t border-border">
+                <p className="text-xs text-amber-700 mb-2">
+                  Your enrolment is awaiting payment. Pay to unlock course content.
+                </p>
+                <Link href={`/dashboard/payments`}
+                  className="btn-primary no-underline inline-flex items-center gap-2 text-sm">
+                  Make payment <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}

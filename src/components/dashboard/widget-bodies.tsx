@@ -270,28 +270,63 @@ async function MetricsBody({ userId }: WidgetBodyProps) {
   );
 }
 
-/* status-list  (student general - Holds) */
+/* status-list  (student general - Holds / Upcoming Payments) */
 async function HoldsBody({ userId, fullPageHref }: WidgetBodyProps) {
-  const enrolments = await db.enrolment.findMany({
+  const href = fullPageHref ?? "/dashboard/payments";
+
+  // Active holds: PENDING_PAYMENT and OVERDUE enrolments
+  const holds = await db.enrolment.findMany({
     where: { userId, status: { in: ["PENDING_PAYMENT", "OVERDUE"] } },
     include: { course: { select: { title: true } } },
     take: 5,
   });
-  if (!enrolments.length) return <Empty>No holds on your account.</Empty>;
-  const href = fullPageHref ?? "/dashboard/payments";
+
+  // Upcoming unpaid instalments for PARTIALLY_PAID enrolments
+  const upcoming = await db.instalment.findMany({
+    where: {
+      paidAt: null,
+      dueDate: { not: null },
+      enrolment: { userId, status: "PARTIALLY_PAID" },
+    },
+    orderBy: { dueDate: "asc" },
+    take: 3,
+    include: {
+      enrolment: { include: { course: { select: { title: true } } } },
+    },
+  });
+
+  if (!holds.length && !upcoming.length)
+    return <Empty>No holds or upcoming payments.</Empty>;
+
   return (
     <>
-      {enrolments.map((enr) => (
+      {holds.map((enr) => (
         <ListRow key={enr.id} href={href} icon={<AlertCircle size={16} />}>
           {enr.status === "OVERDUE"
             ? `Overdue payment: ${enr.course.title}`
             : `Complete payment for ${enr.course.title}`}
         </ListRow>
       ))}
+      {upcoming.map((inst) => {
+        const due = new Date(inst.dueDate!);
+        const daysLeft = Math.round((due.getTime() - Date.now()) / 86400000);
+        const label =
+          daysLeft < 0
+            ? `Overdue by ${Math.abs(daysLeft)}d`
+            : daysLeft === 0
+            ? "Due today"
+            : `Due in ${daysLeft}d`;
+        return (
+          <ListRow key={inst.id} href={href} icon={<Calendar size={16} />}>
+            Instalment {inst.number}: {fmtUGX(inst.amount)} —{" "}
+            {inst.enrolment.course.title}
+            <ClockMeta>{label}</ClockMeta>
+          </ListRow>
+        );
+      })}
     </>
   );
 }
-
 /* class-list  (student/instructor general - Upcoming Classes) */
 async function ClassListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
   const where: Prisma.LiveClassWhereInput =
@@ -2235,6 +2270,8 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "principal-announcements": PrincipalAnnouncementsBody,
   "board-documents": BoardDocumentsBody,
   "system-integrations": SystemIntegrationsBody,
+  // Student portal
+  "student-access-summary": StudentAccessSummaryBody,
 };
 
 /* ─────────────────────────────────────────────────────────────
@@ -2572,6 +2609,58 @@ async function SystemIntegrationsBody({ fullPageHref }: WidgetBodyProps) {
             : s.value || "not configured"}
         </ListRow>
       ))}
+    </>
+  );
+}
+
+/* student-access-summary  (student finance tab — "What You Can Access")
+   Shows each enrolment with the blocks currently unlocked vs locked,
+   so a partially-paid student knows exactly what they're paying towards. */
+async function StudentAccessSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const enrolments = await db.enrolment.findMany({
+    where: {
+      userId,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "OVERDUE", "PENDING_PAYMENT", "COMPLETED"] },
+    },
+    include: {
+      course: {
+        select: {
+          title: true,
+          slug: true,
+          blocks: {
+            orderBy: { order: "asc" },
+            select: { id: true, order: true, title: true },
+          },
+        },
+      },
+    },
+    take: 6,
+  });
+  if (!enrolments.length) return <Empty>No active enrolments.</Empty>;
+  const href = fullPageHref ?? "/dashboard/courses";
+
+  // Block-unlock thresholds (must match access.ts DEFAULT_ACCESS_THRESHOLDS)
+  const THRESHOLDS: Record<number, number> = { 1: 25, 2: 50, 3: 75 };
+
+  return (
+    <>
+      {enrolments.map((enr) => {
+        const pct = enr.paidPercent ?? 0;
+        const isFullAccess = ["ACTIVE", "COMPLETED"].includes(enr.status) || pct >= 100;
+        return (
+          <ListRow key={enr.id} href={`/dashboard/courses/${enr.course.slug}`}>
+            <strong>{enr.course.title}</strong>
+            {isFullAccess
+              ? " — Full access (all blocks unlocked)"
+              : enr.status === "PENDING_PAYMENT"
+              ? " — Awaiting payment — preview lessons only"
+              : ` — ${pct}% paid · ${enr.course.blocks.filter(
+                  (b) => b.order <= 4 && pct >= (THRESHOLDS[b.order] ?? 100),
+                ).length} of ${enr.course.blocks.length} block${enr.course.blocks.length !== 1 ? "s" : ""} unlocked`}
+          </ListRow>
+        );
+      })}
+      <ViewMoreLink href="/dashboard/payments">View full payment details</ViewMoreLink>
     </>
   );
 }
