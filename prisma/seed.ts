@@ -3200,6 +3200,115 @@ async function main() {
     });
   }
 
+  // ── Approval Requests (marks-change and fee-change for demo) ──
+  const existingMarksApprovals = await prisma.approvalRequest.count({
+    where: { type: ApprovalRequestType.MARKS_CHANGE },
+  });
+  if (existingMarksApprovals === 0) {
+    const approvalToken = () => randomBytes(32).toString("hex");
+    await prisma.approvalRequest.createMany({
+      data: [
+        {
+          type: ApprovalRequestType.MARKS_CHANGE,
+          status: ApprovalRequestStatus.PENDING,
+          initiatorId: tutor.id,
+          reason:
+            "Block 2 Infection Control — Student Ronald Mugisha submitted the correct answers but a transcription error recorded 12/30. Correct score is 24/30.",
+          approvalToken: approvalToken(),
+          createdAt: daysAgo(2),
+        },
+        {
+          type: ApprovalRequestType.MARKS_CHANGE,
+          status: ApprovalRequestStatus.PENDING,
+          initiatorId: registrar.id,
+          reason:
+            "CNA Final Exam — Student James Ssemwogerere: final exam score entered as 52/65 but invigilator sheet shows 58/65.",
+          approvalToken: approvalToken(),
+          createdAt: daysAgo(5),
+        },
+        {
+          type: ApprovalRequestType.FEE_CHANGE,
+          status: ApprovalRequestStatus.PENDING,
+          initiatorId: financeOfficer.id,
+          reason:
+            "Student Grace Nalubega has applied for a partial fee waiver (Medical Home Care Course) due to demonstrated financial hardship. Requesting 20% reduction.",
+          amount: 460000,
+          approvalToken: approvalToken(),
+          createdAt: daysAgo(4),
+        },
+        {
+          type: ApprovalRequestType.MARKS_CHANGE,
+          status: ApprovalRequestStatus.APPROVED,
+          initiatorId: tutor2.id,
+          reason:
+            "Babysitting Module 1 — Quiz score corrected after technical glitch during online submission.",
+          createdAt: daysAgo(10),
+          decidedAt: daysAgo(8),
+          decidedById: principal.id,
+          decisionNote: "Confirmed with invigilator records. Approved.",
+        },
+      ],
+    });
+    console.log("  ✓ Approval requests — marks changes (2 pending, 1 fee change, 1 approved)");
+  }
+
+  // ── Board Documents ────────────────────────────────────────────
+  const existingBoardDocs = await prisma.boardDocument.count();
+  if (existingBoardDocs === 0) {
+    await prisma.boardDocument.createMany({
+      data: [
+        {
+          title: "Board Meeting Minutes — October 2026",
+          category: "MINUTES",
+          authorId: institutionSecretary.id,
+          fileUrl: "/assets/demo/board-minutes-oct-2026.pdf",
+          createdAt: daysAgo(7),
+        },
+        {
+          title: "Annual Academic Performance Report 2026",
+          category: "REPORT",
+          authorId: institutionSecretary.id,
+          fileUrl: "/assets/demo/academic-report-2026.pdf",
+          createdAt: daysAgo(14),
+        },
+        {
+          title: "Student Enrolment Policy v3",
+          category: "POLICY",
+          authorId: institutionSecretary.id,
+          fileUrl: "/assets/demo/enrolment-policy-v3.pdf",
+          createdAt: daysAgo(30),
+        },
+      ],
+    });
+    console.log("  ✓ Board documents (3)");
+  }
+
+  // ── Operational Notices (additional) ──────────────────────────
+  const noticeCount = await prisma.operationalNotice.count();
+  if (noticeCount < 4) {
+    await prisma.operationalNotice.createMany({
+      data: [
+        {
+          title: "New intake registration deadline",
+          body: "All November 2026 intake registration forms must be submitted by 31 October 2026.",
+          audience: "ALL",
+          channel: "IN_APP",
+          sentById: registrar.id,
+          sentAt: daysAgo(2),
+        },
+        {
+          title: "Exam timetable published",
+          body: "The Block 3 examination timetable has been finalised and is now available. Please review your scheduled slots.",
+          audience: "STUDENTS",
+          channel: "IN_APP",
+          sentById: registrar.id,
+          sentAt: daysAgo(1),
+        },
+      ],
+    });
+    console.log("  ✓ Additional operational notices");
+  }
+
   // ── Print summary ──────────────────────────────────────────────
   console.log("\n" + "=".repeat(62));
   console.log("  DEMO SEED COMPLETE");

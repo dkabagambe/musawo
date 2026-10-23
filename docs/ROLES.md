@@ -201,53 +201,194 @@ IS = Institution Secretary account only (BOARD_MEMBER with `institutionSecretary
 
 Sees everything. Decision dashboard (enrolment, income, performance, pending approvals). Gives final approval of refunds, waivers, fee changes, role changes and bulk exports. Creates, deactivates and archives any account. Controls settings and policies. Reads the full audit log. Maximum 3 accounts. TOTP required in production.
 
+**Additional responsibilities:**
+- Sets the institution's strategic direction and approves institutional policies before publication.
+- Approves the annual academic calendar and any mid-year timetable changes.
+- Reviews and approves the annual fee structure before the Finance Officer publishes it.
+- Receives escalated complaints that could not be resolved at Principal or Deputy level.
+- Grants and revokes time-limited delegation of Principal powers to the Deputy Principal.
+- Authorises emergency break-glass access for SYSTEM_IT.
+- Approves all bulk personal-data exports before they leave the platform.
+- Manages the maximum three-account cap and ensures TOTP is active on all SUPER_ADMIN accounts.
+
 ### BOARD_MEMBER (Board of Directors / Institution Secretary)
 
 Read-only governance. Sees aggregate reports, policies, graduate names with course and year. No individual student contacts or payment details. The Institution Secretary account additionally manages policies and board documents (`institutionSecretary = true`).
+
+**Additional responsibilities:**
+- Reviews governance reports presented at board meetings (enrolment trends, financial summaries, graduate outcomes).
+- Reads and monitors institutional policies and compliance documents.
+- Tracks the graduate register to assess programme outcomes.
+- The Institution Secretary additionally drafts, versions and publishes board-level policies and meeting documents.
 
 ### PRINCIPAL
 
 All academic privileges. Approves new courses and content, approves lecturers and assignments, publishes final results, approves graduands and certificates, sends announcements, reads finance totals and full audit data, reviews applications. Inherits everything a Registrar, Instructor or TA can do (logged "via role").
 
+**Additional responsibilities:**
+- Sets and communicates academic standards and instructional expectations to all teaching staff.
+- Approves the academic calendar, intake dates, and examination schedule before the Registrar publishes them.
+- Conducts or oversees regular course and programme quality reviews; may require a course to be revised before it is published.
+- Reviews and approves instructor assignments and co-tutor appointments before they take effect.
+- Reviews student disciplinary appeals that the Deputy Principal has escalated.
+- Signs off on the institution's academic reports submitted to regulatory or accreditation bodies.
+- Delegates time-limited powers (result release, graduation approval, course publishing) to the Deputy Principal when absent; those delegations are tracked and expire automatically.
+- Monitors finance totals to spot fee-collection shortfalls and escalates to the Finance Officer or SUPER_ADMIN; does not handle individual payment transactions.
+- Reviews complaints lodged against teaching staff or academic decisions and may escalate to SUPER_ADMIN.
+- Approves marks-change requests submitted after result release.
+
 ### DEPUTY_PRINCIPAL
 
 Day-to-day operations. Student complaints, teaching staff attendance, timetable clashes, exam supervision, class observation. Inherits Registrar, Instructor and TA powers. Cannot archive or delete; cannot publish results, approve graduands or approve courses unless Principal delegates (setting with expiry).
+
+**Additional responsibilities:**
+- Acts as Principal in the Principal's absence; all delegated actions are logged "via delegation".
+- Monitors daily attendance rates across all courses and flags persistent absenteeism to the Registrar for follow-up.
+- Coordinates exam room allocation with the Registrar and ensures invigilators are briefed.
+- Reviews and resolves timetable clashes flagged by the Registrar; escalates irresolvable clashes to the Principal.
+- Receives first-level student disciplinary cases and issues decisions; escalates appeals to the Principal.
+- Reviews academic performance reports per course and flags underperforming courses to the Principal.
+- Observes live classes and teaching activities across all courses for quality-assurance purposes.
+- Coordinates extracurricular programmes and special academic events.
+- Reviews and forwards student complaints about academic matters to the Principal or SUPER_ADMIN where required.
+- May approve marks-change requests if the Principal has explicitly delegated that permission.
 
 ### ACADEMIC_REGISTRAR
 
 Creates student accounts, applications, admissions, enrolments, class groups, course records for Principal approval, academic calendar and exam timetables, transcripts and progress reports, graduates register, alumni follow-up, certificates after Principal approval. Sees payment status only; cannot publish results or change marks.
 
+**Additional responsibilities:**
+- Manages the full student lifecycle from application receipt through to graduation clearance.
+- Maintains the official academic calendar: intake dates, lecture start/end dates, examination windows, result-release dates and graduation date; all changes require Principal sign-off.
+- Builds and maintains the exam timetable; coordinates with instructors on question submission deadlines.
+- Verifies that all graduation requirements are met before preparing the graduand list for Principal approval.
+- Maintains the alumni register and coordinates alumni follow-up communications.
+- Processes transfer-credit applications and records equivalent credits against the student's academic record.
+- Generates official transcripts and progress reports on request; verifies their accuracy before release.
+- Sends institution-wide academic announcements (timetable changes, intake notices, exam alerts).
+- Manages course catalogue for the current intake: creates draft course records, links instructors, sets unit counts; each course goes to the Principal for approval and publishing.
+- Prepares periodic enrolment and academic-performance reports for the Principal, Deputy and SUPER_ADMIN.
+- Requests marks changes after result release (Principal must approve before any change is applied).
+
 ### INSTRUCTOR (Teaching Staff)
 
 Assigned courses and units only. Uploads materials; creates and teaches live classes (moderator); takes roll call; builds and marks exams; manages practical assessments and log books; chats with own students; announces to own classes; sees graduates of own courses.
+
+**Additional responsibilities:**
+- Plans the teaching schedule for each unit: lesson sequence, weekly topics and assessment calendar.
+- Uploads and organises course materials (notes, videos, readings) within the platform; materials are visible to enrolled students immediately on upload.
+- Designs, sets and marks exams and assignments; submits results by the Registrar's deadline.
+- Takes roll call at the start of each session and flags persistent absence to the Registrar.
+- Provides written feedback on assessments and communicates it to students via the messaging feature.
+- Manages practical assessments and log book sign-offs for vocational or skills-based units.
+- Monitors student progress per unit; may submit a progress report to the Registrar on request.
+- Handles first-line academic queries from students through the in-platform messaging tool.
+- Sends announcements to their own class group (session changes, assignment reminders, result notifications).
+- Can request a marks change after results are released by submitting a reason; Principal must approve before the change is applied.
 
 ### TEACHING_ASSISTANT (Supporting Staff)
 
 Helps upload materials (instructor publishes); takes roll call when assigned; helps students. Cannot set final marks.
 
+**Additional responsibilities:**
+- Assists the assigned Instructor with preparing and uploading course materials; the Instructor reviews and publishes before students can see them.
+- Takes roll call and monitors class attendance in sessions where the Instructor is absent or has assigned the task.
+- Provides in-class support to students on practical exercises and answers routine course queries.
+- Assists with setting up the live class environment (screen sharing, breakout rooms, student admission).
+- Reports student welfare concerns or misconduct observed during class to the Instructor or Registrar.
+- Does not create, edit or publish exams, set grades, or issue certificates.
+
 ### FINANCE_OFFICER (Accounts / Audit)
 
 Fee status per student, payment holds with reason, records and verifies payments, reconciliation, receipts, financial reports. Requests refunds, waivers and fee changes (SUPER_ADMIN approves). Cannot see exam questions or edit marks.
+
+**Additional responsibilities:**
+- Maintains the fee schedule and payment plan options for each intake; changes to published fees require SUPER_ADMIN approval.
+- Sends fee reminders and outstanding-balance notices to students (via the operational notices channel; content is financial, not academic).
+- Places and lifts payment holds on student accounts with a recorded reason.
+- Records manual (bank-transfer) payment claims and triggers the dual-verification workflow before marking a payment complete.
+- Reconciles payment gateway records (Pesapal, Flutterwave, manual) against the internal ledger on a regular cycle; flags discrepancies to the SUPER_ADMIN.
+- Prepares monthly and term-end financial reports showing income by intake, course and payment method.
+- Submits refund, waiver and fee-change requests with supporting documents; the SUPER_ADMIN gives final approval.
+- Maintains documentation for annual financial audits and liaises with the AUDITOR_READONLY when they inspect finance records.
+- Does not see exam content, student marks, certificates, or any academic record beyond payment status.
 
 ### AUDITOR_READONLY (Legal Advisor)
 
 Read-only on policies, student records, graduates, finance, audit logs and complaints. May add flags or comments on audit items. Edits nothing. Every view logged.
 
+**Additional responsibilities:**
+- Reviews the full audit log to verify that system actions (grade releases, payment holds, staff suspensions, delegation grants) are properly authorised and recorded.
+- Checks that policies are current, signed by the appropriate authority, and that the effective dates are correct.
+- Reviews complaints registers and outcome records for compliance with the institution's disciplinary procedures.
+- Reviews student and graduate records for data accuracy and legal compliance (data protection, enrolment eligibility).
+- Reviews financial records and transaction logs for irregularities; may flag specific entries with a comment for SUPER_ADMIN follow-up.
+- Adds comments and flags to individual audit records to indicate items that require management attention; cannot edit or delete the underlying data.
+- Every page view by the Auditor is logged automatically; the Auditor is aware that their session is fully recorded.
+- Board documents viewed by the Auditor are also individually logged.
+
 ### HR_MANAGER (Human Resource)
 
 Staff records, staff invites, leave, and quarterly staff access review. Inherits operational actions from ADMINISTRATOR, with inherited actions logged via role. Cannot create SUPER_ADMIN, BOARD_MEMBER, or AUDITOR_READONLY. No student records, finance, academic content, or secrets.
+
+**Additional responsibilities:**
+- Manages the full staff lifecycle: initiates new staff invitations (SUPER_ADMIN approves and activates), records role changes and suspensions.
+- Maintains staff personal records and contract details within the HR data boundary (no academic or finance data).
+- Manages leave requests: records applications, checks against staffing levels and confirms or escalates for approval.
+- Conducts the quarterly staff access review: verifies that every account's role still matches the staff member's current duties and flags mismatches to the SUPER_ADMIN.
+- Coordinates staff onboarding: sends the account invitation, confirms acceptance and ensures the TOTP requirement is communicated to SUPER_ADMIN-level staff.
+- Manages staff induction and probationary review schedules; records outcomes.
+- Coordinates staff professional-development and training tracking (records completion; does not control academic content).
+- Handles disciplinary and grievance procedures at HR level; escalates to the Principal or SUPER_ADMIN as required.
+- Prepares HR reports: staff headcount by role, leave utilisation, access-review outcomes.
+- Cannot create SUPER_ADMIN, BOARD_MEMBER or AUDITOR_READONLY accounts; those must be created directly by the SUPER_ADMIN.
 
 ### ADMINISTRATOR (School Operations)
 
 Runs the front desk and daily school operations. Manages support tickets, resends eligible pending invites, sends password reset links to eligible accounts, performs limited student lookup, maintains room bookings and practical sessions, checks equipment, sends logistics notices, and edits the operational settings allowlist. Cannot create student or staff accounts, change account email or phone, access payments, academic records, audit logs, secrets, or bulk exports. Academic calendar and exam timetables remain with the Academic Registrar.
 
+**Additional responsibilities:**
+- Operates the student-facing front desk: looks up a student's name, student number, course, intake, status, phone and email to answer day-to-day queries; each lookup is audit-logged.
+- Books and manages physical rooms and venues: assigns rooms to class sessions, records bookings, checks for conflicts, and generates a printable daily room schedule.
+- Manages practical-session bookings for skills-lab activities and links them to the timetable.
+- Maintains the equipment and supplies checklist: logs items in/out, records condition, and flags items that need repair or replacement.
+- Sends logistics and operational notices to the relevant groups (e.g. "Lab session moved to Room 3", "Library closed Thursday"); these are not academic announcements.
+- Resends pending account invitations for eligible (non-protected) staff and student accounts; each resend is logged.
+- Sends password-reset links to eligible accounts that cannot self-serve; rate-limited and audit-logged.
+- Manages support ticket workflow: receives, assigns, replies to and closes tickets within the configured SLA.
+- Updates the operational settings allowlist (venue names, room capacities, reminder templates, support categories); cannot edit academic, financial or secret settings.
+- Has no access to payments, marks, certificates, audit logs, staff creation, or bulk exports.
+
 ### SYSTEM_IT
 
 Technical settings, integrations, backups, health. No student or finance data without approved break-glass access.
 
+**Additional responsibilities:**
+- Manages all platform technical settings: environment variables (non-secret visible, secret editable), integration keys, API credentials and third-party service connections.
+- Monitors system health dashboards: uptime, error rates, queue depths, database performance, storage usage.
+- Manages database and file-store backup schedules; verifies that recent backups have completed successfully.
+- Reviews the technical audit log for unexpected access patterns, failed logins, unusual API call volumes and infrastructure errors.
+- Responds to automated alerts (on-call); documents incident timelines in the audit log.
+- Submits a break-glass access request when urgent direct data access is needed for incident resolution; SUPER_ADMIN must approve before access is granted.
+- Manages user identity infrastructure: password-reset configuration, TOTP enforcement rules, session timeout policy.
+- Coordinates third-party integrations (payment gateways, email delivery, SMS, video conferencing); tests webhooks and monitors delivery logs.
+- Does not access student records, academic grades, financial transactions or certificates in normal operations; all such access requires an approved break-glass grant.
+
 ### STUDENT
 
 Own learning only. Account created by Registrar; approved by student via email link; login impossible before approval. Reads and watches materials inside the platform only (no downloads). Takes timed exams. Sees own results, certificates, payments and transcript.
+
+**Additional responsibilities:**
+- Completes the account approval step by confirming personal details via the email link sent by the Registrar; disputes any incorrect details before activating the account.
+- Browses the course catalogue and views lesson materials, notes and videos within the platform for enrolled courses only.
+- Joins scheduled live classes when admitted by the Instructor; cannot start or manage classes.
+- Submits timed exam attempts within the allowed window; cannot re-attempt without Registrar approval.
+- Views their own results, grades, and feedback from the Instructor.
+- Requests and views their official transcript.
+- Views and downloads their own certificates.
+- Initiates payment for enrolment (online gateway or manual bank transfer); views payment status and receipts for their own account only.
+- Submits a support or complaint request; receives updates on ticket status.
+- Reads institution-wide announcements and policies.
 
 ---
 

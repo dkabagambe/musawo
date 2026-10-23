@@ -2222,4 +2222,356 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "auditor-overview": AuditorOverviewBody,
   "attendance-overview": AttendanceOverviewBody,
   "student-progress-overview": StudentProgressOverviewBody,
+  // New widgets — role responsibilities
+  "marks-change-requests": MarksChangeRequestsBody,
+  "delegation-status": DelegationStatusBody,
+  "attendance-alerts": AttendanceAlertBody,
+  "disciplinary-cases": DisciplinaryCasesBody,
+  "transcript-requests": TranscriptRequestsBody,
+  "announcements-sent": AnnouncementsSentBody,
+  "fee-reminder-list": FeeReminderListBody,
+  "instructor-marks-changes": InstructorMarksChangesBody,
+  "hr-staff-performance": HrStaffPerformanceBody,
+  "principal-announcements": PrincipalAnnouncementsBody,
+  "board-documents": BoardDocumentsBody,
+  "system-integrations": SystemIntegrationsBody,
 };
+
+/* ─────────────────────────────────────────────────────────────
+   NEW WIDGETS — added to surface role responsibilities
+   ───────────────────────────────────────────────────────────── */
+
+/* marks-change-requests  (principal approvals / deputy approvals tab) */
+async function MarksChangeRequestsBody({ fullPageHref }: WidgetBodyProps) {
+  const requests = await db.approvalRequest.findMany({
+    where: { type: "MARKS_CHANGE", status: "PENDING" },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    include: {
+      initiator: { select: { name: true } },
+    },
+  });
+  if (!requests.length) return <Empty>No pending marks-change requests.</Empty>;
+  const href = fullPageHref ?? "/director/approvals";
+  return (
+    <>
+      {requests.slice(0, 5).map((r) => (
+        <ListRow key={r.id} href={href} icon={<FileText size={16} />}>
+          {r.initiator.name ?? "Unknown"} — {r.reason?.slice(0, 60) ?? "Marks change request"}
+        </ListRow>
+      ))}
+      {requests.length > 5 && (
+        <ViewMoreLink href={href}>View {requests.length - 5} more</ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* delegation-status  (principal general tab) */
+async function DelegationStatusBody({ fullPageHref }: WidgetBodyProps) {
+  const delegatableKeys = [
+    "delegation.exams.release",
+    "delegation.graduands.approve",
+    "delegation.certificates.issue",
+    "delegation.courses.publish",
+    "delegation.marks.change.approve",
+  ] as const;
+  const settings = await db.siteSetting.findMany({
+    where: { key: { in: [...delegatableKeys] } },
+  });
+  const settingMap = new Map(settings.map((s) => [s.key, s.value]));
+  const labels: Record<string, string> = {
+    "delegation.exams.release": "Release exam results",
+    "delegation.graduands.approve": "Approve graduands",
+    "delegation.certificates.issue": "Issue certificates",
+    "delegation.courses.publish": "Publish courses",
+    "delegation.marks.change.approve": "Approve marks changes",
+  };
+  const active = delegatableKeys.filter((k) => {
+    const val = settingMap.get(k);
+    if (!val) return false;
+    try {
+      const parsed = JSON.parse(val) as { until?: string; enabled?: boolean };
+      if (!parsed.enabled) return false;
+      if (parsed.until && new Date(parsed.until) < new Date()) return false;
+      return true;
+    } catch {
+      return val === "true";
+    }
+  });
+  const href = fullPageHref ?? "/principal";
+  if (!active.length)
+    return (
+      <ListRow href={href} icon={<CheckCircle2 size={16} />}>
+        No active delegations to Deputy Principal
+      </ListRow>
+    );
+  return (
+    <>
+      {active.map((k) => (
+        <ListRow key={k} href={href} icon={<CheckCircle2 size={16} />}>
+          Delegated: {labels[k]}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* attendance-alert-list  (deputy academics tab — attendance per session) */
+async function AttendanceAlertBody({ fullPageHref }: WidgetBodyProps) {
+  const sessions = await db.liveClass.findMany({
+    where: { status: { in: ["COMPLETED", "LIVE"] } },
+    orderBy: { scheduledAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      title: true,
+      scheduledAt: true,
+      _count: { select: { attendance: true } },
+      courseId: true,
+    },
+  });
+  if (!sessions.length) return <Empty>No class sessions recorded yet.</Empty>;
+  const href = fullPageHref ?? "/deputy/timetable";
+  return (
+    <>
+      {sessions.slice(0, 5).map((s) => (
+        <ListRow key={s.id} href={href} icon={<ClipboardList size={16} />}>
+          {s.title} — {s._count.attendance} attendees
+          <CalendarMeta>{fmtDay(s.scheduledAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* disciplinary-cases  (deputy operations tab) */
+async function DisciplinaryCasesBody({ fullPageHref }: WidgetBodyProps) {
+  const complaints = await db.supportTicket.findMany({
+    where: {
+      status: { in: ["OPEN", "IN_PROGRESS"] },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    include: { user: { select: { name: true } } },
+  });
+  if (!complaints.length) return <Empty>No open support tickets.</Empty>;
+  const href = fullPageHref ?? "/deputy/complaints";
+  return (
+    <>
+      {complaints.slice(0, 5).map((c) => (
+        <ListRow key={c.id} href={href} icon={<AlertCircle size={16} />}>
+          {c.subject} — {c.user?.name ?? "Unknown"}
+          <CalendarMeta>{fmtDay(c.createdAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* transcript-requests  (registrar academics tab) */
+async function TranscriptRequestsBody({ fullPageHref }: WidgetBodyProps) {
+  const completed = await db.enrolment.findMany({
+    where: { status: "COMPLETED" },
+    orderBy: { updatedAt: "desc" },
+    take: 6,
+    include: {
+      user: { select: { name: true, studentNumber: true } },
+      course: { select: { title: true } },
+    },
+  });
+  if (!completed.length) return <Empty>No completed enrolments yet.</Empty>;
+  const href = fullPageHref ?? "/registrar/graduands";
+  return (
+    <>
+      {completed.slice(0, 5).map((e) => (
+        <ListRow key={e.id} href={href} icon={<FileText size={16} />}>
+          {e.user.name ?? "Unknown"} — {e.course.title}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* announcements-sent  (registrar / principal reports tab) */
+async function AnnouncementsSentBody({ fullPageHref }: WidgetBodyProps) {
+  const notices = await db.operationalNotice.findMany({
+    orderBy: { sentAt: "desc" },
+    take: 5,
+    select: { id: true, title: true, audience: true, sentAt: true, sentById: true },
+  });
+  if (!notices.length) return <Empty>No announcements sent yet.</Empty>;
+  const href = fullPageHref ?? "/registrar/students";
+  return (
+    <>
+      {notices.map((n) => (
+        <ListRow key={n.id} href={href} icon={<FileText size={16} />}>
+          {n.title}
+          <CalendarMeta>{fmtDay(n.sentAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* fee-reminder-list  (finance officer general tab) */
+async function FeeReminderListBody({ fullPageHref }: WidgetBodyProps) {
+  const overdue = await db.enrolment.findMany({
+    where: { status: { in: ["OVERDUE", "PENDING_PAYMENT"] } },
+    orderBy: { updatedAt: "asc" },
+    take: 6,
+    include: {
+      user: { select: { name: true } },
+      course: { select: { title: true } },
+    },
+  });
+  if (!overdue.length) return <Empty>No outstanding balances at this time.</Empty>;
+  const href = fullPageHref ?? "/finance/payments";
+  return (
+    <>
+      {overdue.slice(0, 5).map((e) => (
+        <ListRow key={e.id} href={href} icon={<AlertCircle size={16} />}>
+          {e.user.name ?? "Unknown"} — {e.course.title}
+          <ClockMeta>{e.status}</ClockMeta>
+        </ListRow>
+      ))}
+      {overdue.length > 5 && (
+        <ViewMoreLink href={href}>
+          {overdue.length - 5} more outstanding
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* instructor-marks-changes  (instructor/ta assessment tab) */
+async function InstructorMarksChangesBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const requests = await db.approvalRequest.findMany({
+    where: {
+      type: "MARKS_CHANGE",
+      initiatorId: userId,
+    },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: {
+      id: true,
+      reason: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+  if (!requests.length) return <Empty>No marks-change requests submitted yet.</Empty>;
+  const href = fullPageHref ?? "/tutor/exams";
+  return (
+    <>
+      {requests.map((r) => (
+        <ListRow key={r.id} href={href} icon={<FileText size={16} />}>
+          {r.reason?.slice(0, 60) ?? "Marks change"}
+          <ClockMeta>{r.status}</ClockMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* hr-staff-performance  (hr manager leave tab — approved leave records) */
+async function HrStaffPerformanceBody({ fullPageHref }: WidgetBodyProps) {
+  const recentLeave = await db.leaveRequest.findMany({
+    where: { status: "APPROVED" },
+    orderBy: { startsAt: "desc" },
+    take: 5,
+    include: { user: { select: { name: true, role: true } } },
+  });
+  if (!recentLeave.length) return <Empty>No approved leave records yet.</Empty>;
+  const href = fullPageHref ?? "/admin/leave";
+  return (
+    <>
+      {recentLeave.map((l) => (
+        <ListRow key={l.id} href={href} icon={<Users size={16} />}>
+          {l.user.name ?? "Unknown"} — approved leave
+          <CalendarMeta>{fmtDay(l.startsAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* principal-announcements  (principal reports/comms) */
+async function PrincipalAnnouncementsBody({ fullPageHref }: WidgetBodyProps) {
+  const notices = await db.operationalNotice.findMany({
+    orderBy: { sentAt: "desc" },
+    take: 5,
+    select: { id: true, title: true, audience: true, sentAt: true },
+  });
+  if (!notices.length) return <Empty>No announcements sent yet.</Empty>;
+  const href = fullPageHref ?? "/principal/reports";
+  return (
+    <>
+      {notices.map((n) => (
+        <ListRow key={n.id} href={href} icon={<FileText size={16} />}>
+          {n.title}
+          <CalendarMeta>{fmtDay(n.sentAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* board-documents  (board policies tab) */
+async function BoardDocumentsBody({ fullPageHref }: WidgetBodyProps) {
+  const docs = await db.boardDocument.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    select: { id: true, title: true, category: true, createdAt: true },
+  });
+  if (!docs.length) return <Empty>No board documents uploaded yet.</Empty>;
+  const href = fullPageHref ?? "/board/policies";
+  return (
+    <>
+      {docs.slice(0, 5).map((d) => (
+        <ListRow key={d.id} href={href} icon={<FileText size={16} />}>
+          {d.title}
+          <CalendarMeta>{fmtDay(d.createdAt)}</CalendarMeta>
+        </ListRow>
+      ))}
+      {docs.length > 5 && (
+        <ViewMoreLink href={href}>View {docs.length - 5} more</ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* system-integrations  (system-it system tab) */
+async function SystemIntegrationsBody({ fullPageHref }: WidgetBodyProps) {
+  const integrationKeys = [
+    "payment.gateway",
+    "video.bunnyLibraryId",
+    "sms.provider",
+    "email.resendApiKey",
+  ];
+  const settings = await db.siteSetting.findMany({
+    where: { key: { in: integrationKeys } },
+    select: { key: true, value: true },
+  });
+  if (!settings.length) return <Empty>No integration settings found.</Empty>;
+  const href = fullPageHref ?? "/system/settings";
+  const labels: Record<string, string> = {
+    "payment.gateway": "Payment gateway",
+    "video.bunnyLibraryId": "Video (Bunny)",
+    "sms.provider": "SMS provider",
+    "email.resendApiKey": "Email (Resend)",
+  };
+  return (
+    <>
+      {settings.map((s) => (
+        <ListRow key={s.key} href={href} icon={<Settings size={16} />}>
+          {labels[s.key] ?? s.key}:{" "}
+          {s.key.toLowerCase().includes("key") ||
+          s.key.toLowerCase().includes("secret")
+            ? "••••••••"
+            : s.value || "not configured"}
+        </ListRow>
+      ))}
+    </>
+  );
+}

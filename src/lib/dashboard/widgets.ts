@@ -1595,6 +1595,16 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     fullPageHref: "/system/settings",
     roles: ["SYSTEM_IT"],
   },
+  {
+    id: "system-integrations-tab",
+    title: "Integrations",
+    requiredPermission: "integrations.edit",
+    defaultTab: "system",
+    defaultColumn: 1,
+    component: "system-integrations",
+    fullPageHref: "/system/settings",
+    roles: ["SYSTEM_IT"],
+  },
   // Logs tab
   {
     id: "system-logs-tab",
@@ -1616,5 +1626,162 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "system-status",
     fullPageHref: "/system/settings",
     roles: ["SYSTEM_IT"],
+  },
+
+  // ════════════════════════════════════════════════════════════════
+  // NEW WIDGETS — surface newly documented role responsibilities
+  // ════════════════════════════════════════════════════════════════
+
+  // PRINCIPAL — delegation status on general tab
+  {
+    id: "principal-delegation",
+    title: "Delegation Status",
+    requiredPermission: "courses.publish",
+    defaultTab: "general",
+    defaultColumn: 1,
+    component: "delegation-status",
+    fullPageHref: "/principal",
+    roles: ["PRINCIPAL"],
+  },
+  // PRINCIPAL — marks-change approvals on approvals tab
+  {
+    id: "principal-marks-changes",
+    title: "Marks Change Requests",
+    requiredPermission: "marks.change.approve",
+    defaultTab: "approvals",
+    defaultColumn: 0,
+    component: "marks-change-requests",
+    defaultSpan: 2,
+    fullPageHref: "/director/approvals",
+    roles: ["PRINCIPAL"],
+  },
+  // PRINCIPAL — announcements in reports tab
+  {
+    id: "principal-announcements-log",
+    title: "Announcements Log",
+    requiredPermission: "announcements.send.all",
+    defaultTab: "reports",
+    defaultColumn: 0,
+    component: "principal-announcements",
+    fullPageHref: "/principal/reports",
+    roles: ["PRINCIPAL"],
+  },
+
+  // DEPUTY_PRINCIPAL — attendance alerts on academics tab
+  {
+    id: "deputy-attendance-alerts",
+    title: "Attendance Overview",
+    requiredPermission: "attendance.view.all",
+    defaultTab: "academics",
+    defaultColumn: 1,
+    component: "attendance-alerts",
+    fullPageHref: "/deputy/timetable",
+    roles: ["DEPUTY_PRINCIPAL"],
+  },
+  // DEPUTY_PRINCIPAL — disciplinary cases on operations tab
+  {
+    id: "deputy-disciplinary",
+    title: "Disciplinary Cases",
+    requiredPermission: "complaints.manage",
+    defaultTab: "operations",
+    defaultColumn: 1,
+    component: "disciplinary-cases",
+    fullPageHref: "/deputy/complaints",
+    roles: ["DEPUTY_PRINCIPAL"],
+  },
+  // DEPUTY_PRINCIPAL — marks-change requests on approvals tab (when delegated)
+  {
+    id: "deputy-marks-changes",
+    title: "Marks Change Requests",
+    requiredPermission: "marks.change.approve",
+    defaultTab: "approvals",
+    defaultColumn: 1,
+    component: "marks-change-requests",
+    defaultSpan: 2,
+    fullPageHref: "/director/approvals",
+    roles: ["DEPUTY_PRINCIPAL"],
+  },
+
+  // ACADEMIC_REGISTRAR — transcript requests on academics tab
+  {
+    id: "reg-transcripts",
+    title: "Transcript Requests",
+    requiredPermission: "transcripts.generate",
+    defaultTab: "academics",
+    defaultColumn: 1,
+    component: "transcript-requests",
+    fullPageHref: "/registrar/graduands",
+    roles: ["ACADEMIC_REGISTRAR"],
+  },
+  // ACADEMIC_REGISTRAR — announcements sent on reports tab
+  {
+    id: "reg-announcements",
+    title: "Announcements Sent",
+    requiredPermission: "announcements.manage",
+    defaultTab: "reports",
+    defaultColumn: 0,
+    component: "announcements-sent",
+    fullPageHref: "/registrar/students",
+    roles: ["ACADEMIC_REGISTRAR"],
+  },
+
+  // INSTRUCTOR — marks-change requests on assessment tab
+  {
+    id: "tutor-marks-changes",
+    title: "Marks Change Requests",
+    requiredPermission: "marks.change.request",
+    defaultTab: "assessment",
+    defaultColumn: 0,
+    component: "instructor-marks-changes",
+    fullPageHref: "/tutor/exams",
+    roles: ["INSTRUCTOR"],
+  },
+
+  // FINANCE_OFFICER — fee reminders on general tab
+  {
+    id: "finance-fee-reminders",
+    title: "Outstanding Balances",
+    requiredPermission: "payments.hold",
+    defaultTab: "general",
+    defaultColumn: 1,
+    component: "fee-reminder-list",
+    fullPageHref: "/finance/payments",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
+  },
+
+  // HR_MANAGER — staff performance / approved leave on leave tab
+  {
+    id: "hr-staff-performance",
+    title: "Approved Leave",
+    requiredPermission: "staff.leave.manage",
+    defaultTab: "leave",
+    defaultColumn: 1,
+    component: "hr-staff-performance",
+    fullPageHref: "/admin/leave",
+    roles: ["HR_MANAGER"],
+  },
+
+  // BOARD_MEMBER — board documents on policies tab
+  {
+    id: "board-documents",
+    title: "Board Documents",
+    requiredPermission: "board_documents.view",
+    defaultTab: "policies",
+    defaultColumn: 1,
+    component: "board-documents",
+    fullPageHref: "/board/policies",
+    roles: ["BOARD_MEMBER"],
+  },
+
+  // AUDITOR_READONLY — marks-change audit on audit tab
+  {
+    id: "auditor-marks-changes",
+    title: "Marks Change Requests",
+    requiredPermission: "audit.view.full",
+    defaultTab: "audit",
+    defaultColumn: 1,
+    component: "marks-change-requests",
+    fullPageHref: "/auditor/audit",
+    roles: ["AUDITOR_READONLY"],
   },
 ];
