@@ -29,7 +29,7 @@ export default async function ForumThreadPage({ params }: Props) {
   const enrolment = await db.enrolment.findFirst({
     where: { userId: session.user.id, courseId: thread.courseId, status: { in: ["ACTIVE", "COMPLETED"] } },
   });
-  const isTutorOrAdmin = can(session.user.role, "courses.view") && !can(session.user.role, "learning.self.view");
+  const isTutorOrAdmin = can(session.user.role, "classes.view");
   if (!enrolment && !isTutorOrAdmin) redirect("/dashboard/forum");
 
   return (
@@ -54,10 +54,10 @@ export default async function ForumThreadPage({ params }: Props) {
       {thread.replies.length > 0 && (
         <div className="space-y-3 mb-6">
           {thread.replies.map((reply) => (
-            <div key={reply.id} className={`card text-sm ${can(reply.author.role as Parameters<typeof can>[0], "courses.view") && !can(reply.author.role as Parameters<typeof can>[0], "learning.self.view") ? "border-accent/30 bg-accent/5" : ""}`}>
+            <div key={reply.id} className={`card text-sm ${can(reply.author.role as Parameters<typeof can>[0], "classes.view") ? "border-accent/30 bg-accent/5" : ""}`}>
               <div className="flex items-center gap-2 mb-2 text-xs text-gray-400">
                 <span className="font-medium text-gray-700">{reply.author.name}</span>
-                {can(reply.author.role as Parameters<typeof can>[0], "courses.view") && !can(reply.author.role as Parameters<typeof can>[0], "learning.self.view") && (
+                {can(reply.author.role as Parameters<typeof can>[0], "classes.view") && (
                   <span className="badge-success badge">Staff</span>
                 )}
                 <span>· {new Date(reply.createdAt).toLocaleDateString("en-UG")}</span>

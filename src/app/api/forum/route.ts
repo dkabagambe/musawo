@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const { courseId, title, body } = parsed.data;
 
-  const isStaff = can(session.user.role, "courses.view") && !can(session.user.role, "learning.self.view");
+  const isStaff = can(session.user.role, "classes.view");
   if (!isStaff) {
     const enrolment = await db.enrolment.findFirst({
       where: { userId: session.user.id, courseId, status: { in: ["ACTIVE", "COMPLETED"] } },

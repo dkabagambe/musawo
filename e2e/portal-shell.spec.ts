@@ -4,10 +4,17 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function loginAs(page: Page, email: string) {
   await page.goto("/dev/login");
-  const row = page.locator("tr").filter({ hasText: email });
+  // Match the row whose email cell is exactly this email (use td text, not row text,
+  // to avoid "admin@mtc.ac.ug" matching the "itadmin@mtc.ac.ug" row).
+  const row = page.locator("tr").filter({
+    has: page.locator("td").filter({ hasText: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }),
+  });
   await row.getByRole("button", { name: /sign in/i }).click();
-  // Allow any dashboard URL (student, tutor, registrar, admin, director…)
-  await expect(page).toHaveURL(/\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system)/);
+  // DevLoginForm does a client-side signIn + router.push — wait up to 15 s.
+  await expect(page).toHaveURL(
+    /\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system)/,
+    { timeout: 15_000 },
+  );
 }
 
 async function loginAsStudent(page: Page) {

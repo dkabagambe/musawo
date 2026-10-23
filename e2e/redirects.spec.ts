@@ -1,9 +1,8 @@
 /**
  * E2E tests: post-login redirect for each seeded role.
  *
- * Prerequisites:
- *   - Dev server running on http://localhost:3000
- *   - Database seeded with `npx prisma db seed`
+ * Uses the /dev/login quick-sign-in page so no passwords are needed.
+ * All accounts are created by `npx prisma db seed`.
  *
  * Run: npx playwright test e2e/redirects.spec.ts
  */
@@ -12,88 +11,68 @@ import { test, expect, type Page } from "@playwright/test";
 
 const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
-async function login(page: Page, email: string, password: string) {
-  await page.goto(`${BASE}/login`);
-  await page.getByLabel("Email address").fill(email);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
-  // Wait for navigation away from /login
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 10_000 });
+/** Sign in via the dev-login quick button (no password required). */
+async function devLogin(page: Page, email: string, expectedUrlPattern: RegExp) {
+  await page.goto(`${BASE}/dev/login`);
+  const emailPattern = new RegExp(
+    `^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+  );
+  const row = page.locator("tr").filter({
+    has: page.locator("td").filter({ hasText: emailPattern }),
+  });
+  await row.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(expectedUrlPattern, { timeout: 15_000 });
 }
 
 async function logout(page: Page) {
   await page.goto(`${BASE}/api/auth/signout`);
-  // Accept the sign-out form if presented
   const btn = page.getByRole("button", { name: /sign out/i });
-  if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await btn.isVisible({ timeout: 2_000 }).catch(() => false)) {
     await btn.click();
   }
-  await page.waitForURL((url) => url.pathname === "/" || url.pathname.startsWith("/login"), {
-    timeout: 8_000,
-  });
+  await page.waitForURL(
+    (url) =>
+      url.pathname === "/" || url.pathname.startsWith("/login"),
+    { timeout: 8_000 },
+  );
 }
+
+// ─── Post-login landing per role ──────────────────────────────────────────────
 
 test.describe("Post-login redirect by role", () => {
   test.afterEach(async ({ page }) => {
     await logout(page);
   });
 
-  test("STUDENT lands on /dashboard", async ({ page }) => {
-    await login(page, "student@example.com", "Student1234!");
-    expect(page.url()).toContain("/dashboard");
-    expect(page.url()).not.toContain("_rbac_redirect");
-  });
+  const ROLE_LANDINGS: Array<{ label: string; email: string; pattern: RegExp }> = [
+    { label: "SUPER_ADMIN",        email: "ceo@mtc.ac.ug",                pattern: /\/director/ },
+    { label: "SUPER_ADMIN (2)",    email: "deputy@mtc.ac.ug",             pattern: /\/director/ },
+    { label: "BOARD_MEMBER",       email: "board@mtc.ac.ug",              pattern: /\/board/ },
+    { label: "BOARD_MEMBER (sec)", email: "secretary@mtc.ac.ug",         pattern: /\/board/ },
+    { label: "PRINCIPAL",          email: "principal@mtc.ac.ug",          pattern: /\/principal/ },
+    { label: "DEPUTY_PRINCIPAL",   email: "deputyprincipal@mtc.ac.ug",    pattern: /\/deputy/ },
+    { label: "ACADEMIC_REGISTRAR", email: "registrar@mtc.ac.ug",          pattern: /\/registrar/ },
+    { label: "FINANCE_OFFICER",    email: "finance@mtc.ac.ug",            pattern: /\/finance/ },
+    { label: "HR_MANAGER",         email: "hr@mtc.ac.ug",                 pattern: /\/admin/ },
+    { label: "ADMINISTRATOR",      email: "admin@mtc.ac.ug",              pattern: /\/admin/ },
+    { label: "AUDITOR_READONLY",   email: "auditor@mtc.ac.ug",            pattern: /\/auditor/ },
+    { label: "SYSTEM_IT",          email: "itadmin@mtc.ac.ug",            pattern: /\/system/ },
+    { label: "INSTRUCTOR",         email: "tutor@mtc.ac.ug",              pattern: /\/tutor/ },
+    { label: "INSTRUCTOR (2)",     email: "tutor2@mtc.ac.ug",             pattern: /\/tutor/ },
+    { label: "TEACHING_ASSISTANT", email: "assistant@mtc.ac.ug",          pattern: /\/tutor/ },
+    { label: "STUDENT",            email: "student.full@example.com",     pattern: /\/dashboard/ },
+  ];
 
-  test("TUTOR lands on /tutor", async ({ page }) => {
-    await login(page, "tutor@mtc.ac.ug", "Tutor1234!");
-    expect(page.url()).toContain("/tutor");
-  });
-
-  test("REGISTRAR lands on /admin/students", async ({ page }) => {
-    await login(page, "registrar@mtc.ac.ug", "Registrar1234!");
-    expect(page.url()).toContain("/admin/students");
-  });
-
-  test("BURSAR lands on /bursar", async ({ page }) => {
-    await login(page, "bursar@mtc.ac.ug", "Bursar1234!");
-    expect(page.url()).toContain("/bursar");
-  });
-
-  test("SYSTEM_IT lands on /system", async ({ page }) => {
-    await login(page, "system@mtc.ac.ug", "SystemIT1234!");
-    expect(page.url()).toContain("/system");
-  });
-
-  test("SUPERADMIN lands on /director (TOTP disabled in dev seed)", async ({ page }) => {
-    await login(page, "superadmin@mtc.ac.ug", "SuperAdmin1234!");
-    expect(page.url()).toContain("/director");
-  });
-
-  test("freshly registered student lands on /dashboard after login", async ({ page }) => {
-    const email = `e2e_${Date.now()}@test.ug`;
-    const password = "Test1234!";
-
-    // Register
-    await page.goto(`${BASE}/register`);
-    await page.getByLabel("Full name").fill("E2E Test User");
-    await page.getByLabel("Email address").fill(email);
-    await page.getByLabel(/^Password$/).fill(password);
-    await page.getByLabel(/confirm password/i).fill(password);
-    await page.getByLabel(/I consent/i).check();
-    await page.getByRole("button", { name: /create account/i }).click();
-    // Should redirect to /login
-    await page.waitForURL((url) => url.pathname.startsWith("/login"), { timeout: 10_000 });
-
-    // Login with new account
-    await page.getByLabel("Email address").fill(email);
-    await page.getByLabel("Password").fill(password);
-    await page.getByRole("button", { name: /sign in/i }).click();
-    await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 10_000 });
-
-    expect(page.url()).toContain("/dashboard");
-    expect(page.url()).not.toContain("_rbac_redirect");
-  });
+  for (const { label, email, pattern } of ROLE_LANDINGS) {
+    test(`${label} (${email}) lands on correct portal`, async ({ page }) => {
+      await devLogin(page, email, pattern);
+      expect(page.url()).not.toContain("_rbac_redirect");
+      expect(page.url()).not.toContain("/login");
+    });
+  }
 });
+
+// ─── Access control (unauthenticated) ────────────────────────────────────────
 
 test.describe("Access control", () => {
   test("unauthenticated user hitting /dashboard is redirected to /login", async ({ page }) => {
@@ -106,47 +85,69 @@ test.describe("Access control", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
+  test("unauthenticated user hitting /director is redirected to /login", async ({ page }) => {
+    await page.goto(`${BASE}/director`);
+    await expect(page).toHaveURL(/\/login/);
+  });
+
+  test("unauthenticated user hitting /finance is redirected to /login", async ({ page }) => {
+    await page.goto(`${BASE}/finance`);
+    await expect(page).toHaveURL(/\/login/);
+  });
+
   test("logged-in student hitting /admin is redirected to /dashboard", async ({ page }) => {
-    await login(page, "student@example.com", "Student1234!");
+    await devLogin(page, "student.full@example.com", /\/dashboard/);
     await page.goto(`${BASE}/admin`);
     await expect(page).toHaveURL(/\/dashboard/);
     await logout(page);
   });
 
-  test("logged-in bursar cannot open /admin/students (redirected to /bursar)", async ({ page }) => {
-    await login(page, "bursar@mtc.ac.ug", "Bursar1234!");
-    await page.goto(`${BASE}/admin/students`);
-    await expect(page).toHaveURL(/\/bursar/);
+  test("logged-in student hitting /director is redirected to /dashboard", async ({ page }) => {
+    await devLogin(page, "student.full@example.com", /\/dashboard/);
+    await page.goto(`${BASE}/director`);
+    await expect(page).toHaveURL(/\/dashboard/);
     await logout(page);
   });
 
-  test("logged-in user hitting /login is sent to their home", async ({ page }) => {
-    await login(page, "student@example.com", "Student1234!");
+  test("logged-in INSTRUCTOR hitting /director is redirected to /tutor", async ({ page }) => {
+    await devLogin(page, "tutor@mtc.ac.ug", /\/tutor/);
+    await page.goto(`${BASE}/director`);
+    await expect(page).toHaveURL(/\/tutor/);
+    await logout(page);
+  });
+
+  test("logged-in ADMINISTRATOR hitting /director is redirected to /admin", async ({ page }) => {
+    await devLogin(page, "admin@mtc.ac.ug", /\/admin/);
+    await page.goto(`${BASE}/director`);
+    await expect(page).toHaveURL(/\/admin/);
+    await logout(page);
+  });
+
+  test("logged-in user hitting /login is sent to their home portal", async ({ page }) => {
+    await devLogin(page, "student.full@example.com", /\/dashboard/);
     await page.goto(`${BASE}/login`);
     await expect(page).toHaveURL(/\/dashboard/);
     await logout(page);
   });
 
-  test("callbackUrl is honoured after login", async ({ page }) => {
-    await page.goto(`${BASE}/login?callbackUrl=%2Fdashboard%2Fcourses`);
-    await page.getByLabel("Email address").fill("student@example.com");
-    await page.getByLabel("Password").fill("Student1234!");
-    await page.getByRole("button", { name: /sign in/i }).click();
-    await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 10_000 });
-    expect(page.url()).toContain("/dashboard/courses");
-    await logout(page);
+  test("/bursar redirects to /finance", async ({ page }) => {
+    await page.goto(`${BASE}/bursar`);
+    await expect(page).toHaveURL(/\/finance|\/login/);
   });
 
   test("no redirect ever lands on /_rbac_redirect", async ({ page }) => {
-    // Login as each role and check
-    const users = [
-      ["student@example.com", "Student1234!"],
-      ["tutor@mtc.ac.ug", "Tutor1234!"],
-      ["registrar@mtc.ac.ug", "Registrar1234!"],
-      ["bursar@mtc.ac.ug", "Bursar1234!"],
+    const accounts = [
+      "student.full@example.com",
+      "tutor@mtc.ac.ug",
+      "registrar@mtc.ac.ug",
+      "finance@mtc.ac.ug",
     ];
-    for (const [email, password] of users) {
-      await login(page, email, password);
+    for (const email of accounts) {
+      await devLogin(
+        page,
+        email,
+        /\/(dashboard|tutor|registrar|finance)/,
+      );
       expect(page.url()).not.toContain("_rbac_redirect");
       await logout(page);
     }

@@ -4,9 +4,13 @@ const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 async function signInAs(page: import("@playwright/test").Page, email: string) {
   await page.goto(`${BASE}/dev/login`);
-  const accountRow = page.getByRole("row").filter({ hasText: email });
+  // Use an exact-email cell match to avoid "admin@mtc.ac.ug" matching "itadmin@mtc.ac.ug"
+  const emailPattern = new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+  const accountRow = page.locator("tr").filter({
+    has: page.locator("td").filter({ hasText: emailPattern }),
+  });
   await accountRow.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/admin/);
+  await page.waitForURL(/\/admin/, { timeout: 15_000 });
 }
 
 test.describe("Administrator operations role", () => {

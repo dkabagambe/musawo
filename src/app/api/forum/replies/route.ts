@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   if (thread.locked) return NextResponse.json({ error: "Thread is locked" }, { status: 403 });
 
   // Check enrolment or staff
-  const isStaff = can(session.user.role, "courses.view") && !can(session.user.role, "learning.self.view");
+  const isStaff = can(session.user.role, "classes.view");
   if (!isStaff) {
     const enrolment = await db.enrolment.findFirst({
       where: { userId: session.user.id, courseId: thread.courseId, status: { in: ["ACTIVE", "COMPLETED"] } },

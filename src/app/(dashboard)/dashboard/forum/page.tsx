@@ -63,7 +63,7 @@ export default async function ForumPage() {
               <p className="font-medium text-primary">{thread.title}</p>
               <p className="text-xs text-gray-400 mt-1">
                 by {thread.author.name}
-                {can(thread.author.role as Parameters<typeof can>[0], "courses.view") && !can(thread.author.role as Parameters<typeof can>[0], "learning.self.view") && (
+                {can(thread.author.role as Parameters<typeof can>[0], "classes.view") && !can(thread.author.role as Parameters<typeof can>[0], "learning.self.view") && (
                   <span className="ml-1 badge-success badge text-xs">Staff</span>
                 )}
                 {" · "}
