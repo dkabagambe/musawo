@@ -2,167 +2,74 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
-import type { DashboardTab } from "@/lib/dashboard/widgets";
 import {
   LayoutDashboard,
   Users,
   GraduationCap,
+  ClipboardList,
+  Library,
+  BookOpen,
+  Layers,
+  CalendarRange,
   Calendar,
-  Settings,
-  Search,
-  HeadphonesIcon,
-  MapPinned,
-  Wrench,
+  CheckSquare,
+  ClipboardCheck,
+  BarChart,
+  FileStack,
+  BarChart2,
+  Megaphone,
   Bell,
+  CreditCard,
+  Wrench,
+  LifeBuoy,
+  User,
+  Search,
   UserRoundSearch,
 } from "lucide-react";
 
-const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
-  {
-    item: {
-      href: "/admin",
-      label: "Overview",
-      icon: <LayoutDashboard className="w-4 h-4" />,
-    },
-    permission: "reports.operational",
-  },
-  {
-    item: {
-      href: "/admin/tutors",
-      label: "Staff",
-      icon: <GraduationCap className="w-4 h-4" />,
-    },
-    permission: "staff.view",
-  },
-  {
-    item: {
-      href: "/admin/students",
-      label: "Student Lookup",
-      icon: <UserRoundSearch className="w-4 h-4" />,
-    },
-    permission: "students.lookup",
-  },
-  {
-    item: {
-      href: "/admin/intakes",
-      label: "Intakes",
-      icon: <Calendar className="w-4 h-4" />,
-    },
-    permission: "intakes.manage",
-  },
-  {
-    item: {
-      href: "/admin/support",
-      label: "Support",
-      icon: <HeadphonesIcon className="w-4 h-4" />,
-    },
-    permission: "support.manage",
-  },
-  {
-    item: {
-      href: "/admin/invites",
-      label: "Invites",
-      icon: <Users className="w-4 h-4" />,
-    },
-    permission: "invites.resend",
-  },
-  {
-    item: {
-      href: "/admin/leave",
-      label: "Leave",
-      icon: <Calendar className="w-4 h-4" />,
-    },
-    permission: "staff.leave.manage",
-  },
-  {
-    item: {
-      href: "/admin/access-review",
-      label: "Access Review",
-      icon: <Search className="w-4 h-4" />,
-    },
-    permission: "staff.access_review",
-  },
-  {
-    item: {
-      href: "/admin/timetable",
-      label: "Timetable",
-      icon: <MapPinned className="w-4 h-4" />,
-    },
-    permission: "venues.manage",
-  },
-  {
-    item: {
-      href: "/admin/equipment",
-      label: "Equipment",
-      icon: <Wrench className="w-4 h-4" />,
-    },
-    permission: "equipment.manage",
-  },
-  {
-    item: {
-      href: "/admin/notices",
-      label: "Notices",
-      icon: <Bell className="w-4 h-4" />,
-    },
-    permission: "operational_notices.manage",
-  },
-  {
-    item: {
-      href: "/admin/settings",
-      label: "Settings",
-      icon: <Settings className="w-4 h-4" />,
-    },
-    permission: "settings.edit.operational",
-  },
-  {
-    item: {
-      href: "/admin/audit",
-      label: "Audit Log",
-      icon: <Search className="w-4 h-4" />,
-    },
-    permission: "audit.view",
-  },
+const NAV: NavItem[] = [
+  { href: "/admin",              label: "Dashboard",                   icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/admin/students",     label: "Students",                    icon: <Users className="w-4 h-4" /> },
+  { href: "/admin/admissions",   label: "Admissions",                  icon: <ClipboardList className="w-4 h-4" /> },
+  { href: "/admin/tutors",       label: "Instructors",                 icon: <GraduationCap className="w-4 h-4" /> },
+  { href: "/admin/programmes",   label: "Academic Programmes",         icon: <Library className="w-4 h-4" /> },
+  { href: "/admin/courses",      label: "Courses",                     icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/admin/classes",      label: "Classes & Groups",            icon: <Layers className="w-4 h-4" /> },
+  { href: "/admin/intakes",      label: "Academic Years & Semesters",  icon: <CalendarRange className="w-4 h-4" /> },
+  { href: "/admin/timetable",    label: "Timetable",                   icon: <Calendar className="w-4 h-4" /> },
+  { href: "/admin/attendance",   label: "Attendance",                  icon: <CheckSquare className="w-4 h-4" /> },
+  { href: "/admin/examinations", label: "Examinations",                icon: <ClipboardCheck className="w-4 h-4" /> },
+  { href: "/admin/results",      label: "Results & Grading",           icon: <BarChart className="w-4 h-4" /> },
+  { href: "/admin/documents",    label: "Student Documents",           icon: <FileStack className="w-4 h-4" /> },
+  { href: "/admin/reports",      label: "Reports",                     icon: <BarChart2 className="w-4 h-4" /> },
+  { href: "/admin/notices",      label: "Announcements",               icon: <Megaphone className="w-4 h-4" /> },
+  { href: "/admin/notifications", label: "Notifications",              icon: <Bell className="w-4 h-4" /> },
+  { href: "/admin/payments",     label: "Payments",                    icon: <CreditCard className="w-4 h-4" /> },
+  { href: "/admin/equipment",    label: "Equipment",                   icon: <Wrench className="w-4 h-4" /> },
+  { href: "/admin/support",      label: "Support",                     icon: <LifeBuoy className="w-4 h-4" /> },
+  { href: "/admin/profile",      label: "Profile",                     icon: <User className="w-4 h-4" /> },
 ];
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const TABS = ["general", "students", "admissions", "academics", "operations", "reports"] as const;
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (
     !session?.user ||
     !(
-      [
-        "staff.view",
-        "support.manage",
-        "settings.edit.operational",
-        "students.lookup",
-      ] as const
+      ["students.view", "students.create", "applications.process", "students.lookup"] as const
     ).some((p) => can(session.user.role, p))
   )
     redirect("/403");
   const name = session.user.name ?? "Admin";
-  const tabs: DashboardTab[] = [
-    "general",
-    ...(can(session.user.role, "staff.view") ? (["staff"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "staff.leave.manage") ? (["leave"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "support.manage") &&
-    !can(session.user.role, "staff.leave.manage")
-      ? (["support", "timetable"] as DashboardTab[])
-      : []),
-    ...(can(session.user.role, "reports.operational") ? (["operations"] as DashboardTab[]) : []),
-  ];
   return (
     <AppShell
-      nav={NAV.filter(({ permission }) =>
-        can(session.user.role, permission),
-      ).map(({ item }) => item)}
+      nav={NAV}
       role="Administration"
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
-      tabs={tabs}
+      tabs={[...TABS]}
     >
       {children}
     </AppShell>

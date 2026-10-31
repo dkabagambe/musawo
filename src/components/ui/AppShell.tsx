@@ -80,21 +80,33 @@ function dashboardGroup(href: string, root: string): DashboardTab {
   const groupsByRoot: Record<string, Record<string, DashboardTab>> = {
     "/dashboard": {
       courses: "studies",
+      enrolled: "studies",
       gradebook: "studies",
       results: "studies",
       assignments: "studies",
-      forum: "studies",
-      payments: "finance",
+      materials: "studies",
+      exams: "studies",
+      attendance: "studies",
+      forum: "classes",
       recordings: "classes",
+      classes: "classes",
+      payments: "finance",
+      certificates: "finance",
     },
     "/tutor": {
       courses: "teaching",
       materials: "teaching",
       classes: "teaching",
+      timetable: "teaching",
+      assignments: "teaching",
       students: "students",
       exams: "assessment",
+      results: "assessment",
       attendance: "assessment",
       announcements: "support",
+      forum: "support",
+      support: "support",
+      reports: "support",
     },
     "/registrar": {
       applications: "admissions",
@@ -102,59 +114,80 @@ function dashboardGroup(href: string, root: string): DashboardTab {
       enrolments: "academics",
       results: "academics",
       graduands: "academics",
-      audit: "reports",
+      transcripts: "academics",
+      timetable: "academics",
+      announcements: "admissions",
+      audit: "general",
     },
     "/principal": {
+      students: "students",
+      admissions: "admissions",
+      instructors: "students",
+      "user-management": "students",
+      programmes: "academics",
+      departments: "academics",
       courses: "academics",
-      students: "academics",
+      classes: "academics",
+      semesters: "academics",
+      timetable: "academics",
+      attendance: "academics",
+      examinations: "academics",
       results: "academics",
-      graduands: "academics",
+      certificates: "academics",
+      materials: "academics",
+      calendar: "academics",
+      announcements: "operations",
+      finance: "operations",
+      "approvals-inbox": "approvals",
+      "approval-tracking": "approvals",
+      equipment: "operations",
+      support: "operations",
+      forum: "operations",
       reports: "reports",
       audit: "reports",
-    },
-    "/deputy": {
-      students: "academics",
-      timetable: "academics",
-      complaints: "support",
-      reports: "reports",
-      policies: "support",
-    },
-    "/finance": {
-      payments: "payments",
-      ledger: "reconciliation",
-      approvals: "payments",
-    },
-    "/bursar": {
-      payments: "payments",
-      ledger: "reconciliation",
-      approvals: "payments",
+      delegation: "approvals",
     },
     "/admin": {
-      courses: "academics",
       students: "students",
-      tutors: "staff",
+      admissions: "admissions",
+      tutors: "students",
+      programmes: "academics",
+      courses: "academics",
+      classes: "academics",
       intakes: "academics",
-      payments: "finance",
+      timetable: "operations",
+      attendance: "academics",
+      examinations: "academics",
+      results: "academics",
+      documents: "students",
+      payments: "operations",
+      equipment: "operations",
+      support: "operations",
+      notices: "operations",
+      notifications: "general",
       reports: "reports",
-      settings: "settings",
-      audit: "audit",
-      "partner-pages": "settings",
+      settings: "general",
+      audit: "general",
+      invites: "students",
+      "partner-pages": "general",
     },
     "/director": {
       approvals: "approvals",
-      staff: "staff",
-      audit: "reports",
-      "access-review": "staff",
-      admin: "staff",
-    },
-    "/board": { reports: "reports", policies: "audit", graduates: "academics" },
-    "/auditor": {
-      students: "audit",
-      audit: "audit",
       reports: "reports",
-      policies: "audit",
+      audit: "reports",
+      students: "academics",
+      instructors: "academics",
+      programmes: "academics",
+      courses: "academics",
+      examinations: "academics",
+      certificates: "academics",
+      notifications: "general",
+      profile: "general",
+      staff: "staff",
+      "access-review": "staff",
+      roles: "staff",
     },
-    "/system": { settings: "system", audit: "logs" },
+    "/system": { support: "support", settings: "system", audit: "logs" },
   };
   return groupsByRoot[root]?.[section] ?? "general";
 }
@@ -270,20 +303,16 @@ export function Sidebar({
         <Link
           href="/"
           className="portal-brand-link"
-          aria-label="Musawo Training Center"
+          aria-label="Musawo Training Center home"
         >
           <span className="portal-logo">
             <Image
               src="/assets/logo-header.png"
-              alt=""
+              alt="Musawo Training Center"
               width={30}
               height={30}
               priority
             />
-          </span>
-          <span className="portal-wordmark">
-            <strong>Musawo TC</strong>
-            <small>Learning system</small>
           </span>
         </Link>
         <button
