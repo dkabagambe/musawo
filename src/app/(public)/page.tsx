@@ -2,24 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
-import { getContactInfo } from "@/lib/contact";
-import { existsSync } from "fs";
-import { join } from "path";
 import {
-  CheckCircle,
   BookOpen,
   Video,
   Award,
   Banknote,
   Users,
   ArrowRight,
-  GraduationCap,
   Briefcase,
 } from "lucide-react";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import HomeHero from "@/components/public/HomeHero";
 import HomeFaq from "./HomeFaq";
 import type { Metadata } from "next";
@@ -90,14 +83,6 @@ const HOW_STEPS = [
   },
 ];
 
-const PLACEMENT_POINTS = [
-  "Digital certificate with QR verification",
-  "Job placement support in Uganda",
-  "Job opportunities abroad through licensed recruitment agencies with pre-departure preparation",
-  "Access to the free resource library after graduation",
-  "Alumni community of health workers across Uganda",
-];
-
 const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
   PROFESSIONAL: {
     label: "Professionals only",
@@ -120,21 +105,12 @@ const COURSE_IMAGES: Record<string, string> = {
 /* ─── Page ────────────────────────────────────────────────────── */
 
 export default async function HomePage() {
-  const [courses, contact, intakeEyebrow] = await Promise.all([
+  const [courses, intakeLabel] = await Promise.all([
     getPublicCourses(),
-    getContactInfo(),
-    getSetting("site.intakeEyebrow", "Now enrolling: November 2026 intake"),
+    getSetting("site.intakeEyebrow", "Now enrolling: November 2026 intake").then(
+      (v) => v.replace(/^Now enrolling:\s*/i, "").trim() || "November 2026 intake"
+    ),
   ]);
-
-  // Extract intake label from eyebrow (e.g. "Now enrolling: November 2026 intake" -> "November 2026 intake")
-  const intakeLabel =
-    intakeEyebrow.replace(/^Now enrolling:\s*/i, "").trim() ||
-    "November 2026 intake";
-
-  // Check if the flyer file has been uploaded to the public folder
-  const flyerExists = existsSync(
-    join(process.cwd(), "public", "assets", "flyer-nov-2026.jpeg"),
-  );
 
   return (
     <div>
@@ -168,65 +144,6 @@ export default async function HomePage() {
           </ul>
         </div>
       </div>
-
-      {/* Call for applications flyer section */}
-      <section
-        className="py-10 sm:py-14 px-4 sm:px-6 bg-accent/5 border-y border-accent/20"
-        aria-label="Call for applications"
-      >
-        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center gap-8">
-          <div className="flex-1 min-w-0">
-            <p className="section-eyebrow text-accent mb-2">
-              Now accepting applications
-            </p>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-primary mb-3">
-              {intakeEyebrow}
-            </h2>
-            <p className="text-gray-600 text-sm leading-relaxed mb-5 max-w-lg">
-              Eight healthcare programmes are open for the November 2026 intake.
-              Hybrid delivery with hands-on practicals in our skills lab. Taught
-              by doctors, nurses and clinicians.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/apply"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl no-underline transition-all"
-              >
-                Apply now{" "}
-                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-              </Link>
-              {flyerExists && (
-                <a
-                  href="/assets/flyer-nov-2026.jpeg"
-                  download="MTC-November-2026-Flyer.jpeg"
-                  className="inline-flex items-center gap-2 bg-white border border-border text-primary font-semibold text-sm px-5 py-2.5 rounded-xl no-underline hover:border-accent/40 transition-all"
-                >
-                  Download flyer
-                </a>
-              )}
-            </div>
-          </div>
-          {/* Flyer thumbnail - shown only when file has been uploaded */}
-          {flyerExists && (
-            <div className="flex-shrink-0 w-40 sm:w-48">
-              <a
-                href="/assets/flyer-nov-2026.jpeg"
-                download="MTC-November-2026-Flyer.jpeg"
-                aria-label="Download November 2026 intake flyer"
-                className="block rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-card-hover transition-shadow"
-              >
-                <Image
-                  src="/assets/flyer-nov-2026.jpeg"
-                  alt="Musawo Training Center November 2026 intake flyer"
-                  width={192}
-                  height={272}
-                  className="w-full object-cover"
-                />
-              </a>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* ── Courses ─────────────────────────────────────────── */}
       <section
@@ -390,66 +307,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Why Musawo ───────────────────────────────────────── */}
-      <section
-        className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 bg-surface"
-        aria-label="Why Musawo"
-      >
-        <div className="max-w-[1200px] mx-auto lg:grid lg:grid-cols-2 lg:gap-16 items-center">
-          <AnimateIn className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-12 lg:mb-0 shadow-xl">
-            <Image
-              src="/assets/images/musawo-session.webp"
-              alt="Hands-on training in the Musawo Training Center skills lab"
-              fill
-              className="object-cover"
-              style={{ objectPosition: "center 30%" }}
-            />
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <div className="bg-white/96 rounded-xl p-4 shadow">
-                <p className="text-primary font-bold text-sm">
-                  Job placement support included
-                </p>
-                <p className="text-gray-500 text-xs mt-0.5 leading-snug">
-                  Musawo connects graduates with healthcare employers in Uganda
-                  and abroad
-                </p>
-              </div>
-            </div>
-          </AnimateIn>
-          <AnimateIn delay={0.1}>
-            <p className="section-eyebrow">After you graduate</p>
-            <h2
-              className="mt-3 mb-6"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)" }}
-            >
-              Learn · Serve · Transform
-            </h2>
-            <ul className="space-y-5 list-none mb-10">
-              {PLACEMENT_POINTS.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-4 text-base text-gray-600 leading-[1.65]"
-                >
-                  <CheckCircle
-                    className="w-5 h-5 text-success flex-shrink-0 mt-0.5"
-                    aria-hidden="true"
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/apply"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600
-                         active:scale-[0.97] text-white font-bold px-7 py-3.5 rounded-xl
-                         no-underline transition-all shadow-cta"
-            >
-              Apply now <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-          </AnimateIn>
-        </div>
-      </section>
-
 
       {/* ── Graduates and testimonials ───────────────────────── */}
       <section
@@ -554,14 +411,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <CTABand
-        heading="Ready to become a healthcare professional?"
-        subheading={`Apply for the ${intakeLabel}. Hybrid classes with hands-on practicals in our skills lab.`}
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }
