@@ -140,31 +140,21 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "rbac.roleTree",
     value: JSON.stringify({
-      SUPER_ADMIN: { parent: null, level: 1 },
-      BOARD_MEMBER: { parent: null, level: 1 },
-      PRINCIPAL: { parent: "SUPER_ADMIN", level: 2 },
-      DEPUTY_PRINCIPAL: { parent: "PRINCIPAL", level: 3 },
-      ACADEMIC_REGISTRAR: { parent: "DEPUTY_PRINCIPAL", level: 4 },
-      FINANCE_OFFICER: { parent: "DEPUTY_PRINCIPAL", level: 4 },
-      HR_MANAGER: { parent: "DEPUTY_PRINCIPAL", level: 4 },
-      ADMINISTRATOR: { parent: "HR_MANAGER", level: 5 },
-      AUDITOR_READONLY: { parent: "DEPUTY_PRINCIPAL", level: 4 },
-      INSTRUCTOR: { parent: "ACADEMIC_REGISTRAR", level: 5 },
-      TEACHING_ASSISTANT: { parent: "INSTRUCTOR", level: 6 },
-      STUDENT: { parent: "TEACHING_ASSISTANT", level: 7 },
-      SYSTEM_IT: { parent: null, level: 1 },
+      DIRECTOR: { parent: null, level: 1 },
+      PRINCIPAL: { parent: "DIRECTOR", level: 2 },
+      ADMIN: { parent: "PRINCIPAL", level: 3 },
+      INSTRUCTOR: { parent: "ADMIN", level: 4 },
+      STUDENT: { parent: "INSTRUCTOR", level: 5 },
+      ACADEMIC_REGISTRAR: { parent: null, level: null },
+      SYSTEM_IT: { parent: null, level: null },
+      ARCHIVED: { parent: null, level: null },
     }),
     description: "Canonical role hierarchy (role keys, parent role and level)",
   },
   {
-    key: "role.label.SUPER_ADMIN",
-    value: "MD / CEO / ED / CFO",
-    description: "Display label for SUPER_ADMIN",
-  },
-  {
-    key: "role.label.BOARD_MEMBER",
-    value: "Board Member",
-    description: "Display label for BOARD_MEMBER",
+    key: "role.label.DIRECTOR",
+    value: "Director",
+    description: "Display label for DIRECTOR",
   },
   {
     key: "role.label.PRINCIPAL",
@@ -172,9 +162,9 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     description: "Display label for PRINCIPAL",
   },
   {
-    key: "role.label.DEPUTY_PRINCIPAL",
-    value: "Deputy Principal",
-    description: "Display label for DEPUTY_PRINCIPAL",
+    key: "role.label.ADMIN",
+    value: "Administrator",
+    description: "Display label for ADMIN",
   },
   {
     key: "role.label.ACADEMIC_REGISTRAR",
@@ -183,43 +173,23 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   },
   {
     key: "role.label.INSTRUCTOR",
-    value: "Teaching Staff",
+    value: "Instructor",
     description: "Display label for INSTRUCTOR",
   },
   {
-    key: "role.label.TEACHING_ASSISTANT",
-    value: "Supporting Staff",
-    description: "Display label for TEACHING_ASSISTANT",
-  },
-  {
-    key: "role.label.FINANCE_OFFICER",
-    value: "Accounts / Audit",
-    description: "Display label for FINANCE_OFFICER",
-  },
-  {
-    key: "role.label.HR_MANAGER",
-    value: "Human Resource",
-    description: "Display label for HR_MANAGER",
-  },
-  {
-    key: "role.label.ADMINISTRATOR",
-    value: "Administrator",
-    description: "Display label for ADMINISTRATOR",
-  },
-  {
-    key: "role.label.AUDITOR_READONLY",
-    value: "Legal Advisor",
-    description: "Display label for AUDITOR_READONLY",
-  },
-  {
     key: "role.label.SYSTEM_IT",
-    value: "Technical",
+    value: "IT Admin",
     description: "Display label for SYSTEM_IT",
   },
   {
     key: "role.label.STUDENT",
     value: "Student",
     description: "Display label for STUDENT",
+  },
+  {
+    key: "feature.ACADEMIC_REGISTRAR_ACTIVE",
+    value: "false",
+    description: "While false, the Academic Registrar account sees a holding page only",
   },
   {
     key: "site.accreditationText",
@@ -235,16 +205,6 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     key: "course.freePreviewPercent",
     value: "12",
     description: "% of lessons free before payment",
-  },
-  {
-    key: "student.numberPattern",
-    value: "{PREFIX}-{YYYY}-{SEQ:5}",
-    description: "Student number format e.g. MTC-2026-00001",
-  },
-  {
-    key: "student.numberPrefix",
-    value: "MTC",
-    description: "Prefix for student numbers",
   },
   {
     key: "payment.gateway",
@@ -488,62 +448,28 @@ async function main() {
       },
     });
 
-  const ceo = await mkStaff(
-    "ceo@mtc.ac.ug",
+  const director = await mkStaff(
+    "director@mtc.ac.ug",
     "Dr. Mathias Senyondo",
-    UserRole.SUPER_ADMIN,
-  );
-  const deputyCeo = await mkStaff(
-    "deputy@mtc.ac.ug",
-    "Beatrice Nansamba",
-    UserRole.SUPER_ADMIN,
-  );
-  const boardMember = await mkStaff(
-    "board@mtc.ac.ug",
-    "Grace Akello",
-    UserRole.BOARD_MEMBER,
-  );
-  // Second BOARD_MEMBER who is also Institution Secretary (gets policies.manage and board_documents.manage)
-  const institutionSecretary = await mkStaff(
-    "secretary@mtc.ac.ug",
-    "Robert Kasozi",
-    UserRole.BOARD_MEMBER,
-    { institutionSecretary: true },
+    UserRole.DIRECTOR,
   );
   const principal = await mkStaff(
     "principal@mtc.ac.ug",
     "Dr. Joel Mirembe",
     UserRole.PRINCIPAL,
   );
-  const deputyPrinc = await mkStaff(
-    "deputyprincipal@mtc.ac.ug",
-    "Sarah Namugabi",
-    UserRole.DEPUTY_PRINCIPAL,
+  // Admin is Nakiyimba Rahiima (PA to the Principal)
+  const schoolAdmin = await mkStaff(
+    "admin@mtc.ac.ug",
+    "Nakiyimba Rahiima",
+    UserRole.ADMIN,
   );
+  // Academic Registrar: dummy/inactive account (holding page while ACADEMIC_REGISTRAR_ACTIVE=false)
   const registrar = await mkStaff(
     "registrar@mtc.ac.ug",
     "Zidah Atuhaire",
     UserRole.ACADEMIC_REGISTRAR,
-  );
-  const financeOfficer = await mkStaff(
-    "finance@mtc.ac.ug",
-    "Abraham Eyakya",
-    UserRole.FINANCE_OFFICER,
-  );
-  const hrAdmin = await mkStaff(
-    "hr@mtc.ac.ug",
-    "Carolyn Nabirye",
-    UserRole.HR_MANAGER,
-  );
-  const schoolAdmin = await mkStaff(
-    "admin@mtc.ac.ug",
-    "Rahiima Nakiyimba",
-    UserRole.ADMINISTRATOR,
-  );
-  const auditor = await mkStaff(
-    "auditor@mtc.ac.ug",
-    "Patrick Ssali",
-    UserRole.AUDITOR_READONLY,
+    { status: "ACTIVE" }, // can log in; sees holding page only
   );
   const itadmin = await mkStaff(
     "itadmin@mtc.ac.ug",
@@ -557,47 +483,35 @@ async function main() {
   );
   const tutor2 = await mkStaff(
     "tutor2@mtc.ac.ug",
-    "Mirembe Joel",
+    "Muwanga Charles",
     UserRole.INSTRUCTOR,
   );
-  const ta = await mkStaff(
-    "assistant@mtc.ac.ug",
-    "Amara Birungi",
-    UserRole.TEACHING_ASSISTANT,
+  const tutor3 = await mkStaff(
+    "tutor3@mtc.ac.ug",
+    "Atim Jennifer",
+    UserRole.INSTRUCTOR,
   );
 
-  void deputyCeo;
-  void boardMember;
-  void deputyPrinc;
-  void hrAdmin;
-  void schoolAdmin;
-  void auditor;
+  void registrar;
   void itadmin;
-  void ta;
+  void tutor3;
 
-  console.log("  ✓ Staff accounts (13 across all roles)");
+  console.log("  ✓ Staff accounts (7 roles: Director, Principal, Admin, Academic Registrar, IT Admin, 3 Instructors)");
+  console.log("  ✓ Staff accounts (7 roles: Director, Principal, Admin, Academic Registrar, IT Admin, 3 Instructors)");
 
   // ── Students ───────────────────────────────────────────────────
   const students: Record<
     string,
     Awaited<ReturnType<typeof prisma.user.upsert>>
   > = {};
-  const studentNumberPattern =
-    SETTINGS.find((setting) => setting.key === "student.numberPattern")
-      ?.value ?? "{PREFIX}-{YYYY}-{SEQ:5}";
-  const studentNumberPrefix =
-    SETTINGS.find((setting) => setting.key === "student.numberPrefix")?.value ??
-    "MTC";
   const studentNumberYear = now.getFullYear();
+  // Course code for the demo students (all enrolled in Medical Home Caregiver)
+  const DEMO_COURSE_CODE = "MHC";
+  // Generate numbers in format 2026/MHC/001, 2026/MHC/002, etc.
   const STUDENT_SNS = Object.fromEntries(
     STUDENT_DEFS.map((definition, index) => [
       definition.key,
-      formatStudentNumber(
-        studentNumberPattern,
-        studentNumberPrefix,
-        studentNumberYear,
-        index + 1,
-      ),
+      formatStudentNumber(DEMO_COURSE_CODE, studentNumberYear, index + 1),
     ]),
   ) as Record<string, string>;
   for (const def of STUDENT_DEFS) {
@@ -640,8 +554,7 @@ async function main() {
       email: "student.waiting@example.com",
       phone: "+256700111010",
       studentNumber: formatStudentNumber(
-        studentNumberPattern,
-        studentNumberPrefix,
+        DEMO_COURSE_CODE,
         studentNumberYear,
         STUDENT_DEFS.length + 1,
       ),
@@ -659,8 +572,7 @@ async function main() {
       email: "student.waiting2@example.com",
       phone: "+256700111012",
       studentNumber: formatStudentNumber(
-        studentNumberPattern,
-        studentNumberPrefix,
+        DEMO_COURSE_CODE,
         studentNumberYear,
         STUDENT_DEFS.length + 2,
       ),
@@ -679,8 +591,7 @@ async function main() {
       email: "student.disputed@example.com",
       phone: "+256700111011",
       studentNumber: formatStudentNumber(
-        studentNumberPattern,
-        studentNumberPrefix,
+        DEMO_COURSE_CODE,
         studentNumberYear,
         STUDENT_DEFS.length + 3,
       ),
@@ -701,6 +612,7 @@ async function main() {
   const COURSE_DEFS = [
     {
       slug: "medical-home-caregiver",
+      courseCode: "MHC",
       title: "Certificate in Medical Home Care Course",
       category: "PROFESSIONAL",
       targetAudience: "Nurses, midwives, clinical officers and other healthcare providers",
@@ -721,6 +633,7 @@ async function main() {
     },
     {
       slug: "basic-home-caregiver",
+      courseCode: "BHC",
       title: "Certificate in Basic Home Care",
       category: "OPEN",
       targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
@@ -741,6 +654,7 @@ async function main() {
     },
     {
       slug: "babysitting-childcare-safety",
+      courseCode: "BCS",
       title:
         "Basic Certificate in Babysitting, Child Care and Safety Management",
       category: "OPEN",
@@ -762,6 +676,7 @@ async function main() {
     },
     {
       slug: "mental-health-support-advocacy",
+      courseCode: "MHA",
       title: "Certificate in Mental Health Support and Advocacy",
       category: "OPEN",
       targetAudience: "Health professionals and non-health professionals aged 18 and above",
@@ -782,6 +697,7 @@ async function main() {
     },
     {
       slug: "care-older-persons-disability",
+      courseCode: "COP",
       title:
         "Basic Certificate in Care of Older Persons and Persons with Disability",
       category: "OPEN",
@@ -803,6 +719,7 @@ async function main() {
     },
     {
       slug: "basic-life-support-first-aid",
+      courseCode: "BLS",
       title: "Certificate in Basic Life Support",
       category: "PROFESSIONAL",
       targetAudience: "Health professionals",
@@ -823,6 +740,7 @@ async function main() {
     },
     {
       slug: "advanced-life-support",
+      courseCode: "ALS",
       title: "Certificate in Advanced Life Support",
       category: "PROFESSIONAL",
       targetAudience: "Eligible healthcare professionals",
@@ -843,6 +761,7 @@ async function main() {
     },
     {
       slug: "advanced-first-aid",
+      courseCode: "AFA",
       title: "Certificate in Advanced First Aid",
       category: "OPEN",
       targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
@@ -868,6 +787,7 @@ async function main() {
       where: { slug: cd.slug },
       update: {
         title: cd.title,
+        courseCode: cd.courseCode,
         shortDescription: cd.shortDescription,
         description: cd.description,
         fullFeeUgx: IS_DEMO_MODE ? cd.fullFeeUgx : null,
@@ -1796,7 +1716,7 @@ async function main() {
           status: cd.status,
           duplicateImageFlag: cd.note === "Duplicate transaction ID",
           verifiedById:
-            cd.status === ClaimStatus.VERIFIED ? financeOfficer.id : null,
+            cd.status === ClaimStatus.VERIFIED ? principal.id : null,
           createdAt: daysAgo(cd.daysBack),
         },
       });
@@ -2295,7 +2215,7 @@ async function main() {
           createdAt: daysAgo(3),
         },
         {
-          authorId: registrar.id,
+          authorId: schoolAdmin.id,
           courseId: null,
           title: "Intake 7 registration now open",
           body: "We are now accepting applications for our November 2026 intake. Apply at musawo.ug or scan the QR code on our flyer.",
@@ -2311,7 +2231,7 @@ async function main() {
           createdAt: daysAgo(10),
         },
         {
-          authorId: ceo.id,
+          authorId: director.id,
           courseId: null,
           title: "Platform maintenance - Saturday 2am",
           body: "We will perform scheduled maintenance this Saturday from 2am to 4am EAT. The platform will be briefly unavailable.",
@@ -2383,7 +2303,7 @@ async function main() {
     await prisma.forumReply.create({
       data: {
         threadId: thread3.id,
-        authorId: registrar.id,
+        authorId: schoolAdmin.id,
         body: "Thank you for the kind words! We are glad the verification is working well. Please share with your employer.",
         createdAt: daysAgo(19),
       },
@@ -2408,7 +2328,7 @@ async function main() {
     await prisma.supportReply.create({
       data: {
         ticketId: ticket1.id,
-        authorId: financeOfficer.id,
+        authorId: schoolAdmin.id,
         body: "Thank you for reaching out. We have found your transaction and are processing the confirmation. Your account will be updated within 24 hours.",
         isStaff: true,
         createdAt: daysAgo(1),
@@ -2528,7 +2448,7 @@ async function main() {
 
     for (const r of resourceItems) {
       await prisma.resource.create({
-        data: { ...r, uploadedBy: registrar.id },
+        data: { ...r, uploadedBy: schoolAdmin.id },
       });
     }
     console.log("  ✓ Resources (10)");
@@ -2536,7 +2456,7 @@ async function main() {
 
   // ── Approvals ──────────────────────────────────────────────────
   const existingApprovals = await prisma.approvalRequest.count({
-    where: { status: ApprovalRequestStatus.PENDING },
+    where: { status: ApprovalRequestStatus.SUBMITTED },
   });
   if (existingApprovals === 0) {
     const approvalToken = () => randomBytes(32).toString("hex");
@@ -2544,8 +2464,8 @@ async function main() {
       data: [
         {
           type: ApprovalRequestType.REFUND,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: financeOfficer.id,
+          status: ApprovalRequestStatus.SUBMITTED,
+          initiatorId: principal.id,
           studentId: students["75"].id,
           enrolmentId: enrolments["75"]?.id,
           amount: 85000,
@@ -2556,8 +2476,8 @@ async function main() {
         },
         {
           type: ApprovalRequestType.REFUND,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: financeOfficer.id,
+          status: ApprovalRequestStatus.SUBMITTED,
+          initiatorId: principal.id,
           studentId: students["overdue"].id,
           enrolmentId: enrolments["overdue"]?.id,
           amount: 50000,
@@ -2568,8 +2488,8 @@ async function main() {
         },
         {
           type: ApprovalRequestType.WAIVER,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: registrar.id,
+          status: ApprovalRequestStatus.SUBMITTED,
+          initiatorId: schoolAdmin.id,
           studentId: students["overdue"].id,
           enrolmentId: enrolments["overdue"]?.id,
           amount: 100000,
@@ -2580,8 +2500,8 @@ async function main() {
         },
         {
           type: ApprovalRequestType.FEE_CHANGE,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: registrar.id,
+          status: ApprovalRequestStatus.SUBMITTED,
+          initiatorId: principal.id,
           amount: 920000,
           reason:
             "Proposed CNA fee increase from UGX 850,000 to UGX 920,000 effective Intake 8 (February 2027) to cover increased instructor costs.",
@@ -2645,7 +2565,7 @@ async function main() {
         readAt: daysAgo(20),
       },
       {
-        userId: financeOfficer.id,
+        userId: principal.id,
         channel: "IN_APP",
         type: "CLAIM_SUBMITTED",
         subject: "New payment claim submitted",
@@ -2653,7 +2573,7 @@ async function main() {
         readAt: null,
       },
       {
-        userId: ceo.id,
+        userId: director.id,
         channel: "IN_APP",
         type: "APPROVAL_NEEDED",
         subject: "4 approvals awaiting your decision",
@@ -2736,26 +2656,26 @@ async function main() {
       createdAt: Date;
     }> = [
       {
-        actorId: ceo.id,
+        actorId: director.id,
         action: AuditAction.LOGIN,
         entityType: "User",
-        entityId: ceo.id,
+        entityId: director.id,
         ip: "197.239.5.10",
         createdAt: daysAgo(1),
       },
       {
-        actorId: registrar.id,
+        actorId: schoolAdmin.id,
         action: AuditAction.LOGIN,
         entityType: "User",
-        entityId: registrar.id,
+        entityId: schoolAdmin.id,
         ip: "197.239.5.11",
         createdAt: daysAgo(1),
       },
       {
-        actorId: financeOfficer.id,
+        actorId: principal.id,
         action: AuditAction.LOGIN,
         entityType: "User",
-        entityId: financeOfficer.id,
+        entityId: principal.id,
         ip: "41.210.3.22",
         createdAt: daysAgo(2),
       },
@@ -2768,7 +2688,7 @@ async function main() {
         createdAt: daysAgo(2),
       },
       {
-        actorId: registrar.id,
+        actorId: schoolAdmin.id,
         action: AuditAction.ENROLMENT_CREATED,
         entityType: "Enrolment",
         entityId: enrolments["new"]?.id ?? "x",
@@ -2779,7 +2699,7 @@ async function main() {
         createdAt: daysAgo(14),
       },
       {
-        actorId: financeOfficer.id,
+        actorId: principal.id,
         action: AuditAction.PAYMENT_CONFIRMED,
         entityType: "Payment",
         entityId: "demo-p1",
@@ -2787,7 +2707,7 @@ async function main() {
         createdAt: daysAgo(55),
       },
       {
-        actorId: registrar.id,
+        actorId: schoolAdmin.id,
         action: AuditAction.CERTIFICATE_ISSUED,
         entityType: "Certificate",
         entityId: "MTC-2026-CERT-00001",
@@ -2795,7 +2715,7 @@ async function main() {
         createdAt: daysAgo(25),
       },
       {
-        actorId: financeOfficer.id,
+        actorId: principal.id,
         action: AuditAction.PAYMENT_REVERSED,
         entityType: "Payment",
         entityId: "demo-p2",
@@ -2811,7 +2731,7 @@ async function main() {
         createdAt: daysAgo(3),
       },
       {
-        actorId: ceo.id,
+        actorId: director.id,
         action: AuditAction.ACCESS_REVIEW_COMPLETED,
         entityType: "AccessReview",
         entityId: "demo-ar1",
@@ -2819,7 +2739,7 @@ async function main() {
         createdAt: daysAgo(30),
       },
       {
-        actorId: financeOfficer.id,
+        actorId: principal.id,
         action: AuditAction.PAYMENT_CLAIM_SUBMITTED,
         entityType: "ManualPaymentClaim",
         entityId: "demo-claim-1",
@@ -2827,7 +2747,7 @@ async function main() {
         createdAt: daysAgo(70),
       },
       {
-        actorId: financeOfficer.id,
+        actorId: principal.id,
         action: AuditAction.PAYMENT_CLAIM_VERIFIED,
         entityType: "ManualPaymentClaim",
         entityId: "demo-claim-1",
@@ -2835,7 +2755,7 @@ async function main() {
         createdAt: daysAgo(68),
       },
       {
-        actorId: registrar.id,
+        actorId: schoolAdmin.id,
         action: AuditAction.BULK_EXPORT,
         entityType: "Student",
         entityId: "export-2026-10",
@@ -2865,7 +2785,7 @@ async function main() {
         actorId: itadmin.id,
         action: AuditAction.TOTP_DISABLED,
         entityType: "User",
-        entityId: ceo.id,
+        entityId: director.id,
         metadata: JSON.stringify({
           reason: "Dev seed: TOTP disabled for demo",
         }),
@@ -2956,7 +2876,7 @@ async function main() {
         role: "INSTRUCTOR",
         token: "demo-invite-token-" + randomBytes(8).toString("hex"),
         expiresAt: daysFrom(7),
-        createdById: ceo.id,
+        createdById: director.id,
       },
     });
     console.log("  ✓ Pending staff invite (newstaff@mtc.ac.ug)");
@@ -2976,7 +2896,7 @@ async function main() {
           role: "STUDENT",
           token: `demo-${email.replace(/[^a-z0-9]/gi, "-")}-${randomBytes(8).toString("hex")}`,
           expiresAt: daysFrom(7),
-          createdById: registrar.id,
+          createdById: schoolAdmin.id,
           userId,
         },
       });
@@ -2988,7 +2908,7 @@ async function main() {
   if (existingReview === 0) {
     await prisma.accessReview.create({
       data: {
-        reviewedById: ceo.id,
+        reviewedById: director.id,
         quarter: "Q3-2026",
         notes:
           "All staff accounts reviewed. No anomalies detected. IT admin account last accessed 3 days ago. All accounts confirmed active and appropriate.",
@@ -3191,7 +3111,7 @@ async function main() {
           reason: "Family commitment. Lesson coverage has been arranged.",
         },
         {
-          userId: ta.id,
+          userId: tutor2.id,
           startsAt: daysFrom(20),
           endsAt: daysFrom(21),
           reason: "Medical appointment and recovery day.",
@@ -3201,7 +3121,7 @@ async function main() {
   }
 
   // ── Update partially-paid instalment due dates to show upcoming reminders ──
-  // Student "25" has instalments 2 and 3 unpaid — set instalment 2 due in 5 days
+  // Student "25" has instalments 2 and 3 unpaid - set instalment 2 due in 5 days
   // so the HoldsBody widget shows a real upcoming payment reminder.
   const student25 = await prisma.user.findUnique({ where: { email: "student.25@example.com" }, select: { id: true } });
   if (student25) {
@@ -3228,26 +3148,26 @@ async function main() {
       data: [
         {
           type: ApprovalRequestType.MARKS_CHANGE,
-          status: ApprovalRequestStatus.PENDING,
+          status: ApprovalRequestStatus.SUBMITTED,
           initiatorId: tutor.id,
           reason:
-            "Block 2 Infection Control — Student Ronald Mugisha submitted the correct answers but a transcription error recorded 12/30. Correct score is 24/30.",
+            "Block 2 Infection Control - Student Ronald Mugisha submitted the correct answers but a transcription error recorded 12/30. Correct score is 24/30.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(2),
         },
         {
           type: ApprovalRequestType.MARKS_CHANGE,
-          status: ApprovalRequestStatus.PENDING,
+          status: ApprovalRequestStatus.SUBMITTED,
           initiatorId: registrar.id,
           reason:
-            "CNA Final Exam — Student James Ssemwogerere: final exam score entered as 52/65 but invigilator sheet shows 58/65.",
+            "CNA Final Exam - Student James Ssemwogerere: final exam score entered as 52/65 but invigilator sheet shows 58/65.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(5),
         },
         {
           type: ApprovalRequestType.FEE_CHANGE,
-          status: ApprovalRequestStatus.PENDING,
-          initiatorId: financeOfficer.id,
+          status: ApprovalRequestStatus.SUBMITTED,
+          initiatorId: principal.id,
           reason:
             "Student Grace Nalubega has applied for a partial fee waiver (Medical Home Care Course) due to demonstrated financial hardship. Requesting 20% reduction.",
           amount: 460000,
@@ -3259,7 +3179,7 @@ async function main() {
           status: ApprovalRequestStatus.APPROVED,
           initiatorId: tutor2.id,
           reason:
-            "Babysitting Module 1 — Quiz score corrected after technical glitch during online submission.",
+            "Babysitting Module 1 - Quiz score corrected after technical glitch during online submission.",
           createdAt: daysAgo(10),
           decidedAt: daysAgo(8),
           decidedById: principal.id,
@@ -3267,7 +3187,7 @@ async function main() {
         },
       ],
     });
-    console.log("  ✓ Approval requests — marks changes (2 pending, 1 fee change, 1 approved)");
+    console.log("  ✓ Approval requests - marks changes (2 pending, 1 fee change, 1 approved)");
   }
 
   // ── Board Documents ────────────────────────────────────────────
@@ -3276,23 +3196,23 @@ async function main() {
     await prisma.boardDocument.createMany({
       data: [
         {
-          title: "Board Meeting Minutes — October 2026",
+          title: "Board Meeting Minutes - October 2026",
           category: "MINUTES",
-          authorId: institutionSecretary.id,
+          authorId: director.id,
           fileUrl: "/assets/demo/board-minutes-oct-2026.pdf",
           createdAt: daysAgo(7),
         },
         {
           title: "Annual Academic Performance Report 2026",
           category: "REPORT",
-          authorId: institutionSecretary.id,
+          authorId: director.id,
           fileUrl: "/assets/demo/academic-report-2026.pdf",
           createdAt: daysAgo(14),
         },
         {
           title: "Student Enrolment Policy v3",
           category: "POLICY",
-          authorId: institutionSecretary.id,
+          authorId: director.id,
           fileUrl: "/assets/demo/enrolment-policy-v3.pdf",
           createdAt: daysAgo(30),
         },
@@ -3311,7 +3231,7 @@ async function main() {
           body: "All November 2026 intake registration forms must be submitted by 31 October 2026.",
           audience: "ALL",
           channel: "IN_APP",
-          sentById: registrar.id,
+          sentById: schoolAdmin.id,
           sentAt: daysAgo(2),
         },
         {
@@ -3319,7 +3239,7 @@ async function main() {
           body: "The Block 3 examination timetable has been finalised and is now available. Please review your scheduled slots.",
           audience: "STUDENTS",
           channel: "IN_APP",
-          sentById: registrar.id,
+          sentById: schoolAdmin.id,
           sentAt: daysAgo(1),
         },
       ],
@@ -3334,17 +3254,15 @@ async function main() {
   console.log("\n  All demo accounts use password: Demo1234!\n");
   console.log("  STAFF ACCOUNTS");
   console.log("  " + "-".repeat(57));
-  console.log("  SUPER_ADMIN     ceo@mtc.ac.ug          /director");
-  console.log("  SUPER_ADMIN     deputy@mtc.ac.ug       /director");
-  console.log("  HR_MANAGER      hr@mtc.ac.ug           /admin");
-  console.log("  ADMINISTRATOR   admin@mtc.ac.ug        /admin");
+  console.log("  DIRECTOR        director@mtc.ac.ug     /director");
   console.log("  PRINCIPAL       principal@mtc.ac.ug    /principal");
+  console.log("  ADMIN           admin@mtc.ac.ug        /admin");
+  console.log("  ACAD_REGISTRAR  registrar@mtc.ac.ug    /registrar (holding page)");
   console.log("  SYSTEM_IT       itadmin@mtc.ac.ug      /system");
-  console.log("  REGISTRAR       registrar@mtc.ac.ug    /registrar");
-  console.log("  FINANCE_OFFICER finance@mtc.ac.ug      /finance");
   console.log("  INSTRUCTOR      tutor@mtc.ac.ug        /tutor");
   console.log("  INSTRUCTOR      tutor2@mtc.ac.ug       /tutor");
-  console.log("\n  STUDENT ACCOUNTS (all CNA course)");
+  console.log("  INSTRUCTOR      tutor3@mtc.ac.ug       /tutor");
+  console.log("\n  STUDENT ACCOUNTS (all MHC course, numbers 2026/MHC/001+)");
   console.log("  " + "-".repeat(57));
   for (const def of STUDENT_DEFS) {
     console.log(`  ${def.status.padEnd(15)} ${def.email}`);
