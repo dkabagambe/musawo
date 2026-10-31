@@ -20,6 +20,32 @@ const ADMISSIONS_NAV = [
   { label: "Payment options",      href: "/admissions/payment-options" },
 ];
 
+const INCLUDED_ALL = [
+  "Full course access on all devices",
+  "Hybrid and online classes with 70% hands-on practicals in our skills lab",
+  "All assessments and examinations",
+  "Digital certificate with QR verification",
+  "Job placement support",
+];
+
+const INSTALMENT_PLAN = [
+  {
+    pct: "50%",
+    label: "Before reporting",
+    desc: "Pay at least 50% of your course fee before your first class. This confirms your place and gives you access to the first block of course content.",
+  },
+  {
+    pct: "25%",
+    label: "Midway through the course",
+    desc: "Pay the second instalment during the course to continue without interruption.",
+  },
+  {
+    pct: "25%",
+    label: "Before the final assessment",
+    desc: "Clear the remaining balance before sitting your final examination.",
+  },
+];
+
 export default async function FeesPage() {
   const [contact, courses] = await Promise.all([
     getContactInfo(),
@@ -28,20 +54,14 @@ export default async function FeesPage() {
       select: {
         id: true, title: true, slug: true,
         fullFeeUgx: true, feeContactOnly: true,
-        durationMonths: true, instalmentCount: true,
-        category: true, targetAudience: true,
+        internationalFeeUgx: true,
+        durationMonths: true, category: true,
       },
       orderBy: { createdAt: "asc" },
     }),
   ]);
 
-  const INCLUDED_ALL = [
-    "Full course access on all devices",
-    "Hybrid and online classes with 70% hands-on practicals in our skills lab",
-    "All assessments and examinations",
-    "Digital certificate with QR verification",
-    "Job placement support",
-  ];
+  const USD_RATE = 3600; // UGX per USD
 
   return (
     <div>
@@ -50,7 +70,7 @@ export default async function FeesPage() {
         imageAlt="Musawo Training Center skills lab"
         title="Fees and Instalments"
         description={process.env.DEMO_MODE === "true"
-          ? "Indicative demo fees and flexible instalment options for the November 2026 intake. Confirm fees with admissions before payment."
+          ? "Indicative demo fees for the November 2026 intake. Confirm fees with admissions before payment."
           : "Contact admissions for current course fees and flexible instalment options for the November 2026 intake."}
         breadcrumbs={[
           { label: "Admissions", href: "/admissions/how-to-enrol" },
@@ -65,138 +85,125 @@ export default async function FeesPage() {
           <SideNav title="Admissions" items={ADMISSIONS_NAV} />
 
           <div className="flex-1 min-w-0">
-            <AnimateIn className="mb-10">
-              <p className="section-eyebrow">Transparent pricing</p>
+
+            {/* ── Course fee table ─────────────────────────────── */}
+            <AnimateIn className="mb-12">
+              <p className="section-eyebrow">November 2026 intake</p>
               <h2 className="mt-2 mb-3 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
-                Course fees - November 2026 intake
+                Course fees
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed max-w-xl">
-                All fees are in Uganda Shillings and include everything listed below. There are no hidden charges. We do not provide accommodation.
+              <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-6">
+                All fees are in Uganda Shillings and include everything listed below. No hidden charges. We do not provide accommodation.
+              </p>
+
+              <div className="overflow-x-auto rounded-2xl border border-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-primary text-white">
+                      <th className="text-left px-5 py-3 font-semibold">Course</th>
+                      <th className="text-left px-5 py-3 font-semibold whitespace-nowrap">Duration</th>
+                      <th className="text-right px-5 py-3 font-semibold whitespace-nowrap">Fee (UGX)</th>
+                      <th className="text-right px-5 py-3 font-semibold whitespace-nowrap">Intl. fee (USD)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {courses.map((c) => {
+                      const duration = c.durationMonths
+                        ? `${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""}`
+                        : "TBC";
+                      const intlFeeUsd = c.internationalFeeUgx
+                        ? Math.round(c.internationalFeeUgx / USD_RATE)
+                        : c.fullFeeUgx
+                        ? Math.round(c.fullFeeUgx / USD_RATE)
+                        : null;
+                      return (
+                        <tr key={c.id} className="bg-white hover:bg-surface transition-colors">
+                          <td className="px-5 py-4">
+                            <Link
+                              href={`/courses/${c.slug}`}
+                              className="font-semibold text-primary no-underline hover:underline"
+                            >
+                              {c.title}
+                            </Link>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {c.category === "PROFESSIONAL" ? "Professionals only" : "Open to all"}
+                            </p>
+                          </td>
+                          <td className="px-5 py-4 text-gray-600 whitespace-nowrap">{duration}</td>
+                          <td className="px-5 py-4 text-right font-semibold text-primary whitespace-nowrap">
+                            {c.feeContactOnly || !c.fullFeeUgx
+                              ? <span className="text-gray-400 font-normal text-xs">Contact admissions</span>
+                              : `UGX ${c.fullFeeUgx.toLocaleString()}`}
+                          </td>
+                          <td className="px-5 py-4 text-right text-gray-600 whitespace-nowrap">
+                            {intlFeeUsd
+                              ? `USD ${intlFeeUsd.toLocaleString()}`
+                              : <span className="text-gray-400 text-xs">Contact admissions</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-xs text-gray-400 mt-3">
+                International fee is calculated at a rate of UGX 3,600 per USD. Contact admissions to confirm the current rate.
               </p>
             </AnimateIn>
 
-            <div className="space-y-8">
-              {courses.map((course, i) => {
-                const duration = course.durationMonths
-                  ? `${course.durationMonths} month${course.durationMonths > 1 ? "s" : ""}`
-                  : null;
-                const isProfessional = course.category === "PROFESSIONAL";
-                const instalment = course.fullFeeUgx && course.instalmentCount > 1
-                  ? Math.ceil(course.fullFeeUgx / course.instalmentCount)
-                  : null;
+            {/* ── What is included ─────────────────────────────── */}
+            <AnimateIn className="mb-12">
+              <h3 className="font-bold text-primary text-base mb-4">What is included in every course</h3>
+              <ul className="space-y-2.5 list-none">
+                {INCLUDED_ALL.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600 leading-relaxed">
+                    <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </AnimateIn>
 
-                return (
-                  <AnimateIn key={course.slug} delay={i * 0.06}>
-                    <div className="bg-white rounded-2xl border border-border overflow-hidden">
-                      {/* Course header */}
-                      <div className="bg-primary px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-                        <div>
-                          <h3 className="font-bold text-white text-base">{course.title}</h3>
-                          <p className="text-white/60 text-xs mt-0.5">
-                            {duration ?? "Duration TBC"} |{" "}
-                            {isProfessional ? "Professionals only" : "Open to all"}
-                            {course.targetAudience ? ` | ${course.targetAudience}` : ""}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          {course.feeContactOnly || !course.fullFeeUgx ? (
-                            <p className="text-white/80 text-sm font-semibold">Fee: contact admissions</p>
-                          ) : (
-                            <>
-                              <p className="text-accent font-extrabold text-xl leading-none">
-                                UGX {course.fullFeeUgx.toLocaleString()}
-                              </p>
-                              <p className="text-white/60 text-xs mt-0.5">Full fee</p>
-                            </>
-                          )}
-                        </div>
-                      </div>
+            {/* ── Instalment plan ──────────────────────────────── */}
+            <AnimateIn className="mb-10">
+              <p className="section-eyebrow">Payment plan</p>
+              <h2 className="mt-2 mb-3 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
+                How to pay in instalments
+              </h2>
+              <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-8">
+                You can pay your course fee in three instalments. The same plan applies to all courses.
+              </p>
 
-                      <div className="p-6 sm:p-8 grid sm:grid-cols-2 gap-8">
-                        {/* Instalment plan */}
-                        <div>
-                          <h4 className="font-bold text-primary text-sm mb-4">
-                            {!course.fullFeeUgx || course.feeContactOnly
-                              ? "Payment"
-                              : course.instalmentCount <= 1
-                                ? "Single payment"
-                                : `${course.instalmentCount}-instalment plan`}
-                          </h4>
-                          {course.feeContactOnly || !course.fullFeeUgx ? (
-                            <p className="text-sm text-gray-600">
-                              Contact admissions for fee details:{" "}
-                              <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
-                                admissions@musawo.ug
-                              </a>
-                            </p>
-                          ) : (
-                            <ol className="space-y-3 list-none">
-                              {Array.from({ length: course.instalmentCount }).map((_, idx) => {
-                                const amount = idx === course.instalmentCount - 1
-                                  ? course.fullFeeUgx! - (instalment ?? 0) * (course.instalmentCount - 1)
-                                  : (instalment ?? course.fullFeeUgx!);
-                                return (
-                                  <li key={idx} className="flex items-start gap-3">
-                                    <span className="text-xs font-extrabold text-accent/60 tracking-widest flex-shrink-0 mt-0.5 w-5">
-                                      {String(idx + 1).padStart(2, "0")}
-                                    </span>
-                                    <div>
-                                      <p className="font-semibold text-primary text-sm">
-                                        UGX {amount.toLocaleString()}
-                                      </p>
-                                      <p className="text-xs text-gray-400">
-                                        {idx === 0
-                                          ? "Due at enrolment."
-                                          : idx === course.instalmentCount - 1
-                                            ? "Due before the final examination."
-                                            : "Due halfway through the course."}
-                                      </p>
-                                    </div>
-                                  </li>
-                                );
-                              })}
-                            </ol>
-                          )}
-                        </div>
-
-                        {/* What is included */}
-                        <div>
-                          <h4 className="font-bold text-primary text-sm mb-4">What is included</h4>
-                          <ul className="space-y-2 list-none">
-                            {INCLUDED_ALL.map((item) => (
-                              <li key={item} className="flex items-start gap-2.5 text-xs text-gray-600 leading-relaxed">
-                                <CheckCircle className="w-3.5 h-3.5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className="px-6 pb-6 pt-0 flex gap-3 flex-wrap">
-                        <Link
-                          href={`/apply?course=${course.slug}`}
-                          className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl no-underline transition-all shadow-cta"
-                        >
-                          Apply now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-                        </Link>
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-sm px-5 py-2.5 rounded-xl no-underline transition-colors"
-                        >
-                          View course
-                        </Link>
-                      </div>
+              <div className="grid sm:grid-cols-3 gap-5">
+                {INSTALMENT_PLAN.map(({ pct, label, desc }, i) => (
+                  <div
+                    key={pct}
+                    className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center hover:shadow-card-hover transition-shadow"
+                  >
+                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mb-4">
+                      <span className="text-accent font-extrabold text-xl">{pct}</span>
                     </div>
-                  </AnimateIn>
-                );
-              })}
-            </div>
+                    <p className="font-bold text-primary text-sm mb-1">Instalment {i + 1}</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-2">{label}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                ))}
+              </div>
 
-            <AnimateIn className="mt-8">
+              <div className="mt-6 bg-[#F1F7F5] rounded-2xl border border-border p-5 text-sm text-gray-600">
+                <p className="font-semibold text-primary mb-1">How content access works</p>
+                <p>
+                  After paying 50%, you can access the first half of your course. After the second instalment (75% total), the rest of the content unlocks. Full access is maintained once you have paid in full.
+                </p>
+              </div>
+            </AnimateIn>
+
+            {/* ── Fee enquiries ─────────────────────────────────── */}
+            <AnimateIn>
               <div className="bg-surface border border-border rounded-2xl p-5 text-sm text-gray-600">
                 <p className="font-semibold text-primary mb-1">Fee enquiries</p>
-                <p>
+                <p className="mb-3">
                   For fee confirmations and payment arrangements, contact admissions at{" "}
                   <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
                     admissions@musawo.ug
@@ -206,8 +213,15 @@ export default async function FeesPage() {
                     0709 184 468
                   </a>.
                 </p>
+                <Link
+                  href="/admissions/payment-options"
+                  className="inline-flex items-center gap-1.5 text-accent font-semibold hover:text-accent-600 no-underline transition-colors"
+                >
+                  See payment options <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                </Link>
               </div>
             </AnimateIn>
+
           </div>
         </div>
       </div>

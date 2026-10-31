@@ -19,11 +19,11 @@ interface Props {
 }
 
 const HOW_HEARD_OPTIONS = [
+  "Social media (Facebook, Instagram, TikTok or YouTube)",
   "WhatsApp",
-  "Facebook",
-  "Instagram or TikTok",
   "Friend or family",
-  "Community health worker",
+  "Community Health Worker (CHW)",
+  "Village Health Team (VHT)",
   "Hospital or clinic",
   "Radio",
   "Other",
@@ -378,8 +378,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
             I consent to Musawo Training Center collecting and using my personal data to
             process this application in accordance with the{" "}
             <a href="/privacy" className="text-primary no-underline hover:underline">Privacy Policy</a>{" "}
-            and the Uganda Data Protection and Privacy Act 2019. I understand this is an
-            application only and does not create a student account.
+            and the Uganda Data Protection and Privacy Act 2019 and other applicable laws.
           </span>
         </label>
       </div>

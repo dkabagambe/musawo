@@ -128,15 +128,16 @@ export default async function PublicFooter() {
             <FooterHeading>Quick Links</FooterHeading>
             <ul className="space-y-3 list-none">
               {[
-                { label: "Home", href: "/" },
-                { label: "Courses", href: "/courses" },
-                { label: "Apply now", href: "/apply" },
-                { label: "How to enrol", href: "/admissions/how-to-enrol" },
-                { label: "Learning", href: "/learning/how-you-learn" },
-                { label: "About", href: "/about" },
-                { label: "Resources", href: "/resources" },
-                { label: "FAQ", href: "/faq" },
-                { label: "Contact", href: "/contact" },
+                { label: "Home",          href: "/" },
+                { label: "About MTC",     href: "/about" },
+                { label: "How to Enrol",  href: "/admissions/how-to-enrol" },
+                { label: "Impact",        href: "/impact" },
+                { label: "Courses",       href: "/courses" },
+                { label: "Apply now",     href: "/apply" },
+                { label: "Fees",          href: "/admissions/fees" },
+                { label: "Payment options", href: "/admissions/payment-options" },
+                { label: "FAQ",           href: "/faq" },
+                { label: "Contact",       href: "/contact" },
                 { label: "Student login", href: "/login" },
               ].map(({ label, href }) => (
                 <li key={href}>

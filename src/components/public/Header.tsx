@@ -33,131 +33,10 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { label: "Home", href: "/" },
-  {
-    label: "Courses",
-    children: [
-      {
-        label: "Certificate in Medical Home Care Course",
-        href: "/courses/medical-home-caregiver",
-        desc: "3 months. For registered health professionals.",
-      },
-      {
-        label: "Certificate in Basic Home Care",
-        href: "/courses/basic-home-caregiver",
-        desc: "3 months. Open to all.",
-      },
-      {
-        label:
-          "Basic Certificate in Babysitting, Child Care and Safety Management",
-        href: "/courses/babysitting-childcare-safety",
-        desc: "2 months. Open to all.",
-      },
-      {
-        label: "Certificate in Mental Health Support and Advocacy",
-        href: "/courses/mental-health-support-advocacy",
-        desc: "3 months. Open to all.",
-      },
-      {
-        label:
-          "Basic Certificate in Care of Older Persons and Persons with Disability",
-        href: "/courses/care-older-persons-disability",
-        desc: "3 months. Open to all.",
-      },
-      {
-        label: "Certificate in Basic Life Support",
-        href: "/courses/basic-life-support-first-aid",
-        desc: "1 month. For registered health professionals.",
-      },
-      {
-        label: "Certificate in Advanced Life Support",
-        href: "/courses/advanced-life-support",
-        desc: "1 month. For registered health professionals.",
-      },
-      {
-        label: "Certificate in Advanced First Aid",
-        href: "/courses/advanced-first-aid",
-        desc: "1 month. Open to non-health professionals aged 18 and above.",
-      },
-      {
-        label: "All courses",
-        href: "/courses",
-        desc: "Browse and compare all programmes.",
-      },
-    ],
-  },
-  {
-    label: "Admissions",
-    children: [
-      {
-        label: "Apply now",
-        href: "/apply",
-        desc: "Submit your application for the November 2026 intake.",
-      },
-      {
-        label: "How to enrol",
-        href: "/admissions/how-to-enrol",
-        desc: "Step-by-step guide to joining MTC.",
-      },
-      {
-        label: "Fees and instalments",
-        href: "/admissions/fees",
-        desc: "Full fees and instalment options.",
-      },
-      {
-        label: "Payment options",
-        href: "/admissions/payment-options",
-        desc: "Mobile money, bank and more.",
-      },
-    ],
-  },
-  {
-    label: "Learning",
-    children: [
-      {
-        label: "How you will learn",
-        href: "/learning/how-you-learn",
-        desc: "Hybrid and online approach with skills lab practicals.",
-      },
-      {
-        label: "Live classes",
-        href: "/learning/live-classes",
-        desc: "Sessions with your tutor and fellow students.",
-      },
-      {
-        label: "Exams and certificates",
-        href: "/learning/exams",
-        desc: "Assessments and digital certificates.",
-      },
-      {
-        label: "Free resources",
-        href: "/resources",
-        desc: "Study guides and reference materials.",
-      },
-    ],
-  },
-  {
-    label: "About",
-    children: [
-      {
-        label: "About MTC",
-        href: "/about",
-        desc: "Our story, mission and values.",
-      },
-      {
-        label: "Accreditation",
-        href: "/about/accreditation",
-        desc: "Accreditation details.",
-      },
-      {
-        label: "Our trainers",
-        href: "/about/trainers",
-        desc: "Meet the clinical educators.",
-      },
-      { label: "FAQ", href: "/faq", desc: "Common questions answered." },
-    ],
-  },
-  { label: "Contact", href: "/contact" },
+  { label: "Home",        href: "/" },
+  { label: "About MTC",  href: "/about" },
+  { label: "How to Enrol", href: "/admissions/how-to-enrol" },
+  { label: "Impact",     href: "/impact" },
 ];
 
 /* ─────────────────────────────────────────────
@@ -458,28 +337,12 @@ function MobileAccordion({
 /* ─────────────────────────────────────────────
    MAIN HEADER COMPONENT
    ───────────────────────────────────────────── */
-export default function PublicHeader({
-  showAccreditation = false,
-}: {
-  showAccreditation?: boolean;
-}) {
+export default function PublicHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawer] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  // Build nav, filtering out the Accreditation item when setting is not filled
-  const nav: NavItem[] = NAV.map((item) => {
-    if (item.label === "About" && item.children) {
-      return {
-        ...item,
-        children: showAccreditation
-          ? item.children
-          : item.children.filter((c) => c.href !== "/about/accreditation"),
-      };
-    }
-    return item;
-  });
+  const nav = NAV;
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -495,7 +358,6 @@ export default function PublicHeader({
   // Close drawer on route change
   useEffect(() => {
     setDrawer(false);
-    setOpenMenu(null);
   }, [pathname]);
 
   // Esc key closes everything
@@ -503,7 +365,6 @@ export default function PublicHeader({
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDrawer(false);
-        setOpenMenu(null);
       }
     };
     document.addEventListener("keydown", fn);
@@ -589,14 +450,7 @@ export default function PublicHeader({
                   aria-hidden="true"
                 />
               </span>
-              <span className="hidden sm:flex flex-col leading-tight">
-                <span className="font-extrabold text-white text-sm tracking-tight">
-                  Musawo Training Center
-                </span>
-                <span className="text-white/55 text-[10px] font-normal tracking-wide uppercase">
-                  Learn · Serve · Transform
-                </span>
-              </span>
+
             </Link>
 
             {/* Desktop nav */}
@@ -604,20 +458,7 @@ export default function PublicHeader({
               className="hidden lg:flex items-center gap-0.5 text-sm font-medium list-none"
               role="list"
             >
-              {nav.map((item) => {
-                if (item.children) {
-                  return (
-                    <li key={item.label}>
-                      <DropdownMenu
-                        item={item}
-                        isOpen={openMenu === item.label}
-                        onOpen={() => setOpenMenu(item.label)}
-                        onClose={() => setOpenMenu(null)}
-                        isParentActive={isItemActive(item)}
-                      />
-                    </li>
-                  );
-                }
+            {nav.map((item) => {
                 const active = isItemActive(item);
                 return (
                   <li key={item.label}>
@@ -731,9 +572,7 @@ export default function PublicHeader({
               />
             </span>
             <span className="font-extrabold text-white text-sm leading-tight">
-              Musawo
-              <br />
-              Training Center
+              Musawo Training Center
             </span>
           </Link>
           <button
@@ -754,16 +593,6 @@ export default function PublicHeader({
         >
           <ul className="space-y-1 list-none">
             {nav.map((item) => {
-              if (item.children) {
-                return (
-                  <MobileAccordion
-                    key={item.label}
-                    item={item}
-                    isActive={isItemActive(item)}
-                    onClose={() => setDrawer(false)}
-                  />
-                );
-              }
               const active = isItemActive(item);
               return (
                 <li key={item.label}>

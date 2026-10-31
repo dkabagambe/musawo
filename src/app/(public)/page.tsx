@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import CountUp from "@/components/public/CountUp";
 import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
 import HomeHero from "@/components/public/HomeHero";
@@ -89,13 +88,6 @@ const HOW_STEPS = [
     title: "Pass and certify",
     body: "Complete assessments and log book. Receive your digital certificate with QR verification, shareable with any employer.",
   },
-];
-
-const STATS = [
-  { value: "1,000+", label: "Households served" },
-  { value: "87+", label: "Health workers trained" },
-  { value: "52+", label: "Outreach events" },
-  { value: "8", label: "Programmes offered" },
 ];
 
 const PLACEMENT_POINTS = [
@@ -458,27 +450,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Impact numbers ───────────────────────────────────── */}
-      <section
-        className="bg-primary py-14 sm:py-20 px-4 sm:px-6"
-        aria-label="Impact numbers"
-      >
-        <div className="max-w-[1200px] mx-auto">
-          <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {STATS.map((s) => (
-              <div key={s.label} className="flex flex-col items-center gap-2">
-                <CountUp
-                  value={s.value}
-                  className="text-4xl sm:text-5xl font-extrabold text-accent"
-                />
-                <span className="text-white/70 text-sm leading-snug">
-                  {s.label}
-                </span>
-              </div>
-            ))}
-          </StaggerGrid>
-        </div>
-      </section>
 
       {/* ── Graduates and testimonials ───────────────────────── */}
       <section
