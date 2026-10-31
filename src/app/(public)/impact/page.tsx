@@ -36,29 +36,6 @@ const PURPOSE = [
   },
 ];
 
-const COMMUNITY_BENEFITS = [
-  {
-    stat: "1,000+",
-    label: "Households reached",
-    detail: "Each graduate goes on to care for multiple patients and families, multiplying the reach of every training.",
-  },
-  {
-    stat: "87+",
-    label: "Health workers trained",
-    detail: "Graduates working in homes, clinics, schools and community health programmes across Uganda.",
-  },
-  {
-    stat: "8",
-    label: "Healthcare programmes",
-    detail: "From basic life support to mental health advocacy, our courses cover the full spectrum of community care needs.",
-  },
-  {
-    stat: "52+",
-    label: "Community outreach events",
-    detail: "Free first aid and health awareness events run by students and staff in Kampala and surrounding districts.",
-  },
-];
-
 const FOLLOW_UP_POINTS = [
   "We track every graduate's employment status at 1, 3 and 6 months after graduation.",
   "Graduates can update their employment profile in the alumni portal.",
@@ -106,26 +83,6 @@ export default async function ImpactPage() {
                   <h3 className="font-bold text-primary mb-2">{title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{body}</p>
                 </div>
-              </div>
-            </AnimateIn>
-          ))}
-        </StaggerGrid>
-
-        {/* ── Community benefits / numbers ─────────────────────── */}
-        <AnimateIn className="mb-6">
-          <p className="section-eyebrow">Community benefits</p>
-          <h2 className="mt-2 mb-3 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
-            Reach and results so far
-          </h2>
-        </AnimateIn>
-
-        <StaggerGrid className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
-          {COMMUNITY_BENEFITS.map(({ stat, label, detail }) => (
-            <AnimateIn key={label}>
-              <div className="bg-white rounded-2xl border border-border p-6 text-center hover:shadow-card-hover transition-shadow">
-                <p className="text-3xl sm:text-4xl font-extrabold text-accent mb-1">{stat}</p>
-                <p className="font-semibold text-primary text-sm mb-2">{label}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{detail}</p>
               </div>
             </AnimateIn>
           ))}

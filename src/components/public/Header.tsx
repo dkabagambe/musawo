@@ -3,40 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef, useCallback } from "react";
-import {
-  ArrowRight,
-  Menu,
-  X,
-  ChevronDown,
-  ChevronRight,
-  Phone,
-  Mail,
-  MessageCircle,
-  ExternalLink,
-} from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { ArrowRight, Menu, X, Phone, Mail, MessageCircle, ExternalLink } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 
 /* ─────────────────────────────────────────────
    NAV STRUCTURE
    ───────────────────────────────────────────── */
-interface NavChild {
-  label: string;
-  href: string;
-  desc?: string;
-}
-
 interface NavItem {
   label: string;
-  href?: string;
-  children?: NavChild[];
+  href: string;
 }
 
 const NAV: NavItem[] = [
-  { label: "Home",        href: "/" },
-  { label: "About MTC",  href: "/about" },
+  { label: "Home",          href: "/" },
+  { label: "About MTC",    href: "/about" },
   { label: "How to Enrol", href: "/admissions/how-to-enrol" },
-  { label: "Impact",     href: "/impact" },
+  { label: "Impact",       href: "/impact" },
 ];
 
 /* ─────────────────────────────────────────────
@@ -57,12 +40,9 @@ function UtilityBar() {
       style={{ height: 38 }}
     >
       <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between gap-4">
-        {/* Left links */}
+        {/* Left */}
         <div className="flex items-center gap-5">
-          <Link
-            href="/login"
-            className="hover:text-white no-underline transition-colors"
-          >
+          <Link href="/login" className="hover:text-white no-underline transition-colors">
             Student login
           </Link>
           <a
@@ -71,11 +51,10 @@ function UtilityBar() {
             rel="noopener noreferrer"
             className="hover:text-white no-underline transition-colors flex items-center gap-1"
           >
-            Visit musawo.ug{" "}
-            <ExternalLink className="w-3 h-3" aria-hidden="true" />
+            Visit musawo.ug <ExternalLink className="w-3 h-3" aria-hidden="true" />
           </a>
         </div>
-        {/* Right info */}
+        {/* Right */}
         <div className="flex items-center gap-5">
           <a
             href="tel:+256709184468"
@@ -107,247 +86,16 @@ function UtilityBar() {
 }
 
 /* ─────────────────────────────────────────────
-   DESKTOP DROPDOWN ITEM
-   ───────────────────────────────────────────── */
-function DropdownMenu({
-  item,
-  isOpen,
-  onOpen,
-  onClose,
-  isParentActive,
-}: {
-  item: NavItem;
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
-  isParentActive: boolean;
-}) {
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const scheduleClose = useCallback(() => {
-    timerRef.current = setTimeout(onClose, 200);
-  }, [onClose]);
-
-  const cancelClose = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
-
-  // Keyboard: arrow keys navigate items, Escape closes
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onClose();
-      triggerRef.current?.focus();
-    }
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (isOpen) {
-        onClose();
-      } else {
-        onOpen();
-      }
-    }
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const first = panelRef.current?.querySelector<HTMLAnchorElement>("a");
-      first?.focus();
-    }
-  };
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={() => {
-        cancelClose();
-        onOpen();
-      }}
-      onMouseLeave={scheduleClose}
-    >
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        onKeyDown={handleKeyDown}
-        className={`relative flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium
-                    no-underline transition-colors focus-visible:outline-2
-                    focus-visible:outline-offset-2 focus-visible:outline-accent
-                    ${isParentActive ? "text-white" : "text-white/75 hover:text-white hover:bg-white/10"}`}
-      >
-        {item.label}
-        <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        />
-        {isParentActive && (
-          <span
-            className="absolute bottom-1 left-3 right-3 h-0.5 bg-accent rounded-full"
-            aria-hidden="true"
-          />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <m.div
-            ref={panelRef}
-            key="dropdown"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.13, ease: "easeOut" }}
-            role="menu"
-            aria-label={`${item.label} submenu`}
-            onMouseEnter={cancelClose}
-            onMouseLeave={scheduleClose}
-            className="absolute top-full left-0 w-72 z-[60]"
-            style={{ paddingTop: 6 }}
-          >
-            {/* invisible bridge covers the gap between button bottom and panel */}
-            <div className="bg-white rounded-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-100 py-2">
-              {item.children?.map((child) => (
-                <Link
-                  key={child.href}
-                  href={child.href}
-                  role="menuitem"
-                  className="flex flex-col px-4 py-3 no-underline hover:bg-[#F1F7F5]
-                           transition-colors group focus-visible:bg-[#F1F7F5]
-                           focus-visible:outline-none"
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      onClose();
-                      triggerRef.current?.focus();
-                    }
-                    if (e.key === "ArrowDown") {
-                      e.preventDefault();
-                      const el = e.currentTarget
-                        .nextElementSibling as HTMLElement | null;
-                      el?.focus();
-                    }
-                    if (e.key === "ArrowUp") {
-                      e.preventDefault();
-                      const el = e.currentTarget
-                        .previousElementSibling as HTMLElement | null;
-                      el?.focus();
-                    }
-                  }}
-                >
-                  <span className="text-sm font-semibold text-[#1F2937] group-hover:text-primary transition-colors">
-                    {child.label}
-                  </span>
-                  {child.desc && (
-                    <span className="text-xs text-[#4B5563] mt-0.5 leading-snug">
-                      {child.desc}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </m.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   MOBILE ACCORDION GROUP
-   ───────────────────────────────────────────── */
-function MobileAccordion({
-  item,
-  isActive,
-  onClose,
-}: {
-  item: NavItem;
-  isActive: boolean;
-  onClose: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-
-  const childActive = item.children?.some(
-    (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
-  );
-
-  return (
-    <li>
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm
-                    font-semibold text-left transition-colors
-                    ${
-                      childActive || isActive
-                        ? "bg-white/15 text-white"
-                        : "text-white/75 hover:text-white hover:bg-white/10"
-                    }`}
-      >
-        {item.label}
-        <ChevronDown
-          className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        />
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <m.ul
-            key="accordion"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden pl-4 list-none"
-          >
-            {item.children?.map((child) => {
-              const active =
-                pathname === child.href ||
-                pathname.startsWith(child.href + "/");
-              return (
-                <li key={child.href}>
-                  <Link
-                    href={child.href}
-                    onClick={onClose}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm
-                                no-underline transition-colors
-                                ${
-                                  active
-                                    ? "text-accent font-semibold"
-                                    : "text-white/65 hover:text-white"
-                                }`}
-                  >
-                    <ChevronRight
-                      className="w-3 h-3 flex-shrink-0"
-                      aria-hidden="true"
-                    />
-                    {child.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </m.ul>
-        )}
-      </AnimatePresence>
-    </li>
-  );
-}
-
-/* ─────────────────────────────────────────────
-   MAIN HEADER COMPONENT
+   MAIN HEADER
    ───────────────────────────────────────────── */
 export default function PublicHeader() {
-  const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-  const [drawerOpen, setDrawer] = useState(false);
-
-  const nav = NAV;
-
-  const drawerRef = useRef<HTMLDivElement>(null);
+  const pathname  = usePathname();
+  const [scrolled, setScrolled]   = useState(false);
+  const [drawerOpen, setDrawer]   = useState(false);
+  const drawerRef    = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  // Scroll detection
+  /* Scroll shadow */
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", fn, { passive: true });
@@ -355,56 +103,37 @@ export default function PublicHeader() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Close drawer on route change
-  useEffect(() => {
-    setDrawer(false);
-  }, [pathname]);
+  /* Close drawer on route change */
+  useEffect(() => { setDrawer(false); }, [pathname]);
 
-  // Esc key closes everything
+  /* Esc closes drawer */
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setDrawer(false);
-      }
-    };
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawer(false); };
     document.addEventListener("keydown", fn);
     return () => document.removeEventListener("keydown", fn);
   }, []);
 
-  // Click outside closes drawer
+  /* Click outside closes drawer */
   useEffect(() => {
     if (!drawerOpen) return;
     const fn = (e: MouseEvent) => {
       if (
-        drawerRef.current &&
-        !drawerRef.current.contains(e.target as Node) &&
-        hamburgerRef.current &&
-        !hamburgerRef.current.contains(e.target as Node)
-      )
-        setDrawer(false);
+        drawerRef.current && !drawerRef.current.contains(e.target as Node) &&
+        hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)
+      ) setDrawer(false);
     };
     document.addEventListener("mousedown", fn);
     return () => document.removeEventListener("mousedown", fn);
   }, [drawerOpen]);
 
-  // Lock body scroll when drawer open
+  /* Lock scroll when drawer open */
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [drawerOpen]);
 
-  const isItemActive = (item: NavItem): boolean => {
-    if (item.href) {
-      return item.href === "/"
-        ? pathname === "/"
-        : pathname.startsWith(item.href);
-    }
-    return (item.children ?? []).some(
-      (c) => pathname === c.href || pathname.startsWith(c.href + "/"),
-    );
-  };
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
 
   return (
     <>
@@ -419,27 +148,25 @@ export default function PublicHeader() {
       </a>
 
       <header className="fixed top-0 inset-x-0 z-50 flex flex-col">
-        {/* ── Utility bar ─────────────────────────────────────────── */}
+        {/* Utility bar */}
         <UtilityBar />
 
-        {/* ── Main bar ────────────────────────────────────────────── */}
+        {/* Main bar */}
         <div
-          className={`bg-primary transition-all duration-300 ${
-            scrolled ? "shadow-lg border-b border-white/10" : ""
-          }`}
+          className={`bg-primary transition-all duration-300 ${scrolled ? "shadow-lg border-b border-white/10" : ""}`}
           style={{ height: 72 }}
         >
           <nav
-            className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between gap-4"
+            className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between gap-6"
             aria-label="Main navigation"
           >
-            {/* Logo */}
+            {/* Logo — image only, no wordmark */}
             <Link
               href="/"
-              className="flex items-center gap-3 no-underline flex-shrink-0"
+              className="flex items-center no-underline flex-shrink-0"
               aria-label="Musawo Training Center - home"
             >
-              <span className="flex items-center justify-center bg-white rounded-xl w-[52px] h-[52px] flex-shrink-0 shadow-sm p-1.5">
+              <span className="flex items-center justify-center bg-white rounded-xl w-[52px] h-[52px] shadow-sm p-1.5">
                 <Image
                   src="/assets/logo-header.png"
                   alt=""
@@ -450,33 +177,28 @@ export default function PublicHeader() {
                   aria-hidden="true"
                 />
               </span>
-
             </Link>
 
-            {/* Desktop nav */}
-            <ul
-              className="hidden lg:flex items-center gap-0.5 text-sm font-medium list-none"
-              role="list"
-            >
-            {nav.map((item) => {
-                const active = isItemActive(item);
+            {/* Desktop nav links */}
+            <ul className="hidden lg:flex items-center gap-1 list-none flex-1 justify-center" role="list">
+              {NAV.map((item) => {
+                const active = isActive(item.href);
                 return (
                   <li key={item.label}>
                     <Link
-                      href={item.href!}
-                      className={`relative px-3 py-2 rounded-lg no-underline transition-colors text-sm font-medium
-                                  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
-                                  ${
-                                    active
-                                      ? "text-white"
-                                      : "text-white/75 hover:text-white hover:bg-white/10"
-                                  }`}
+                      href={item.href}
                       aria-current={active ? "page" : undefined}
+                      className={`relative px-4 py-2 rounded-lg text-sm font-semibold no-underline transition-colors
+                                  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+                                  ${active
+                                    ? "text-white bg-white/15"
+                                    : "text-white/80 hover:text-white hover:bg-white/10"
+                                  }`}
                     >
                       {item.label}
                       {active && (
                         <span
-                          className="absolute bottom-1 left-3 right-3 h-0.5 bg-accent rounded-full"
+                          className="absolute bottom-0.5 left-4 right-4 h-0.5 bg-accent rounded-full"
                           aria-hidden="true"
                         />
                       )}
@@ -487,7 +209,7 @@ export default function PublicHeader() {
             </ul>
 
             {/* Right actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Link
                 href="/login"
                 className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold
@@ -502,11 +224,10 @@ export default function PublicHeader() {
                            active:scale-[0.97] text-white text-sm font-bold px-4 py-2.5 rounded-xl
                            no-underline transition-all shadow-cta"
               >
-                Apply now{" "}
-                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                Apply now <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </Link>
 
-              {/* Hamburger (mobile + tablet) */}
+              {/* Hamburger */}
               <button
                 ref={hamburgerRef}
                 type="button"
@@ -517,18 +238,14 @@ export default function PublicHeader() {
                 aria-controls="mobile-drawer"
                 onClick={() => setDrawer((v) => !v)}
               >
-                {drawerOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+                {drawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </nav>
         </div>
       </header>
 
-      {/* ── Mobile backdrop ───────────────────────────────────────── */}
+      {/* Mobile backdrop */}
       <AnimatePresence>
         {drawerOpen && (
           <m.div
@@ -543,7 +260,7 @@ export default function PublicHeader() {
         )}
       </AnimatePresence>
 
-      {/* ── Mobile drawer ─────────────────────────────────────────── */}
+      {/* Mobile drawer */}
       <div
         id="mobile-drawer"
         ref={drawerRef}
@@ -587,26 +304,22 @@ export default function PublicHeader() {
         </div>
 
         {/* Drawer nav */}
-        <nav
-          className="flex-1 overflow-y-auto px-4 py-4"
-          aria-label="Mobile navigation links"
-        >
+        <nav className="flex-1 overflow-y-auto px-4 py-4" aria-label="Mobile navigation links">
           <ul className="space-y-1 list-none">
-            {nav.map((item) => {
-              const active = isItemActive(item);
+            {NAV.map((item) => {
+              const active = isActive(item.href);
               return (
                 <li key={item.label}>
                   <Link
-                    href={item.href!}
-                    className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold
-                                no-underline transition-colors
-                                ${
-                                  active
-                                    ? "bg-white/15 text-white"
-                                    : "text-white/75 hover:text-white hover:bg-white/10"
-                                }`}
+                    href={item.href}
                     onClick={() => setDrawer(false)}
                     aria-current={active ? "page" : undefined}
+                    className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold
+                                no-underline transition-colors
+                                ${active
+                                  ? "bg-white/15 text-white"
+                                  : "text-white/75 hover:text-white hover:bg-white/10"
+                                }`}
                   >
                     {item.label}
                   </Link>
@@ -614,76 +327,25 @@ export default function PublicHeader() {
               );
             })}
           </ul>
-
-          {/* Utility links in drawer */}
-          <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
-            <p className="text-white/40 text-[10px] uppercase tracking-widest px-4 mb-3">
-              More
-            </p>
-            {[
-              {
-                label: "Visit musawo.ug",
-                href: "https://musawo.ug",
-                external: true,
-              },
-            ].map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                target={l.external ? "_blank" : undefined}
-                rel={l.external ? "noopener noreferrer" : undefined}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm
-                           text-white/60 hover:text-white hover:bg-white/10 no-underline
-                           transition-colors"
-                onClick={() => setDrawer(false)}
-              >
-                {l.label}
-                {l.external && (
-                  <ExternalLink
-                    className="w-3 h-3 opacity-50"
-                    aria-hidden="true"
-                  />
-                )}
-              </a>
-            ))}
-            <div className="px-4 pt-1 space-y-1.5 text-xs text-white/50">
-              <a
-                href="tel:+256709184468"
-                className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5"
-              >
-                <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                0709 184 468
-              </a>
-              <a
-                href="mailto:info@musawo.ug"
-                className="flex items-center gap-2 hover:text-white/80 no-underline transition-colors py-1.5"
-              >
-                <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                info@musawo.ug
-              </a>
-            </div>
-          </div>
         </nav>
 
-        {/* Drawer footer CTA */}
-        <div className="px-4 pb-8 pt-4 border-t border-white/10 space-y-3">
-          <Link
-            href="/login"
-            className="flex items-center justify-center w-full py-3 text-sm font-semibold
-                       text-white/80 hover:text-white hover:bg-white/10 border border-white/20
-                       rounded-xl no-underline transition-colors"
-            onClick={() => setDrawer(false)}
-          >
-            Log in
-          </Link>
+        {/* Drawer footer actions */}
+        <div className="px-4 pb-6 pt-4 border-t border-white/10 space-y-3">
           <Link
             href="/apply"
-            className="flex items-center justify-center gap-2 w-full py-3 text-sm font-bold
-                       bg-accent hover:bg-accent-600 active:scale-[0.97] text-white rounded-xl
-                       no-underline transition-all shadow-cta"
             onClick={() => setDrawer(false)}
+            className="flex items-center justify-center gap-2 bg-accent hover:bg-accent-600
+                       text-white font-bold text-sm px-4 py-3 rounded-xl no-underline transition-colors"
           >
             Apply now <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
+          <Link
+            href="/login"
+            onClick={() => setDrawer(false)}
+            className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15
+                       text-white font-semibold text-sm px-4 py-3 rounded-xl no-underline transition-colors"
+          >
+            Log in
           </Link>
         </div>
       </div>
