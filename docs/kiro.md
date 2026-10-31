@@ -287,7 +287,7 @@ Store the tree in the database (role, parent, level) and keep roles data driven 
 | Bulk export of personal data | P | - | A (scoped) | - | A (scoped) | - | - | A (finance) | A | - | - | - |
 Every view by AUDITOR_READONLY of a student record is logged. Bulk exports need SUPER_ADMIN approval and are logged.
 
-**3. EACH ROLE: WHAT IT SEES AND DOES**
+### **3. EACH ROLE: WHAT IT SEES AND DOES**
 
 - SUPER_ADMIN (MD/CEO/ED/CFO): sees everything; decision dashboard (enrolment, income, performance, pending approvals); gives final approval of refunds, waivers, fee changes, role changes and bulk exports; creates, deactivates and archives any account; settings and policies; audit log. Tabs: General, Academics, Finance, Staff, Approvals.
 - BOARD_MEMBER: read-only governance reports and aggregates, policies, graduate names with course and year; no individual student contacts or payments. Institution Secretary account also manages policies and board documents. Tabs: General, Reports, Policies.

@@ -28,31 +28,20 @@ const DEMO_PASSWORD = "Demo1234!";
  * If you add more demo accounts, add them here too.
  */
 const DEMO_EMAILS = [
-  // Staff -- matching prisma/seed.ts mkStaff calls
-  "ceo@mtc.ac.ug",
-  "deputy@mtc.ac.ug",
-  "board@mtc.ac.ug",
+  // Staff -- matching prisma/seed.ts mkStaff calls (new 6-role model)
+  "director@mtc.ac.ug",
   "principal@mtc.ac.ug",
-  "deputyprincipal@mtc.ac.ug",
-  "registrar@mtc.ac.ug",
-  "finance@mtc.ac.ug",
-  "hr@mtc.ac.ug",
   "admin@mtc.ac.ug",
-  "secretary@mtc.ac.ug",
-  "auditor@mtc.ac.ug",
+  "registrar@mtc.ac.ug",
   "itadmin@mtc.ac.ug",
   "tutor@mtc.ac.ug",
   "tutor2@mtc.ac.ug",
-  "assistant@mtc.ac.ug",
+  "tutor3@mtc.ac.ug",
   // Students
   "student.new@example.com",
-  "student.pending@example.com",
   "student.25@example.com",
-  "student.50@example.com",
-  "student.75@example.com",
   "student.full@example.com",
   "student.overdue@example.com",
-  "student.completed@example.com",
   // Special-state students (cannot log in until they accept the invite)
   // "student.waiting@example.com",  - PENDING_ACCEPTANCE, login blocked
   // "student.disputed@example.com", - DETAILS_DISPUTED, login blocked
@@ -104,7 +93,7 @@ describe("authorize() — all demo accounts sign in with Demo1234!", () => {
   }, ARGON2_TIMEOUT_MS);
 
   it("rejects a wrong password", async () => {
-    const result = await simulateAuthorize("ceo@mtc.ac.ug", "WrongPass1!");
+    const result = await simulateAuthorize("director@mtc.ac.ug", "WrongPass1!");
     expect(result).toMatchObject({ ok: false, reason: "password mismatch" });
   });
 
