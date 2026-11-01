@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Phone, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/redirect";
+import { getPostLoginPath } from "../../../../lib/redirect";
 
 const CODE_LENGTH = 6;
 

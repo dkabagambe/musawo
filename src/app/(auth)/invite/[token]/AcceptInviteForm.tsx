@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { User, Lock, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/redirect";
+import { getPostLoginPath } from "../../../../../lib/redirect";
 
 interface Props {
   token: string;
