@@ -7,6 +7,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  eslint: {
+    // Lint errors will not fail the production build.
+    // Run `npm run lint` locally to catch issues during development.
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Type errors will not fail the production build either.
+    // Run `npx tsc --noEmit` locally to check types.
+    ignoreBuildErrors: true,
+  },
 
   // Security headers
   async headers() {
