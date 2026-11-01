@@ -110,7 +110,7 @@ export default async function PrincipalApprovalDetailPage({ params }: Props) {
                 ? "text-green-800"
                 : "text-danger"
             }`}>
-              {STATUS_LABEL[request.status]} by {request.decidedBy?.name ?? "—"}
+              {STATUS_LABEL[request.status]} by {request.decidedBy?.name ?? "System"}
             </p>
             {request.decisionNote && (
               <p className="text-xs text-gray-600 mt-1">{request.decisionNote}</p>

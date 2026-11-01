@@ -15,29 +15,17 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum UserRole {
-  // ── Active roles ──────────────────────────────────────────────
-  SUPER_ADMIN          // Managing Director / CEO / CFO. Max 3 accounts.
-  BOARD_MEMBER         // Read-only reports and aggregates.
-  PRINCIPAL            // Academic head; approves content, results, graduands.
-  DEPUTY_PRINCIPAL     // Daily operations; delegates from Principal.
-  ACADEMIC_REGISTRAR   // Student records, enrolments, academic calendar.
-  INSTRUCTOR           // Teaching staff (was TUTOR).
-  TEACHING_ASSISTANT   // Supporting staff; limited upload and roll-call.
-  FINANCE_OFFICER      // Payments, ledger, holds (was BURSAR).
-  HR_MANAGER           // Human Resource staff records, invites, leave, access review.
-  ADMINISTRATOR        // Day-to-day school operations.
-  AUDITOR_READONLY     // Legal advisor; view-only, every view logged.
-  SYSTEM_IT            // Technical settings, integrations, backups.
+  // ── Active business roles (remarks.md section 1) ──────────────
+  DIRECTOR             // Managing Director; final approver. TOTP required in production.
+  PRINCIPAL            // Academic head; full operational CRUD.
+  ADMIN                // PA to Principal; day-to-day academic administration.
+  ACADEMIC_REGISTRAR   // Dummy/inactive; shows holding page while ACADEMIC_REGISTRAR_ACTIVE=false.
+  INSTRUCTOR           // Teaching staff (own assigned courses and classes only).
   STUDENT              // Learner account.
-  // ── Legacy aliases kept until data is migrated ────────────────
-  SUPERADMIN           // -> SUPER_ADMIN
-  HR_SYSTEM_ADMIN      // -> HR_MANAGER
-  BURSAR               // -> FINANCE_OFFICER
-  TUTOR                // -> INSTRUCTOR
-  REGISTRAR            // -> ACADEMIC_REGISTRAR
-  ADMIN                // -> HR_MANAGER
-  SPONSOR              // -> remove after seed migration
-  EMPLOYER             // -> remove after seed migration
+  // ── Technical account ─────────────────────────────────────────
+  SYSTEM_IT            // IT Admin; support tickets, system health, logs, non-secret settings.
+  // ── Archived roles (no login, kept for data integrity) ────────
+  ARCHIVED             // Former AUDITOR_READONLY and TEACHING_ASSISTANT accounts.
 }
 
 enum UserStatus {
@@ -160,6 +148,8 @@ enum AuditAction {
   APPROVAL_REQUESTED
   APPROVAL_APPROVED
   APPROVAL_REJECTED
+  APPROVAL_FORWARDED   // reviewer forwarded to final approver
+  APPROVAL_APPLIED     // approved effect has been applied
   BREAK_GLASS_GRANTED
   BREAK_GLASS_EXPIRED
   TOTP_ENABLED
@@ -201,21 +191,37 @@ enum ManualPaymentMethod {
 }
 
 enum ApprovalRequestType {
+  // Finance
   REFUND
   WAIVER
   FEE_CHANGE
+  // Staff accounts
   STAFF_ACCOUNT_CREATE
   STAFF_ACCOUNT_SUSPEND
   STAFF_ACCOUNT_ROLE_CHANGE
-  MARKS_CHANGE      // Instructor or Registrar requests a mark change after results are released; Principal approves
-  BULK_EXPORT       // Any bulk export of personal data; SUPER_ADMIN approves
+  // Academic
+  MARKS_CHANGE            // Instructor requests mark change; Principal approves
+  BULK_EXPORT             // Any bulk export; Director approves
+  // remarks.md section 5 types
+  ADMISSION               // Admin prepares; Principal is final approver
+  ACADEMIC_PROGRAMME_CHANGE // Principal prepares; Director approves
+  COURSE_CHANGE           // Principal prepares; Director approves
+  RESULTS_PUBLICATION     // Instructor -> Admin -> Principal -> Director
+  CERTIFICATE_ISSUANCE    // Admin lists, Principal requests; Director approves
+  PAYMENT_PROOF           // Admin collects; Principal reviews; Director approves
+  EQUIPMENT_REQUEST       // Admin prepares; Principal or Director approves
+  STORAGE_CLEARING        // Admin prepares; Principal confirms; Director notified
+  ROLE_ASSIGNMENT         // Director assigns Director/Principal; Principal assigns others
 }
 
 enum ApprovalRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  EXPIRED
+  DRAFT        // saved but not yet submitted
+  SUBMITTED    // submitted; awaiting first reviewer
+  IN_REVIEW    // a reviewer has opened it but not yet forwarded/decided
+  APPROVED     // final approver approved
+  REJECTED     // rejected at any stage (reason required)
+  APPLIED      // approved and the effect has been applied
+  EXPIRED      // token expired without a decision
 }
 
 // ─────────────────────────────────────────────
@@ -224,7 +230,7 @@ enum ApprovalRequestStatus {
 
 model User {
   id                String      @id @default(cuid())
-  studentNumber     String?     @unique  // MTC-2026-00042
+  studentNumber     String?     @unique  // 2026/MHC/005 (per-course-per-year format)
   name              String
   email             String?     @unique
   phone             String?     @unique
@@ -244,8 +250,8 @@ model User {
   status            UserStatus  @default(PENDING_VERIFICATION)
   avatarUrl         String?
   dataConsentAt     DateTime?
-  // Institution Secretary flag: a BOARD_MEMBER with this flag also gets
-  // policies.manage and board_documents.manage (checked via canForUser).
+  // Institution Secretary flag: legacy field, kept for data integrity.
+  // No longer used after role consolidation in remarks.md batch 1A.
   institutionSecretary Boolean  @default(false)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -307,6 +313,7 @@ model User {
   // Approvals
   approvalRequestsInitiated ApprovalRequest[] @relation("ApprovalInitiator")
   approvalRequestsDecided   ApprovalRequest[] @relation("ApprovalDecider")
+  approvalRequestsReviewed  ApprovalRequest[] @relation("ApprovalReviewer")
 
   // Break-glass
   breakGlassGrants  BreakGlassGrant[]
@@ -410,6 +417,9 @@ model Course {
   id                 String       @id @default(cuid())
   title              String
   slug               String       @unique
+  // Short code used in registration numbers, e.g. MHC for Medical Home Caregiver.
+  // Max 4 chars, unique, uppercase. Editable by Admin/Principal.
+  courseCode         String?      @unique
   description        String       @db.Text
   shortDescription   String?
   thumbnailUrl       String?
@@ -450,6 +460,18 @@ model Course {
   applications Application[]
 
   @@map("courses")
+}
+
+// Per-course-per-year sequence for student registration numbers.
+// Format: {YYYY}/{COURSE_CODE}/{SEQ:3}, e.g. 2026/MHC/005
+model StudentNumberSequence {
+  id         String @id @default(cuid())
+  courseCode String
+  year       Int
+  lastSeq    Int    @default(0)
+
+  @@unique([courseCode, year])
+  @@map("student_number_sequences")
 }
 
 model CoTutor {
@@ -775,6 +797,12 @@ model LiveClass {
   @@map("live_classes")
 }
 
+enum SpeakStatus {
+  LISTEN_ONLY
+  REQUESTED
+  CAN_SPEAK
+}
+
 model Attendance {
   id           String    @id @default(cuid())
   liveClassId  String
@@ -792,6 +820,7 @@ model Attendance {
   canSpeak     Boolean   @default(false)
   isMuted      Boolean   @default(true)
   isPresenter  Boolean   @default(false)
+  speakStatus  SpeakStatus @default(LISTEN_ONLY)
   markedPresent Boolean  @default(false)
   createdAt    DateTime  @default(now())
 
@@ -872,6 +901,8 @@ model ExamAttempt {
   passed       Boolean?
   tabSwitches  Int           @default(0)
   answers      Json          // {questionId: answer}
+  currentQuestionIndex Int   @default(0) // forward-only: next question index to answer
+  questionOrder Json?        // ordered question ids for this attempt (shuffled order)
   createdAt    DateTime      @default(now())
 
   exam              Exam               @relation(fields: [examId], references: [id])
@@ -1335,15 +1366,19 @@ model AuditLog {
 
 // ─────────────────────────────────────────────
 // APPROVAL REQUESTS
-// Separation of duties: initiator ≠ approver.
-// Only SUPERADMIN can approve.
+// Separation of duties: initiator != approver.
+// Multi-step: some types go through a reviewer (Principal) before the final approver (Director).
 // ─────────────────────────────────────────────
 
 model ApprovalRequest {
   id           String                @id @default(cuid())
   type         ApprovalRequestType
-  status       ApprovalRequestStatus @default(PENDING)
+  status       ApprovalRequestStatus @default(SUBMITTED)
   initiatorId  String
+  // Multi-step reviewer (optional; only populated when the type has a review step)
+  reviewerId   String?               // the Principal (or other reviewer) who forwards to final approver
+  reviewedAt   DateTime?
+  reviewNote   String?               @db.Text
   // Subject entity references (all optional; use whichever applies)
   studentId    String?
   enrolmentId  String?
@@ -1352,6 +1387,7 @@ model ApprovalRequest {
   gradeEntryId String?               // for MARKS_CHANGE requests
   examId       String?               // for MARKS_CHANGE: the exam whose grade is disputed
   proposedScore Int?                 // for MARKS_CHANGE: the corrected score being requested
+  courseId     String?               // for COURSE_CHANGE / RESULTS_PUBLICATION / CERTIFICATE_ISSUANCE
   // Request details
   amount       Int?                  // for REFUND / WAIVER / FEE_CHANGE (UGX)
   reason       String                @db.Text
@@ -1360,7 +1396,7 @@ model ApprovalRequest {
   decidedById  String?
   decidedAt    DateTime?
   decisionNote String?               @db.Text
-  // Secure approval link
+  // Secure approval link (email one-click)
   approvalToken        String?       @unique
   approvalTokenExpires DateTime?
   // Timestamps
@@ -1369,9 +1405,11 @@ model ApprovalRequest {
 
   initiator  User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
   decidedBy  User? @relation("ApprovalDecider",   fields: [decidedById], references: [id])
+  reviewer   User? @relation("ApprovalReviewer",  fields: [reviewerId],  references: [id])
 
   @@index([status])
   @@index([initiatorId, status])
+  @@index([reviewerId, status])
   @@map("approval_requests")
 }
 

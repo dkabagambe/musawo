@@ -8,7 +8,7 @@ import FeatureBlock from "@/components/public/FeatureBlock";
 import { getContactInfo } from "@/lib/contact";
 import {
   Smartphone, BookOpen, Video, MessageCircle,
-  Download, Clock, Globe, Shield,
+  Eye, Clock, Globe, Shield,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -46,9 +46,9 @@ const FEATURES = [
     body: "Each course is divided into clear blocks with video lessons, reading notes, quizzes, and assignments.",
   },
   {
-    icon: Download,
-    heading: "Downloadable notes",
-    body: "Every lesson has downloadable PDF notes so you can study offline when you do not have internet access.",
+    icon: Eye,
+    heading: "Read and watch inside the platform",
+    body: "All lessons, notes and videos are read or watched inside the platform. Nothing needs to be downloaded.",
   },
   {
     icon: MessageCircle,

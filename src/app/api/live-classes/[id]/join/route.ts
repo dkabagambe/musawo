@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!liveClass || liveClass.status !== "LIVE") return NextResponse.json({ error: "Class is not live" }, { status: 409 });
   const [enrolment, rows] = await Promise.all([
     db.enrolment.findUnique({ where: { userId_courseId: { userId: session.user.id, courseId: liveClass.courseId } } }),
-    db.$queryRaw<Array<{ admissionRequestedAt: Date | null; admittedAt: Date | null }>>`SELECT "admissionRequestedAt", "admittedAt" FROM attendance WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${session.user.id}`,
+    db.$queryRaw<Array<{ admissionRequestedAt: Date | null; admittedAt: Date | null; speakStatus: string | null }>>`SELECT "admissionRequestedAt", "admittedAt", "speakStatus"::text AS "speakStatus" FROM attendance WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${session.user.id}`,
   ]);
   if (!enrolment || !["ACTIVE", "PARTIALLY_PAID", "COMPLETED"].includes(enrolment.status) || getAccessLevel(enrolment) === "NONE" || !can(session.user.role, "classes.join")) return NextResponse.json({ error: "A paid student enrolment is required" }, { status: 403 });
   const attendance = rows[0];
@@ -23,6 +23,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     : null;
   return NextResponse.json({
     state: attendance?.admittedAt ? "admitted" : attendance?.admissionRequestedAt ? "waiting" : "not_requested",
+    speakStatus: attendance?.speakStatus ?? "LISTEN_ONLY",
     ...(joinUrl ? { joinUrl } : {}),
   });
 }
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const attendance = await db.$queryRaw<Array<{ admittedAt: Date | null }>>`SELECT "admittedAt" FROM attendance WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${session.user.id}`;
   if (body.action === "raise_hand" || body.action === "self_checkin") {
     if (!attendance[0]?.admittedAt) return NextResponse.json({ error: "Wait until your instructor admits you." }, { status: 403 });
-    if (body.action === "raise_hand") await db.$executeRaw`UPDATE attendance SET "handRaisedAt" = NOW() WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${session.user.id}`;
+    if (body.action === "raise_hand") await db.$executeRaw`UPDATE attendance SET "handRaisedAt" = NOW(), "speakStatus" = CASE WHEN "speakStatus" = 'CAN_SPEAK' THEN "speakStatus" ELSE 'REQUESTED'::"SpeakStatus" END WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${session.user.id}`;
     else {
       const checkin = await db.$queryRaw<Array<{ opens: Date | null; closes: Date | null }>>`SELECT "selfCheckInOpensAt" AS opens, "selfCheckInClosesAt" AS closes FROM live_classes WHERE id = ${liveClass.id}`;
       const window = checkin[0]; const now = new Date();

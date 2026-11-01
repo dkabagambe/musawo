@@ -29,6 +29,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timeLimitEndsAt, setTimeLimitEndsAt] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [advancing, setAdvancing] = useState(false);
   const [result, setResult] = useState<{
     score: number;
     maxScore: number;
@@ -98,6 +99,8 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
       setAttemptId(data.attemptId);
       setQuestions(data.questions ?? []);
       setTimeLimitEndsAt(data.timeLimitEndsAt ?? null);
+      // Resume a forward-only attempt at the saved position.
+      setCurrentIdx(typeof data.currentQuestionIndex === "number" ? data.currentQuestionIndex : 0);
       setState("active");
     } catch {
       setErrorMsg("Failed to connect. Please try again.");
@@ -105,6 +108,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
     }
   }
 
+  // Finalise the attempt using the answers already committed on the server.
   const submitExam = useCallback(async () => {
     if (submittedRef.current || !attemptId) return;
     submittedRef.current = true;
@@ -115,7 +119,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
       const res = await fetch("/api/exams?action=submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId, answers }),
+        body: JSON.stringify({ attemptId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -130,7 +134,39 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
       submittedRef.current = false;
       setState("active");
     }
-  }, [attemptId, answers]);
+  }, [attemptId]);
+
+  // Commit the current question to the server and move forward. The exam is
+  // forward-only: once a question is left it cannot be reopened.
+  const advance = useCallback(async () => {
+    if (state !== "active" || !attemptId || advancing) return;
+    const q = questions[currentIdx];
+    if (!q) return;
+    setAdvancing(true);
+    try {
+      const res = await fetch("/api/exams?action=answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId, questionId: q.id, answer: answers[q.id] ?? "", index: currentIdx }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error ?? "Could not save your answer.");
+        setState("error");
+        return;
+      }
+      if (currentIdx >= questions.length - 1) {
+        await submitExam();
+      } else {
+        setCurrentIdx((i) => i + 1);
+      }
+    } catch {
+      setErrorMsg("Connection lost. Please try again.");
+      setState("error");
+    } finally {
+      setAdvancing(false);
+    }
+  }, [state, attemptId, advancing, currentIdx, questions, answers, submitExam]);
 
   function setAnswer(questionId: string, value: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -143,9 +179,10 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
   }
 
   const current = questions[currentIdx];
-  const answered = Object.keys(answers).length;
+  // Questions before the current index have already been committed and closed.
+  const answered = currentIdx;
 
-  // ─── STATES ───────────────────────────────────────────
+  // ─── STATES ───────────────────────────────────────────────────────────────
 
   if (state === "idle" || state === "loading") {
     return (
@@ -160,6 +197,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
           <ul className="text-sm text-gray-500 text-left mb-8 space-y-1 inline-block">
             <li>⚠️ Do not switch tabs during the exam - it will be logged.</li>
             <li>⏱ Submit before the timer runs out.</li>
+            <li>➡️ The exam is forward-only: once you move to the next question you cannot go back.</li>
             <li>✅ MCQ and True/False answers are auto-marked.</li>
             <li>📝 Short answers are reviewed by your tutor.</li>
           </ul>
@@ -229,7 +267,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
     );
   }
 
-  // ─── ACTIVE EXAM ──────────────────────────────────────
+  // ─── ACTIVE EXAM ──────────────────────────────────────────────
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -340,74 +378,29 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
         </div>
       )}
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))}
-          disabled={currentIdx === 0}
-          className="btn-outline disabled:opacity-40"
-        >
-          ← Previous
-        </button>
-
-        {/* Question dots */}
-        <div className="flex gap-1 flex-wrap justify-center max-w-xs" role="list" aria-label="Question navigation">
-          {questions.map((q, i) => (
-            <button
-              key={q.id}
-              onClick={() => setCurrentIdx(i)}
-              role="listitem"
-              aria-label={`Question ${i + 1}${answers[q.id] ? " (answered)" : ""}`}
-              className={`w-7 h-7 rounded-lg text-xs font-medium transition-colors ${
-                i === currentIdx
-                  ? "bg-accent text-white"
-                  : answers[q.id]
-                  ? "bg-success/20 text-green-700"
-                  : "bg-surface text-gray-400"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-
+      {/* Navigation - forward only, no Previous button, no question dots */}
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs text-gray-400">
+          Your answer is saved when you continue. You cannot return to an earlier question.
+        </p>
         {currentIdx < questions.length - 1 ? (
           <button
-            onClick={() => setCurrentIdx((i) => i + 1)}
+            onClick={advance}
+            disabled={advancing || state === "submitting"}
             className="btn-primary"
           >
-            Next →
+            {advancing ? "Saving…" : "Next →"}
           </button>
         ) : (
           <button
-            onClick={submitExam}
-            disabled={state === "submitting"}
+            onClick={advance}
+            disabled={advancing || state === "submitting"}
             className="btn-primary bg-success hover:bg-green-600"
           >
-            {state === "submitting" ? "Submitting…" : "Submit exam"}
+            {state === "submitting" ? "Submitting…" : advancing ? "Saving…" : "Submit exam"}
           </button>
         )}
       </div>
-
-      {/* Submit button always visible at bottom if on last question or all answered */}
-      {currentIdx === questions.length - 1 && (
-        <div className="text-center">
-          <p className="text-sm text-gray-500 mb-3">
-            {answered < questions.length
-              ? `You have ${questions.length - answered} unanswered question${
-                  questions.length - answered !== 1 ? "s" : ""
-                }. You can still submit.`
-              : "All questions answered. Ready to submit!"}
-          </p>
-          <button
-            onClick={submitExam}
-            disabled={state === "submitting"}
-            className="btn-primary"
-          >
-            {state === "submitting" ? "Submitting…" : "Submit exam"}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     WHERE a."liveClassId" = ${classId} AND a."handRaisedAt" IS NOT NULL AND a."admittedAt" IS NOT NULL
     ORDER BY a."handRaisedAt" ASC
   `;
-  const marks = await db.$queryRaw<Array<{ userId: string; startMark: string | null; endMark: string | null; startComment: string | null; endComment: string | null; joinedAt: Date | null; leftAt: Date | null; canSpeak: boolean; isMuted: boolean; isPresenter: boolean }>>`SELECT "userId", "startMark"::text, "endMark"::text, "startComment", "endComment", "joinedAt", "leftAt", "canSpeak", "isMuted", "isPresenter" FROM attendance WHERE "liveClassId" = ${classId}`;
+  const marks = await db.$queryRaw<Array<{ userId: string; startMark: string | null; endMark: string | null; startComment: string | null; endComment: string | null; joinedAt: Date | null; leftAt: Date | null; canSpeak: boolean; isMuted: boolean; isPresenter: boolean; speakStatus: string | null }>>`SELECT "userId", "startMark"::text, "endMark"::text, "startComment", "endComment", "joinedAt", "leftAt", "canSpeak", "isMuted", "isPresenter", "speakStatus"::text AS "speakStatus" FROM attendance WHERE "liveClassId" = ${classId}`;
   return NextResponse.json({
     liveClass: { id: liveClass.id, title: liveClass.title, course: liveClass.course.title },
     students: students.map(({ user }) => ({ ...user, present: attendance.find((a) => a.userId === user.id)?.markedPresent ?? false })),
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     if (!controls.success) return NextResponse.json({ error: "Invalid interaction control" }, { status: 400 });
     const liveClass = await db.liveClass.findFirst({ where: { id: controls.data.classId, status: "LIVE", course: teachingCourseWhere(session.user.id) }, select: { id: true, platform: true } });
     if (!liveClass) return NextResponse.json({ error: "Live class not found" }, { status: 404 });
-    await db.$executeRaw`UPDATE attendance SET "canSpeak" = COALESCE(${controls.data.canSpeak ?? null}, "canSpeak"), "isMuted" = COALESCE(${controls.data.isMuted ?? null}, "isMuted"), "isPresenter" = COALESCE(${controls.data.isPresenter ?? null}, "isPresenter") WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${controls.data.studentId}`;
+    await db.$executeRaw`UPDATE attendance SET "canSpeak" = COALESCE(${controls.data.canSpeak ?? null}, "canSpeak"), "isMuted" = COALESCE(${controls.data.isMuted ?? null}, "isMuted"), "isPresenter" = COALESCE(${controls.data.isPresenter ?? null}, "isPresenter"), "speakStatus" = CASE WHEN COALESCE(${controls.data.canSpeak ?? null}, "canSpeak") = TRUE THEN 'CAN_SPEAK'::"SpeakStatus" WHEN COALESCE(${controls.data.isMuted ?? null}, "isMuted") = TRUE THEN 'LISTEN_ONLY'::"SpeakStatus" ELSE "speakStatus" END, "handRaisedAt" = CASE WHEN COALESCE(${controls.data.canSpeak ?? null}, "canSpeak") = TRUE THEN NULL ELSE "handRaisedAt" END WHERE "liveClassId" = ${liveClass.id} AND "userId" = ${controls.data.studentId}`;
     await audit({ actorId: session.user.id, action: "UPDATE", entityType: "LiveClassInteraction", entityId: liveClass.id, metadata: { studentId: controls.data.studentId, canSpeak: controls.data.canSpeak, isMuted: controls.data.isMuted, isPresenter: controls.data.isPresenter, provider: liveClass.platform } });
     return NextResponse.json({ ok: true, providerSupport: liveClass.platform === "bbb" ? "Use the BigBlueButton participant controls in the room for microphone and presenter changes." : "This external provider does not expose participant controls to Musawo. Apply this setting in the meeting room." });
   }
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (!controls.success) return NextResponse.json({ error: "Invalid microphone settings" }, { status: 400 });
     const liveClass = await db.liveClass.findFirst({ where: { id: controls.data.classId, status: "LIVE", course: teachingCourseWhere(session.user.id) }, select: { id: true, platform: true } });
     if (!liveClass) return NextResponse.json({ error: "Live class not found" }, { status: 404 });
-    await db.$executeRaw`UPDATE attendance SET "canSpeak" = ${controls.data.canSpeak}, "isMuted" = ${controls.data.isMuted} WHERE "liveClassId" = ${liveClass.id}`;
+    await db.$executeRaw`UPDATE attendance SET "canSpeak" = ${controls.data.canSpeak}, "isMuted" = ${controls.data.isMuted}, "speakStatus" = CASE WHEN ${controls.data.canSpeak} THEN 'CAN_SPEAK'::"SpeakStatus" ELSE 'LISTEN_ONLY'::"SpeakStatus" END WHERE "liveClassId" = ${liveClass.id}`;
     await audit({ actorId: session.user.id, action: "UPDATE", entityType: "LiveClassInteraction", entityId: liveClass.id, metadata: { allStudents: true, canSpeak: controls.data.canSpeak, isMuted: controls.data.isMuted, provider: liveClass.platform } });
     return NextResponse.json({ ok: true, providerSupport: liveClass.platform === "bbb" ? "Apply the matching mute-all or unmute-all action in the BigBlueButton participant controls." : "Apply the matching mute-all or unmute-all action in the external meeting provider." });
   }

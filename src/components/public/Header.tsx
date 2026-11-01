@@ -160,7 +160,7 @@ export default function PublicHeader() {
             className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between gap-6"
             aria-label="Main navigation"
           >
-            {/* Logo — image only, no wordmark */}
+            {/* Logo: image only, no wordmark */}
             <Link
               href="/"
               className="flex items-center no-underline flex-shrink-0"
@@ -277,6 +277,7 @@ export default function PublicHeader() {
             href="/"
             className="flex items-center gap-2.5 no-underline"
             onClick={() => setDrawer(false)}
+            aria-label="Musawo Training Center home"
           >
             <span className="flex items-center justify-center bg-white rounded-xl w-11 h-11 p-1.5 flex-shrink-0">
               <Image
@@ -287,9 +288,6 @@ export default function PublicHeader() {
                 className="w-full h-full object-contain"
                 aria-hidden="true"
               />
-            </span>
-            <span className="font-extrabold text-white text-sm leading-tight">
-              Musawo Training Center
             </span>
           </Link>
           <button

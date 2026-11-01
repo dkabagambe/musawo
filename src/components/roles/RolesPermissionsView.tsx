@@ -2,11 +2,11 @@
  * RolesPermissionsView
  *
  * Read-only page showing the role tree (organogram) and the capability matrix.
- * Accessible to SUPER_ADMIN and AUDITOR_READONLY.
- * Every view by AUDITOR_READONLY is logged in the calling server component.
+ * Accessible to the Director; every view by the auditor is logged in the
+ * calling server component.
  */
 
-import { ROLE_TREE, ROLE_PERMISSIONS, can, type Permission } from "@/lib/rbac";
+import { ROLE_TREE, can, type Permission } from "@/lib/rbac";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,20 +21,13 @@ interface RoleNode {
 // ─── Role display labels ──────────────────────────────────────────────────────
 
 const ROLE_LABELS: Record<string, string> = {
-  SUPER_ADMIN: "MD / CEO / ED / CFO",
-  BOARD_MEMBER: "Board Member / Institution Secretary",
+  DIRECTOR: "Director",
   PRINCIPAL: "Principal",
-  DEPUTY_PRINCIPAL: "Deputy Principal",
+  ADMIN: "Admin",
   ACADEMIC_REGISTRAR: "Academic Registrar",
   INSTRUCTOR: "Teaching Staff",
-  TEACHING_ASSISTANT: "Supporting Staff",
-  FINANCE_OFFICER: "Accounts / Audit",
-  HR_MANAGER: "Human Resource",
-  ADMINISTRATOR: "Administrator",
-  HR_SYSTEM_ADMIN: "Human Resource",
-  AUDITOR_READONLY: "Legal Advisor (Read-only)",
-  SYSTEM_IT: "Technical",
   STUDENT: "Student",
+  SYSTEM_IT: "IT Admin",
 };
 
 // ─── Capability groups for the matrix display ─────────────────────────────────
@@ -208,19 +201,13 @@ const CAPABILITY_GROUPS: Array<{
 // ─── Active roles in display order ────────────────────────────────────────────
 
 const ACTIVE_ROLES = [
-  "SUPER_ADMIN",
-  "BOARD_MEMBER",
+  "DIRECTOR",
   "PRINCIPAL",
-  "DEPUTY_PRINCIPAL",
+  "ADMIN",
   "ACADEMIC_REGISTRAR",
-  "FINANCE_OFFICER",
-  "HR_MANAGER",
-  "ADMINISTRATOR",
-  "AUDITOR_READONLY",
   "INSTRUCTOR",
-  "TEACHING_ASSISTANT",
-  "SYSTEM_IT",
   "STUDENT",
+  "SYSTEM_IT",
 ] as const;
 
 type ActiveRole = (typeof ACTIVE_ROLES)[number];
@@ -289,15 +276,15 @@ function TreeNode({ node, depth = 0 }: { node: RoleNode; depth?: number }) {
 
 // ─── Legend cell ──────────────────────────────────────────────────────────────
 
-type CellMark = "full" | "readonly" | "scoped" | "denied";
+type CellMark = "full" | "scoped" | "denied";
 
 function cellMark(role: ActiveRole, permission: Permission): CellMark {
   const granted = can(role as Parameters<typeof can>[0], permission);
   if (!granted) return "denied";
 
-  // Scoped roles (instructors and TAs see only own courses)
+  // Instructors see only their own assigned courses and students
   if (
-    (role === "INSTRUCTOR" || role === "TEACHING_ASSISTANT") &&
+    role === "INSTRUCTOR" &&
     (permission.startsWith("students.") ||
       permission.startsWith("grades.") ||
       permission.startsWith("courses.") ||
@@ -305,11 +292,6 @@ function cellMark(role: ActiveRole, permission: Permission): CellMark {
       permission.startsWith("classes."))
   ) {
     return "scoped";
-  }
-
-  // Read-only roles
-  if (role === "AUDITOR_READONLY" || role === "BOARD_MEMBER") {
-    return "readonly";
   }
 
   return "full";
@@ -320,13 +302,12 @@ const CELL_CONFIG: Record<
   { bg: string; text: string; label: string; abbr: string }
 > = {
   full: { bg: "#0B6B5D", text: "#fff", label: "Allowed", abbr: "A" },
-  readonly: { bg: "#E3EDEA", text: "#0B6B5D", label: "View only", abbr: "V" },
   scoped: { bg: "#FEF9C3", text: "#92400E", label: "Scoped to own", abbr: "S" },
   denied: {
     bg: "#F9FAFB",
     text: "#D1D5DB",
     label: "Not permitted",
-    abbr: "\u2013",
+    abbr: "-",
   },
 };
 
@@ -368,8 +349,8 @@ export default function RolesPermissionsView() {
             <p>
               <strong>Inheritance rule:</strong> a senior role in the academic
               line inherits the action rights of every role beneath it.
-              Inherited actions are logged "via role X". Money actions stay with
-              Finance Officer only.
+              Inherited actions are logged &quot;via role X&quot;. Money actions stay with
+              the Director (final approver) and Principal only.
             </p>
             <p>
               <strong>Override rules:</strong> nobody approves their own
@@ -379,10 +360,9 @@ export default function RolesPermissionsView() {
               audit log cannot be edited.
             </p>
             <p>
-              <strong>SUPER_ADMIN</strong> requires TOTP in production. Maximum
-              3 accounts. SUPER_ADMIN, BOARD_MEMBER and AUDITOR_READONLY
-              accounts are created only by SUPER_ADMIN (CLI or seed for the
-              first).
+              <strong>Director and Principal</strong> require TOTP in production.
+              Director and Principal accounts are created only by the Director
+              (or via CLI/seed for the first account).
             </p>
           </div>
         </div>
@@ -531,7 +511,7 @@ export default function RolesPermissionsView() {
             to get the granting role.
           </p>
           <p>
-            <strong>Institution Secretary.</strong> A BOARD_MEMBER account with
+            <strong>Institution Secretary.</strong> A Director account with
             the{" "}
             <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
               institutionSecretary
@@ -553,7 +533,7 @@ export default function RolesPermissionsView() {
           <p>
             <strong>Record-level scoping.</strong> A permission does not remove
             the need to scope records to assigned courses, intakes or accounts.
-            Instructor and Teaching Assistant queries must go through the
+            Instructor queries must go through the
             teaching-scope helpers in{" "}
             <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
               @/lib/teaching/scope
@@ -577,7 +557,7 @@ export default function RolesPermissionsView() {
             <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
               courses.publish
             </code>{" "}
-            to the Deputy Principal via a time-limited setting. Delegation is
+            to the Admin via a time-limited setting. Delegation is
             checked in the relevant approval handlers.
           </p>
         </div>

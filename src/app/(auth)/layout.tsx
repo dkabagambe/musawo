@@ -87,7 +87,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   priority
                 />
               </span>
-              <span className="text-white font-bold text-sm leading-tight">Musawo Training Center</span>
             </Link>
             <Link
               href="/"
@@ -127,9 +126,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 className="w-full h-full object-contain"
                 priority
               />
-            </span>
-            <span className="font-extrabold text-primary text-sm leading-tight">
-              Musawo Training Center
             </span>
           </Link>
 

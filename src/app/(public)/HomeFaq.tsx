@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: "Can I study on a basic smartphone?",
-    a: "Yes. The platform is designed for mobile connections. Content loads fast and lesson notes can be downloaded for offline reading.",
+    a: "Yes. The platform is designed for mobile connections. Content loads fast and all materials are read or watched inside the platform only.",
   },
   {
     q: "How long does each course take?",

@@ -8,7 +8,7 @@ const FAQS = [
     category: "Courses & Learning",
     items: [
       { q: "What certificate do I get after completing a course?",    a: "You receive a digital certificate with a unique ID and QR code. Employers can scan the QR code to verify it online instantly. The certificate is available to download as a PDF from your student portal." },
-      { q: "Can I study on a basic smartphone?",         a: "Yes. The platform is designed for low-data mobile connections. Videos load at low quality by default, lesson notes can be downloaded for offline reading, and the interface works on any Android or iOS device." },
+      { q: "Can I study on a basic smartphone?",         a: "Yes. The platform is designed for low-data mobile connections. Videos load at low quality by default, all materials are read or watched inside the platform, and the interface works on any Android or iOS device." },
       { q: "How long does each course take?",            a: "Courses range from 6 to 12 weeks. You study at your own pace alongside live online classes twice a week with your tutor." },
       { q: "What happens if I miss a live class?",       a: "All live classes are recorded. You can watch the recording within 48 hours of the class time. Attendance is tracked but missing one or two classes will not block your progress." },
       { q: "Do I need any prior qualifications?",        a: "No prior qualifications are required for our entry-level courses. A basic ability to read and write in English is helpful. Our admissions team is happy to advise if you are unsure." },
