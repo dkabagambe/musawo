@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -67,8 +68,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${inter.variable}`}>
-      <body className="bg-white text-body-text antialiased font-sans">{children}</body>
+    <html lang="en" className={`${jakarta.variable} ${inter.variable}`} suppressHydrationWarning>
+      <body className="bg-white text-body-text antialiased font-sans dark:bg-[#0f172a] dark:text-slate-100">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

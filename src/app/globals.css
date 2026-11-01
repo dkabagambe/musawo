@@ -72,6 +72,33 @@
     --portal-card-shadow: none;
   }
 
+  /* ── Dark mode overrides ─────────────────────────────────────── */
+  .dark {
+    --color-surface-alt: #111827;
+    --color-border: #2d3748;
+    --color-muted: #9ca3af;
+
+    /* Page structure */
+    --portal-sidebar: #0a5a4e;          /* slightly darker teal for dark mode sidebar */
+    --portal-page: #0f172a;             /* dark navy background */
+    --portal-widget: #1e293b;           /* dark card panels */
+    --portal-widget-inner: #1e293b;
+    --portal-card-border: #2d3748;
+    --portal-card-border-hover: #14b8a6;
+
+    /* Typography */
+    --portal-text: #f1f5f9;
+    --portal-text-secondary: #94a3b8;
+    --portal-muted: #64748b;
+
+    /* Brand overrides for dark bg */
+    --portal-primary: #14b8a6;
+    --portal-primary-dark: #0d9488;
+    --portal-primary-light: #134e4a;
+    --portal-accent: #f2a32e;
+    --portal-accent-light: #2d1f05;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -1494,4 +1521,336 @@
       opacity: 1;
     }
   }
+}
+
+/* ── Dark mode component overrides ────────────────────────────────────── */
+
+/* Cards */
+.dark .card,
+.dark .auth-card {
+  background-color: #1e293b;
+  border-color: #2d3748;
+  color: #f1f5f9;
+}
+
+/* Inputs */
+.dark .input,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="number"],
+.dark textarea,
+.dark select {
+  background-color: #0f172a;
+  border-color: #2d3748;
+  color: #f1f5f9;
+}
+.dark .input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
+}
+.dark .input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #14b8a6;
+  ring-color: #14b8a6;
+}
+
+/* Labels */
+.dark .label {
+  color: #94a3b8;
+}
+
+/* Badge tones */
+.dark .badge {
+  opacity: 0.9;
+}
+
+/* Ghost / outline buttons */
+.dark .btn-ghost {
+  color: #94a3b8;
+}
+.dark .btn-ghost:hover {
+  background-color: #1e293b;
+}
+.dark .btn-outline {
+  border-color: #f2a32e;
+  color: #f2a32e;
+}
+
+/* Auth card/banner */
+.dark .auth-card {
+  background-color: #1e293b;
+  border-color: #2d3748;
+}
+
+/* Portal page background */
+.dark body,
+.dark .portal-page-bg {
+  background-color: var(--portal-page);
+  color: var(--portal-text);
+}
+
+/* Portal cards inside the dashboard */
+.dark .portal-widget-inner {
+  background-color: #1e293b;
+}
+
+/* Table rows */
+.dark table {
+  color: #e2e8f0;
+}
+.dark thead th {
+  color: #64748b;
+}
+.dark tbody tr:hover {
+  background-color: #1e293b;
+}
+.dark .divide-y > * {
+  border-color: #2d3748;
+}
+
+/* Surface utility */
+.dark .bg-surface {
+  background-color: #1e293b;
+}
+.dark .bg-surface\/50 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+.dark .border-border {
+  border-color: #2d3748;
+}
+
+/* Text colours */
+.dark .text-gray-400 { color: #64748b; }
+.dark .text-gray-500 { color: #6b7280; }
+.dark .text-gray-600 { color: #9ca3af; }
+.dark .text-gray-700 { color: #d1d5db; }
+
+/* Public page overrides - keep white nav/footer unless specifically styled */
+.dark .public-nav,
+.dark .public-footer {
+  /* public sections handle their own dark tones via Tailwind dark: variants */
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE — Portal shell hardcoded-white overrides
+   These override the fixed `background: white` / `color` values in the portal
+   CSS classes that can't use CSS variables directly.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Topbar */
+.dark .portal-topbar {
+  background: #1e293b;
+  border-bottom-color: #2d3748;
+}
+.dark .portal-topbar h1 {
+  color: var(--portal-text);
+}
+
+/* Settings / user menus (popover dropdowns) */
+.dark .portal-user-menu,
+.dark .portal-settings-menu {
+  background: #1e293b;
+  border-color: #2d3748;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.04);
+}
+.dark .portal-user-menu a,
+.dark .portal-settings-menu a {
+  color: var(--portal-text);
+}
+.dark .portal-user-menu a:hover,
+.dark .portal-settings-menu a:hover {
+  background: var(--portal-primary-light);
+  color: #14b8a6;
+}
+
+/* Settings button in topbar */
+.dark .portal-settings-button {
+  background: #1e293b;
+  border-color: #2d3748;
+  color: #94a3b8;
+}
+.dark .portal-settings-button:hover {
+  background: var(--portal-primary-light);
+  border-color: #14b8a6;
+  color: #14b8a6;
+}
+
+/* Stat cards */
+.dark .dashboard-stat-card {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+  color: var(--portal-text);
+}
+.dark .dashboard-stat-card:hover {
+  background: #243447;
+  border-color: var(--portal-primary);
+}
+
+/* List rows */
+.dark .dashboard-list-row {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+  color: var(--portal-text);
+}
+.dark .dashboard-list-row:hover {
+  background: #243447;
+  border-color: var(--portal-primary);
+}
+
+/* Mini cards */
+.dark .dashboard-mini-card {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+}
+.dark .dashboard-mini-card:hover {
+  background: #243447;
+  border-color: var(--portal-primary);
+}
+.dark .dashboard-mini-card h3 {
+  color: var(--portal-text);
+}
+.dark .dashboard-mini-open {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+  color: var(--portal-primary);
+}
+.dark .dashboard-mini-open:hover {
+  background: #243447;
+  border-color: var(--portal-primary);
+}
+
+/* Profile cards */
+.dark .dashboard-profile-card {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+}
+.dark .dashboard-profile-card:hover {
+  background: #243447;
+  border-color: var(--portal-primary);
+}
+
+/* Widget customizer drawer */
+.dark .dashboard-customizer {
+  background: #1e293b;
+  border-left-color: #2d3748;
+}
+.dark .dashboard-customizer > header,
+.dark .dashboard-customizer > footer {
+  border-color: #2d3748;
+}
+.dark .dashboard-customizer-row {
+  border-bottom-color: #2d3748;
+}
+.dark .dashboard-customizer-row:hover {
+  background: var(--portal-primary-light);
+}
+.dark .dashboard-reset-button {
+  background: #1e293b;
+  border-color: #2d3748;
+  color: var(--portal-text);
+}
+.dark .dashboard-reset-button:hover {
+  background: var(--portal-primary-light);
+  border-color: var(--portal-primary);
+}
+
+/* "Edit widgets" button */
+.dark .dashboard-edit-widgets {
+  background: #1e293b;
+  border-color: #2d3748;
+  color: #94a3b8;
+}
+.dark .dashboard-edit-widgets:hover {
+  border-color: var(--portal-primary);
+  color: var(--portal-primary);
+}
+
+/* Tab bar */
+.dark .portal-tabbar {
+  border-bottom-color: #2d3748;
+}
+.dark .portal-tab.is-active {
+  color: var(--portal-primary);
+}
+.dark .portal-tab.is-active::after {
+  background: var(--portal-primary);
+}
+
+/* Skeleton shimmer adjusted for dark */
+.dark .dashboard-widget-skeleton i {
+  background: linear-gradient(90deg, #1e293b 20%, #243447 45%, #1e293b 70%);
+  background-size: 200% 100%;
+}
+
+/* Error widget */
+.dark .dashboard-widget-error {
+  background: #2d1f1f;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+/* Table container / cards */
+.dark .table-container,
+.dark .card {
+  background: var(--portal-widget-inner);
+  border-color: var(--portal-card-border);
+}
+.dark .table th {
+  background: #1e293b;
+  border-color: var(--portal-card-border);
+  color: #94a3b8;
+}
+.dark .table td {
+  border-color: var(--portal-card-border);
+  color: var(--portal-text);
+}
+.dark .table tbody tr:hover td {
+  background: #243447;
+}
+
+/* Form inputs */
+.dark .input {
+  background: #1e293b;
+  border-color: #2d3748;
+  color: var(--portal-text);
+}
+.dark .input::placeholder {
+  color: #475569;
+}
+.dark .input:focus {
+  border-color: var(--portal-primary);
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+}
+
+/* Auth card */
+.dark .auth-card {
+  background: #1e293b;
+  border-color: #2d3748;
+}
+
+/* Ensure theme toggle is always visible even in collapsed sidebar */
+.portal-sidebar-collapsed .portal-user-area > .flex {
+  justify-content: center;
+}
+
+/* Theme toggle in topbar: adapt icon color to the topbar's light/dark background */
+.portal-topbar .portal-topbar-theme-toggle {
+  color: var(--portal-muted);
+}
+.portal-topbar .portal-topbar-theme-toggle:hover {
+  background: var(--portal-primary-light);
+  color: var(--portal-sidebar);
+}
+.dark .portal-topbar .portal-topbar-theme-toggle {
+  color: #94a3b8;
+}
+.dark .portal-topbar .portal-topbar-theme-toggle:hover {
+  background: var(--portal-primary-light);
+  color: var(--portal-primary);
 }

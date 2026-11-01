@@ -39,6 +39,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export interface NavItem {
   href: string;
@@ -413,6 +414,10 @@ export function Sidebar({
             </Link>
           </div>
         )}
+        {/* Theme toggle — visible in sidebar bottom area */}
+        <div className="flex items-center justify-end px-2 pb-1">
+          <ThemeToggle className="text-white/70 hover:text-white hover:!bg-white/10" />
+        </div>
         <button
           type="button"
           className="portal-user-button"
@@ -479,44 +484,48 @@ export function Topbar({
         </button>
         <h1>{title}</h1>
       </div>
-      <div className="portal-settings-wrap" ref={menuRef}>
-        <button
-          type="button"
-          className="portal-settings-button"
-          aria-label="Settings"
-          aria-expanded={settingsOpen}
-          aria-haspopup="menu"
-          onClick={() => setSettingsOpen((value) => !value)}
-        >
-          <Settings size={19} />
-        </button>
-        {settingsOpen && (
-          <div className="portal-settings-menu" role="menu">
-            <Link
-              href={profile}
-              role="menuitem"
-              onClick={() => setSettingsOpen(false)}
-            >
-              <UserRound size={16} /> Profile
-            </Link>
-            {notifications && (
+      <div className="flex items-center gap-1">
+        {/* Theme toggle visible in topbar — especially useful on mobile where sidebar is hidden */}
+        <ThemeToggle className="portal-topbar-theme-toggle" />
+        <div className="portal-settings-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="portal-settings-button"
+            aria-label="Settings"
+            aria-expanded={settingsOpen}
+            aria-haspopup="menu"
+            onClick={() => setSettingsOpen((value) => !value)}
+          >
+            <Settings size={19} />
+          </button>
+          {settingsOpen && (
+            <div className="portal-settings-menu" role="menu">
               <Link
-                href={notifications}
+                href={profile}
                 role="menuitem"
                 onClick={() => setSettingsOpen(false)}
               >
-                <Bell size={16} /> Notifications settings
+                <UserRound size={16} /> Profile
               </Link>
-            )}
-            <Link
-              href={`${profile}#password`}
-              role="menuitem"
-              onClick={() => setSettingsOpen(false)}
-            >
-              <Settings size={16} /> Change password
-            </Link>
-          </div>
-        )}
+              {notifications && (
+                <Link
+                  href={notifications}
+                  role="menuitem"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  <Bell size={16} /> Notifications settings
+                </Link>
+              )}
+              <Link
+                href={`${profile}#password`}
+                role="menuitem"
+                onClick={() => setSettingsOpen(false)}
+              >
+                <Settings size={16} /> Change password
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
