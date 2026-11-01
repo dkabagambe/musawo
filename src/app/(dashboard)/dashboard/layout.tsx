@@ -24,7 +24,6 @@ const NAV: NavItem[] = [
   { href: "/dashboard/notifications", label: "Notifications",     icon: <Bell className="w-4 h-4" /> },
   { href: "/dashboard/support",       label: "Support",           icon: <LifeBuoy className="w-4 h-4" /> },
   { href: "/dashboard/classes",       label: "Live Classes",      icon: <Video className="w-4 h-4" /> },
-  { href: "/dashboard/recordings",    label: "Class Replays",     icon: <Video className="w-4 h-4" /> },
   { href: "/dashboard/forum",         label: "Discussion Forum",  icon: <MessageSquare className="w-4 h-4" /> },
 ];
 

@@ -5,7 +5,7 @@ import { can } from "@/lib/rbac";
 import { Monitor, Settings, FileSearch, LifeBuoy } from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/system",          label: "Overview",       icon: <Monitor className="w-4 h-4" /> },
+  { href: "/system",          label: "System Health",  icon: <Monitor className="w-4 h-4" /> },
   { href: "/system/support",  label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" /> },
   { href: "/system/settings", label: "Settings",       icon: <Settings className="w-4 h-4" /> },
   { href: "/system/audit",    label: "System Logs",    icon: <FileSearch className="w-4 h-4" /> },

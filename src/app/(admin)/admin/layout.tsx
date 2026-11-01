@@ -44,10 +44,10 @@ const NAV: NavItem[] = [
   { href: "/admin/reports",      label: "Reports",                     icon: <BarChart2 className="w-4 h-4" /> },
   { href: "/admin/notices",      label: "Announcements",               icon: <Megaphone className="w-4 h-4" /> },
   { href: "/admin/notifications", label: "Notifications",              icon: <Bell className="w-4 h-4" /> },
+  { href: "/admin/profile",      label: "Profile",                     icon: <User className="w-4 h-4" /> },
   { href: "/admin/payments",     label: "Payments",                    icon: <CreditCard className="w-4 h-4" /> },
   { href: "/admin/equipment",    label: "Equipment",                   icon: <Wrench className="w-4 h-4" /> },
   { href: "/admin/support",      label: "Support",                     icon: <LifeBuoy className="w-4 h-4" /> },
-  { href: "/admin/profile",      label: "Profile",                     icon: <User className="w-4 h-4" /> },
 ];
 
 const TABS = ["general", "students", "admissions", "academics", "operations", "reports"] as const;
