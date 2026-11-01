@@ -1,167 +1,65 @@
-## Render Blueprint — Musawo Training Center
-## Docs: https://render.com/docs/blueprint-spec
-##
-## Deploys:
-##   - musawo-web   : Node web service (Next.js standalone)
-##   - musawo-db    : Managed PostgreSQL
-##   - musawo-redis : Key Value (Redis)
-##
-## Secrets (set manually in the Render dashboard — never commit real values):
-##   AUTH_SECRET, DATA_ENCRYPTION_KEY, CRON_SECRET, PESAPAL_*, FLUTTERWAVE_*,
-##   RESEND_API_KEY, AT_API_KEY, BUNNY_*, S3_*, DEMO_GATE_USER, DEMO_GATE_PASSWORD
-
 services:
   - type: web
     name: musawo-web
     runtime: node
     region: frankfurt
-    plan: starter          # upgrade to standard for production
-
-    # Build
+    plan: free
+    branch: main
     buildCommand: npm ci && npx prisma generate && npm run build
-
-    # Start: migrate first, then launch
     startCommand: npx prisma migrate deploy && npm start
-
-    # Health check — Render uses this to decide if the deploy succeeded
     healthCheckPath: /api/health
-
-    # Auto-deploy when this branch is pushed
-    branch: main           # change to your deploy branch
-
-    # Environment variables
-    # Values marked sync:false must be set manually in the dashboard.
     envVars:
-      # ── App ────────────────────────────────────────────────────
       - key: NODE_ENV
         value: production
-
       - key: APP_ENV
-        value: staging          # change to production when you go live
-
-      - key: AUTH_URL
-        # Render injects RENDER_EXTERNAL_URL automatically
-        fromService:
-          type: web
-          name: musawo-web
-          property: host
-          # This sets AUTH_URL to https://<host>; adjust if you add a custom domain
-
+        value: staging
       - key: AUTH_TRUST_HOST
         value: "true"
-
-      - key: AUTH_SECRET
-        generateValue: true     # Render generates a cryptographically secure value
-
-      - key: DATA_ENCRYPTION_KEY
-        generateValue: true
-
-      - key: CRON_SECRET
-        generateValue: true
-
       - key: DEMO_MODE
         value: "true"
-
-      # ── Database ───────────────────────────────────────────────
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: DATA_ENCRYPTION_KEY
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+      - key: EMAIL_FROM
+        value: "Musawo Training Center <noreply@musawotraining.ug>"
+      - key: AT_USERNAME
+        value: sandbox
+      - key: AT_SENDER_ID
+        value: MUSAWO
+      - key: PESAPAL_BASE_URL
+        value: https://cybqa.pesapal.com/pesapalv3
+      - key: PESAPAL_WEBHOOK_SECRET
+        generateValue: true
+      - key: FLUTTERWAVE_WEBHOOK_SECRET
+        generateValue: true
+      - key: S3_REGION
+        value: auto
+      - key: S3_BUCKET
+        value: mtc-files
+      - key: BUNNY_CDN_HOSTNAME
+        value: iframe.mediadelivery.net
       - key: DATABASE_URL
         fromDatabase:
           name: musawo-db
           property: connectionString
-
-      # ── Redis ──────────────────────────────────────────────────
       - key: REDIS_URL
         fromService:
           type: redis
           name: musawo-redis
           property: connectionString
 
-      # ── Email (Resend) — set in dashboard ──────────────────────
-      - key: RESEND_API_KEY
-        sync: false
-
-      - key: EMAIL_FROM
-        value: "Musawo Training Center <noreply@musawotraining.ug>"
-
-      # ── SMS (Africa's Talking) — set in dashboard ───────────────
-      - key: AT_API_KEY
-        sync: false
-
-      - key: AT_USERNAME
-        value: sandbox
-
-      - key: AT_SENDER_ID
-        value: MUSAWO
-
-      # ── Payments — set in dashboard ─────────────────────────────
-      - key: PESAPAL_CONSUMER_KEY
-        sync: false
-
-      - key: PESAPAL_CONSUMER_SECRET
-        sync: false
-
-      - key: PESAPAL_IPN_ID
-        sync: false
-
-      - key: PESAPAL_BASE_URL
-        value: https://cybqa.pesapal.com/pesapalv3   # sandbox; change for live
-
-      - key: PESAPAL_WEBHOOK_SECRET
-        generateValue: true
-
-      - key: FLUTTERWAVE_SECRET_KEY
-        sync: false
-
-      - key: FLUTTERWAVE_PUBLIC_KEY
-        sync: false
-
-      - key: FLUTTERWAVE_WEBHOOK_SECRET
-        generateValue: true
-
-      # ── S3 — set in dashboard ────────────────────────────────────
-      - key: S3_ENDPOINT
-        sync: false
-
-      - key: S3_REGION
-        value: auto
-
-      - key: S3_BUCKET
-        value: mtc-files
-
-      - key: S3_ACCESS_KEY_ID
-        sync: false
-
-      - key: S3_SECRET_ACCESS_KEY
-        sync: false
-
-      # ── Bunny Stream — set in dashboard ─────────────────────────
-      - key: BUNNY_STREAM_API_KEY
-        sync: false
-
-      - key: BUNNY_LIBRARY_ID
-        sync: false
-
-      - key: BUNNY_SIGNING_KEY
-        sync: false
-
-      - key: BUNNY_CDN_HOSTNAME
-        value: iframe.mediadelivery.net
-
-      # ── Demo gate (HTTP Basic Auth) — set in dashboard ──────────
-      # Leave both unset to disable the gate.
-      - key: DEMO_GATE_USER
-        sync: false
-
-      - key: DEMO_GATE_PASSWORD
-        sync: false
-
 databases:
   - name: musawo-db
-    region: frankfurt
-    plan: starter           # free-tier Postgres on Render
     databaseName: mtc_db
     user: mtc
-
-  - name: musawo-redis
     region: frankfurt
-    plan: starter           # free-tier Key Value on Render
-    # type defaults to redis-compatible Key Value
+    plan: free
+
+  - type: redis
+    name: musawo-redis
+    region: frankfurt
+    plan: free
+    ipAllowList: []
