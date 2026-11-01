@@ -13,6 +13,36 @@ import type { UserRole } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
 
+// ─── Paths that always bypass the demo gate ──────────────────────────────────
+const GATE_BYPASS = ["/api/health", "/api/webhooks", "/_next", "/favicon.ico"];
+
+function shouldBypassGate(pathname: string): boolean {
+  return GATE_BYPASS.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p + "?"));
+}
+
+// ─── Demo gate (HTTP Basic Auth) ─────────────────────────────────────────────
+function demoGate(req: NextRequest): NextResponse | null {
+  const user = process.env.DEMO_GATE_USER;
+  const pass = process.env.DEMO_GATE_PASSWORD;
+  if (!user || !pass) return null; // gate inactive
+
+  const { pathname } = req.nextUrl;
+  if (shouldBypassGate(pathname)) return null;
+
+  const authHeader = req.headers.get("authorization") ?? "";
+  if (authHeader.startsWith("Basic ")) {
+    const b64 = authHeader.slice(6);
+    const decoded = Buffer.from(b64, "base64").toString("utf8");
+    const [u, ...rest] = decoded.split(":");
+    const p = rest.join(":");
+    if (u === user && p === pass) return null; // allowed
+  }
+
+  const res = new NextResponse("Demo access restricted", { status: 401 });
+  res.headers.set("WWW-Authenticate", 'Basic realm="Musawo Training Center Demo", charset="UTF-8"');
+  return res;
+}
+
 const PUBLIC_PATHS = [
   "/",
   "/courses",
@@ -33,6 +63,7 @@ const PUBLIC_PATHS = [
   "/forgot-password",
   "/api/auth",
   "/api/webhooks",
+  "/api/health",
   "/api/apply",
   "/_next",
   "/assets",
@@ -94,6 +125,10 @@ const API_PORTAL_MAP: Array<{ apiPrefix: string; portalPrefix: string }> = [
 
 export default auth(function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Demo gate (HTTP Basic Auth) — checked before everything else
+  const gated = demoGate(req);
+  if (gated) return gated;
 
   // Security headers on every response
   const response = NextResponse.next();

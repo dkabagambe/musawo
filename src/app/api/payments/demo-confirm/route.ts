@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { processConfirmedPayment } from "@/lib/payments";
+import { isDemoAllowed } from "@/lib/env";
 
 /**
  * GET /api/payments/demo-confirm?paymentId=…&enrolmentId=…&ref=…
  *
- * Only active in demo / non-production mode.
- * Simulates an instant successful payment confirmation, then redirects to
- * /dashboard/payments?ref=… so the student sees their access unlocked.
+ * Only active when APP_ENV is development or staging.
  */
 export async function GET(req: NextRequest) {
-  if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE !== "true") {
+  if (!isDemoAllowed()) {
     return NextResponse.json({ error: "Not available in production" }, { status: 403 });
   }
 

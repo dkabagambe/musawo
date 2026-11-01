@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import DevLoginForm from "./DevLoginForm";
+import { isDemoAllowed } from "@/lib/env";
 
 export const metadata = { title: "Demo Accounts - Dev Login" };
 
@@ -108,7 +109,7 @@ const DEMO_ACCOUNTS = [
 const DEMO_PASSWORD = "Demo1234!";
 
 export default function DevLoginPage() {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!isDemoAllowed()) notFound();
 
   return (
     <div className="min-h-screen bg-surface flex flex-col items-center justify-start py-12 px-4">

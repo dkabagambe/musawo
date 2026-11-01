@@ -8,9 +8,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // ─── Dev-mode local filesystem storage ───────────────────────────────────────
 // When S3_ENDPOINT is not set we fall back to storing files in public/uploads/
-// so that development works without any cloud / MinIO credentials.
-const IS_LOCAL_DEV =
-  !process.env.S3_ENDPOINT && process.env.NODE_ENV !== "production";
+// so that development and staging demos work without cloud credentials.
+// In production with no S3_ENDPOINT we log a warning and treat uploads as disabled.
+const IS_DEMO = !process.env.S3_ENDPOINT && process.env.APP_ENV !== "production";
+const IS_LOCAL_DEV = IS_DEMO;
 
 // ─── Real S3 / MinIO client ───────────────────────────────────────────────────
 const s3 = new S3Client({
@@ -114,6 +115,11 @@ export async function getPresignedUploadUrl(
 ): Promise<string> {
   if (IS_LOCAL_DEV) {
     return `/api/dev/upload?key=${encodeURIComponent(key)}&contentType=${encodeURIComponent(contentType)}`;
+  }
+  // Staging demo: S3 not configured → return a sentinel the UI can detect
+  if (!process.env.S3_ENDPOINT) {
+    console.warn("[s3] Upload disabled: S3_ENDPOINT not configured (demo mode)");
+    return `/api/dev/upload?key=${encodeURIComponent(key)}&contentType=${encodeURIComponent(contentType)}&disabled=1`;
   }
   const command = new PutObjectCommand({
     Bucket: BUCKET,

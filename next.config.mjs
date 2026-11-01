@@ -3,57 +3,38 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
 
-
-
   // Security headers
   async headers() {
-    return [
+    const isProduction = process.env.APP_ENV === "production";
+    const base = [
+      { key: "X-DNS-Prefetch-Control",   value: "on" },
+      { key: "X-XSS-Protection",         value: "1; mode=block" },
+      { key: "X-Frame-Options",          value: "DENY" },
+      { key: "X-Content-Type-Options",   value: "nosniff" },
+      { key: "Referrer-Policy",          value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy",       value: "camera=(), microphone=(), geolocation=()" },
       {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // unsafe-eval needed for Next.js dev
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              // OSM raster tiles (Leaflet) + musawo.ug images
-              "img-src 'self' data: blob: https://musawo.ug https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
-              "media-src 'self' https://iframe.mediadelivery.net https://video.bunnycdn.com",
-              // Bunny video + OSM iframe fallback
-              "frame-src https://iframe.mediadelivery.net https://www.openstreetmap.org",
-              "connect-src 'self'",
-              "upgrade-insecure-requests",
-            ].join("; "),
-          },
-        ],
+        key: "Content-Security-Policy",
+        value: [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' data: blob: https://musawo.ug https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+          "media-src 'self' https://iframe.mediadelivery.net https://video.bunnycdn.com",
+          "frame-src https://iframe.mediadelivery.net https://www.openstreetmap.org",
+          "connect-src 'self'",
+          "upgrade-insecure-requests",
+        ].join("; "),
       },
     ];
+
+    // Add noindex on staging / development
+    if (!isProduction) {
+      base.push({ key: "X-Robots-Tag", value: "noindex, nofollow" });
+    }
+
+    return [{ source: "/(.*)", headers: base }];
   },
 
   images: {
@@ -70,7 +51,15 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma"],
     serverActions: {
-      allowedOrigins: ["localhost:3000", "learn.musawotraining.ug"],
+      allowedOrigins: [
+        "localhost:3000",
+        "learn.musawotraining.ug",
+        // Allow Render preview URLs (*.onrender.com)
+        process.env.RENDER_EXTERNAL_URL
+          ? new URL(process.env.RENDER_EXTERNAL_URL).host
+          : "",
+        process.env.AUTH_URL ? new URL(process.env.AUTH_URL).host : "",
+      ].filter(Boolean),
     },
   },
 

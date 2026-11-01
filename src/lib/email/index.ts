@@ -270,17 +270,16 @@ function renderTemplate(
 export async function sendEmail(params: SendEmailParams): Promise<void> {
   const html = renderTemplate(params.template, params.variables);
 
-  // In dev (or when no API key), store in memory for /dev/mail preview
+  // In demo/staging (or when no API key), log to console and store in memory for /dev/mail preview
   const apiKey = process.env.RESEND_API_KEY;
-  if (
-    !apiKey ||
-    apiKey.startsWith("DEMO_") ||
-    process.env.NODE_ENV !== "production"
-  ) {
+  const appEnv = process.env.APP_ENV ?? "development";
+  const isDemo = appEnv !== "production" || !apiKey || apiKey.startsWith("DEMO_");
+
+  if (isDemo) {
     const { pushDevEmail } = await import("./dev-store");
     pushDevEmail({ to: params.to, subject: params.subject, html });
-    console.log(`[dev mail] to=${params.to} subject="${params.subject}"`);
-    if (!apiKey || apiKey.startsWith("DEMO_")) return; // don't attempt real send
+    console.log(`[email] to=${params.to} subject="${params.subject}" (demo - not sent)`);
+    if (!apiKey || apiKey.startsWith("DEMO_") || appEnv !== "production") return;
   }
 
   try {

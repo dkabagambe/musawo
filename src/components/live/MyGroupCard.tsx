@@ -11,7 +11,7 @@ import { Users, ExternalLink, MessageSquare } from "lucide-react";
 interface Member {
   id: string;
   name: string;
-  studentId?: string | null;
+  studentNumber?: string | null;
 }
 
 interface Group {
@@ -60,7 +60,7 @@ export default function MyGroupCard({ classId, courseId }: Props) {
         {group.members.map((m) => (
           <span key={m.id} className="bg-white border border-border rounded-full px-2 py-0.5 text-xs text-gray-700">
             {m.user.name}
-            {m.user.studentId && <span className="text-gray-400 ml-1">({m.user.studentId})</span>}
+            {m.user.studentNumber && <span className="text-gray-400 ml-1">({m.user.studentNumber})</span>}
           </span>
         ))}
       </div>

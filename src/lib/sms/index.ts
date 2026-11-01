@@ -9,7 +9,7 @@ export async function sendSms(params: SendSmsParams): Promise<void> {
   const senderId = process.env.AT_SENDER_ID ?? "MUSAWO";
 
   if (!apiKey) {
-    console.warn("SMS: AT_API_KEY not set - skipping SMS");
+    console.log(`[sms] to=${params.to} msg="${params.message.slice(0, 60)}…" (demo - AT_API_KEY not set)`);
     return;
   }
 

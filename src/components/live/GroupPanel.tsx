@@ -19,7 +19,7 @@ import { Users, Shuffle, Plus, ExternalLink, MessageSquare, ChevronDown, Chevron
 interface Member {
   id: string;
   name: string;
-  studentId?: string | null;
+  studentNumber?: string | null;
 }
 
 interface Group {
@@ -274,7 +274,7 @@ export default function GroupPanel({ classId, courseId }: Props) {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <span>{m.user.name}</span>
-                      {m.user.studentId && <span className="text-gray-400">({m.user.studentId})</span>}
+                      {m.user.studentNumber && <span className="text-gray-400">({m.user.studentNumber})</span>}
                       <button
                         type="button"
                         onClick={() => setMovingUser({ userId: m.userId, fromGroupId: group.id, name: m.user.name })}

@@ -54,7 +54,7 @@ export async function GET(_req: NextRequest, { params }: { params: { classId: st
     where: { liveClassId: classId },
     include: {
       members: {
-        include: { user: { select: { id: true, name: true, studentId: true } } },
+        include: { user: { select: { id: true, name: true, studentNumber: true } } },
         orderBy: { createdAt: "asc" },
       },
       submissions: {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest, { params }: { params: { classId: st
             },
           },
           include: {
-            members: { include: { user: { select: { id: true, name: true, studentId: true } } } },
+            members: { include: { user: { select: { id: true, name: true, studentNumber: true } } } },
           },
         });
         return group;
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest, { params }: { params: { classId: st
           },
         },
         include: {
-          members: { include: { user: { select: { id: true, name: true, studentId: true } } } },
+          members: { include: { user: { select: { id: true, name: true, studentNumber: true } } } },
         },
       });
       return group;

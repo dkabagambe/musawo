@@ -18,6 +18,10 @@ export const authConfig: NextAuthConfig = {
 
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
 
+  // Trust the reverse proxy (Render / Vercel / nginx)
+  // AUTH_TRUST_HOST=true must be set in the environment.
+  trustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.NODE_ENV !== "production",
+
   // No providers here - added in index.ts (Node runtime only)
   providers: [],
 
