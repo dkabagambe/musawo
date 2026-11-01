@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { getInlineObject } from "@/lib/s3";
 import { canAccessLesson } from "@/lib/enrolment/access";

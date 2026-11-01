@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/rbac";
 import { getPresignedUploadUrl, deleteObject } from "@/lib/s3";

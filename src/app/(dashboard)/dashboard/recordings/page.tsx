@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { getAccessLevel } from "@/lib/enrolment/access";
 import RecordingViewer from "./RecordingViewer";

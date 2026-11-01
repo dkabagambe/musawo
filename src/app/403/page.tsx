@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { getHomePathForRole } from "@/lib/auth/redirect";
 
 export const metadata = { title: "Access Denied - Musawo Training Center" };

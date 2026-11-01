@@ -6,7 +6,7 @@
  * DELETE – instructor removes a presentation (by ?presentationId=...)
  */
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { can, requirePermission, ForbiddenError } from "@/lib/rbac";
 import { teachingCourseWhere } from "@/lib/teaching/scope";

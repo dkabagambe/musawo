@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { DASHBOARD_WIDGETS, type DashboardTab } from "@/lib/dashboard/widgets";

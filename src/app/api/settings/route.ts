@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { setSetting } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { UpdateSettingSchema } from "@/lib/validators";

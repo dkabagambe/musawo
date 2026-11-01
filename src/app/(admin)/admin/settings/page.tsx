@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { getAllSettings } from "@/lib/settings";
 import AdminSettingsForm from "./SettingsForm";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 

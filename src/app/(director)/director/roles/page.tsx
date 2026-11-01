@@ -7,7 +7,7 @@
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import RolesPermissionsView from "@/components/roles/RolesPermissionsView";
 import PageHeader from "@/components/ui/PageHeader";

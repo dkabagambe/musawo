@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { can, canVia, canManageAccountRecoveryTarget } from "@/lib/rbac";
 import { audit } from "@/lib/audit";

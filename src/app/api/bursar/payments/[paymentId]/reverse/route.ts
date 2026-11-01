@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { requirePermission, ForbiddenError } from "@/lib/rbac";
 import { reverseVerifiedPayment } from "@/lib/payments";
 

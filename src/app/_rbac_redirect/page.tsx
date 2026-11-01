@@ -5,7 +5,7 @@
  *
  * New code should use getPostLoginPath() from @/lib/auth/redirect directly.
  */
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { getHomePathForRole } from "@/lib/auth/redirect";
 

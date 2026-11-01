@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can, canManageAccountRecoveryTarget } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { getAllSettings } from "@/lib/settings";

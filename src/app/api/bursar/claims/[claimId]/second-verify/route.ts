@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { requirePermission, ForbiddenError, assertNotSelfApproval } from "@/lib/rbac";

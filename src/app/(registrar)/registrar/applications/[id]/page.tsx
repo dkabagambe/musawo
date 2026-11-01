@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";

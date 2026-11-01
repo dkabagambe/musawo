@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can, auditLogFilterForRole } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";

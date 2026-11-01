@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { getAccessLevel } from "@/lib/enrolment/access";
 import { getProviderJoinUrl } from "@/lib/live/provider";

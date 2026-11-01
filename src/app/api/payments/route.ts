@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { initiateOrder } from "@/lib/payments/pesapal";
 import { initiateOrder as initiateFlutterwave } from "@/lib/payments/flutterwave";

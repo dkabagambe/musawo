@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
