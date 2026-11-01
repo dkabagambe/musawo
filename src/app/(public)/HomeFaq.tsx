@@ -6,32 +6,16 @@ import { ChevronDown } from "lucide-react";
 
 const FAQS = [
   {
-    q: "Do the courses come with a certificate?",
-    a: "Yes. Every Musawo Training Center course ends with a digital certificate that has a unique ID and QR code. Employers can scan the QR code to verify it online instantly.",
-  },
-  {
-    q: "How do I pay?",
-    a: "You can pay with MTN Mobile Money, Airtel Money, or a bank transfer. Flexible instalment payment plans are available so you can spread the cost across the course.",
-  },
-  {
-    q: "Can I study on a basic smartphone?",
-    a: "Yes. The platform is designed for mobile connections. Content loads fast and all materials are read or watched inside the platform only.",
-  },
-  {
-    q: "How long does each course take?",
-    a: "Courses run from 1 month to 3 months. Basic Life Support and Advanced Life Support are 1 month. Babysitting and Childcare is 2 months. All nursing care and mental health courses are 3 months.",
+    q: "What do I need to study?",
+    a: "A smartphone or a laptop. All materials are read or watched inside the platform only, no downloads needed.",
   },
   {
     q: "Are the classes really hands-on?",
-    a: "Yes. 70% of each course is hands-on practicals in our skills lab in Kampala. The remaining 30% is online classes and self-study that you can do on your phone from anywhere.",
-  },
-  {
-    q: "Who teaches the courses?",
-    a: "All courses are taught by qualified doctors, nurses and clinicians. Content is reviewed and approved by the Principal before it is published.",
+    a: "Yes: online classes and physical practical sessions in our skills lab.",
   },
   {
     q: "Who can apply?",
-    a: "Most courses are open to all, including PLE leavers, S.4 and S.6 leavers, working carers, teachers and community workers. The Medical Home Caregiver Course and Advanced Life Support require a professional nursing, midwifery or clinical officer qualification.",
+    a: "Each course has its own eligibility criteria. Check the course page for details.",
   },
 ];
 

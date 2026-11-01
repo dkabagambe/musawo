@@ -43,7 +43,7 @@ export default async function PaymentOptionsPage() {
         `Select Pay Bill, then enter merchant code: ${mtnCode}.`,
         "Enter the exact amount shown on your invoice.",
         "Enter your MoMo PIN and confirm.",
-        "Keep the SMS confirmation -- you may need to share it with us.",
+        "Keep the SMS confirmation. You may need to share it with us.",
       ],
       note: `MTN MoMo merchant code: ${mtnCode}. Dial *165*3# or use the MoMo app.`,
     },
@@ -62,7 +62,7 @@ export default async function PaymentOptionsPage() {
         `Select Pay Merchant, then enter merchant ID: ${airtelMerchantId}.`,
         "Enter the exact amount shown on your invoice.",
         "Enter your Airtel Money PIN and confirm.",
-        "Keep the SMS confirmation -- you may need to share it with us.",
+        "Keep the SMS confirmation. You may need to share it with us.",
       ],
       note: `Airtel Money merchant ID: ${airtelMerchantId}. Dial *185*9# or use the Airtel Money app.`,
     },
@@ -153,7 +153,7 @@ export default async function PaymentOptionsPage() {
                     "Your place is confirmed once payment is received and verified.",
                     "If you pay by mobile money and do not receive confirmation within 15 minutes, contact us on WhatsApp at 0709 184 468.",
                     "Receipts are sent to your registered email address. Check your spam folder if you do not receive one.",
-                    "Refund requests are handled under our Refund Policy -- see the link in the footer.",
+                    "Refund requests are handled under our Refund Policy. See the link in the footer.",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
                       <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />

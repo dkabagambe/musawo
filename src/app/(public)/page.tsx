@@ -51,7 +51,7 @@ async function getPublicCourses() {
 
 const FACTS = [
   { icon: Video, label: "Hybrid and online classes with 70% practicals" },
-  { icon: Banknote, label: "Pay with MTN, Airtel or bank transfer" },
+  { icon: Banknote, label: "Pay with MTN MoMo or Airtel Money" },
   { icon: Users, label: "Taught by doctors, nurses and clinicians" },
   { icon: Briefcase, label: "Job placement support included" },
 ];
@@ -67,7 +67,7 @@ const HOW_STEPS = [
     n: "02",
     icon: Banknote,
     title: "Apply and pay",
-    body: "Submit your application. The Registrar creates your account and sends you a secure login link. Pay with MTN MoMo, Airtel Money or bank transfer, in full or in instalments.",
+    body: "Submit your application. The Registrar creates your account and sends you a secure login link. Pay with MTN MoMo or Airtel Money, in full or in instalments.",
   },
   {
     n: "03",

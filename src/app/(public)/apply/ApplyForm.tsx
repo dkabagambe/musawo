@@ -19,14 +19,13 @@ interface Props {
 }
 
 const HOW_HEARD_OPTIONS = [
-  "Social media (Facebook, Instagram, TikTok or YouTube)",
-  "WhatsApp",
+  "Community Health Workers (CHW)",
+  "Village Health Teams (VHT)",
   "Friend or family",
-  "Community Health Worker (CHW)",
-  "Village Health Team (VHT)",
-  "Hospital or clinic",
-  "Radio",
-  "Other",
+  "Social media",
+  "Radio or TV",
+  "Poster or flyer",
+  "Other (please specify)",
 ];
 
 const QUALIFICATIONS = [
@@ -95,7 +94,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
     if (!form.email.trim()) { setError("Please enter your email address."); return; }
     if (!form.phone.trim()) { setError("Please enter your phone number."); return; }
     if (!form.courseId) { setError("Please select a course."); return; }
-    if (!form.category) { setError("Please select a course first -- category will be set automatically."); return; }
+    if (!form.category) { setError("Please select a course first. The category will be set automatically."); return; }
     if (isProfessional && !form.professionalTitle.trim()) {
       setError("Professional courses require your professional title."); return;
     }

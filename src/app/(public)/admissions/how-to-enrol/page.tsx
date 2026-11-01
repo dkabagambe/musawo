@@ -46,7 +46,7 @@ const STEPS = [
     n: "03",
     icon: CreditCard,
     title: "Accept your place and pay",
-    body: "If accepted, you will receive a secure account activation link by email. Confirm your details, set a password, then pay with MTN MoMo, Airtel Money or bank transfer.",
+    body: "If accepted, you will receive a secure account activation link by email. Confirm your details, set a password, then pay with MTN MoMo or Airtel Money.",
     cta: { label: "See payment options", href: "/admissions/payment-options" },
   },
   {

@@ -31,11 +31,11 @@ function enrolment(
     if (opts.paidPercent !== undefined) return opts.paidPercent;
     // Fully-paid statuses always get 100%
     if (status === "ACTIVE" || status === "COMPLETED") return 100;
-    // Map unlockedBlockOrder → pct for instalment-plan states
+    // Map unlockedBlockOrder → pct for instalment-plan states (50/75/100 thresholds)
     if (unlockedBlockOrder >= 9999) return 100;
-    if (unlockedBlockOrder >= 3)    return 75;
-    if (unlockedBlockOrder >= 2)    return 50;
-    if (unlockedBlockOrder >= 1)    return 25;
+    if (unlockedBlockOrder >= 3)    return 100;
+    if (unlockedBlockOrder >= 2)    return 75;
+    if (unlockedBlockOrder >= 1)    return 50;
     return 0;
   };
   return { status, paidPercent: defaultPct(), unlockedBlockOrder, provisionalUntil: null, graceUntil: null, overdueSince: null, ...opts };

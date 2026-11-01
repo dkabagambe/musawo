@@ -5,30 +5,16 @@ import { useState } from "react";
 
 const FAQS = [
   {
-    category: "Courses & Learning",
-    items: [
-      { q: "What certificate do I get after completing a course?",    a: "You receive a digital certificate with a unique ID and QR code. Employers can scan the QR code to verify it online instantly. The certificate is available to download as a PDF from your student portal." },
-      { q: "Can I study on a basic smartphone?",         a: "Yes. The platform is designed for low-data mobile connections. Videos load at low quality by default, all materials are read or watched inside the platform, and the interface works on any Android or iOS device." },
-      { q: "How long does each course take?",            a: "Courses range from 6 to 12 weeks. You study at your own pace alongside live online classes twice a week with your tutor." },
-      { q: "What happens if I miss a live class?",       a: "All live classes are recorded. You can watch the recording within 48 hours of the class time. Attendance is tracked but missing one or two classes will not block your progress." },
-      { q: "Do I need any prior qualifications?",        a: "No prior qualifications are required for our entry-level courses. A basic ability to read and write in English is helpful. Our admissions team is happy to advise if you are unsure." },
-    ],
+    q: "What do I need to study?",
+    a: "A smartphone or a laptop. All materials are read or watched inside the platform only, no downloads needed.",
   },
   {
-    category: "Payments & Fees",
-    items: [
-      { q: "How do I pay?",                              a: "You can pay with MTN Mobile Money, Airtel Money, or a bank transfer. Instalment payment plans are available on all courses. Pay the first instalment to confirm your place, then the remainder in further instalments as you progress." },
-      { q: "What is your refund policy?",                a: "If you withdraw before the course start date you are entitled to a full refund. After the start date, a partial refund may be available depending on how much of the course has been completed. See our Refund Policy page for full details." },
-      { q: "Can I pay in instalments?",                  a: "Yes. Most courses offer an instalment plan. Each instalment unlocks the next block of course content. Contact admissions@musawo.ug to discuss your options." },
-    ],
+    q: "Are the classes really hands-on?",
+    a: "Yes: online classes and physical practical sessions in our skills lab.",
   },
   {
-    category: "Certificates & Careers",
-    items: [
-      { q: "What does my certificate look like?",        a: "You receive a digital certificate with a unique ID and QR code that anyone can scan to verify its authenticity. A printable version is also available for download." },
-      { q: "Will you help me find work after I graduate?", a: "Yes. Musawo maintains a network of healthcare employers in Kampala and supports graduates with job placement. You also gain access to the alumni community after graduation." },
-      { q: "Can I do further study after completing a course?", a: "Yes. Completing a Musawo course gives you a strong foundation for higher nursing qualifications. Our tutors can advise on progression pathways to diploma and degree programs." },
-    ],
+    q: "Who can apply?",
+    a: "Each course has its own eligibility criteria. Check the course page for details.",
   },
 ];
 
@@ -60,23 +46,15 @@ function AccordionItem({ q, a }: { q: string; a: string }) {
 export default function FaqContent({ whatsappUrl }: { whatsappUrl: string }) {
   return (
     <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-      {FAQS.map((section) => (
-        <div key={section.category} className="mb-12">
-          <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 bg-accent rounded-full inline-block" aria-hidden="true" />
-            {section.category}
-          </h2>
-          <div className="space-y-3">
-            {section.items.map((item) => (
-              <AccordionItem key={item.q} q={item.q} a={item.a} />
-            ))}
-          </div>
-        </div>
-      ))}
+      <div className="space-y-3 mb-12">
+        {FAQS.map((item) => (
+          <AccordionItem key={item.q} q={item.q} a={item.a} />
+        ))}
+      </div>
 
       <div className="bg-primary rounded-2xl p-8 text-center text-white mt-8">
         <p className="font-bold text-lg mb-2">Still have questions?</p>
-        <p className="text-white/70 text-sm mb-5">Our admissions team is on WhatsApp Monday-Saturday, 8 am-6 pm.</p>
+        <p className="text-white/70 text-sm mb-5">Our admissions team is on WhatsApp Monday to Saturday, 8 am to 6 pm.</p>
         <a
           href={whatsappUrl}
           target="_blank"

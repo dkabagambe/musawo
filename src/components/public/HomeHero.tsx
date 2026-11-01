@@ -135,8 +135,7 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
           paddingTop: "12px",
         }}
       >
-        <span style={{ color: "#FFB200", fontWeight: 700 }}>87+</span>{" "}
-        health workers trained since 2018 &nbsp;·&nbsp; Digital certificate with QR verification
+        Digital certificate with QR verification
       </p>
     </div>
   );

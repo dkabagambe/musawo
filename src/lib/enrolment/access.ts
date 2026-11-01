@@ -33,10 +33,10 @@ export interface EnrolmentAccessInfo {
 
 export const DEFAULT_ACCESS_THRESHOLDS = {
   preview: 0,
-  block1: 25,
-  block2: 50,
+  block1: 50,   // 50% unlocks the first phase of content (confirms place)
+  block2: 75,   // 75% unlocks next phase and practical booking
   block3: 75,
-  final: 100,
+  final: 100,   // 100% unlocks final exam and certificate
 } as const;
 
 export type AccessThresholds = typeof DEFAULT_ACCESS_THRESHOLDS;
@@ -174,8 +174,8 @@ export function getLockedReason(
 }
 
 function _lockedReasonByBlock(blockOrder: number): string {
-  if (blockOrder === 1) return "Pay 25% deposit to unlock Block 1";
-  if (blockOrder === 2) return "Pay 50% to unlock Block 2 and take the Block 1 exam";
+  if (blockOrder === 1) return "Pay 50% to start your course and unlock Block 1";
+  if (blockOrder === 2) return "Pay 75% to unlock Block 2 and take the Block 1 exam";
   if (blockOrder === 3) return "Pay 75% to unlock Block 3 and book your practical day";
   return "Pay in full to access the final exam and earn your certificate";
 }
@@ -325,7 +325,7 @@ function _examAccess(
   const allowed = pct >= thresholds.block2;
   return {
     allowed,
-    reason: allowed ? null : "Pay 50% to unlock Block 2 and take the Block 1 exam",
+    reason: allowed ? null : "Pay 75% to unlock Block 2 and take the Block 1 exam",
   };
 }
 

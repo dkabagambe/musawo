@@ -72,7 +72,7 @@ export default async function AboutPage() {
                   Musawo Training Center (MTC) is a division of Allied Doctors and Friends of Uganda (ADFA), a community health organisation based in Kampala. We provide affordable hybrid and online healthcare training to Ugandans who want to serve their communities.
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-4 font-medium text-primary/90">
-                  Our mission: to equip women and youth with practical, high-quality healthcare skills through innovative training, mentorship, and values-based education -- producing competent caregivers who bring safe, compassionate, and affordable care directly to patients, families and communities.
+                  Our mission: to equip women and youth with practical, high-quality healthcare skills through innovative training, mentorship, and values-based education, producing competent caregivers who bring safe, compassionate, and affordable care directly to patients, families and communities.
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-6">
                   Our eight programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by doctors, nurses and clinicians.
@@ -81,7 +81,7 @@ export default async function AboutPage() {
                   {[
                     "Hybrid and online classes with 70% hands-on practicals",
                     "Taught by doctors, nurses and clinicians",
-                    "Pay with MTN, Airtel or bank transfer",
+                    "Pay with MTN MoMo or Airtel Money",
                     "Digital certificate with QR verification",
                     "Flexible instalment payment plans",
                     "Job placement support in Uganda",

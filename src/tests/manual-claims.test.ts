@@ -49,10 +49,10 @@ describe("canAccess at 0% paidPercent (PENDING_PAYMENT)", () => {
   });
 });
 
-// ─── 2. canAccess at 25% paidPercent ─────────────────────────────────────────
+// ─── 2. canAccess at 50% paidPercent ─────────────────────────────────────────
 
-describe("canAccess at 25% paidPercent (PARTIALLY_PAID)", () => {
-  const e = enr("PARTIALLY_PAID", 25);
+describe("canAccess at 50% paidPercent (PARTIALLY_PAID)", () => {
+  const e = enr("PARTIALLY_PAID", 50);
 
   it("block1 lesson allowed", () => {
     expect(canAccess({ type: "lesson", blockOrder: 1 }, e, T).allowed).toBe(true);
@@ -64,25 +64,25 @@ describe("canAccess at 25% paidPercent (PARTIALLY_PAID)", () => {
 
   it("getLockedReason for block2 returns correct string", () => {
     const reason = getLockedReason({ order: 2 }, e, T);
-    expect(reason).toBe("Pay 50% to unlock Block 2 and take the Block 1 exam");
+    expect(reason).toBe("Pay 75% to unlock Block 2 and take the Block 1 exam");
   });
 });
 
-// ─── 3. canAccess at 50% paidPercent ─────────────────────────────────────────
+// ─── 3. canAccess at 75% paidPercent ─────────────────────────────────────────
 
-describe("canAccess at 50% paidPercent (PARTIALLY_PAID)", () => {
-  const e = enr("PARTIALLY_PAID", 50);
+describe("canAccess at 75% paidPercent (PARTIALLY_PAID)", () => {
+  const e = enr("PARTIALLY_PAID", 75);
 
   it("block2 lesson allowed", () => {
     expect(canAccess({ type: "lesson", blockOrder: 2 }, e, T).allowed).toBe(true);
   });
 
-  it("block1 exam (blockOrder=1) allowed at 50%", () => {
+  it("block1 exam (blockOrder=1) allowed at 75%", () => {
     expect(canAccess({ type: "exam", blockOrder: 1 }, e, T).allowed).toBe(true);
   });
 
-  it("block2 exam (blockOrder=2) denied at 50%", () => {
-    expect(canAccess({ type: "exam", blockOrder: 2 }, e, T).allowed).toBe(false);
+  it("block2 exam (blockOrder=2) allowed at 75%", () => {
+    expect(canAccess({ type: "exam", blockOrder: 2 }, e, T).allowed).toBe(true);
   });
 });
 
@@ -151,18 +151,18 @@ describe("Provisional access (provisionalUntil in future, paidPercent=0)", () =>
   });
 });
 
-// ─── 8. Overdue in grace period at paidPercent=50 ────────────────────────────
+// ─── 8. Overdue in grace period at paidPercent=75 ────────────────────────────
 
-describe("Overdue in grace period at paidPercent=50", () => {
+describe("Overdue in grace period at paidPercent=75", () => {
   const future = new Date(Date.now() + 86_400_000);
-  const e = enr("OVERDUE", 50, { graceUntil: future });
+  const e = enr("OVERDUE", 75, { graceUntil: future });
 
-  it("block2 lesson allowed at 50%", () => {
+  it("block2 lesson allowed at 75%", () => {
     expect(canAccess({ type: "lesson", blockOrder: 2 }, e, T).allowed).toBe(true);
   });
 
-  it("block3 lesson denied at 50%", () => {
-    expect(canAccess({ type: "lesson", blockOrder: 3 }, e, T).allowed).toBe(false);
+  it("block3 lesson allowed at 75%", () => {
+    expect(canAccess({ type: "lesson", blockOrder: 3 }, e, T).allowed).toBe(true);
   });
 });
 
@@ -288,15 +288,15 @@ describe("reverseVerifiedPayment recomputes paidPercent", () => {
 // ─── 12. getLockedReason ─────────────────────────────────────────────────────
 
 describe("getLockedReason", () => {
-  it("returns null for accessible block (paidPercent=25, block1)", () => {
-    const e = enr("PARTIALLY_PAID", 25);
+  it("returns null for accessible block (paidPercent=50, block1)", () => {
+    const e = enr("PARTIALLY_PAID", 50);
     expect(getLockedReason({ order: 1 }, e, T)).toBeNull();
   });
 
-  it("returns correct string for locked block2 at 25%", () => {
-    const e = enr("PARTIALLY_PAID", 25);
+  it("returns correct string for locked block2 at 50%", () => {
+    const e = enr("PARTIALLY_PAID", 50);
     expect(getLockedReason({ order: 2 }, e, T)).toBe(
-      "Pay 50% to unlock Block 2 and take the Block 1 exam"
+      "Pay 75% to unlock Block 2 and take the Block 1 exam"
     );
   });
 

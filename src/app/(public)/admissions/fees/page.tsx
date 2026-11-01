@@ -7,11 +7,10 @@ import { getContactInfo } from "@/lib/contact";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Fees and Instalments",
-  description: "Course fees and flexible instalment options at Musawo Training Center Uganda. November 2026 intake.",
+  description: "How to pay for your Musawo Training Center course. Flexible three-phase instalment plan for all courses.",
 };
 
 const ADMISSIONS_NAV = [
@@ -22,7 +21,7 @@ const ADMISSIONS_NAV = [
 
 const INCLUDED_ALL = [
   "Full course access on all devices",
-  "Hybrid and online classes with 70% hands-on practicals in our skills lab",
+  "Hybrid and online classes with hands-on practicals in our skills lab",
   "All assessments and examinations",
   "Digital certificate with QR verification",
   "Job placement support",
@@ -31,37 +30,26 @@ const INCLUDED_ALL = [
 const INSTALMENT_PLAN = [
   {
     pct: "50%",
+    phase: "Phase 1",
     label: "Before reporting",
-    desc: "Pay at least 50% of your course fee before your first class. This confirms your place and gives you access to the first block of course content.",
+    desc: "Pay 50% of your course fee before your first class. This confirms your place and gives you access to the first phase of course content.",
   },
   {
     pct: "25%",
+    phase: "Phase 2",
     label: "Midway through the course",
-    desc: "Pay the second instalment during the course to continue without interruption.",
+    desc: "Pay the second instalment to continue without interruption and unlock practical booking.",
   },
   {
     pct: "25%",
+    phase: "Phase 3",
     label: "Before the final assessment",
-    desc: "Clear the remaining balance before sitting your final examination.",
+    desc: "Clear the remaining balance to unlock the final exam and your certificate.",
   },
 ];
 
 export default async function FeesPage() {
-  const [contact, courses] = await Promise.all([
-    getContactInfo(),
-    db.course.findMany({
-      where: { status: "PUBLISHED" },
-      select: {
-        id: true, title: true, slug: true,
-        fullFeeUgx: true, feeContactOnly: true,
-        internationalFeeUgx: true,
-        durationMonths: true, category: true,
-      },
-      orderBy: { createdAt: "asc" },
-    }),
-  ]);
-
-  const USD_RATE = 3600; // UGX per USD
+  const contact = await getContactInfo();
 
   return (
     <div>
@@ -69,9 +57,7 @@ export default async function FeesPage() {
         image="/assets/images/hero-about.webp"
         imageAlt="Musawo Training Center skills lab"
         title="Fees and Instalments"
-        description={process.env.DEMO_MODE === "true"
-          ? "Indicative demo fees for the November 2026 intake. Confirm fees with admissions before payment."
-          : "Contact admissions for current course fees and flexible instalment options for the November 2026 intake."}
+        description="Contact admissions for current course fees. All courses use the same flexible three-phase payment plan."
         breadcrumbs={[
           { label: "Admissions", href: "/admissions/how-to-enrol" },
           { label: "Fees and instalments" },
@@ -86,70 +72,38 @@ export default async function FeesPage() {
 
           <div className="flex-1 min-w-0">
 
-            {/* ── Course fee table ─────────────────────────────── */}
+            {/* ── Payment plan ──────────────────────────────────── */}
             <AnimateIn className="mb-12">
-              <p className="section-eyebrow">November 2026 intake</p>
+              <p className="section-eyebrow">Payment plan</p>
               <h2 className="mt-2 mb-3 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
-                Course fees
+                How to pay in instalments
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-6">
-                All fees are in Uganda Shillings and include everything listed below. No hidden charges. We do not provide accommodation.
+              <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-8">
+                The same plan applies to all courses. Fees are paid in three phases. No other payment arrangement is accepted.
               </p>
 
-              <div className="overflow-x-auto rounded-2xl border border-border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-primary text-white">
-                      <th className="text-left px-5 py-3 font-semibold">Course</th>
-                      <th className="text-left px-5 py-3 font-semibold whitespace-nowrap">Duration</th>
-                      <th className="text-right px-5 py-3 font-semibold whitespace-nowrap">Fee (UGX)</th>
-                      <th className="text-right px-5 py-3 font-semibold whitespace-nowrap">Intl. fee (USD)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {courses.map((c) => {
-                      const duration = c.durationMonths
-                        ? `${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""}`
-                        : "TBC";
-                      const intlFeeUsd = c.internationalFeeUgx
-                        ? Math.round(c.internationalFeeUgx / USD_RATE)
-                        : c.fullFeeUgx
-                        ? Math.round(c.fullFeeUgx / USD_RATE)
-                        : null;
-                      return (
-                        <tr key={c.id} className="bg-white hover:bg-surface transition-colors">
-                          <td className="px-5 py-4">
-                            <Link
-                              href={`/courses/${c.slug}`}
-                              className="font-semibold text-primary no-underline hover:underline"
-                            >
-                              {c.title}
-                            </Link>
-                            <p className="text-xs text-gray-400 mt-0.5">
-                              {c.category === "PROFESSIONAL" ? "Professionals only" : "Open to all"}
-                            </p>
-                          </td>
-                          <td className="px-5 py-4 text-gray-600 whitespace-nowrap">{duration}</td>
-                          <td className="px-5 py-4 text-right font-semibold text-primary whitespace-nowrap">
-                            {c.feeContactOnly || !c.fullFeeUgx
-                              ? <span className="text-gray-400 font-normal text-xs">Contact admissions</span>
-                              : `UGX ${c.fullFeeUgx.toLocaleString()}`}
-                          </td>
-                          <td className="px-5 py-4 text-right text-gray-600 whitespace-nowrap">
-                            {intlFeeUsd
-                              ? `USD ${intlFeeUsd.toLocaleString()}`
-                              : <span className="text-gray-400 text-xs">Contact admissions</span>}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="grid sm:grid-cols-3 gap-5">
+                {INSTALMENT_PLAN.map(({ pct, phase, label, desc }) => (
+                  <div
+                    key={phase}
+                    className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center hover:shadow-card-hover transition-shadow"
+                  >
+                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mb-4">
+                      <span className="text-accent font-extrabold text-xl">{pct}</span>
+                    </div>
+                    <p className="font-bold text-primary text-sm mb-1">{phase}</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-2">{label}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                ))}
               </div>
 
-              <p className="text-xs text-gray-400 mt-3">
-                International fee is calculated at a rate of UGX 3,600 per USD. Contact admissions to confirm the current rate.
-              </p>
+              <div className="mt-6 bg-[#F1F7F5] rounded-2xl border border-border p-5 text-sm text-gray-600">
+                <p className="font-semibold text-primary mb-1">How content access works</p>
+                <p>
+                  Paying 50% unlocks the first phase of content and confirms your place. Reaching 75% unlocks the next phase and practical booking. Paying in full opens the final exam and your certificate.
+                </p>
+              </div>
             </AnimateIn>
 
             {/* ── What is included ─────────────────────────────── */}
@@ -165,53 +119,19 @@ export default async function FeesPage() {
               </ul>
             </AnimateIn>
 
-            {/* ── Instalment plan ──────────────────────────────── */}
-            <AnimateIn className="mb-10">
-              <p className="section-eyebrow">Payment plan</p>
-              <h2 className="mt-2 mb-3 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
-                How to pay in instalments
-              </h2>
-              <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-8">
-                You can pay your course fee in three instalments. The same plan applies to all courses.
-              </p>
-
-              <div className="grid sm:grid-cols-3 gap-5">
-                {INSTALMENT_PLAN.map(({ pct, label, desc }, i) => (
-                  <div
-                    key={pct}
-                    className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center text-center hover:shadow-card-hover transition-shadow"
-                  >
-                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mb-4">
-                      <span className="text-accent font-extrabold text-xl">{pct}</span>
-                    </div>
-                    <p className="font-bold text-primary text-sm mb-1">Instalment {i + 1}</p>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">{label}</p>
-                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 bg-[#F1F7F5] rounded-2xl border border-border p-5 text-sm text-gray-600">
-                <p className="font-semibold text-primary mb-1">How content access works</p>
-                <p>
-                  After paying 50%, you can access the first half of your course. After the second instalment (75% total), the rest of the content unlocks. Full access is maintained once you have paid in full.
-                </p>
-              </div>
-            </AnimateIn>
-
             {/* ── Fee enquiries ─────────────────────────────────── */}
             <AnimateIn>
               <div className="bg-surface border border-border rounded-2xl p-5 text-sm text-gray-600">
                 <p className="font-semibold text-primary mb-1">Fee enquiries</p>
                 <p className="mb-3">
-                  For fee confirmations and payment arrangements, contact admissions at{" "}
+                  For current fees and payment arrangements, contact admissions at{" "}
                   <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
                     admissions@musawo.ug
                   </a>{" "}
                   or call{" "}
                   <a href="tel:+256709184468" className="text-primary no-underline hover:underline">
                     0709 184 468
-                  </a>.
+                  </a>. International students pay in USD at a rate of UGX 3,600 per USD.
                 </p>
                 <Link
                   href="/admissions/payment-options"
@@ -227,8 +147,8 @@ export default async function FeesPage() {
       </div>
 
       <CTABand
-        heading="Transparent fees, flexible payments."
-        subheading="Apply for the November 2026 intake. Hybrid classes with hands-on practicals."
+        heading="Flexible fees, real skills."
+        subheading="Apply for the next intake. Hybrid classes with hands-on practicals."
         primaryLabel="Apply now"
         primaryHref="/apply"
         whatsappUrl={contact.whatsappUrl}
