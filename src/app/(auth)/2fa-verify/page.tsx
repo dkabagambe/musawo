@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
-import { getPostLoginPath } from "../../../../lib/redirect";
+import { getPostLoginPath } from "@/lib/redirect";
 
 const CODE_LENGTH = 6;
 
