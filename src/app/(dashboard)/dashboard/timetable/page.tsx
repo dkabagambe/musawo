@@ -130,7 +130,7 @@ export default async function TimetablePage() {
                       <PlayCircle className="w-3.5 h-3.5" /> Replay
                     </Link>
                   ) : (
-                    <span className="text-xs text-gray-400 flex-shrink-0">No recording</span>
+                    <span className="text-xs text-gray-400 flex-shrink-0">Recording pending</span>
                   )}
                 </div>
               ))}
