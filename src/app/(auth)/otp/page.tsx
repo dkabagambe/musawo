@@ -6,7 +6,32 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Phone, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/redirect";
+
+// Inline redirect helper — avoids module resolution issues on Render
+function getPostLoginPath(role?: string | null, callbackUrl?: string | null, origin?: string): string {
+  const roleMap: Record<string, string> = {
+    DIRECTOR: "/director", PRINCIPAL: "/principal", ADMIN: "/admin",
+    ACADEMIC_REGISTRAR: "/registrar", INSTRUCTOR: "/tutor",
+    SYSTEM_IT: "/system", STUDENT: "/dashboard", ARCHIVED: "/login?error=account_archived",
+    SUPER_ADMIN: "/director", SUPERADMIN: "/director", BOARD_MEMBER: "/director",
+    AUDITOR_READONLY: "/director", DEPUTY_PRINCIPAL: "/principal",
+    FINANCE_OFFICER: "/director", BURSAR: "/director",
+    HR_SYSTEM_ADMIN: "/admin", HR_MANAGER: "/admin", ADMINISTRATOR: "/admin", ADMIN_LEGACY: "/admin",
+    TEACHING_ASSISTANT: "/tutor", TUTOR: "/tutor", REGISTRAR: "/registrar",
+  };
+  const home = (role && roleMap[role]) || "/dashboard";
+  if (!callbackUrl) return home;
+  try {
+    const url = callbackUrl.startsWith("http") ? new URL(callbackUrl) : null;
+    if (url && origin && url.origin !== origin) return home;
+    const path = url ? url.pathname + url.search : callbackUrl;
+    if (!path.startsWith("/") || path.includes("..")) return home;
+    const authPages = new Set(["/login","/register","/otp","/forgot-password","/_rbac_redirect"]);
+    if (authPages.has(path.split("?")[0])) return home;
+    return path;
+  } catch { return home; }
+}
+
 
 const CODE_LENGTH = 6;
 
