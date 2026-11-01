@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import StudentJoinClass from "@/app/(dashboard)/dashboard/timetable/StudentJoinClass";
 import PresentationViewer from "@/components/live/PresentationViewer";
+import MyGroupCard from "@/components/live/MyGroupCard";
+import GroupWorkSubmitCard from "@/components/live/GroupWorkSubmitCard";
 import { Video, Calendar } from "lucide-react";
 import React from "react";
 
@@ -19,7 +21,7 @@ export default async function StudentClassesPage() {
         status: "LIVE",
         course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
       },
-      include: { course: { select: { title: true } }, tutor: { select: { name: true } } },
+      include: { course: { select: { id: true, title: true } }, tutor: { select: { name: true } } },
     }),
     db.liveClass.findMany({
       where: {
@@ -29,7 +31,7 @@ export default async function StudentClassesPage() {
       },
       orderBy: { scheduledAt: "asc" },
       take: 10,
-      include: { course: { select: { title: true } }, tutor: { select: { name: true } } },
+      include: { course: { select: { id: true, title: true } }, tutor: { select: { name: true } } },
     }),
   ]);
 
@@ -75,6 +77,8 @@ export default async function StudentClassesPage() {
           <StudentJoinClass classId={cls.id} isLive={isLive} />
         </div>
         {isLive && <div className="mt-2 px-1"><PresentationViewer classId={cls.id} /></div>}
+        {isLive && <div className="mt-2 px-1"><MyGroupCard classId={cls.id} courseId={cls.course?.id ?? ""} /></div>}
+        {isLive && <div className="mt-2 px-1"><GroupWorkSubmitCard classId={cls.id} /></div>}
       </React.Fragment>
     );
   };

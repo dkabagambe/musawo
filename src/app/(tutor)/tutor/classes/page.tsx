@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import PresentationPanel from "@/components/live/PresentationPanel";
+import GroupPanel from "@/components/live/GroupPanel";
+import GroupWorkPanel from "@/components/live/GroupWorkPanel";
 
 interface LiveClass {
   id: string;
@@ -14,7 +16,7 @@ interface LiveClass {
   recordingUrl: string | null;
   studentsMaySpeak?: boolean;
   recordingStatus?: string;
-  course: { title: string };
+  course: { id: string; title: string };
 }
 
 interface Course {
@@ -175,8 +177,10 @@ export default function TutorClassesPage() {
                     {cls.status === "LIVE" && <a href={cls.joinUrl} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-1.5 no-underline">Open room</a>}
                   </div>
                   {(cls.status === "LIVE" || cls.status === "SCHEDULED") && canManageClasses && (
-                    <div className="mt-3">
+                    <div className="mt-3 space-y-3">
                       <PresentationPanel classId={cls.id} />
+                      <GroupPanel classId={cls.id} courseId={cls.course.id} />
+                      <GroupWorkPanel classId={cls.id} isInstructor />
                     </div>
                   )}
                   </React.Fragment>

@@ -2200,6 +2200,121 @@ async function main() {
     console.log("  ✓ Live classes (6: 2 past with replays, 4 upcoming)");
   }
 
+  // ── Breakaway Groups (Section 9) ───────────────────────────────
+  const existingGroups = await prisma.classGroup.count();
+  if (existingGroups === 0) {
+    // Use the first completed live class (Block 2 Q&A) for the group demo
+    const demoClass = await prisma.liveClass.findFirst({
+      where: { status: "COMPLETED" },
+      orderBy: { scheduledAt: "asc" },
+    });
+
+    if (demoClass) {
+      // Get enrolled students (up to 30)
+      const enrolledUsers = await prisma.enrolment.findMany({
+        where: { courseId: demoClass.courseId, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } },
+        select: { userId: true },
+        take: 30,
+      });
+
+      const studentIds = enrolledUsers.map((e) => e.userId);
+
+      // Create 6 groups of 5
+      const NAMES = ["Group Acholi", "Group Baganda", "Group Banyoro", "Group Basoga", "Group Batooro", "Group Lugbara"];
+      const groupSize = 5;
+      const groupCount = Math.ceil(studentIds.length / groupSize);
+
+      const demoGroups: { id: string; name: string }[] = [];
+      for (let i = 0; i < Math.min(groupCount, NAMES.length); i++) {
+        const memberSlice = studentIds.slice(i * groupSize, (i + 1) * groupSize);
+        const group = await prisma.classGroup.create({
+          data: {
+            liveClassId: demoClass.id,
+            name: NAMES[i],
+            meetLink: `https://meet.google.com/demo-group-${String.fromCharCode(97 + i)}`,
+            members: { create: memberSlice.map((uid) => ({ userId: uid })) },
+          },
+        });
+        demoGroups.push(group);
+      }
+
+      // Seed group work submissions for the first 2 groups
+      if (demoGroups.length >= 2) {
+        await prisma.groupWorkSubmission.create({
+          data: {
+            groupId: demoGroups[0].id,
+            liveClassId: demoClass.id,
+            title: "Group Acholi - Infection Control Summary",
+            body: "Our group discussed the 5 moments of hand hygiene and how to apply them in a home care setting.",
+            groupMark: 78,
+            gradedAt: daysAgo(7),
+            gradedBy: tutor.id,
+          },
+        });
+        await prisma.groupWorkSubmission.create({
+          data: {
+            groupId: demoGroups[1].id,
+            liveClassId: demoClass.id,
+            title: "Group Baganda - PPE Usage Report",
+            body: "We summarised the correct donning and doffing procedure for PPE in an isolation room.",
+          },
+        });
+      }
+
+      // Seed a class-level and a group-level forum thread for the demo class
+      const classThread = await prisma.forumThread.create({
+        data: {
+          courseId: demoClass.courseId,
+          liveClassId: demoClass.id,
+          authorId: tutor.id,
+          title: "Class discussion: Infection Control Q&A",
+          body: "Use this thread to ask any questions from today's live session on Infection Control. I will respond within 24 hours.",
+        },
+      });
+      await prisma.forumReply.create({
+        data: {
+          threadId: classThread.id,
+          authorId: enrolledUsers[0]?.userId ?? tutor.id,
+          body: "Thank you for a great session! Quick question - can we use alcohol gel instead of soap when water is not available?",
+          createdAt: daysAgo(6),
+        },
+      });
+      await prisma.forumReply.create({
+        data: {
+          threadId: classThread.id,
+          authorId: tutor.id,
+          body: "Yes, 70% alcohol-based hand rub is acceptable when water and soap are not available, as long as hands are not visibly soiled.",
+          createdAt: daysAgo(6),
+        },
+      });
+
+      if (demoGroups.length > 0) {
+        const groupThread = await prisma.forumThread.create({
+          data: {
+            courseId: demoClass.courseId,
+            liveClassId: demoClass.id,
+            groupId: demoGroups[0].id,
+            authorId: enrolledUsers[0]?.userId ?? tutor.id,
+            title: "Group Acholi - our notes",
+            body: "Let us collect our notes here and agree on the key points for the group submission.",
+          },
+        });
+        if (enrolledUsers[1]) {
+          await prisma.forumReply.create({
+            data: {
+              threadId: groupThread.id,
+              authorId: enrolledUsers[1].userId,
+              body: "I added the first two moments. Can someone cover moments 3 and 4?",
+              createdAt: daysAgo(7),
+            },
+          });
+        }
+      }
+
+      console.log(`  ✓ Breakaway groups (${Math.min(groupCount, NAMES.length)} groups, 2 work submissions, 2 forum threads)`);
+    }
+  }
+
   // ── Announcements ──────────────────────────────────────────────
   const existingAnnouncements = await prisma.announcement.count();
   if (existingAnnouncements === 0) {

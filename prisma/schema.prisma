@@ -295,6 +295,10 @@ model User {
   forumThreads  ForumThread[]
   forumReplies  ForumReply[]
 
+  // Groups
+  classGroupMemberships ClassGroupMember[]
+  gradedGroupWork       GroupWorkSubmission[] @relation("GroupWorkGrader")
+
   // Support
   supportTickets  SupportTicket[]
   assignedTickets SupportTicket[] @relation("AssignedTickets")
@@ -792,6 +796,8 @@ model LiveClass {
   attendance    Attendance[]
   reminders     LiveClassReminder[]
   presentations ClassPresentation[]
+  groups        ClassGroup[]
+  forumThreads  ForumThread[]
 
   @@index([courseId, scheduledAt])
   @@index([status, scheduledAt])
@@ -1190,24 +1196,91 @@ model Announcement {
 }
 
 // ─────────────────────────────────────────────
+// BREAKAWAY GROUPS (per live class)
+// ─────────────────────────────────────────────
+
+model ClassGroup {
+  id          String   @id @default(cuid())
+  liveClassId String
+  name        String   // e.g. "Group A", "Sanyu Team"
+  meetLink    String?  // optional Meet link for the group
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  liveClass   LiveClass           @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  members     ClassGroupMember[]
+  submissions GroupWorkSubmission[]
+
+  @@index([liveClassId])
+  @@map("class_groups")
+}
+
+model ClassGroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  group ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("class_group_members")
+}
+
+// One submission per group; optional individual grade adjustments stored in JSON
+model GroupWorkSubmission {
+  id               String    @id @default(cuid())
+  groupId          String
+  liveClassId      String
+  title            String
+  body             String?   @db.Text
+  fileS3Key        String?
+  submittedAt      DateTime  @default(now())
+  groupMark        Int?      // 0-100 shared mark
+  // individual adjustments: [{userId, mark, note}]
+  individualMarks  Json?
+  gradedAt         DateTime?
+  gradedBy         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  group    ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  grader   User?      @relation("GroupWorkGrader", fields: [gradedBy], references: [id])
+
+  @@unique([groupId, liveClassId])
+  @@index([liveClassId])
+  @@map("group_work_submissions")
+}
+
+// ─────────────────────────────────────────────
 // DISCUSSION FORUM
 // ─────────────────────────────────────────────
 
 model ForumThread {
-  id        String   @id @default(cuid())
-  courseId  String
-  authorId  String
-  title     String
-  body      String   @db.Text
-  pinned    Boolean  @default(false)
-  locked    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  courseId    String
+  // Optional scoping: class-level or group-level threads
+  liveClassId String?
+  groupId     String?
+  authorId    String
+  title       String
+  body        String   @db.Text
+  pinned      Boolean  @default(false)
+  locked      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  course  Course       @relation(fields: [courseId], references: [id])
-  author  User         @relation(fields: [authorId], references: [id])
-  replies ForumReply[]
+  course    Course      @relation(fields: [courseId], references: [id])
+  liveClass LiveClass?  @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  author    User        @relation(fields: [authorId], references: [id])
+  replies   ForumReply[]
 
+  @@index([courseId])
+  @@index([liveClassId])
+  @@index([groupId])
   @@map("forum_threads")
 }
 
