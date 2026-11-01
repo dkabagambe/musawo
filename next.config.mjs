@@ -54,12 +54,7 @@ const nextConfig = {
       allowedOrigins: [
         "localhost:3000",
         "learn.musawotraining.ug",
-        // Allow Render preview URLs (*.onrender.com)
-        process.env.RENDER_EXTERNAL_URL
-          ? new URL(process.env.RENDER_EXTERNAL_URL).host
-          : "",
-        process.env.AUTH_URL ? new URL(process.env.AUTH_URL).host : "",
-      ].filter(Boolean),
+      ],
     },
   },
 

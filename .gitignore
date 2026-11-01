@@ -21,8 +21,8 @@ dist/
 # Keep .env.example (no real secrets)
 !.env.example
 
-# Prisma
-prisma/migrations/
+# Prisma - keep migrations in git, ignore generated files
+# prisma/migrations/ must be committed for prisma migrate deploy to work
 
 # Database
 *.db

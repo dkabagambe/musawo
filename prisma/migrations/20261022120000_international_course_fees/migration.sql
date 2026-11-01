@@ -1,0 +1,4 @@
+ALTER TABLE "courses" ADD COLUMN "internationalFeeUgx" INTEGER;
+ALTER TABLE "users" ADD COLUMN "countryCode" TEXT NOT NULL DEFAULT 'UG';
+ALTER TABLE "applications" ADD COLUMN "countryCode" TEXT NOT NULL DEFAULT 'UG';
+ALTER TABLE "enrolments" ADD COLUMN "countryCode" TEXT NOT NULL DEFAULT 'UG';
