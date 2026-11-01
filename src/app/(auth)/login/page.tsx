@@ -9,7 +9,7 @@ import {
   Mail, Lock, Phone, Eye, EyeOff, ArrowLeft,
   AlertCircle, CheckCircle2, Loader2, ShieldCheck,
 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/auth/redirect";
+import { getPostLoginPath } from "@/lib/redirect";
 
 type Step = "credentials" | "totp";
 type Mode = "email" | "phone";

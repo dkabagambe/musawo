@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 import {
   User, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle, AlertTriangle,
 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/auth/redirect";
+import { getPostLoginPath } from "@/lib/redirect";
 
 interface StudentInfo {
   id: string;

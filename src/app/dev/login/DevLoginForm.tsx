@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { getPostLoginPath } from "@/lib/auth/redirect";
+import { getPostLoginPath } from "@/lib/redirect";
 
 export default function DevLoginForm({ email, password }: { email: string; password: string }) {
   const router = useRouter();

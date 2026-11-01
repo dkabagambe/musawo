@@ -7,7 +7,7 @@
  */
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import { getHomePathForRole } from "@/lib/auth/redirect";
+import { getHomePathForRole } from "@/lib/redirect";
 
 export default async function RbacRedirectPage() {
   const session = await auth();

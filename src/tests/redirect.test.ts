@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { getHomePathForRole, getPostLoginPath } from "@/lib/auth/redirect";
+import { getHomePathForRole, getPostLoginPath } from "@/lib/redirect";
 import type { UserRole } from "@prisma/client";
 
 // ─── getHomePathForRole ───────────────────────────────────────────────────────
