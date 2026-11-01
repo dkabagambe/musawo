@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
 /** Map pathname prefix → hero photo src */
@@ -45,10 +44,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         />
 
         {/* Caption box - solid brand teal, 32 px from edges */}
-        <motion.div
-          initial={{ opacity: 0, x: -28 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        <div
           className="absolute bottom-8 left-8 right-8 bg-primary rounded-2xl px-7 py-6"
           style={{ maxWidth: "420px" }}
         >
@@ -58,7 +54,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <p className="text-white/70 text-sm mt-1.5">
             Hybrid and online learning, with practical skills training in our skills lab.
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/*
@@ -141,15 +137,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* ── Form area ───────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 sm:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+          <div
             className="w-full"
             style={{ maxWidth: "440px" }}
           >
             {children}
-          </motion.div>
+          </div>
 
           {/* Footer row */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-gray-400">
