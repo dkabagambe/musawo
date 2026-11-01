@@ -283,6 +283,7 @@ model User {
   taughtCourses     Course[]          @relation("CourseMainTutor")
   coTaughtCourses   CoTutor[]
   liveClasses       LiveClass[]
+  classPresentations ClassPresentation[]
   shortAnswerReviews ShortAnswerReview[]
 
   // Assignments
@@ -791,6 +792,7 @@ model LiveClass {
   tutor      User         @relation(fields: [tutorId], references: [id])
   attendance Attendance[]
   reminders  LiveClassReminder[]
+  presentations ClassPresentation[]
 
   @@index([courseId, scheduledAt])
   @@index([status, scheduledAt])
@@ -859,6 +861,26 @@ model LiveClassReminder {
   @@unique([liveClassId, channel, remindAt])
   @@index([remindAt, sentAt])
   @@map("live_class_reminders")
+}
+
+// Slides or PDF uploaded by the instructor for a live class.
+// Students see these in-platform only (no download link ever served).
+model ClassPresentation {
+  id          String    @id @default(cuid())
+  liveClassId String
+  uploadedBy  String
+  fileName    String
+  s3Key       String
+  mimeType    String    @default("application/pdf")
+  sizeBytes   Int
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  liveClass  LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  uploader   User      @relation(fields: [uploadedBy], references: [id])
+
+  @@index([liveClassId])
+  @@map("class_presentations")
 }
 
 // ─────────────────────────────────────────────

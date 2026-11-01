@@ -1,9 +1,11 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 import { db } from "@/lib/db";
 import { Calendar, Video, PlayCircle } from "lucide-react";
 import StudentJoinClass from "./StudentJoinClass";
+import PresentationViewer from "@/components/live/PresentationViewer";
 
 export const metadata = { title: "Timetable" };
 
@@ -60,7 +62,8 @@ export default async function TimetablePage() {
               const isToday = date.toDateString() === new Date().toDateString();
               const isStartingSoon = !isLive && date.getTime() > Date.now() && date.getTime() - Date.now() <= 60 * 60 * 1000;
               return (
-                <div key={cls.id} className={`bg-white rounded-2xl border p-5 flex items-start gap-4 shadow-sm ${isLive ? "border-danger/30" : "border-border"}`}>
+                <React.Fragment key={cls.id}>
+                <div className={`bg-white rounded-2xl border p-5 flex items-start gap-4 shadow-sm ${isLive ? "border-danger/30" : "border-border"}`}>
                   {/* Date block */}
                   <div className={`w-14 flex-shrink-0 text-center rounded-xl p-2 ${isLive ? "bg-danger" : isToday ? "bg-accent" : "bg-primary"}`}>
                     <p className="text-[10px] font-bold text-white/80 uppercase leading-none">
@@ -92,6 +95,12 @@ export default async function TimetablePage() {
 
                   <StudentJoinClass classId={cls.id} isLive={isLive} />
                 </div>
+                {isLive && (
+                  <div className="mt-2 px-1">
+                    <PresentationViewer classId={cls.id} />
+                  </div>
+                )}
+                </React.Fragment>
               );
             })}
           </div>

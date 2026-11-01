@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import PresentationPanel from "@/components/live/PresentationPanel";
 
 interface LiveClass {
   id: string;
@@ -154,7 +155,8 @@ export default function TutorClassesPage() {
             {upcoming.length === 0 ? <p className="text-gray-400 text-sm">No upcoming classes.</p> : (
               <div className="space-y-3">
                 {upcoming.map((cls) => (
-                  <div key={cls.id} className="card flex items-center gap-4">
+                  <React.Fragment key={cls.id}>
+                  <div className="card flex items-center gap-4">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{cls.title}</p>
                       <p className="text-xs text-gray-400">{cls.course.title} · {new Date(cls.scheduledAt).toLocaleString("en-UG")} · {cls.durationMin} min</p>
@@ -172,6 +174,12 @@ export default function TutorClassesPage() {
                     }}>{cls.studentsMaySpeak ? "Students may speak" : "Students muted"}</button>}
                     {cls.status === "LIVE" && <a href={cls.joinUrl} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-1.5 no-underline">Open room</a>}
                   </div>
+                  {(cls.status === "LIVE" || cls.status === "SCHEDULED") && canManageClasses && (
+                    <div className="mt-3">
+                      <PresentationPanel classId={cls.id} />
+                    </div>
+                  )}
+                  </React.Fragment>
                 ))}
               </div>
             )}
