@@ -1,3 +1,8 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
@@ -39,7 +44,6 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // Only allow images from domains we control — no hotlinking from musawo.ug in production
       {
         protocol: "https",
         hostname: "learn.musawotraining.ug",
@@ -59,6 +63,13 @@ const nextConfig = {
   },
 
   webpack(config, { isServer }) {
+    // Explicitly register the @/ alias so Render's clean webpack build
+    // always resolves it correctly, independent of tsconfig path reading.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": path.resolve(__dirname, "src"),
+    };
+
     if (isServer) {
       // argon2 uses native bindings; keep it as an external for the server bundle
       const existing = config.externals ?? [];
