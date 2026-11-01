@@ -1,44 +1,63 @@
 /**
  * Student number generation.
  *
- * Pattern (from site setting `student.numberPattern`, default "{PREFIX}-{YYYY}-{SEQ:5}"):
- *   {PREFIX}  -> value of setting `student.numberPrefix` (default "MTC")
- *   {YYYY}    -> current year
- *   {SEQ:N}   -> zero-padded sequential number, N digits (default 5)
+ * Pattern: {YYYY}/{COURSECODE}/{SEQ:3}  (e.g. 2026/MHC/005)
  *
- * The number is assigned when the Registrar creates the student record,
- * never at payment or login. It is unique, sequential per year, never reused,
+ * The sequence is per-course per-year, incremented atomically under a
+ * PostgreSQL advisory lock so concurrent inserts cannot collide.
+ * The number is assigned when the Admin creates the student record,
+ * never at payment or login. It is unique, sequential, never reused,
  * and not editable after creation.
+ *
+ * COURSE CODES come from Course.courseCode in the database (authoritative source).
+ * The COURSE_CODES map in number-format.ts is the canonical default for seeding.
  */
 
 import { db } from "@/lib/db";
-import { getSetting } from "@/lib/settings";
 import type { Prisma } from "@prisma/client";
 import { formatStudentNumber } from "./number-format";
 
-/** Assign the next number and create the account while holding a year-scoped DB lock. */
+/**
+ * Assign the next registration number for the given course and create the
+ * student account inside a single serialised transaction.
+ *
+ * @param data     Prisma UserUncheckedCreateInput (without studentNumber)
+ * @param courseCode  Short course code, e.g. "MHC". Looked up from the course record.
+ */
 export async function createStudentWithNumber(
   data: Prisma.UserUncheckedCreateInput,
+  courseCode: string,
 ) {
-  const [pattern, prefix] = await Promise.all([
-    getSetting("student.numberPattern", "{PREFIX}-{YYYY}-{SEQ:5}"),
-    getSetting("student.numberPrefix", "MTC"),
-  ]);
   const year = new Date().getFullYear();
-  const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
-  const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
+  const lockKey = `${year}_${courseCode.toUpperCase()}`;
 
   return db.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(${year}, hashtext('musawo_student_numbers'))`;
-    const count = await tx.user.count({
+    // Serialise concurrent inserts for the same course+year
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+    // Count existing student numbers for this course+year to derive the next seq
+    const existing = await tx.user.findMany({
       where: {
         role: "STUDENT",
-        studentNumber: { not: null },
-        createdAt: { gte: startOfYear, lt: endOfYear },
+        studentNumber: { startsWith: `${year}/${courseCode.toUpperCase()}/` },
       },
+      select: { studentNumber: true },
     });
-    let sequence = count + 1;
-    let studentNumber = formatStudentNumber(pattern, prefix, year, sequence);
+
+    // Parse the highest existing sequence to avoid gaps from deleted test records
+    let maxSeq = existing.length;
+    for (const row of existing) {
+      const parts = row.studentNumber?.split("/");
+      if (parts && parts.length === 3) {
+        const seq = parseInt(parts[2], 10);
+        if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+      }
+    }
+
+    let sequence = maxSeq + 1;
+    let studentNumber = formatStudentNumber(courseCode, year, sequence);
+
+    // Guard against any collision (e.g. manually-entered numbers)
     while (
       await tx.user.findUnique({
         where: { studentNumber },
@@ -46,31 +65,37 @@ export async function createStudentWithNumber(
       })
     ) {
       sequence += 1;
-      studentNumber = formatStudentNumber(pattern, prefix, year, sequence);
+      studentNumber = formatStudentNumber(courseCode, year, sequence);
     }
+
     const user = await tx.user.create({ data: { ...data, studentNumber } });
     return { user, studentNumber };
   });
 }
 
-export async function generateStudentNumber(): Promise<string> {
-  const [pattern, prefix] = await Promise.all([
-    getSetting("student.numberPattern", "{PREFIX}-{YYYY}-{SEQ:5}"),
-    getSetting("student.numberPrefix", "MTC"),
-  ]);
-
+/**
+ * Generate the next registration number for a course without creating a user.
+ * Used for previewing the number on the "Create Student" form.
+ */
+export async function generateStudentNumber(courseCode: string): Promise<string> {
   const year = new Date().getFullYear();
 
-  // Count students created this year to get the next sequential number
-  const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
-  const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
-  const count = await db.user.count({
+  const existing = await db.user.findMany({
     where: {
       role: "STUDENT",
-      studentNumber: { not: null },
-      createdAt: { gte: startOfYear, lt: endOfYear },
+      studentNumber: { startsWith: `${year}/${courseCode.toUpperCase()}/` },
     },
+    select: { studentNumber: true },
   });
 
-  return formatStudentNumber(pattern, prefix, year, count + 1);
+  let maxSeq = existing.length;
+  for (const row of existing) {
+    const parts = row.studentNumber?.split("/");
+    if (parts && parts.length === 3) {
+      const seq = parseInt(parts[2], 10);
+      if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+    }
+  }
+
+  return formatStudentNumber(courseCode, year, maxSeq + 1);
 }

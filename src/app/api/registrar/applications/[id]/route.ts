@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   const application = await db.application.findUnique({
     where: { id: params.id },
     include: {
-      course: { select: { id: true, title: true, fullFeeUgx: true, category: true } },
+      course: { select: { id: true, title: true, fullFeeUgx: true, category: true, courseCode: true } },
       intake: { select: { id: true, label: true } },
     },
   });
@@ -137,13 +137,14 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     }
 
     const { createStudentWithNumber } = await import("@/lib/students");
+    const courseCode = application.course?.courseCode ?? "GEN";
     const { user: student, studentNumber } = await createStudentWithNumber({
         name: application.fullName,
         email: application.email,
         phone: application.phone,
         role: "STUDENT",
         status: "PENDING_ACCEPTANCE",
-    });
+    }, courseCode);
 
     const { saveStudentProfile } = await import("@/lib/students/profile");
     await saveStudentProfile(student.id, {

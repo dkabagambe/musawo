@@ -5,7 +5,7 @@
  * Replaces S3 presigned PUT URLs when S3_ENDPOINT is not configured.
  * Files are saved to public/uploads/ and served as static assets.
  *
- * NEVER expose this route in production — it is guarded by NODE_ENV check.
+ * NEVER expose this route in production - it is guarded by NODE_ENV check.
  */
 
 import { NextRequest, NextResponse } from "next/server";

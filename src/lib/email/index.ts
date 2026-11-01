@@ -32,6 +32,7 @@ type EmailTemplate =
   | "student-details-disputed"
   | "support-ticket-created"
   | "support-reply"
+  | "approval-decision"
   | "operational-notice";
 
 interface SendEmailParams {
@@ -226,6 +227,13 @@ function renderTemplate(
       <p>Dear {{name}},</p>
       <div style="white-space:pre-wrap;">{{body}}</div>
       <p>For questions, contact the front office at info@musawo.ug.</p>
+    `,
+    "approval-decision": `
+      <h2>Your request has been {{decision}}</h2>
+      <p>Dear {{name}},</p>
+      <p>Your <strong>{{type}}</strong> request has been <strong>{{decision}}</strong> by {{decidedBy}}.</p>
+      <p><strong>Note:</strong> {{decisionNote}}</p>
+      <p>Log in to view the full details in your portal.</p>
     `,
   };
 

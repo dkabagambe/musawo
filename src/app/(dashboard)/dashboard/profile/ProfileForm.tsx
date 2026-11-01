@@ -149,7 +149,7 @@ export default function ProfileForm({ user }: Props) {
               onChange={set("name")} className="input" />
           </div>
 
-          {/* Email — read-only */}
+          {/* Email - read-only */}
           <div className="mb-4">
             <label htmlFor="email" className="label">Email address</label>
             <input id="email" type="email" disabled value={user.email}
@@ -177,7 +177,7 @@ export default function ProfileForm({ user }: Props) {
           <div className="mb-4">
             <label htmlFor="gender" className="label">Gender</label>
             <select id="gender" value={form.gender} onChange={set("gender")} className="input">
-              <option value="">— Select —</option>
+              <option value="">- Select -</option>
               <option value="female">Female</option>
               <option value="male">Male</option>
               <option value="other">Other / Prefer not to say</option>
@@ -188,7 +188,7 @@ export default function ProfileForm({ user }: Props) {
           <div className="mb-4">
             <label htmlFor="district" className="label">District (Uganda)</label>
             <select id="district" value={form.district} onChange={set("district")} className="input">
-              <option value="">— Select district —</option>
+              <option value="">- Select district -</option>
               {UGANDAN_DISTRICTS.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
@@ -200,7 +200,7 @@ export default function ProfileForm({ user }: Props) {
             <label htmlFor="qualification" className="label">Highest qualification</label>
             <select id="qualification" value={form.highestQualification}
               onChange={set("highestQualification")} className="input">
-              <option value="">— Select —</option>
+              <option value="">- Select -</option>
               {QUALIFICATIONS.map((q) => (
                 <option key={q} value={q}>{q}</option>
               ))}
@@ -237,7 +237,7 @@ export default function ProfileForm({ user }: Props) {
             </label>
             <input id="emergency" type="text" value={form.emergencyContact}
               onChange={set("emergencyContact")} className="input"
-              placeholder="e.g. Jane Namutebi — +256 700 000000" />
+              placeholder="e.g. Jane Namutebi - +256 700 000000" />
           </div>
 
           <button type="submit" disabled={profileLoading} className="btn-primary">

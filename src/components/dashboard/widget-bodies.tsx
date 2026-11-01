@@ -318,7 +318,7 @@ async function HoldsBody({ userId, fullPageHref }: WidgetBodyProps) {
             : `Due in ${daysLeft}d`;
         return (
           <ListRow key={inst.id} href={href} icon={<Calendar size={16} />}>
-            Instalment {inst.number}: {fmtUGX(inst.amount)} —{" "}
+            Instalment {inst.number}: {fmtUGX(inst.amount)}  - {" "}
             {inst.enrolment.course.title}
             <ClockMeta>{label}</ClockMeta>
           </ListRow>
@@ -1264,7 +1264,7 @@ async function GraduandListBody({ fullPageHref }: WidgetBodyProps) {
 /* approval-list  (director/admin/finance approvals - Approvals) */
 async function ApprovalListBody({ fullPageHref }: WidgetBodyProps) {
   const approvals = await db.approvalRequest.findMany({
-    where: { status: "PENDING" },
+    where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } },
     orderBy: { createdAt: "desc" },
     take: 6,
     include: { initiator: { select: { name: true } } },
@@ -1610,7 +1610,7 @@ async function DeputyTodosBody({ fullPageHref }: WidgetBodyProps) {
 async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingResults, pendingApprovals, draftCourses] = await Promise.all([
     db.examAttempt.count({ where: { status: "SUBMITTED" } }),
-    db.approvalRequest.count({ where: { status: "PENDING" } }),
+    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
     db.course.count({ where: { status: "DRAFT" } }),
   ]);
   const allClear =
@@ -1645,7 +1645,7 @@ async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
       where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
     }),
     db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
-    db.approvalRequest.count({ where: { status: "PENDING" } }),
+    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
   ]);
   const allClear =
     pendingClaims === 0 && pendingPayments === 0 && pendingApprovals === 0;
@@ -1675,7 +1675,7 @@ async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
 /* director-todos  (super admin / director general) */
 async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingApprovals, pendingClaims, draftCourses] = await Promise.all([
-    db.approvalRequest.count({ where: { status: "PENDING" } }),
+    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
     db.manualPaymentClaim.count({
       where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
     }),
@@ -2257,7 +2257,7 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "auditor-overview": AuditorOverviewBody,
   "attendance-overview": AttendanceOverviewBody,
   "student-progress-overview": StudentProgressOverviewBody,
-  // New widgets — role responsibilities
+  // New widgets - role responsibilities
   "marks-change-requests": MarksChangeRequestsBody,
   "delegation-status": DelegationStatusBody,
   "attendance-alerts": AttendanceAlertBody,
@@ -2275,13 +2275,13 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   NEW WIDGETS — added to surface role responsibilities
+   NEW WIDGETS - added to surface role responsibilities
    ───────────────────────────────────────────────────────────── */
 
 /* marks-change-requests  (principal approvals / deputy approvals tab) */
 async function MarksChangeRequestsBody({ fullPageHref }: WidgetBodyProps) {
   const requests = await db.approvalRequest.findMany({
-    where: { type: "MARKS_CHANGE", status: "PENDING" },
+    where: { type: "MARKS_CHANGE", status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } },
     orderBy: { createdAt: "desc" },
     take: 6,
     include: {
@@ -2294,7 +2294,7 @@ async function MarksChangeRequestsBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {requests.slice(0, 5).map((r) => (
         <ListRow key={r.id} href={href} icon={<FileText size={16} />}>
-          {r.initiator.name ?? "Unknown"} — {r.reason?.slice(0, 60) ?? "Marks change request"}
+          {r.initiator.name ?? "Unknown"} - {r.reason?.slice(0, 60) ?? "Marks change request"}
         </ListRow>
       ))}
       {requests.length > 5 && (
@@ -2354,7 +2354,7 @@ async function DelegationStatusBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/* attendance-alert-list  (deputy academics tab — attendance per session) */
+/* attendance-alert-list  (deputy academics tab - attendance per session) */
 async function AttendanceAlertBody({ fullPageHref }: WidgetBodyProps) {
   const sessions = await db.liveClass.findMany({
     where: { status: { in: ["COMPLETED", "LIVE"] } },
@@ -2374,7 +2374,7 @@ async function AttendanceAlertBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {sessions.slice(0, 5).map((s) => (
         <ListRow key={s.id} href={href} icon={<ClipboardList size={16} />}>
-          {s.title} — {s._count.attendance} attendees
+          {s.title} - {s._count.attendance} attendees
           <CalendarMeta>{fmtDay(s.scheduledAt)}</CalendarMeta>
         </ListRow>
       ))}
@@ -2398,7 +2398,7 @@ async function DisciplinaryCasesBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {complaints.slice(0, 5).map((c) => (
         <ListRow key={c.id} href={href} icon={<AlertCircle size={16} />}>
-          {c.subject} — {c.user?.name ?? "Unknown"}
+          {c.subject} - {c.user?.name ?? "Unknown"}
           <CalendarMeta>{fmtDay(c.createdAt)}</CalendarMeta>
         </ListRow>
       ))}
@@ -2423,7 +2423,7 @@ async function TranscriptRequestsBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {completed.slice(0, 5).map((e) => (
         <ListRow key={e.id} href={href} icon={<FileText size={16} />}>
-          {e.user.name ?? "Unknown"} — {e.course.title}
+          {e.user.name ?? "Unknown"} - {e.course.title}
         </ListRow>
       ))}
     </>
@@ -2468,7 +2468,7 @@ async function FeeReminderListBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {overdue.slice(0, 5).map((e) => (
         <ListRow key={e.id} href={href} icon={<AlertCircle size={16} />}>
-          {e.user.name ?? "Unknown"} — {e.course.title}
+          {e.user.name ?? "Unknown"} - {e.course.title}
           <ClockMeta>{e.status}</ClockMeta>
         </ListRow>
       ))}
@@ -2511,7 +2511,7 @@ async function InstructorMarksChangesBody({ userId, fullPageHref }: WidgetBodyPr
   );
 }
 
-/* hr-staff-performance  (hr manager leave tab — approved leave records) */
+/* hr-staff-performance  (hr manager leave tab - approved leave records) */
 async function HrStaffPerformanceBody({ fullPageHref }: WidgetBodyProps) {
   const recentLeave = await db.leaveRequest.findMany({
     where: { status: "APPROVED" },
@@ -2525,7 +2525,7 @@ async function HrStaffPerformanceBody({ fullPageHref }: WidgetBodyProps) {
     <>
       {recentLeave.map((l) => (
         <ListRow key={l.id} href={href} icon={<Users size={16} />}>
-          {l.user.name ?? "Unknown"} — approved leave
+          {l.user.name ?? "Unknown"} - approved leave
           <CalendarMeta>{fmtDay(l.startsAt)}</CalendarMeta>
         </ListRow>
       ))}
@@ -2613,7 +2613,7 @@ async function SystemIntegrationsBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/* student-access-summary  (student finance tab — "What You Can Access")
+/* student-access-summary  (student finance tab - "What You Can Access")
    Shows each enrolment with the blocks currently unlocked vs locked,
    so a partially-paid student knows exactly what they're paying towards. */
 async function StudentAccessSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
@@ -2651,10 +2651,10 @@ async function StudentAccessSummaryBody({ userId, fullPageHref }: WidgetBodyProp
           <ListRow key={enr.id} href={`/dashboard/courses/${enr.course.slug}`}>
             <strong>{enr.course.title}</strong>
             {isFullAccess
-              ? " — Full access (all blocks unlocked)"
+              ? " - Full access (all blocks unlocked)"
               : enr.status === "PENDING_PAYMENT"
-              ? " — Awaiting payment — preview lessons only"
-              : ` — ${pct}% paid · ${enr.course.blocks.filter(
+              ? " - Awaiting payment - preview lessons only"
+              : ` - ${pct}% paid · ${enr.course.blocks.filter(
                   (b) => b.order <= 4 && pct >= (THRESHOLDS[b.order] ?? 100),
                 ).length} of ${enr.course.blocks.length} block${enr.course.blocks.length !== 1 ? "s" : ""} unlocked`}
           </ListRow>

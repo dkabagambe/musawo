@@ -62,26 +62,29 @@ export default async function ApprovalLinkPage({ params }: Props) {
     paymentAmount = payment?.amount ?? null;
   }
 
+  const ACTIONABLE = new Set(["SUBMITTED", "IN_REVIEW"]);
+  const statusIcon =
+    request.status === "SUBMITTED" || request.status === "IN_REVIEW" ? "📋" :
+    request.status === "APPROVED" || request.status === "APPLIED" ? "✅" : "❌";
+
   return (
     <main className="min-h-screen bg-surface flex items-center justify-center px-4 py-12">
       <div className="card max-w-xl w-full">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-3xl" aria-hidden="true">
-            {request.status === "PENDING" ? "📋" : request.status === "APPROVED" ? "✅" : "❌"}
-          </span>
+          <span className="text-3xl" aria-hidden="true">{statusIcon}</span>
           <div>
             <h1 className="text-xl font-bold">Approval Request</h1>
             <p className="text-xs text-gray-400">
-              {request.type.replace(/_/g, " ")} · {new Date(request.createdAt).toLocaleString("en-UG")}
+              {request.type.replace(/_/g, " ")} &middot; {new Date(request.createdAt).toLocaleString("en-UG")}
             </p>
           </div>
         </div>
 
         {/* Expired notice */}
-        {expired && request.status === "PENDING" && (
+        {expired && ACTIONABLE.has(request.status) && (
           <div className="bg-warning/10 border border-warning/30 rounded-xl px-4 py-3 mb-4">
-            <p className="text-amber-800 text-sm font-medium">⚠️ This approval link has expired.</p>
+            <p className="text-amber-800 text-sm font-medium">This approval link has expired.</p>
             <p className="text-xs text-amber-700 mt-0.5">
               You can still approve from the <a href="/director/approvals" className="underline">approval inbox</a>.
             </p>
@@ -89,14 +92,17 @@ export default async function ApprovalLinkPage({ params }: Props) {
         )}
 
         {/* Already decided */}
-        {request.status !== "PENDING" && (
+        {!ACTIONABLE.has(request.status) && (
           <div className={`rounded-xl px-4 py-3 mb-4 ${
-            request.status === "APPROVED"
+            request.status === "APPROVED" || request.status === "APPLIED"
               ? "bg-success/10 border border-success/20"
               : "bg-danger/10 border border-danger/20"
           }`}>
-            <p className={`text-sm font-semibold ${request.status === "APPROVED" ? "text-green-800" : "text-danger"}`}>
-              {request.status === "APPROVED" ? "✅ Approved" : "❌ Rejected"} by {request.decidedBy?.name}
+            <p className={`text-sm font-semibold ${
+              request.status === "APPROVED" || request.status === "APPLIED"
+                ? "text-green-800" : "text-danger"
+            }`}>
+              {request.status} by {request.decidedBy?.name}
             </p>
             <p className="text-xs text-gray-600 mt-1">{request.decisionNote}</p>
           </div>
@@ -124,7 +130,7 @@ export default async function ApprovalLinkPage({ params }: Props) {
               <dd className="font-medium">{courseName}</dd>
             </div>
           )}
-          {(request.amount ?? paymentAmount) && (
+          {(request.amount != null || paymentAmount != null) && (
             <div className="flex justify-between">
               <dt className="text-gray-500">Amount</dt>
               <dd className="font-bold text-primary">
@@ -138,8 +144,8 @@ export default async function ApprovalLinkPage({ params }: Props) {
           </div>
         </dl>
 
-        {/* Decision form - only if PENDING and not expired */}
-        {request.status === "PENDING" && !expired && (
+        {/* Decision form - only if actionable and not expired */}
+        {ACTIONABLE.has(request.status) && !expired && (
           <ApprovalDecisionForm
             requestId={request.id}
             initiatorId={request.initiatorId}

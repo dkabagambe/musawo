@@ -5,18 +5,13 @@
  * setting releasedAt on all matching GradeEntry rows.
  * Once released, a grade cannot be changed without a MARKS_CHANGE approval.
  *
- * Required permission: exams.release (PRINCIPAL, or DEPUTY_PRINCIPAL when delegated).
+ * Required permission: exams.release (DIRECTOR or PRINCIPAL).
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import {
-  can,
-  ForbiddenError,
-  getDelegationSettings,
-  canDeputyWithDelegation,
-} from "@/lib/rbac";
+import { can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 
@@ -30,17 +25,11 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { role } = session.user;
-
-  // Permission check: PRINCIPAL has exams.release; DEPUTY can if delegated; SUPER_ADMIN always
-  const hasDirect = can(role, "exams.release");
-  let hasViaDelegate = false;
-  if (role === "DEPUTY_PRINCIPAL") {
-    const delegationSettings = await getDelegationSettings(db);
-    hasViaDelegate = canDeputyWithDelegation("exams.release", delegationSettings);
-  }
-  if (!hasDirect && !hasViaDelegate) {
-    return NextResponse.json({ error: "Forbidden: only the Principal (or delegated Deputy) may release results." }, { status: 403 });
+  if (!can(session.user.role, "exams.release")) {
+    return NextResponse.json(
+      { error: "Forbidden: only the Principal or Director may release results." },
+      { status: 403 }
+    );
   }
 
   const parsed = ReleaseSchema.safeParse(await req.json());
@@ -50,7 +39,6 @@ export async function POST(req: NextRequest) {
 
   const { courseId, itemType, itemId } = parsed.data;
 
-  // Verify the course and item exist
   const course = await db.course.findUnique({ where: { id: courseId }, select: { id: true, title: true } });
   if (!course) return NextResponse.json({ error: "Course not found." }, { status: 404 });
 
@@ -61,7 +49,7 @@ export async function POST(req: NextRequest) {
       courseId,
       itemType,
       itemId,
-      releasedAt: null, // only release unreleased entries
+      releasedAt: null,
     },
     data: { releasedAt: now },
   });
@@ -71,14 +59,8 @@ export async function POST(req: NextRequest) {
     action:     "GRADE_RELEASED",
     entityType: "GradeEntry",
     entityId:   itemId,
-    metadata:   {
-      courseId,
-      itemType,
-      itemId,
-      count,
-      via: role === "DEPUTY_PRINCIPAL" ? "delegation" : role,
-    },
-    ip: req.headers.get("x-forwarded-for") ?? undefined,
+    metadata:   { courseId, itemType, itemId, count, via: session.user.role },
+    ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
   return NextResponse.json({ released: count, releasedAt: now.toISOString() });

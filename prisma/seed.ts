@@ -3247,6 +3247,146 @@ async function main() {
     console.log("  ✓ Additional operational notices");
   }
 
+  // ── Section-5 Approval Workflow Seed (all item types) ─────────
+  const existingSection5 = await prisma.approvalRequest.count({
+    where: { type: { in: [
+      ApprovalRequestType.ADMISSION,
+      ApprovalRequestType.PAYMENT_PROOF,
+      ApprovalRequestType.EQUIPMENT_REQUEST,
+      ApprovalRequestType.CERTIFICATE_ISSUANCE,
+      ApprovalRequestType.RESULTS_PUBLICATION,
+      ApprovalRequestType.ACADEMIC_PROGRAMME_CHANGE,
+      ApprovalRequestType.COURSE_CHANGE,
+      ApprovalRequestType.STORAGE_CLEARING,
+    ]}},
+  });
+
+  if (existingSection5 === 0) {
+    const approvalToken = () => randomBytes(32).toString("hex");
+
+    // Get a student and payment for linking
+    const anyStudent = students["75"] ?? Object.values(students)[0];
+    const anyEnrolment = enrolments["75"] ?? Object.values(enrolments).find(Boolean);
+    const anyPayment = await prisma.payment.findFirst({ where: { enrolment: { userId: anyStudent?.id } } });
+    const anyCourse = await prisma.course.findFirst({ where: { status: "PUBLISHED" } });
+
+    const section5Data = [
+      // ADMISSION: Admin prepares, Principal is final approver
+      {
+        type: ApprovalRequestType.ADMISSION,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: schoolAdmin.id,
+        studentId: anyStudent?.id,
+        reason: "Admission request: Sarah Nakato Kayondo\nCourse: Medical Home Caregiver (Intake 7)\nStudent has submitted all required documents. Background check complete. Recommend for admission.\nStudent number will be assigned on approval.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(1),
+      },
+      // PAYMENT_PROOF: Admin collects, Principal reviews, Director final
+      {
+        type: ApprovalRequestType.PAYMENT_PROOF,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: schoolAdmin.id,
+        paymentId: anyPayment?.id ?? null,
+        studentId: anyStudent?.id,
+        reason: "Payment proof for: Kato Emmanuel\nCourse: Child Home Care\nAmount: UGX 650,000\nTransaction ID: MTN-2026-44891023\nNotes: MTN MoMo payment received. Receipt attached to file.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(2),
+      },
+      // PAYMENT_PROOF: Already forwarded to Director (IN_REVIEW)
+      {
+        type: ApprovalRequestType.PAYMENT_PROOF,
+        status: ApprovalRequestStatus.IN_REVIEW,
+        initiatorId: schoolAdmin.id,
+        reviewerId: principal.id,
+        reviewedAt: daysAgo(1),
+        reviewNote: "Verified with student. Forwarding to Director for final approval.",
+        reason: "Payment proof for: Namukasa Fatuma\nCourse: Mental Health Counselling\nAmount: UGX 350,000 (first instalment 50%)\nTransaction ID: AIRTEL-2026-77123654\nNotes: Airtel Money payment. This is the first of three instalments.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(4),
+      },
+      // EQUIPMENT_REQUEST: Admin prepares, Principal approves
+      {
+        type: ApprovalRequestType.EQUIPMENT_REQUEST,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: schoolAdmin.id,
+        reason: "Session: BLS Practical Block 3 (Venue: Skills Lab A, 10 Nov 2026)\nShortages: CPR Manikins: need 6, have 2; AED Trainer: need 2, have 0\nAdditional items: Disposable gloves x 100, Pocket masks x 10\nNotes: Urgent. The block 3 practical session is in 2 weeks. Please approve procurement immediately.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(3),
+      },
+      // EQUIPMENT_REQUEST: Approved example
+      {
+        type: ApprovalRequestType.EQUIPMENT_REQUEST,
+        status: ApprovalRequestStatus.APPLIED,
+        initiatorId: schoolAdmin.id,
+        decidedById: principal.id,
+        decidedAt: daysAgo(10),
+        decisionNote: "Approved. Please proceed with procurement. Budget approved under lab supplies.",
+        reason: "Session: Home Care Practical Block 1\nAdditional items: Wound dressing kits x 30, Disposable aprons x 50, Sterile gloves x 100\nNotes: Routine practical session supplies for October intake.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(15),
+      },
+      // CERTIFICATE_ISSUANCE: Admin lists, Principal requests, Director approves
+      {
+        type: ApprovalRequestType.CERTIFICATE_ISSUANCE,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: principal.id,
+        studentId: anyStudent?.id,
+        courseId: anyCourse?.id,
+        reason: `Certificate issuance request for: ${anyStudent?.name ?? "Demo Student"}\nStudent number: ${anyStudent?.studentNumber ?? "2026/MHC/001"}\nCourse: ${anyCourse?.title ?? "Medical Home Caregiver"}\nNotes: Student completed all blocks, passed final exam with 82%, and attended 94% of classes. All fees paid. Recommend certificate issuance.`,
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(2),
+      },
+      // RESULTS_PUBLICATION: Instructor -> Admin -> Principal -> Director
+      {
+        type: ApprovalRequestType.RESULTS_PUBLICATION,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: tutor.id,
+        courseId: anyCourse?.id,
+        reason: "Results publication request\nCourse: Medical Home Caregiver\nExam: Block 3 Final Assessment\nAll 30 students have been marked. 27 passed, 3 failed. Marks reviewed and confirmed accurate. Requesting publication to students.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(1),
+      },
+      // ACADEMIC_PROGRAMME_CHANGE: Principal prepares, Director approves
+      {
+        type: ApprovalRequestType.ACADEMIC_PROGRAMME_CHANGE,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: principal.id,
+        courseId: anyCourse?.id,
+        reason: `Programme modification request: ${anyCourse?.title ?? "Medical Home Caregiver"}\nProposed change: Add a new block (Block 5 - Advanced Patient Documentation) to the curriculum.\nJustification: Feedback from graduates and employers indicates the need for stronger documentation skills. Industry standard requires this content.\nImpact: Duration increases from 6 to 7 months. Fee adjustment will follow separately.`,
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(5),
+      },
+      // COURSE_CHANGE: Principal prepares, Director approves
+      {
+        type: ApprovalRequestType.COURSE_CHANGE,
+        status: ApprovalRequestStatus.IN_REVIEW,
+        initiatorId: principal.id,
+        reviewerId: principal.id,
+        reviewedAt: daysAgo(2),
+        reviewNote: "Reviewed internally. This is a minor content update, not a structural change.",
+        courseId: anyCourse?.id,
+        reason: "Course unit modification: Child Home Care - Module 2 (Child Nutrition)\nProposed change: Update lesson 4 content to align with WHO 2026 complementary feeding guidelines.\nJustification: Current content references the 2019 guidelines which have been superseded.\nNo fee or duration impact.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(6),
+      },
+      // STORAGE_CLEARING: Admin prepares, Principal confirms, Director notified
+      {
+        type: ApprovalRequestType.STORAGE_CLEARING,
+        status: ApprovalRequestStatus.SUBMITTED,
+        initiatorId: schoolAdmin.id,
+        reason: "Storage clearing request: Intake 5 (March-August 2026)\nFiles to be cleared: Recordings from 18 live classes (total 12.4 GB), lecture slides (340 MB), uploaded notes (180 MB)\nTotal: ~13 GB\nReason: Intake 6 begins next month and server storage is at 84%.\nNote: Marks, attendance records and certificates will NOT be deleted. Only media files and slides.",
+        approvalToken: approvalToken(),
+        createdAt: daysAgo(1),
+      },
+    ];
+
+    for (const data of section5Data) {
+      await prisma.approvalRequest.create({ data } as Parameters<typeof prisma.approvalRequest.create>[0]);
+    }
+
+    console.log(`  ✓ Section-5 approval workflow seeds (${section5Data.length} items)`);
+  }
+
   // ── Print summary ──────────────────────────────────────────────
   console.log("\n" + "=".repeat(62));
   console.log("  DEMO SEED COMPLETE");

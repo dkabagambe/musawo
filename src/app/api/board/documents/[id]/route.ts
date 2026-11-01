@@ -9,13 +9,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { can, canForUser } from "@/lib/rbac";
+import { can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
-
-async function getUser(id: string) {
-  return db.user.findUnique({ where: { id }, select: { institutionSecretary: true } });
-}
 
 export async function GET(
   req: NextRequest,
@@ -24,7 +20,7 @@ export async function GET(
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!can(session.user.role, "board_documents.view")) {
+  if (!can(session.user.role, "audit.view.full") && !can(session.user.role, "policies.view")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -35,8 +31,8 @@ export async function GET(
 
   if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Log AUDITOR_READONLY access
-  if (session.user.role === "AUDITOR_READONLY") {
+  // Log Director access for audit trail (Director has audit.view.full)
+  if (can(session.user.role, "audit.view.full") && !can(session.user.role, "policies.edit")) {
     await audit({
       actorId:    session.user.id,
       action:     "BOARD_DOCUMENT_UPDATED",
@@ -65,8 +61,7 @@ export async function PATCH(
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = await getUser(session.user.id);
-  if (!canForUser(session.user.role, "board_documents.manage", { institutionSecretary: user?.institutionSecretary ?? false })) {
+  if (!can(session.user.role, "policies.edit")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -99,8 +94,7 @@ export async function DELETE(
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = await getUser(session.user.id);
-  if (!canForUser(session.user.role, "board_documents.manage", { institutionSecretary: user?.institutionSecretary ?? false })) {
+  if (!can(session.user.role, "policies.edit")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

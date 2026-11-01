@@ -43,7 +43,7 @@ export default async function ForumThreadPage({ params }: Props) {
         <h1 className="text-xl font-semibold mb-2">{thread.title}</h1>
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
           <span className="font-medium text-gray-600">{thread.author.name}</span>
-          {thread.author.role === "TUTOR" && <span className="badge-success badge">Tutor</span>}
+          {thread.author.role === "INSTRUCTOR" && <span className="badge-success badge">Instructor</span>}
           <span>·</span>
           <span>{new Date(thread.createdAt).toLocaleDateString("en-UG")}</span>
         </div>

@@ -1,16 +1,44 @@
+/**
+ * Live class access tests.
+ * Validates the new 6-role model (remarks.md s1).
+ */
+
 import { describe, expect, it } from "vitest";
 import { can } from "@/lib/rbac";
+import type { UserRole } from "@prisma/client";
 
-const staffRoles = ["SUPER_ADMIN", "BOARD_MEMBER", "PRINCIPAL", "DEPUTY_PRINCIPAL", "ACADEMIC_REGISTRAR", "INSTRUCTOR", "TEACHING_ASSISTANT", "FINANCE_OFFICER", "HR_SYSTEM_ADMIN", "AUDITOR_READONLY", "SYSTEM_IT"] as const;
+const staffRoles: UserRole[] = [
+  "DIRECTOR",
+  "PRINCIPAL",
+  "ADMIN",
+  "ACADEMIC_REGISTRAR",
+  "INSTRUCTOR",
+  "SYSTEM_IT",
+];
 
 describe("live class access", () => {
-  it("lets only student accounts use the enrolled-student join permission", () => {
+  it("only STUDENT accounts use the enrolled-student join permission", () => {
     expect(can("STUDENT", "classes.join")).toBe(true);
-    for (const role of staffRoles) expect(can(role, "classes.join")).toBe(false);
+    for (const role of staffRoles) {
+      expect(can(role, "classes.join")).toBe(false);
+    }
   });
 
-  it("allows assigned instructors and assistants to upload course materials", () => {
+  it("only INSTRUCTOR (and above) can upload course materials", () => {
     expect(can("INSTRUCTOR", "content.upload")).toBe(true);
-    expect(can("TEACHING_ASSISTANT", "content.upload")).toBe(true);
+    expect(can("STUDENT", "content.upload")).toBe(false);
+    expect(can("SYSTEM_IT", "content.upload")).toBe(false);
+  });
+
+  it("only INSTRUCTOR can manage live classes", () => {
+    expect(can("INSTRUCTOR", "classes.manage")).toBe(true);
+    expect(can("STUDENT", "classes.manage")).toBe(false);
+    expect(can("ACADEMIC_REGISTRAR", "classes.manage")).toBe(false);
+    expect(can("SYSTEM_IT", "classes.manage")).toBe(false);
+  });
+
+  it("INSTRUCTOR can take roll call but STUDENT cannot", () => {
+    expect(can("INSTRUCTOR", "attendance.take")).toBe(true);
+    expect(can("STUDENT", "attendance.take")).toBe(false);
   });
 });

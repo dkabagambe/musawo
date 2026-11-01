@@ -8,17 +8,9 @@ interface Props {
 
 const ROLE_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "INSTRUCTOR", label: "Instructor / Teaching Staff" },
-  {
-    value: "TEACHING_ASSISTANT",
-    label: "Teaching Assistant / Supporting Staff",
-  },
   { value: "ACADEMIC_REGISTRAR", label: "Academic Registrar" },
   { value: "PRINCIPAL", label: "Principal" },
-  { value: "DEPUTY_PRINCIPAL", label: "Deputy Principal" },
-  { value: "FINANCE_OFFICER", label: "Finance Officer" },
-  { value: "HR_MANAGER", label: "Human Resource" },
-  { value: "ADMINISTRATOR", label: "Administrator" },
-  { value: "SYSTEM_IT", label: "System IT" },
+  { value: "SYSTEM_IT", label: "IT Admin" },
 ];
 
 export default function InviteStaffForm({ courses, roleLabels }: Props) {
@@ -159,8 +151,7 @@ export default function InviteStaffForm({ courses, roleLabels }: Props) {
               ))}
             </select>
           </div>
-          {(role === "INSTRUCTOR" || role === "TEACHING_ASSISTANT") &&
-            courses.length > 0 && (
+          {role === "INSTRUCTOR" && courses.length > 0 && (
               <div>
                 <label className="label" htmlFor="invite-course">
                   Assign to course (optional)

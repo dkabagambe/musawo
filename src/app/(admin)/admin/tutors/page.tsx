@@ -13,19 +13,19 @@ export default async function AdminTutorsPage() {
 
   const canInvite = can(session.user.role, "staff.create.initiate");
 
-  // Show tutors and lecturers
+  // Show instructors only (TEACHING_ASSISTANT removed in remarks.md s1)
   const staff = await db.user.findMany({
     where: {
-      role: { in: ["INSTRUCTOR", "TEACHING_ASSISTANT", "ACADEMIC_REGISTRAR"] },
+      role: { in: ["INSTRUCTOR", "ACADEMIC_REGISTRAR"] },
     },
     orderBy: { createdAt: "desc" },
-    include: {
-      taughtCourses: { select: { id: true, title: true, status: true } },
-      coTaughtCourses: {
-        include: {
-          course: { select: { id: true, title: true, status: true } },
-        },
-      },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      createdAt: true,
     },
   });
 
@@ -146,26 +146,7 @@ export default async function AdminTutorsPage() {
                       )}
                     </td>
                     <td className="py-2 pr-4">
-                      <div className="flex flex-wrap gap-1">
-                        {[
-                          ...t.taughtCourses,
-                          ...t.coTaughtCourses.map(({ course }) => course),
-                        ].length === 0 ? (
-                          <span className="text-gray-400 text-xs">None</span>
-                        ) : (
-                          [
-                            ...t.taughtCourses,
-                            ...t.coTaughtCourses.map(({ course }) => course),
-                          ].map((c) => (
-                            <span
-                              key={c.id}
-                              className="badge badge-info text-xs"
-                            >
-                              {c.title}
-                            </span>
-                          ))
-                        )}
-                      </div>
+                      <span className="text-gray-400 text-xs">-</span>
                     </td>
                     <td className="py-2 text-gray-400 text-xs">
                       {new Date(t.createdAt).toLocaleDateString("en-UG")}

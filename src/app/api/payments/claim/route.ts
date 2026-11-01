@@ -130,14 +130,14 @@ export async function POST(req: NextRequest) {
   const s3Key = `payment-claims/${userId}/${claim.id}/${Date.now()}`;
   const uploadUrl = await getPresignedUploadUrl(s3Key, "image/jpeg", 900);
 
-  // Notify staff with claims review permission (FINANCE_OFFICER and SUPER_ADMIN)
-  const bursars = await db.user.findMany({
-    where: { role: { in: ["FINANCE_OFFICER", "SUPER_ADMIN"] }, status: "ACTIVE" },
+  // Notify staff with claims review permission (ADMIN and PRINCIPAL in the new model)
+  const reviewers = await db.user.findMany({
+    where: { role: { in: ["ADMIN", "PRINCIPAL"] }, status: "ACTIVE" },
     select: { id: true },
   });
-  if (bursars.length > 0) {
+  if (reviewers.length > 0) {
     await db.notification.createMany({
-      data: bursars.map((b) => ({
+      data: reviewers.map((b) => ({
         userId: b.id,
         channel: "IN_APP" as const,
         type: "PAYMENT_CLAIM_SUBMITTED",

@@ -20,15 +20,15 @@ export default async function DirectorStaffPage() {
     },
   });
 
-  const superAdminCount = staff.filter((s) => s.role === "SUPER_ADMIN").length;
+  const directorCount = staff.filter((s) => s.role === "DIRECTOR").length;
 
   const ROLE_COLORS: Record<string, string> = {
-    SUPER_ADMIN: "badge-danger",
-    SYSTEM_IT:  "badge-warning",
-    REGISTRAR:  "badge-info",
-    BURSAR:     "badge-info",
-    TUTOR:      "badge-success",
-    ADMIN:      "badge-info",
+    DIRECTOR:           "badge-danger",
+    SYSTEM_IT:         "badge-warning",
+    ACADEMIC_REGISTRAR: "badge-info",
+    INSTRUCTOR:        "badge-success",
+    ADMIN:             "badge-info",
+    PRINCIPAL:         "badge-info",
   };
 
   return (
@@ -36,15 +36,15 @@ export default async function DirectorStaffPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl">Staff Accounts</h1>
         <p className="text-xs text-gray-400">
-          SUPER_ADMIN slots: {superAdminCount}/{MAX_SUPER_ADMIN_ACCOUNTS}
+          Director slots: {directorCount}/{MAX_SUPER_ADMIN_ACCOUNTS}
         </p>
       </div>
 
       <div className="card mb-4 bg-warning/5 border-warning/20">
         <p className="text-sm text-amber-800">
-          <strong>⚠️ Access control:</strong> Creating, suspending, or changing roles for staff accounts
-          requires a formal approval request. SUPERADMIN accounts can only be created via the seed script
-          or CLI - never through the UI.
+          <strong>Access control:</strong> Creating, suspending, or changing roles for staff accounts
+          requires a formal approval request. Director accounts can only be created via the seed script
+          or CLI.
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export default async function DirectorStaffPage() {
                 </td>
                 <td className="py-2">
                   {/* Suspension requires an approval request, not a direct button */}
-                  {s.role !== "SUPER_ADMIN" && s.status === "ACTIVE" && (
+                  {s.role !== "DIRECTOR" && s.status === "ACTIVE" && (
                     <a
                       href={`/director/approvals/new?type=STAFF_ACCOUNT_SUSPEND&staffUserId=${s.id}`}
                       className="text-xs text-danger no-underline hover:underline"

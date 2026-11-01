@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
+import PaymentProofSubmit from "./PaymentProofSubmit";
 
 export const metadata = { title: "Payments - Admin" };
 
@@ -170,6 +171,7 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
               <th className="pb-2 font-medium pr-4">Gateway</th>
               <th className="pb-2 font-medium pr-4">Status</th>
               <th className="pb-2 font-medium">Date</th>
+              <th className="pb-2 font-medium">Proof</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -208,6 +210,16 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
                 </td>
                 <td className="py-2 text-xs text-gray-400">
                   {new Date(p.createdAt).toLocaleDateString("en-UG")}
+                </td>
+                <td className="py-2">
+                  {p.status === "COMPLETED" || p.status === "PENDING_APPROVAL" ? (
+                    <PaymentProofSubmit
+                      paymentId={p.id}
+                      studentName={p.enrolment.user.name}
+                      amount={p.amount}
+                      courseName={p.enrolment.course.title}
+                    />
+                  ) : null}
                 </td>
               </tr>
             ))}

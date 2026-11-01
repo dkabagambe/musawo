@@ -38,7 +38,7 @@ export default async function RegistrarTranscriptsPage() {
           {completedEnrolments.map((e) => (
             <div key={e.id} className="portal-list-item">
               <span className="portal-list-item-title">
-                {e.user.name ?? "Unknown"} — {e.user.studentNumber ?? "no SN"}
+                {e.user.name ?? "Unknown"} - {e.user.studentNumber ?? "no SN"}
               </span>
               <span className="portal-list-item-meta">
                 {e.course.title} &mdash;{" "}

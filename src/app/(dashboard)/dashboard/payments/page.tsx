@@ -109,10 +109,10 @@ export default async function PaymentsPage() {
                   return (
                     <div className={`mb-3 px-3 py-2 rounded-xl text-xs font-medium ${urgent ? "bg-danger/10 text-danger" : "bg-warning/10 text-amber-700"}`}>
                       {urgent && daysLeft < 0
-                        ? `⚠ Instalment ${nextDue.number} is overdue by ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? "s" : ""} — UGX ${nextDue.amount.toLocaleString()}`
+                        ? `⚠ Instalment ${nextDue.number} is overdue by ${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? "s" : ""} - UGX ${nextDue.amount.toLocaleString()}`
                         : daysLeft === 0
-                        ? `⏰ Instalment ${nextDue.number} is due today — UGX ${nextDue.amount.toLocaleString()}`
-                        : `📅 Instalment ${nextDue.number} due in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} — UGX ${nextDue.amount.toLocaleString()}`}
+                        ? `⏰ Instalment ${nextDue.number} is due today - UGX ${nextDue.amount.toLocaleString()}`
+                        : `📅 Instalment ${nextDue.number} due in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} - UGX ${nextDue.amount.toLocaleString()}`}
                     </div>
                   );
                 })()}

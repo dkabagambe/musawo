@@ -48,12 +48,13 @@ describe("permission filtered portal navigation", () => {
   });
 
   it("limits tutor-specific dashboard widgets to teaching roles", () => {
+    // TEACHING_ASSISTANT role removed in remarks.md s1; only INSTRUCTOR remains
     expect(
       DASHBOARD_WIDGETS.find((widget) => widget.id === "at-a-glance")?.roles,
-    ).toEqual(["INSTRUCTOR", "TEACHING_ASSISTANT"]);
+    ).toEqual(["INSTRUCTOR"]);
     expect(
       DASHBOARD_WIDGETS.find((widget) => widget.id === "my-students")?.roles,
-    ).toEqual(["INSTRUCTOR", "TEACHING_ASSISTANT"]);
+    ).toEqual(["INSTRUCTOR"]);
   });
 
   it("balances unpinned widgets by shortest column and preserves pinned columns", () => {

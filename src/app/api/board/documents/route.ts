@@ -1,18 +1,16 @@
 /**
- * GET    /api/board/documents   - list board documents (board_documents.view)
- * POST   /api/board/documents   - create a board document (board_documents.manage)
+ * GET    /api/board/documents   - list board documents (audit.view.full)
+ * POST   /api/board/documents   - create a board document (policies.edit)
  *
- * Access:
- *   board_documents.view   -- BOARD_MEMBER, AUDITOR_READONLY, SUPER_ADMIN (read)
- *   board_documents.manage -- SUPER_ADMIN, and BOARD_MEMBER with institutionSecretary = true
- *
- * AUDITOR_READONLY views are logged per-record.
+ * Board documents are now accessible to DIRECTOR (audit.view.full) and
+ * manageable by DIRECTOR and PRINCIPAL (policies.edit).
+ * The BOARD_MEMBER and AUDITOR_READONLY roles have been removed (remarks.md s1).
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { can, canForUser, ForbiddenError } from "@/lib/rbac";
+import { can, ForbiddenError } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 
@@ -21,12 +19,7 @@ export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = await db.user.findUnique({
-    where:  { id: session.user.id },
-    select: { institutionSecretary: true },
-  });
-
-  if (!can(session.user.role, "board_documents.view")) {
+  if (!can(session.user.role, "audit.view.full") && !can(session.user.role, "policies.view")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -34,18 +27,6 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
     include: { author: { select: { name: true } } },
   });
-
-  // Log every view by AUDITOR_READONLY (spec: every view logged)
-  if (session.user.role === "AUDITOR_READONLY") {
-    await audit({
-      actorId:    session.user.id,
-      action:     "BOARD_DOCUMENT_UPDATED",  // using existing action as "viewed" stand-in
-      entityType: "BoardDocument",
-      entityId:   "list",
-      metadata:   { action: "list_viewed" },
-      ip:         req.headers.get("x-forwarded-for") ?? undefined,
-    });
-  }
 
   return NextResponse.json({ documents });
 }
@@ -63,13 +44,8 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = await db.user.findUnique({
-    where:  { id: session.user.id },
-    select: { institutionSecretary: true },
-  });
-
-  if (!canForUser(session.user.role, "board_documents.manage", { institutionSecretary: user?.institutionSecretary ?? false })) {
-    return NextResponse.json({ error: "Forbidden: only the Institution Secretary or Super Admin may create board documents." }, { status: 403 });
+  if (!can(session.user.role, "policies.edit")) {
+    return NextResponse.json({ error: "Forbidden: only Director or Principal may create board documents." }, { status: 403 });
   }
 
   const parsed = CreateSchema.safeParse(await req.json());

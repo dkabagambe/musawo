@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
   // Check no pending MARKS_CHANGE already exists for this entry
   const existing = await db.approvalRequest.findFirst({
-    where: { gradeEntryId, type: "MARKS_CHANGE", status: "PENDING" },
+    where: { gradeEntryId, type: "MARKS_CHANGE", status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } },
   });
   if (existing) {
     return NextResponse.json(

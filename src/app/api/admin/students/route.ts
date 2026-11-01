@@ -90,9 +90,9 @@ export async function POST(req: NextRequest) {
   if (d.category === "PROFESSIONAL" && !d.registrationNumber)
     return NextResponse.json({ error: "Professional registration number is required for professional category." }, { status: 400 });
 
-  let courseDetails: { id: string; title: string; category: string; fullFeeUgx: number | null } | null = null;
+  let courseDetails: { id: string; title: string; category: string; fullFeeUgx: number | null; courseCode: string | null } | null = null;
   if (d.courseId) {
-    courseDetails = await db.course.findUnique({ where: { id: d.courseId }, select: { id: true, title: true, category: true, fullFeeUgx: true } });
+    courseDetails = await db.course.findUnique({ where: { id: d.courseId }, select: { id: true, title: true, category: true, fullFeeUgx: true, courseCode: true } });
     if (!courseDetails) return NextResponse.json({ error: "Selected course was not found." }, { status: 400 });
     if (courseDetails.category === "PROFESSIONAL" && d.category !== "PROFESSIONAL") {
       return NextResponse.json({ error: "This course requires a professional category." }, { status: 400 });
@@ -118,6 +118,9 @@ export async function POST(req: NextRequest) {
   const { createStudentWithNumber } = await import("@/lib/students");
   const { encryptPersonalData } = await import("@/lib/crypto/personal-data");
 
+  // Determine course code for registration number (default to "GEN" if no course)
+  const courseCode = courseDetails?.courseCode ?? "GEN";
+
   // Create user in PENDING_ACCEPTANCE status - they must accept the invite before login
   const { user: createdStudent, studentNumber } = await createStudentWithNumber({
       name:          d.name,
@@ -125,7 +128,7 @@ export async function POST(req: NextRequest) {
       phone:         d.phone ?? null,
       role:          "STUDENT",
       status:        "PENDING_ACCEPTANCE",
-  });
+  }, courseCode);
   const student = {
     id: createdStudent.id,
     name: createdStudent.name,

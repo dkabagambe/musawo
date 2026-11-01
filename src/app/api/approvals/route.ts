@@ -12,16 +12,20 @@ const CreateSchema = z.object({
     "REFUND","WAIVER","FEE_CHANGE",
     "STAFF_ACCOUNT_CREATE","STAFF_ACCOUNT_SUSPEND","STAFF_ACCOUNT_ROLE_CHANGE",
     "MARKS_CHANGE","BULK_EXPORT",
+    "ADMISSION","ACADEMIC_PROGRAMME_CHANGE","COURSE_CHANGE",
+    "RESULTS_PUBLICATION","CERTIFICATE_ISSUANCE","PAYMENT_PROOF",
+    "EQUIPMENT_REQUEST","STORAGE_CLEARING","ROLE_ASSIGNMENT",
   ]),
-  reason:       z.string().min(10).max(2000),
-  amount:       z.number().int().positive().optional(),
-  studentId:    z.string().cuid().optional(),
-  enrolmentId:  z.string().cuid().optional(),
-  paymentId:    z.string().cuid().optional(),
-  staffUserId:  z.string().cuid().optional(),
-  gradeEntryId: z.string().cuid().optional(),  // MARKS_CHANGE
-  examId:       z.string().cuid().optional(),  // MARKS_CHANGE
-  proposedScore: z.number().int().min(0).optional(), // MARKS_CHANGE
+  reason:        z.string().min(10).max(2000),
+  amount:        z.number().int().positive().optional(),
+  studentId:     z.string().cuid().optional(),
+  enrolmentId:   z.string().cuid().optional(),
+  paymentId:     z.string().cuid().optional(),
+  staffUserId:   z.string().cuid().optional(),
+  gradeEntryId:  z.string().cuid().optional(),
+  examId:        z.string().cuid().optional(),
+  proposedScore: z.number().int().min(0).optional(),
+  courseId:      z.string().cuid().optional(),
 });
 
 export async function GET(_req: NextRequest) {
@@ -65,14 +69,23 @@ export async function POST(req: NextRequest) {
   // SUPERADMIN cannot initiate requests they'll also approve (no one else is SUPERADMIN)
   // Other roles: check they have initiation permission for this type
   const initiationPermMap: Record<string, string> = {
-    REFUND:                   "refunds.initiate",
-    WAIVER:                   "waivers.initiate",
-    FEE_CHANGE:               "fees.change.initiate",
-    STAFF_ACCOUNT_CREATE:     "staff.create.initiate",
-    STAFF_ACCOUNT_SUSPEND:    "staff.suspend.initiate",
-    STAFF_ACCOUNT_ROLE_CHANGE:"staff.suspend.initiate",
-    MARKS_CHANGE:             "marks.change.request",
-    BULK_EXPORT:              "students.export",  // any role allowed to export may request
+    REFUND:                    "refunds.initiate",
+    WAIVER:                    "waivers.initiate",
+    FEE_CHANGE:                "fees.change.initiate",
+    STAFF_ACCOUNT_CREATE:      "staff.create.initiate",
+    STAFF_ACCOUNT_SUSPEND:     "staff.suspend.initiate",
+    STAFF_ACCOUNT_ROLE_CHANGE: "staff.suspend.initiate",
+    MARKS_CHANGE:              "marks.change.request",
+    BULK_EXPORT:               "students.export",
+    ADMISSION:                 "applications.process",
+    ACADEMIC_PROGRAMME_CHANGE: "courses.publish",
+    COURSE_CHANGE:             "courses.edit",
+    RESULTS_PUBLICATION:       "exams.release",
+    CERTIFICATE_ISSUANCE:      "certificates.issue",
+    PAYMENT_PROOF:             "payments.collect",
+    EQUIPMENT_REQUEST:         "equipment.manage",
+    STORAGE_CLEARING:          "student.documents.manage",
+    ROLE_ASSIGNMENT:           "staff.create.approve",
   };
 
   try {
@@ -99,6 +112,7 @@ export async function POST(req: NextRequest) {
       gradeEntryId:  data.gradeEntryId ?? null,
       examId:        data.examId ?? null,
       proposedScore: data.proposedScore ?? null,
+      courseId:      data.courseId ?? null,
       approvalToken,
       approvalTokenExpires,
     },
@@ -114,9 +128,9 @@ export async function POST(req: NextRequest) {
     ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  // Email every SUPER_ADMIN
+  // Email every DIRECTOR (final approver for all requests)
   const superadmins = await db.user.findMany({
-    where: { role: "SUPER_ADMIN", status: "ACTIVE" },
+    where: { role: "DIRECTOR", status: "ACTIVE" },
     select: { email: true, name: true },
   });
 

@@ -9,30 +9,24 @@ import crypto from "crypto";
 import type { UserRole } from "@prisma/client";
 import { can } from "@/lib/rbac";
 
-// Elevated oversight and SUPER_ADMIN roles require the dedicated approval flow.
+// Roles that can be invited via this endpoint.
+// DIRECTOR requires Director approval (staff.create.approve);
+// this route handles only roles that Principal or Admin can initiate.
 const INVITABLE_ROLES: UserRole[] = [
-  "HR_MANAGER",
-  "ADMINISTRATOR",
+  "ADMIN",
   "PRINCIPAL",
-  "DEPUTY_PRINCIPAL",
   "ACADEMIC_REGISTRAR",
   "INSTRUCTOR",
-  "TEACHING_ASSISTANT",
-  "FINANCE_OFFICER",
   "SYSTEM_IT",
 ];
 
 const InviteSchema = z.object({
   email: z.string().email(),
   role: z.enum([
-    "HR_MANAGER",
-    "ADMINISTRATOR",
+    "ADMIN",
     "PRINCIPAL",
-    "DEPUTY_PRINCIPAL",
     "ACADEMIC_REGISTRAR",
     "INSTRUCTOR",
-    "TEACHING_ASSISTANT",
-    "FINANCE_OFFICER",
     "SYSTEM_IT",
   ] as [string, ...string[]]),
   courseId: z.string().optional(), // assign to course immediately if provided

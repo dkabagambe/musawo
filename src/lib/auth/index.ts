@@ -94,8 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             user.status === "PENDING_ACCEPTANCE" ||
             user.status === "DETAILS_DISPUTED") return null;
 
-        // SUPER_ADMIN must use email + TOTP
-        if (user.role === "SUPER_ADMIN" || user.role === "SUPERADMIN") return null;
+        // DIRECTOR and PRINCIPAL must use email + password (OTP login not available)
+        if (user.role === "DIRECTOR" || user.role === "PRINCIPAL") return null;
 
         const otp = await db.otpCode.findFirst({
           where: {

@@ -26,7 +26,6 @@ export default async function AccessReviewPage() {
       select: { id: true, name: true, role: true, status: true, totpEnabled: true, lastAccessReviewAt: true, createdAt: true },
       orderBy: { role: "asc" },
     }),
-    db.user.count({ where: { role: "SUPER_ADMIN" } }),
   ]);
 
   const thisQuarterDone = reviews.some((r) => r.quarter === quarter);
