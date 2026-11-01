@@ -51,15 +51,15 @@ services:
           name: musawo-redis
           property: connectionString
 
+  - type: redis
+    name: musawo-redis
+    region: frankfurt
+    plan: free
+    ipAllowList: []
+
 databases:
   - name: musawo-db
     databaseName: mtc_db
     user: mtc
     region: frankfurt
     plan: free
-
-  - type: redis
-    name: musawo-redis
-    region: frankfurt
-    plan: free
-    ipAllowList: []
