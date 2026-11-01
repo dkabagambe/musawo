@@ -2,6 +2,8 @@ import PublicHeader from "@/components/public/Header";
 import PublicFooter from "@/components/public/Footer";
 import { LazyMotion, domAnimation } from "framer-motion";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Header is fixed and consists of:
  *   - Utility bar: 38 px (lg+ only)

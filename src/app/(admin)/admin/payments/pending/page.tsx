@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/s3";
 import ApprovePaymentButtons from "./ApproveButtons";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "Pending Bank Payments" };
 
 export default async function PendingPaymentsPage() {
