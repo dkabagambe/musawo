@@ -455,13 +455,13 @@ async function main() {
   );
   const principal = await mkStaff(
     "principal@mtc.ac.ug",
-    "Dr. Joel Mirembe",
+    "Nankya Shanita",
     UserRole.PRINCIPAL,
   );
-  // Admin is Nakiyimba Rahiima (PA to the Principal)
+  // Admin is Rahiima Nakiyimba (PA to the Principal)
   const schoolAdmin = await mkStaff(
     "admin@mtc.ac.ug",
-    "Nakiyimba Rahiima",
+    "Rahiima Nakiyimba",
     UserRole.ADMIN,
   );
   // Academic Registrar: dummy/inactive account (holding page while ACADEMIC_REGISTRAR_ACTIVE=false)
@@ -478,7 +478,7 @@ async function main() {
   );
   const tutor = await mkStaff(
     "tutor@mtc.ac.ug",
-    "Nankya Shanita",
+    "Mirembe Joel",
     UserRole.INSTRUCTOR,
   );
   const tutor2 = await mkStaff(
@@ -496,7 +496,6 @@ async function main() {
   void itadmin;
   void tutor3;
 
-  console.log("  ✓ Staff accounts (7 roles: Director, Principal, Admin, Academic Registrar, IT Admin, 3 Instructors)");
   console.log("  ✓ Staff accounts (7 roles: Director, Principal, Admin, Academic Registrar, IT Admin, 3 Instructors)");
 
   // ── Students ───────────────────────────────────────────────────

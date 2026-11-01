@@ -78,3 +78,41 @@ All logic, UI, and non-DB tests: 554 PASS.
 | 12 | Support, equipment, announcements | PARTIAL |
 | 13 | Demo and seed | PARTIAL (DB unverified) |
 | 14 | Batch 1 DONE, 2 PARTIAL, 3-5 MISSING | -- |
+
+---
+
+## 6. People data rectification and coming soon removal -- 2026-11-01
+
+| Item | Status | Notes |
+|---|---|---|
+| Director: Dr. Mathias Senyondo | DONE | Seed, dev/login, DEMO.md all correct |
+| Principal: Nankya Shanita | DONE | Was instructor; swapped from Dr. Joel Mirembe |
+| Instructor 1: Mirembe Joel | DONE | Was principal; name updated across seed, tests, dev/login |
+| Admin: Rahiima Nakiyimba | DONE | Name order fixed (first name first) so greeting "Hello Rahiima!" works via split(" ")[0] |
+| IT Admin: Daniel Kabagambe | DONE | Already correct; verified |
+| Policy placeholder pages | DONE | "Dr Joel Mirembe" replaced with "Nankya Shanita" in auditor, board, deputy policy pages |
+| Director certificates: coming soon | FIXED | Replaced with real certificate register (active + revoked listings with verify links) |
+| IT Admin support: coming soon | FIXED | Replaced with real SupportDesk component (reuses admin SupportDesk; SYSTEM_IT has support.manage) |
+| Resources page: coming soon | FIXED | Empty state updated; seed already creates 10 resources (7 public) |
+| e2e test name references | DONE | portal-shell.spec.ts: hello nankya -> hello mirembe; live-classes.spec.ts: Mirembe Joel -> Nankya Shanita |
+| docs/DEMO.md | DONE | Updated accounts table (removed old roles), added staff names, fixed Director/Finance/IT walkthroughs |
+| docs/kiro.md | DONE | "Dr Joel Mirembe" -> "Nankya Shanita" in policy placeholder reference |
+
+---
+
+## 7. Runtime crash fixes (pre-existing type errors) -- 2026-11-01
+
+Fixed 8 TypeScript errors that caused runtime crashes (reported by user on Director Reports page):
+
+| File | Error | Fix |
+|---|---|---|
+| director/reports/page.tsx | ApplicationStatus "PENDING" invalid | Changed to "SUBMITTED" |
+| director/examinations/page.tsx | ApprovalRequestType "EXAM_RESULTS_PUBLICATION" invalid | Changed to "RESULTS_PUBLICATION" |
+| director/finance/ledger/page.tsx | LedgerEntryType "CREDIT"/"DEBIT" invalid | Changed to "PAYMENT"/"REFUND" badge mapping |
+| director/instructors/page.tsx | UserStatus "ARCHIVED" invalid | Changed to "ACTIVE" filter |
+| director/instructors/page.tsx | tutorId { not: null } invalid (field required) | Removed where filter (all courses have tutorId) |
+| director/instructors/page.tsx | liveClasses relation not in select type | Cascade fix from above; resolved |
+| tutor/results/page.tsx | ApprovalRequestType "EXAM_RESULTS_PUBLICATION" invalid | Changed to "RESULTS_PUBLICATION" |
+| 3 em dash violations in comments | no-dashes test failed | Replaced em dashes with hyphens in globals.css and AppShell.tsx |
+
+**Verification: tsc --noEmit PASS (0 errors), vitest 598/598 PASS.**

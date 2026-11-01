@@ -31,7 +31,7 @@ export default async function DeputyPoliciesPage() {
               <FileText className="w-4 h-4 text-primary" />
             </div>
             <p className="font-medium text-primary group-hover:text-accent transition-colors">{p.title}</p>
-            {p.href === "#" && <span className="ml-auto text-xs text-gray-300 italic">Placeholder - to be supplied by Dr Joel Mirembe</span>}
+            {p.href === "#" && <span className="ml-auto text-xs text-gray-300 italic">Placeholder - to be supplied by Nankya Shanita</span>}
           </a>
         ))}
       </div>

@@ -18,9 +18,9 @@ npm run dev
 Open **http://localhost:3000** and **http://localhost:3000/dev/login**.
 
 To sign in, open `/dev/login` and click **Sign in** on the account row. The
-Administrator account is `admin@mtc.ac.ug`; the Human Resource account is
-`hr@mtc.ac.ug`. Both use the shared demo password `Demo1234!`. To sign in
-manually, use those email addresses and password on `/login`.
+Administrator account is `admin@mtc.ac.ug`. All accounts use the shared demo
+password `Demo1234!`. To sign in manually, use the email address and password
+on `/login`.
 
 The authenticated portals share the responsive teal navigation shell. On a portal dashboard, use the tabs to open section shortcuts and **Edit My Widgets** to save your layout. See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for portal components and responsive sizes.
 
@@ -42,26 +42,25 @@ All accounts use password: **`Demo1234!`**
 
 | Role                           | Email                           | Portal       |
 | ------------------------------ | ------------------------------- | ------------ |
-| CEO / Super Admin              | `ceo@mtc.ac.ug`                 | `/director`  |
-| Deputy Director                | `deputy@mtc.ac.ug`              | `/director`  |
-| Board Member                   | `board@mtc.ac.ug`               | `/board`     |
+| Director                       | `director@mtc.ac.ug`            | `/director`  |
 | Principal                      | `principal@mtc.ac.ug`           | `/principal` |
-| Deputy Principal               | `deputyprincipal@mtc.ac.ug`     | `/deputy`    |
-| Academic Registrar             | `registrar@mtc.ac.ug`           | `/registrar` |
-| Finance Officer                | `finance@mtc.ac.ug`             | `/finance`   |
-| Human Resource Manager         | `hr@mtc.ac.ug`                  | `/admin`     |
-| Administrator                  | `admin@mtc.ac.ug`               | `/admin`     |
-| Auditor (read-only)            | `auditor@mtc.ac.ug`             | `/auditor`   |
+| Admin                          | `admin@mtc.ac.ug`               | `/admin`     |
+| Academic Registrar (dummy)     | `registrar@mtc.ac.ug`           | `/registrar` |
 | IT Admin                       | `itadmin@mtc.ac.ug`             | `/system`    |
-| Instructor                     | `tutor@mtc.ac.ug`               | `/tutor`     |
-| Instructor 2 (dual)            | `tutor2@mtc.ac.ug`              | `/tutor`     |
-| Teaching Assistant             | `assistant@mtc.ac.ug`           | `/tutor`     |
+| Instructor 1                   | `tutor@mtc.ac.ug`               | `/tutor`     |
+| Instructor 2                   | `tutor2@mtc.ac.ug`              | `/tutor`     |
+| Instructor 3                   | `tutor3@mtc.ac.ug`              | `/tutor`     |
 | Student (new, pending payment) | `student.new@example.com`       | `/dashboard` |
 | Student (25% paid)             | `student.25@example.com`        | `/dashboard` |
 | Student (50% paid)             | `student.50@example.com`        | `/dashboard` |
 | Student (active, 100%)         | `student.full@example.com`      | `/dashboard` |
 | Student (overdue)              | `student.overdue@example.com`   | `/dashboard` |
 | Student (completed)            | `student.completed@example.com` | `/dashboard` |
+
+**Staff names:** Director is Dr. Mathias Senyondo. Principal is Nankya Shanita.
+Admin is Rahiima Nakiyimba (greeting "Hello Rahiima!"). IT Admin is Daniel
+Kabagambe. Instructor 1 is Mirembe Joel. Instructor 2 is Muwanga Charles.
+Instructor 3 is Atim Jennifer.
 
 ---
 
@@ -137,26 +136,28 @@ The Batch B changes require the new database migration. Configure BigBlueButton,
 
 ### 8. Certificate verification
 
-No login needed. Open `/verify/MTC-2026-CNA-00001` - verified certificate details.
+No login needed. Open `/verify/MTC-2026-CERT-00001` - verified certificate details for the completed student.
 
-### 9. Finance Officer: approve claim
+### 9. Finance: payment proofs and claims
 
-**Account:** `finance@mtc.ac.ug`
+**Account:** `admin@mtc.ac.ug` (Admin collects proof of payment)
 
-1. Dashboard - pending claims. **Payments > Claims** - open claim, verify, confirm.
-2. Student enrolment updates to Partially Paid.
+1. Dashboard - pending claims. **Payments > Claims** - open claim, collect proof of payment.
+2. The Admin forwards the claim to the Principal, who forwards it to the Director for approval.
+3. Student enrolment updates after the Director approves.
 
 ### 10. Director: approvals and audit
 
-**Account:** `ceo@mtc.ac.ug`
+**Account:** `director@mtc.ac.ug`
 
 1. Dashboard: revenue chart, active students, pending approvals.
-2. **Approval Inbox** - 4 pending (2 refunds, 1 waiver, 1 fee change). Approve one, reject one.
+2. **Approval Inbox** - pending approvals (refunds, waivers, fee changes). Approve one, reject one.
 3. **Full Audit Log** - every action timestamped.
+4. **Certificates** - certificate register listing all active and revoked certificates with verification links.
 
 ### 11. RBAC check
 
-- As CEO, visit `/finance` - works (SUPER_ADMIN inherits all portals).
+- As Director, visit `/director` - full oversight dashboard.
 - As `student.full@example.com`, try `/admin` - redirected to `/dashboard`.
 
 ### 12. IT Admin
@@ -189,21 +190,19 @@ No login needed. Open `/verify/MTC-2026-CNA-00001` - verified certificate detail
    and reminder templates. Fees, accreditation text, payment keys, student
    creation, staff creation, marks, and audit logs are not available.
 
-### 14. Human Resource Manager
+### 14. IT Admin: support tickets and system health
 
-**Account:** `hr@mtc.ac.ug`
+**Account:** `itadmin@mtc.ac.ug`
 
 **Password:** `Demo1234!`
 
-**Portal:** `/admin`
+**Portal:** `/system`
 
-1. Sign in from `/dev/login` using the **Human Resource** row, or use the email
-   and password above at `/login`.
-2. **Staff** manages staff invites and records. **Leave** reviews staff leave
-   requests. **Access Review** records quarterly staff account reviews.
-3. HR inherits Administrator operations in the shared portal. HR does not get
-   student creation, payment, marks, academic timetable, secret settings, or
-   audit-log access.
+1. Sign in from `/dev/login` using the **IT Admin** row.
+2. **Support Tickets** - all incoming tickets from students and staff. Assign,
+   reply, and change status. Tickets are visible to the IT Admin only.
+3. **Settings** - all platform settings, sensitive keys masked.
+4. Change support phone, save - audit log entry created.
 
 ---
 

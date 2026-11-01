@@ -22,7 +22,7 @@ test.describe("Batch B teaching and live access", () => {
     await demoLogin(page, "tutor@mtc.ac.ug", /\/tutor/);
     await page.goto("/tutor/students");
     await expect(page.getByRole("heading", { name: "My Students" })).toBeVisible();
-    await expect(page.getByText("Mirembe Joel", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Nankya Shanita", { exact: true })).toHaveCount(0);
   });
 
   test("a scheduled class does not reveal its meeting URL to students before class starts", async ({ page }) => {

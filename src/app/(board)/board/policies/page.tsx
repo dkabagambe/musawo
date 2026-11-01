@@ -10,8 +10,8 @@ const POLICIES = [
   { title: "Refund Policy",                href: "/refund" },
   { title: "Terms and Conditions",         href: "/terms" },
   { title: "Privacy Policy",               href: "/privacy" },
-  { title: "Code of Conduct",              note: "Placeholder - to be supplied by Dr Joel Mirembe" },
-  { title: "Attendance and Exams Policy",  note: "Placeholder - to be supplied by Dr Joel Mirembe" },
+  { title: "Code of Conduct",              note: "Placeholder - to be supplied by Nankya Shanita" },
+  { title: "Attendance and Exams Policy",  note: "Placeholder - to be supplied by Nankya Shanita" },
 ];
 
 export default async function BoardPoliciesPage() {

@@ -63,7 +63,11 @@ SYSTEM_IT ("IT Admin"): sees only support tickets, system health, logs and non-s
 in whatever being implemented,everything should  
  work,and at least seed in dummy data at the end,dont
 leave broken links,#hrefs or coming soon,we are now
-working with real application we need to have real data
+working with real application we need to have real data( when your done rectify this information accross, Nankya Shanita is a  
+ principal for tutor where she is we can first use another ugandan  
+ name,Mirembe Joel is a tutor,Dr. Mathias Senyondo,Director
+,nakiyimba rahiima is an admin,IT is daniel kabagambe,you rectify hat  
+ information accross )
 
 ## 5. Approval workflow
 

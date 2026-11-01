@@ -11,8 +11,8 @@ const POLICIES = [
   { title: "Refund Policy",                href: "/refund" },
   { title: "Terms and Conditions",         href: "/terms" },
   { title: "Privacy Policy",               href: "/privacy" },
-  { title: "Code of Conduct",              note: "Placeholder - to be supplied by Dr Joel Mirembe and approved" },
-  { title: "Attendance and Exams Policy",  note: "Placeholder - to be supplied by Dr Joel Mirembe and approved" },
+  { title: "Code of Conduct",              note: "Placeholder - to be supplied by Nankya Shanita and approved" },
+  { title: "Attendance and Exams Policy",  note: "Placeholder - to be supplied by Nankya Shanita and approved" },
 ];
 
 export default async function AuditorPoliciesPage() {

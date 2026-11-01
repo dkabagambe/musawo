@@ -1638,7 +1638,7 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   DARK MODE — Portal shell hardcoded-white overrides
+   DARK MODE - Portal shell hardcoded-white overrides
    These override the fixed `background: white` / `color` values in the portal
    CSS classes that can't use CSS variables directly.
    ══════════════════════════════════════════════════════════════════════════ */

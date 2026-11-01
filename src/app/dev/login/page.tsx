@@ -13,14 +13,14 @@ const DEMO_ACCOUNTS = [
     icon: "👑",
   },
   {
-    label: "Principal",
+    label: "Principal (Nankya Shanita)",
     email: "principal@mtc.ac.ug",
     role: "PRINCIPAL",
     landing: "/principal",
     icon: "🎓",
   },
   {
-    label: "Admin (Nakiyimba Rahiima)",
+    label: "Admin (Rahiima Nakiyimba)",
     email: "admin@mtc.ac.ug",
     role: "ADMIN",
     landing: "/admin",
@@ -41,11 +41,11 @@ const DEMO_ACCOUNTS = [
     icon: "🖥",
   },
   {
-    label: "Instructor 1 - Nankya Shanita",
+    label: "Instructor 1 - Mirembe Joel",
     email: "tutor@mtc.ac.ug",
     role: "INSTRUCTOR",
     landing: "/tutor",
-    icon: "👩",
+    icon: "👨",
   },
   {
     label: "Instructor 2 - Muwanga Charles",

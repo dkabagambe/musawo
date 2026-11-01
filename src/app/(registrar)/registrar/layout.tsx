@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
-import { LayoutDashboard, User } from "lucide-react";
+import {
+  LayoutDashboard, ClipboardList, Users, BookOpen, Calendar,
+  FileText, Bell, User, Search,
+} from "lucide-react";
 
 // While the ACADEMIC_REGISTRAR_ACTIVE setting is false, the account can log
 // in and sees only this portal shell with a holding page. Full nav is
@@ -22,15 +25,15 @@ const HOLDING_NAV: NavItem[] = [
 
 const FULL_NAV: NavItem[] = [
   { href: "/registrar",               label: "Dashboard",    icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/applications",  label: "Admissions",   icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/students",      label: "Students",     icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/enrolments",    label: "Enrolments",   icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/results",       label: "Results",      icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/graduands",     label: "Graduands",    icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/timetable",     label: "Timetable",    icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/transcripts",   label: "Transcripts",  icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/announcements", label: "Announcements", icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/audit",         label: "Audit Log",    icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/registrar/applications",  label: "Admissions",   icon: <ClipboardList className="w-4 h-4" /> },
+  { href: "/registrar/students",      label: "Students",     icon: <Users className="w-4 h-4" /> },
+  { href: "/registrar/enrolments",    label: "Enrolments",   icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/registrar/results",       label: "Results",      icon: <FileText className="w-4 h-4" /> },
+  { href: "/registrar/graduands",     label: "Graduands",    icon: <Users className="w-4 h-4" /> },
+  { href: "/registrar/timetable",     label: "Timetable",    icon: <Calendar className="w-4 h-4" /> },
+  { href: "/registrar/transcripts",   label: "Transcripts",  icon: <FileText className="w-4 h-4" /> },
+  { href: "/registrar/announcements", label: "Announcements", icon: <Bell className="w-4 h-4" /> },
+  { href: "/registrar/audit",         label: "Audit Log",    icon: <Search className="w-4 h-4" /> },
   { href: "/registrar/profile",       label: "Profile",      icon: <User className="w-4 h-4" /> },
 ];
 

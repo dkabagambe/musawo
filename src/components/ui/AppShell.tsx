@@ -414,7 +414,7 @@ export function Sidebar({
             </Link>
           </div>
         )}
-        {/* Theme toggle — visible in sidebar bottom area */}
+        {/* Theme toggle - visible in sidebar bottom area */}
         <div className="flex items-center justify-end px-2 pb-1">
           <ThemeToggle className="text-white/70 hover:text-white hover:!bg-white/10" />
         </div>
@@ -485,7 +485,7 @@ export function Topbar({
         <h1>{title}</h1>
       </div>
       <div className="flex items-center gap-1">
-        {/* Theme toggle visible in topbar — especially useful on mobile where sidebar is hidden */}
+        {/* Theme toggle visible in topbar - especially useful on mobile where sidebar is hidden */}
         <ThemeToggle className="portal-topbar-theme-toggle" />
         <div className="portal-settings-wrap" ref={menuRef}>
           <button

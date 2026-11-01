@@ -83,10 +83,10 @@ test.describe("authenticated portal shell", () => {
   }) => {
     await loginAsTutor(page);
     await expect(
-      page.getByRole("heading", { name: /hello nankya/i }),
+      page.getByRole("heading", { name: /hello mirembe/i }),
     ).toBeVisible();
     await expect(
-      page.getByText("Welcome, Nankya!", { exact: false }),
+      page.getByText("Welcome, Mirembe!", { exact: false }),
     ).toHaveCount(0);
     await expect(
       page.getByRole("heading", { name: "Upcoming Classes" }),

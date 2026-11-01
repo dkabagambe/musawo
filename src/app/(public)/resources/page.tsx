@@ -55,9 +55,9 @@ export default async function ResourcesPage() {
         {resources.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-5xl mb-4" aria-hidden="true">📚</p>
-            <h2 className="text-xl font-bold text-primary mb-2">Resources coming soon</h2>
+            <h2 className="text-xl font-bold text-primary mb-2">No resources available yet</h2>
             <p className="text-gray-500 max-w-sm mx-auto">
-              Our library is being built. Check back soon for free healthcare guides and study materials.
+              Free healthcare guides and study materials will appear here. Check back soon.
             </p>
           </div>
         ) : (
