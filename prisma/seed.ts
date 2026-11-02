@@ -3501,7 +3501,136 @@ async function main() {
     console.log(`  ✓ Section-5 approval workflow seeds (${section5Data.length} items)`);
   }
 
-  // ── Print summary ──────────────────────────────────────────────
+  // ── Section 10: Storage cleanup jobs (demo) ────────────────────────────────
+  {
+    const demoItems = [
+      {
+        type: "lesson_notes",
+        id: "demo-lesson-1",
+        s3Key: "materials/demo-course/demo-block/notes-week1.pdf",
+        fileName: "Week 1 Lecture Notes.pdf",
+        sizeBytes: 2_450_000,
+        courseTitle: "Medical Home Caregiver",
+        intakeLabel: "March 2026 Cohort",
+      },
+      {
+        type: "lesson_notes",
+        id: "demo-lesson-2",
+        s3Key: "materials/demo-course/demo-block/notes-week2.pdf",
+        fileName: "Week 2 Anatomy Slides.pdf",
+        sizeBytes: 4_120_000,
+        courseTitle: "Medical Home Caregiver",
+        intakeLabel: "March 2026 Cohort",
+      },
+      {
+        type: "class_presentation",
+        id: "demo-pres-1",
+        s3Key: "presentations/demo-class/slides-block3.pdf",
+        fileName: "Block 3 Presentation Slides.pdf",
+        sizeBytes: 8_900_000,
+        courseTitle: "Medical Home Caregiver",
+        intakeLabel: "March 2026 Cohort",
+      },
+      {
+        type: "recording_link",
+        id: "demo-class-1",
+        recordingUrl: "https://meet.google.com/demo-recording-link",
+        fileName: "Recording: Patient Assessment Class",
+        sizeBytes: 0,
+        courseTitle: "Medical Home Caregiver",
+        intakeLabel: "March 2026 Cohort",
+      },
+      {
+        type: "recording_link",
+        id: "demo-class-2",
+        recordingUrl: "https://meet.google.com/demo-recording-link-2",
+        fileName: "Recording: Wound Care Practical",
+        sizeBytes: 0,
+        courseTitle: "Medical Home Caregiver",
+        intakeLabel: "March 2026 Cohort",
+      },
+    ];
+
+    const totalBytes = demoItems.reduce((s, i) => s + i.sizeBytes, 0);
+
+    // Job 1: PENDING_CONFIRMATION (recently scanned, awaiting Principal)
+    await prisma.$executeRaw`
+      INSERT INTO storage_cleanup_jobs
+        (id, "intakeLabel", status, "itemsJson", "totalSizeBytes",
+         "trashDays", "createdAt", "updatedAt")
+      VALUES (
+        'demo-storage-job-1',
+        'March 2026 Cohort',
+        'PENDING_CONFIRMATION',
+        ${JSON.stringify(demoItems)}::jsonb,
+        ${BigInt(totalBytes)},
+        14,
+        NOW() - INTERVAL '2 days',
+        NOW() - INTERVAL '2 days'
+      )
+      ON CONFLICT (id) DO NOTHING
+    `;
+
+    // Job 2: IN_TRASH (confirmed by Principal, in 14-day window)
+    await prisma.$executeRaw`
+      INSERT INTO storage_cleanup_jobs
+        (id, "intakeLabel", status, "itemsJson", "totalSizeBytes",
+         "trashDays", "confirmedAt", "executeAfter", "createdAt", "updatedAt")
+      VALUES (
+        'demo-storage-job-2',
+        'November 2025 Cohort',
+        'IN_TRASH',
+        ${JSON.stringify(demoItems.slice(0, 2))}::jsonb,
+        ${BigInt(demoItems[0].sizeBytes + demoItems[1].sizeBytes)},
+        14,
+        NOW() - INTERVAL '5 days',
+        NOW() + INTERVAL '9 days',
+        NOW() - INTERVAL '20 days',
+        NOW() - INTERVAL '5 days'
+      )
+      ON CONFLICT (id) DO NOTHING
+    `;
+
+    // Job 3: EXECUTED (completed in the past)
+    await prisma.$executeRaw`
+      INSERT INTO storage_cleanup_jobs
+        (id, "intakeLabel", status, "itemsJson", "totalSizeBytes",
+         "trashDays", "confirmedAt", "executeAfter", "executedAt",
+         "createdAt", "updatedAt")
+      VALUES (
+        'demo-storage-job-3',
+        'April 2025 Cohort',
+        'EXECUTED',
+        '[]'::jsonb,
+        0,
+        14,
+        NOW() - INTERVAL '60 days',
+        NOW() - INTERVAL '46 days',
+        NOW() - INTERVAL '45 days',
+        NOW() - INTERVAL '75 days',
+        NOW() - INTERVAL '45 days'
+      )
+      ON CONFLICT (id) DO NOTHING
+    `;
+
+    // Seed site settings for storage (idempotent)
+    const storageSettings = [
+      { key: "storage.trash_retention_days", value: "14", description: "Days a file sits in trash before permanent deletion" },
+      { key: "storage.warning_percent",      value: "80", description: "Storage warning threshold (percent)" },
+      { key: "storage.total_gb",             value: "50", description: "Total platform storage quota in GB" },
+    ];
+    for (const s of storageSettings) {
+      await prisma.siteSetting.upsert({
+        where: { key: s.key },
+        update: {},
+        create: { key: s.key, value: s.value, description: s.description },
+      });
+    }
+
+    console.log("  ✓ Section-10 storage cleanup job seeds (3 jobs + site settings)");
+  }
+
+
   console.log("\n" + "=".repeat(62));
   console.log("  DEMO SEED COMPLETE");
   console.log("=".repeat(62));

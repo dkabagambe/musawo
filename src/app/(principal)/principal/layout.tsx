@@ -7,6 +7,7 @@ import {
   BookOpen, Layers, CalendarRange, Calendar, CheckSquare, ClipboardCheck,
   BarChart, Award, FileText, Megaphone, CreditCard, BarChart2, ClipboardCheck as ApprovalIcon,
   CalendarDays, UserCog, Search, User, Wrench, LifeBuoy, MessageSquare, Share2,
+  HardDrive,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -37,6 +38,7 @@ const NAV: NavItem[] = [
   { href: "/principal/equipment",        label: "Equipment",              icon: <Wrench className="w-4 h-4" /> },
   { href: "/principal/support",          label: "Support",                icon: <LifeBuoy className="w-4 h-4" /> },
   { href: "/principal/forum",            label: "Discussion Forum",       icon: <MessageSquare className="w-4 h-4" /> },
+  { href: "/principal/storage",          label: "Storage",                icon: <HardDrive className="w-4 h-4" /> },
 ];
 
 const TABS = ["general", "students", "academics", "approvals", "operations", "reports"] as const;

@@ -121,7 +121,9 @@ export async function POST(req: NextRequest) {
       notesS3Key: s3Key,
       isFree: false,
       isFreePreview: false,
-    },
+      // sizeBytes tracked for storage retention (section 10); added in migration 20261102100000
+      ...((lessonType === "NOTES" && fileSize) ? { sizeBytes: fileSize } : {}),
+    } as Parameters<typeof db.lesson.create>[0]["data"],
   });
 
   await audit({

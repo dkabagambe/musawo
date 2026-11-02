@@ -3,6 +3,8 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -160,4 +162,78 @@ export async function deleteObject(key: string): Promise<void> {
     return;
   }
   await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+}
+
+/**
+ * Get the size in bytes of a single object.
+ * Returns 0 if the object does not exist or we are in local-dev mode.
+ */
+export async function headObjectSize(key: string): Promise<number> {
+  if (IS_LOCAL_DEV) {
+    const fs = require("fs") as typeof import("fs");
+    const filePath = localKeyToPath(key);
+    if (!fs.existsSync(filePath)) return 0;
+    return fs.statSync(filePath).size;
+  }
+  try {
+    const result = await s3.send(
+      new HeadObjectCommand({ Bucket: BUCKET, Key: key }),
+    );
+    return result.ContentLength ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export interface S3ObjectInfo {
+  key: string;
+  sizeBytes: number;
+  lastModified?: Date;
+}
+
+/**
+ * List all objects under a prefix. Returns at most 1000 per page;
+ * iterates pages internally for full results up to 10 000 objects.
+ */
+export async function listObjectsByPrefix(
+  prefix: string,
+): Promise<S3ObjectInfo[]> {
+  if (IS_LOCAL_DEV) {
+    const fs = require("fs") as typeof import("fs");
+    const path = require("path") as typeof import("path");
+    const dir = path.join(process.cwd(), "public", "uploads");
+    if (!fs.existsSync(dir)) return [];
+    const flat = prefix.replace(/\//g, "__");
+    const files = fs.readdirSync(dir).filter((f: string) => f.startsWith(flat));
+    return files.map((f: string) => {
+      const fullPath = path.join(dir, f);
+      const stat = fs.statSync(fullPath);
+      return {
+        key: f.replace(/__/g, "/"),
+        sizeBytes: stat.size,
+        lastModified: stat.mtime,
+      };
+    });
+  }
+  const results: S3ObjectInfo[] = [];
+  let continuationToken: string | undefined;
+  do {
+    const res = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: BUCKET,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+        MaxKeys: 1000,
+      }),
+    );
+    for (const obj of res.Contents ?? []) {
+      results.push({
+        key: obj.Key ?? "",
+        sizeBytes: obj.Size ?? 0,
+        lastModified: obj.LastModified,
+      });
+    }
+    continuationToken = res.NextContinuationToken;
+  } while (continuationToken && results.length < 10_000);
+  return results;
 }

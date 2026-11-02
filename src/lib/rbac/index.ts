@@ -230,6 +230,10 @@ export type Permission =
   | "password_reset.send"
   | "students.lookup"
 
+  // Storage (section 10)
+  | "storage.view"          // Principal + Director see storage dashboard
+  | "storage.manage"        // Principal can initiate and confirm cleanup
+
   // Learning (student self-view)
   | "learning.self.view"
 
@@ -318,6 +322,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     // Graduands
     "graduands.prepare",
     "transcripts.generate",
+    // Storage dashboard (section 10)
+    "storage.view",
   ],
 
   // ── PRINCIPAL: full operational CRUD ──────────────────────────────────────
@@ -410,6 +416,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "invites.resend",
     "password_reset.send",
     "students.lookup",
+    // Storage (section 10)
+    "storage.view",
+    "storage.manage",
   ],
 
   // ── ADMIN: PA to Principal, day-to-day academic administration ────────────
