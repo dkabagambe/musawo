@@ -6,8 +6,11 @@ services:
     plan: free
     branch: main
     buildCommand: npm ci && npx prisma generate && SKIP_DB_MIGRATE=1 npx next build
-    startCommand: npx prisma migrate deploy && npm start
+    startCommand: npx prisma migrate deploy; npm start
     healthCheckPath: /api/health
+    # Give the app 120 s to start before Render declares it unhealthy.
+    # Cold start on free tier = migrate (~10s) + Next.js init (~15s) + DB warmup.
+    numInstances: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -50,12 +53,40 @@ services:
           type: redis
           name: musawo-redis
           property: connectionString
+      # Public URL used in emails and OG tags — update to your custom domain when set
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://musawo-web.onrender.com
 
   - type: redis
     name: musawo-redis
     region: frankfurt
     plan: free
     ipAllowList: []
+
+  # ── Keepalive pinger ──────────────────────────────────────────────────────
+  # Render free-tier web services sleep after 15 minutes of inactivity,
+  # causing a ~30 s cold start and a 502 for the first visitor.
+  # This cron job pings /api/health every 10 minutes to keep the service warm.
+  # It costs nothing — Render free cron jobs are free.
+  - type: cron
+    name: musawo-keepalive
+    runtime: node
+    region: frankfurt
+    plan: free
+    schedule: "*/10 * * * *"
+    buildCommand: echo "keepalive"
+    startCommand: >
+      node -e "
+        const https = require('https');
+        const url = process.env.APP_URL || 'https://musawo-web.onrender.com';
+        https.get(url + '/api/health', (r) => {
+          console.log('keepalive ping:', r.statusCode, new Date().toISOString());
+          r.resume();
+        }).on('error', (e) => console.error('keepalive error:', e.message));
+      "
+    envVars:
+      - key: APP_URL
+        value: https://musawo-web.onrender.com
 
 databases:
   - name: musawo-db

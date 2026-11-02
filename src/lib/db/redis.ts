@@ -7,14 +7,21 @@ const globalForRedis = globalThis as unknown as {
 function createRedis(): Redis {
   const url = process.env.REDIS_URL ?? "redis://localhost:6379";
   const client = new Redis(url, {
-    maxRetriesPerRequest: 3,
+    maxRetriesPerRequest: 2,
+    // Short connect timeout so a slow/absent Redis never blocks a request
+    connectTimeout: 3000,
     // Gracefully reconnect — do not crash the process on connection failure
     lazyConnect: false,
-    enableReadyCheck: true,
+    enableReadyCheck: false, // skip PING round-trip on connect (faster cold start)
+    // Cap retry backoff so reconnections are quick
+    retryStrategy(times: number) {
+      if (times > 6) return null; // stop retrying after ~30 s; fail open
+      return Math.min(times * 500, 3000);
+    },
   });
 
   client.on("error", (err: Error) => {
-    // Log but never crash — Redis is optional for demo deployments
+    // Log but never crash — Redis is optional (rate limits and presence fail open)
     if (process.env.APP_ENV !== "production") {
       console.warn("[redis] Connection error (non-fatal in demo):", err.message);
     } else {
