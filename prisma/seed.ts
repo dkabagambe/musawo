@@ -620,7 +620,7 @@ async function main() {
       shortDescription:
         "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
       description: `[DRAFT for Principal review]\n\nThis three-months certificate course is designed for health professionals, including nurses, midwives, clinical officers, and other healthcare providers. It equips participants with the necessary medical knowledge and practical skills needed to provide competent, safe, and compassionate home-based care to patients in their homes and communities.\n\nModule 1: Advanced patient assessment in the home setting\nModule 2: Medication management and administration\nModule 3: Wound care and post-operative home nursing\nModule 4: Palliative and end-of-life care at home\nModule 5: Documentation and professional accountability\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
-      thumbnailUrl: "/assets/images/cna-course.png",
+      thumbnailUrl: "/assets/images/cna-course.webp",
       freePreviewPercent: 10,
       fullFeeUgx: 2300000,
       feeContactOnly: false,
@@ -641,7 +641,7 @@ async function main() {
       shortDescription:
         "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care to patients in their homes and communities.",
       description: `[DRAFT for Principal review]\n\nThis is a three-months certificate course designed for non-health professionals aged 18 years and above who hold an O'Level and/or A'Level certificate. The course equips participants with the basic knowledge and practical skills required to provide safe, competent, and compassionate home care to patients in their homes and communities.\n\nModule 1: Introduction to patient care and professional ethics\nModule 2: Personal hygiene, feeding and mobility assistance\nModule 3: Infection prevention and basic safety\nModule 4: Recognising and responding to health changes\nModule 5: Communication with patients and families\nModule 6: Practical sessions in the skills lab\n\nDelivery: Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.\n\nNote: We do not provide accommodation.`,
-      thumbnailUrl: "/assets/images/basic-nursing.png",
+      thumbnailUrl: "/assets/images/basic-nursing.webp",
       freePreviewPercent: 12,
       fullFeeUgx: 1800000,
       feeContactOnly: false,

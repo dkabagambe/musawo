@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && next build",
+    "build": "node -e \"if(!process.env.SKIP_DB_MIGRATE){require('child_process').execSync('npx prisma migrate deploy',{stdio:'inherit'})}\" && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",

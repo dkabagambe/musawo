@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: free
     branch: main
-    buildCommand: npm ci && npx prisma generate && npm run build
+    buildCommand: npm ci && npx prisma generate && SKIP_DB_MIGRATE=1 npx next build
     startCommand: npx prisma migrate deploy && npm start
     healthCheckPath: /api/health
     envVars:

@@ -35,7 +35,7 @@ const nextConfig = {
           "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
-          "img-src 'self' data: blob: https://musawo.ug https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+          "img-src 'self' data: blob: https://musawo.ug https://*.musawo.ug https://learn.musawotraining.ug https://*.onrender.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
           "media-src 'self' https://iframe.mediadelivery.net https://video.bunnycdn.com",
           "frame-src https://iframe.mediadelivery.net https://www.openstreetmap.org",
           "connect-src 'self'",
@@ -78,7 +78,7 @@ const nextConfig = {
   },
 
   experimental: {
-    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma"],
+    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma", "sharp", "@img/sharp-linux-x64", "@img/sharp-linuxmusl-x64"],
     serverActions: {
       allowedOrigins: [
         "localhost:3000",

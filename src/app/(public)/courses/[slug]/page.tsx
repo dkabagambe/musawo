@@ -33,8 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // Per-course hero images -- use different photos for each course
 const HERO_IMAGES: Record<string, string> = {
-  "medical-home-caregiver":         "/assets/images/cna-course.png",
-  "basic-home-caregiver":           "/assets/images/basic-nursing.png",
+  "medical-home-caregiver":         "/assets/images/cna-course.webp",
+  "basic-home-caregiver":           "/assets/images/basic-nursing.webp",
   "babysitting-childcare-safety":   "/assets/images/first-aid-child-safety.jpg",
   "mental-health-support-advocacy": "/assets/community-outreach.webp",
   "care-older-persons-disability":  "/assets/clinical-training.webp",

@@ -16,10 +16,12 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build Next.js
+# Build Next.js (skip the prisma migrate that is in npm run build;
+# migrations run at container startup via start.sh with a live DB)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-RUN npm run build
+ENV SKIP_DB_MIGRATE=1
+RUN npx next build
 
 # Production runner
 FROM base AS runner
@@ -37,6 +39,9 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# sharp uses native binaries via @img packages; copy them so /_next/image works
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
 # Run migrations on startup
 COPY scripts/start.sh ./start.sh

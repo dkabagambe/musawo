@@ -18,8 +18,8 @@ export const metadata: Metadata = {
 };
 
 const FALLBACK: Record<string, string> = {
-  "medical-home-caregiver": "/assets/images/cna-course.png",
-  "basic-home-caregiver": "/assets/images/basic-nursing.png",
+  "medical-home-caregiver": "/assets/images/cna-course.webp",
+  "basic-home-caregiver": "/assets/images/basic-nursing.webp",
   "babysitting-childcare-safety": "/assets/images/first-aid-child-safety.jpg",
   "mental-health-support-advocacy": "/assets/community-outreach.webp",
   "care-older-persons-disability": "/assets/clinical-training.webp",
