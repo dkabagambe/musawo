@@ -19,13 +19,20 @@ interface Props {
 }
 
 const HOW_HEARD_OPTIONS = [
+  "Facebook",
+  "LinkedIn",
+  "X (Twitter)",
+  "TikTok",
+  "Instagram",
+  "YouTube",
+  "WhatsApp",
+  "Other social media",
+  "Friend or family",
   "Community Health Workers (CHW)",
   "Village Health Teams (VHT)",
-  "Friend or family",
-  "Social media",
   "Radio or TV",
   "Poster or flyer",
-  "Other (please specify)",
+  "Other",
 ];
 
 const QUALIFICATIONS = [
