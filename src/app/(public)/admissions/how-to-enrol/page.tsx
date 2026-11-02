@@ -13,6 +13,8 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
+
+export const revalidate = 3600; // mostly static - cache 1 hour
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

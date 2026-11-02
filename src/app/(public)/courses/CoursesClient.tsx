@@ -103,6 +103,8 @@ export default function CoursesClient({ courses }: Props) {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      placeholder="blur"
+                      blurDataURL="data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACwAQCdASoIAAUABUB8JZQCsADGJcsAAP7DbSG4Fr5/Xb0yrh0swAAA"
                     />
                     {duration && (
                       <span className="absolute top-3 right-3 bg-white/90 text-primary text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">

@@ -67,9 +67,14 @@ const nextConfig = {
         hostname: "**.musawo.ug",
       },
     ],
-    formats: ["image/webp", "image/avif"],
-    // Cache optimized images for 1 week on Render
-    minimumCacheTTL: 604800,
+    formats: ["image/avif", "image/webp"],
+    // Cache optimised images for 2 weeks on disk. Caddy also caches /_next/image
+    // for 7 days at the proxy level so warm requests never hit Node.
+    minimumCacheTTL: 1209600,
+    // Limit the breakpoint ladder so Next.js generates fewer image variants.
+    // Matches our Tailwind breakpoints: mobile, tablet, laptop, desktop.
+    deviceSizes: [390, 640, 1024, 1280, 1920],
+    imageSizes: [64, 128, 256, 384],
   },
 
   experimental: {

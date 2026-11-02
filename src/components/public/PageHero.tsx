@@ -1,8 +1,8 @@
-"use client";
-
+// PageHero is a SERVER component — no "use client" needed.
+// The slow-zoom animation is isolated in HeroZoom (tiny client component).
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import HeroZoom from "./HeroZoom";
 import { ChevronRight, Home } from "lucide-react";
 
 export interface BreadcrumbItem {
@@ -15,6 +15,8 @@ export interface PageHeroProps {
   image?: string;
   /** Alt text for the hero image (empty string = decorative) */
   imageAlt?: string;
+  /** Tiny blur data URL for placeholder="blur" */
+  blurDataURL?: string;
   /** Page title */
   title: string;
   /** Short description below the title */
@@ -31,9 +33,25 @@ export interface PageHeroProps {
   large?: boolean;
 }
 
+// Precomputed blur placeholders for the most-used hero images.
+// Generated with: sharp(file).resize(8,5).webp({quality:20}).toBuffer()
+const BLUR: Record<string, string> = {
+  "/assets/images/hero-about.webp":
+    "data:image/webp;base64,UklGRnoAAABXRUJQVlA4WAoAAAAQAAAABwAABAAAQUxQSCkAAAAAKzJKq6s/Mij5/+f//+b/5Pr/5///5//k+v/n///n/+RLUWTFxVtSQgBWUDggKgAAAJABAJ0BKggABQAFQHwlnAACl7EmgADMnGvOQyPNUvMpNtb1wkbwAAAAAA==",
+  "/assets/images/hero-courses.webp":
+    "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACwAQCdASoIAAUABUB8JZQCsADGJcsAAP7DbSG4Fr5/Xb0yrh0swAAA",
+  "/assets/images/musawo-session.webp":
+    "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAADQAQCdASoIAAUABUB8JaACdAD5jGKpzAD1yeuwQ9YSaHH3JiygMMhXjLjY7uTMHAAAAA==",
+  "/assets/images/hero-training.jpg":
+    "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAACwAQCdASoIAAUABUB8JbACdADyfwfYAPa+jaD2KBd0fMHzB/MEfGAEQCrqMK2YPjhD2dRlYAA=",
+  "/assets/images/graduates-clinic.jpg":
+    "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoIAAUABUB8JYgCdAEWUO6AVoAA/qihPkmolmnM1/y8oZsGzZHi15t2BL9ItgAA",
+};
+
 export default function PageHero({
   image,
   imageAlt = "",
+  blurDataURL,
   title,
   description,
   breadcrumbs = [],
@@ -41,16 +59,8 @@ export default function PageHero({
   boxSide = "left",
   objectPosition = "center center",
 }: PageHeroProps) {
-  const photoRef = useRef<HTMLDivElement>(null);
-
-  // Gentle slow zoom on the photo (12 s, disabled under prefers-reduced-motion)
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches || !image || !photoRef.current) return;
-    photoRef.current.style.animation = "heroZoom 12s ease-out forwards";
-  }, [image]);
-
   const allBreadcrumbs: BreadcrumbItem[] = [{ label: "Home", href: "/" }, ...breadcrumbs];
+  const blur = blurDataURL ?? (image ? BLUR[image] : undefined);
 
   // No-image pages (Terms, Privacy, Refund): plain solid teal banner
   if (!image) {
@@ -80,11 +90,11 @@ export default function PageHero({
   return (
     <section
       className="relative overflow-hidden"
-      style={{ minHeight: "clamp(320px, 44vh, 480px)" }}
+      style={{ minHeight: "clamp(320px, 44vh, 480px)", backgroundColor: "#0c2c3a" }}
       aria-label={`${title} page hero`}
     >
-      {/* ── Full-width photo at full brightness ─────────────────── */}
-      <div ref={photoRef} className="absolute inset-0 will-change-transform">
+      {/* Full-width photo with slow-zoom animation */}
+      <HeroZoom>
         <Image
           src={image}
           alt={imageAlt}
@@ -93,14 +103,25 @@ export default function PageHero({
           style={{ objectPosition }}
           priority
           sizes="100vw"
-          quality={85}
+          quality={80}
+          placeholder={blur ? "blur" : "empty"}
+          blurDataURL={blur}
           aria-hidden={!imageAlt}
         />
-      </div>
+      </HeroZoom>
 
-      {/* ── Content: solid teal box anchored over the photo ─────── */}
+      {/* Dark gradient overlay */}
       <div
-        className={`relative h-full flex items-end pb-10 sm:items-center sm:pb-0
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.10) 100%)",
+        }}
+      />
+
+      {/* Content box anchored over the photo */}
+      <div
+        className={`relative z-10 h-full flex items-end pb-10 sm:items-center sm:pb-0
           max-w-[1200px] mx-auto px-4 sm:px-6 py-12
           ${boxSide === "right" ? "justify-end" : "justify-start"}`}
         style={{ minHeight: "inherit" }}
@@ -109,7 +130,6 @@ export default function PageHero({
           className="w-full sm:max-w-[520px] bg-primary-dark rounded-2xl px-5 py-7 sm:px-8 sm:py-10 shadow-xl"
           style={{ animation: "heroBoxIn 0.35s cubic-bezier(0.22,1,0.36,1) both" }}
         >
-          {/* Breadcrumb */}
           {allBreadcrumbs.length > 1 && (
             <Breadcrumb items={allBreadcrumbs} />
           )}

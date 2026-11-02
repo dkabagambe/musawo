@@ -2,7 +2,10 @@ import PublicHeader from "@/components/public/Header";
 import PublicFooter from "@/components/public/Footer";
 import { LazyMotion, domAnimation } from "framer-motion";
 
-export const dynamic = "force-dynamic";
+// Public marketing pages are mostly static — let Next.js cache/ISR them.
+// Individual pages that read from the DB export their own `revalidate`.
+// The old force-dynamic here prevented ALL caching on every public route.
+export const dynamic = "auto";
 
 /**
  * Header is fixed and consists of:

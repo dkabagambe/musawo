@@ -197,6 +197,8 @@ export default async function HomePage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       sizes="(min-width:1024px) 33vw,(min-width:640px) 50vw,100vw"
                       priority={idx < 3}
+                      placeholder="blur"
+                      blurDataURL="data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACwAQCdASoIAAUABUB8JZQCsADGJcsAAP7DbSG4Fr5/Xb0yrh0swAAA"
                     />
                     {duration && (
                       <span
