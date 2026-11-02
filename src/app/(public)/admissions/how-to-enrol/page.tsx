@@ -195,13 +195,6 @@ export default async function HowToEnrolPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Ready to apply?"
-        subheading="Submit your application for the November 2026 intake. Hybrid classes with 70% hands-on practicals."
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
       <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
