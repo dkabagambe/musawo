@@ -6,7 +6,7 @@ services:
     plan: free
     branch: main
     buildCommand: npm ci && npx prisma generate && SKIP_DB_MIGRATE=1 npx next build
-    startCommand: npx prisma migrate deploy; npm start
+    startCommand: npx prisma migrate resolve --rolled-back 20261102110000_section11_concurrency_indexes; npx prisma migrate deploy; npm start
     healthCheckPath: /api/health
     # Give the app 120 s to start before Render declares it unhealthy.
     # Cold start on free tier = migrate (~10s) + Next.js init (~15s) + DB warmup.

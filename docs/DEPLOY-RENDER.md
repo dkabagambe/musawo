@@ -25,9 +25,26 @@ Production security is preserved at all times.
 
 ## Build and start commands
 
+Set these **exactly** in the Render dashboard (Settings tab for the web service):
+
 | Step | Command |
 |---|---|
-| Build | `npm ci && npx prisma generate && npm run build` |
+| Build | `npm ci && npx prisma generate && SKIP_DB_MIGRATE=1 npx next build` |
+| Start | `npx prisma migrate resolve --rolled-back 20261102110000_section11_concurrency_indexes; npx prisma migrate deploy; npm start` |
+| Health check | `GET /api/health` (returns 200 when DB is reachable) |
+
+**Why the resolve line?** Migration `20261102110000_section11_concurrency_indexes` used
+`CREATE INDEX CONCURRENTLY` which PostgreSQL forbids inside a transaction. Prisma wraps
+migrations in transactions, so the migration failed and was marked as failed in the DB.
+The `--rolled-back` resolve tells Prisma to forget the failed attempt so `migrate deploy`
+can re-run the corrected version (which uses plain `CREATE INDEX IF NOT EXISTS`).
+The resolve command is idempotent — once the migration succeeds it does nothing on
+subsequent deploys.
+
+**Why SKIP_DB_MIGRATE in the build?** The build worker on Render does not have a database
+connection. Running `prisma migrate deploy` at build time always fails and was blocking
+the build. Migrations now run at container start time (start command) when the DB is
+available.
 | Start | `npx prisma migrate deploy && npm start` |
 | Health check | `GET /api/health` (returns 200 when DB is reachable) |
 
