@@ -4,11 +4,11 @@ import { check, sleep } from "k6";
 const cookies = (__ENV.STUDENT_SESSION_COOKIES ?? "").split(",").map((value) => value.trim()).filter(Boolean);
 const origin = __ENV.BASE_URL ?? "http://localhost:3000";
 export const options = {
-  scenarios: { logged_in_presence: { executor: "constant-vus", vus: 500, duration: "2m" } },
+  scenarios: { logged_in_presence: { executor: "constant-vus", vus: 600, duration: "2m" } },
   thresholds: { http_req_failed: ["rate<0.01"], http_req_duration: ["p(95)<500"] },
 };
 export function setup() {
-  if (cookies.length < 500) throw new Error("Provide 500 distinct authenticated session cookies in STUDENT_SESSION_COOKIES.");
+  if (cookies.length < 600) throw new Error("Provide 600 distinct authenticated session cookies in STUDENT_SESSION_COOKIES.");
   return { cookies };
 }
 export default function (data) {

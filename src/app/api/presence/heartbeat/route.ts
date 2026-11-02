@@ -5,11 +5,21 @@ import { can } from "@/lib/rbac";
 import { z } from "zod";
 import { redis } from "@/lib/db/redis";
 import { getAccessLevel } from "@/lib/enrolment/access";
+import { checkRateLimit, rateLimitResponse } from "@/lib/auth/rate-limit";
 
 const Schema = z.object({ classId: z.string().cuid().nullable().optional(), leave: z.boolean().optional() });
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Rate limit: 4 heartbeats per minute per user (normal cadence is 1 per 30s)
+  const rl = await checkRateLimit({
+    key: `heartbeat:${session.user.id}`,
+    maxRequests: 4,
+    windowSeconds: 60,
+  });
+  if (!rl.allowed) return rateLimitResponse(rl);
+
   const parsed = Schema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "Invalid heartbeat" }, { status: 400 });
   const classId = parsed.data.classId ?? null;

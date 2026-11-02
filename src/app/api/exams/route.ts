@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { markExam } from "@/lib/exam/marking";
 import { audit } from "@/lib/audit";
 import { getTabSwitchThreshold } from "@/lib/settings";
+import { checkRateLimit, rateLimitResponse } from "@/lib/auth/rate-limit";
 import { z } from "zod";
 
 // Forward-only exam submission schemas.
@@ -30,6 +31,23 @@ export async function POST(req: NextRequest) {
 
   const url = new URL(req.url);
   const action = url.searchParams.get("action");
+
+  // Rate limit exam actions per user to prevent brute-force answer flooding.
+  // answer: up to 120 per 10 min (max ~30 questions * 4 attempts with slack)
+  // start:  up to 10 per 10 min (sensible attempt restarts)
+  // submit/tab-switch: up to 20 per 10 min
+  const rlKey = `exam:${action ?? "unknown"}:${session.user.id}`;
+  const rlConfig: Record<string, { max: number; window: number }> = {
+    answer:      { max: 120, window: 600 },
+    start:       { max: 10,  window: 600 },
+    submit:      { max: 20,  window: 600 },
+    "tab-switch": { max: 20,  window: 600 },
+  };
+  const rlCfg = rlConfig[action ?? ""];
+  if (rlCfg) {
+    const rl = await checkRateLimit({ key: rlKey, maxRequests: rlCfg.max, windowSeconds: rlCfg.window });
+    if (!rl.allowed) return rateLimitResponse(rl);
+  }
 
   if (action === "start") {
     return handleStart(req, session.user.id);
@@ -174,6 +192,14 @@ async function handleAnswer(req: NextRequest, userId: string) {
     return NextResponse.json({ error: "Attempt already submitted" }, { status: 409 });
   }
 
+  // Server-side clock enforcement: reject answers after the time limit.
+  if (attempt.timeLimitEndsAt && attempt.timeLimitEndsAt <= new Date()) {
+    return NextResponse.json(
+      { error: "Time limit has expired. Your attempt will be submitted automatically." },
+      { status: 409 },
+    );
+  }
+
   const order = attempt.questionOrder as string[] | null;
   if (!order) {
     return NextResponse.json({ error: "This attempt is not forward-only." }, { status: 409 });
@@ -236,6 +262,8 @@ async function handleSubmit(req: NextRequest, userId: string) {
   if (attempt.status !== "IN_PROGRESS") {
     return NextResponse.json({ error: "Attempt already submitted" }, { status: 409 });
   }
+  // Allow submit after time expires — the student is submitting what they have.
+  // The auto-submit cron covers the case where they closed the browser.
 
   // Mark from the answers committed server-side during the forward-only flow.
   const answers = (attempt.answers as Record<string, string> | null) ?? {};

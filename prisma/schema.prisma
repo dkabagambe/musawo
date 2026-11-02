@@ -657,6 +657,8 @@ model Enrolment {
   claims       ManualPaymentClaim[]
 
   @@unique([userId, courseId])
+  @@index([courseId, status])
+  @@index([userId, status])
   @@map("enrolments")
 }
 
@@ -772,6 +774,9 @@ model LiveClass {
   attendance Attendance[]
   reminders  LiveClassReminder[]
 
+  @@index([courseId, status])
+  @@index([tutorId, status])
+  @@index([status, scheduledAt])
   @@map("live_classes")
 }
 
@@ -799,6 +804,8 @@ model Attendance {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([liveClassId, userId])
+  @@index([liveClassId])
+  @@index([userId])
   @@map("attendance")
 }
 
@@ -877,6 +884,10 @@ model ExamAttempt {
   shortAnswerReviews ShortAnswerReview[]
 
   @@unique([examId, userId, number])
+  @@index([examId, userId])
+  @@index([userId, status])
+  // Partial index for auto-submit cron (timed-out in-progress attempts)
+  @@index([timeLimitEndsAt, status])
   @@map("exam_attempts")
 }
 
@@ -949,6 +960,7 @@ model Notification {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, readAt])
   @@map("notifications")
 }
 
@@ -1269,6 +1281,8 @@ model AuditLog {
 
   actor User? @relation("ActorAuditLog", fields: [actorId], references: [id])
 
+  @@index([entityType, entityId])
+  @@index([actorId, createdAt(sort: Desc)])
   @@map("audit_logs")
 }
 
