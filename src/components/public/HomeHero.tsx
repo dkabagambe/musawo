@@ -205,10 +205,11 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
               src={s.src}
               alt={s.alt}
               fill
-              // Only the first slide is priority-preloaded. All others are lazy
-              // so they do not compete with the LCP image on page load.
+              // Slide 0: priority-preloaded in <head> for fast LCP.
+              // Slides 1+: NOT priority but still eager — loading="lazy" on
+              // fill images inside opacity:0 containers never triggers because
+              // the browser can't measure "in view", so they never load.
               priority={i === 0}
-              loading={i === 0 ? "eager" : "lazy"}
               placeholder="blur"
               blurDataURL={s.blur}
               quality={80}
