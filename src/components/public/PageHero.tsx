@@ -1,6 +1,5 @@
 // PageHero is a SERVER component — no "use client" needed.
 // The slow-zoom animation is isolated in HeroZoom (tiny client component).
-import Image from "next/image";
 import Link from "next/link";
 import HeroZoom from "./HeroZoom";
 import { ChevronRight, Home } from "lucide-react";
@@ -15,8 +14,6 @@ export interface PageHeroProps {
   image?: string;
   /** Alt text for the hero image (empty string = decorative) */
   imageAlt?: string;
-  /** Tiny blur data URL for placeholder="blur" */
-  blurDataURL?: string;
   /** Page title */
   title: string;
   /** Short description below the title */
@@ -33,25 +30,9 @@ export interface PageHeroProps {
   large?: boolean;
 }
 
-// Precomputed blur placeholders for the most-used hero images.
-// Generated with: sharp(file).resize(8,5).webp({quality:20}).toBuffer()
-const BLUR: Record<string, string> = {
-  "/assets/images/hero-about.webp":
-    "data:image/webp;base64,UklGRnoAAABXRUJQVlA4WAoAAAAQAAAABwAABAAAQUxQSCkAAAAAKzJKq6s/Mij5/+f//+b/5Pr/5///5//k+v/n///n/+RLUWTFxVtSQgBWUDggKgAAAJABAJ0BKggABQAFQHwlnAACl7EmgADMnGvOQyPNUvMpNtb1wkbwAAAAAA==",
-  "/assets/images/hero-courses.webp":
-    "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACwAQCdASoIAAUABUB8JZQCsADGJcsAAP7DbSG4Fr5/Xb0yrh0swAAA",
-  "/assets/images/musawo-session.webp":
-    "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAADQAQCdASoIAAUABUB8JaACdAD5jGKpzAD1yeuwQ9YSaHH3JiygMMhXjLjY7uTMHAAAAA==",
-  "/assets/images/hero-training.jpg":
-    "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAACwAQCdASoIAAUABUB8JbACdADyfwfYAPa+jaD2KBd0fMHzB/MEfGAEQCrqMK2YPjhD2dRlYAA=",
-  "/assets/images/graduates-clinic.jpg":
-    "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoIAAUABUB8JYgCdAEWUO6AVoAA/qihPkmolmnM1/y8oZsGzZHi15t2BL9ItgAA",
-};
-
 export default function PageHero({
   image,
   imageAlt = "",
-  blurDataURL,
   title,
   description,
   breadcrumbs = [],
@@ -60,7 +41,6 @@ export default function PageHero({
   objectPosition = "center center",
 }: PageHeroProps) {
   const allBreadcrumbs: BreadcrumbItem[] = [{ label: "Home", href: "/" }, ...breadcrumbs];
-  const blur = blurDataURL ?? (image ? BLUR[image] : undefined);
 
   // No-image pages (Terms, Privacy, Refund): plain solid teal banner
   if (!image) {
@@ -95,18 +75,20 @@ export default function PageHero({
     >
       {/* Full-width photo with slow-zoom animation */}
       <HeroZoom>
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={image}
           alt={imageAlt}
-          fill
-          className="object-cover"
-          style={{ objectPosition }}
-          priority
-          sizes="100vw"
-          quality={80}
-          placeholder={blur ? "blur" : "empty"}
-          blurDataURL={blur}
-          aria-hidden={!imageAlt}
+          fetchPriority="high"
+          decoding="async"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition,
+          }}
         />
       </HeroZoom>
 

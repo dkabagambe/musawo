@@ -1,13 +1,10 @@
 import Link from "next/link";
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import { getSetting } from "@/lib/settings";
-import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
 
 // About page is mostly static content - cache for 1 hour
@@ -20,9 +17,8 @@ export const metadata: Metadata = {
 };
 
 const ABOUT_NAV = [
-  { label: "About MTC",    href: "/about" },
-  { label: "Our trainers", href: "/about/trainers" },
-  { label: "FAQ",          href: "/faq" },
+  { label: "About MTC", href: "/about" },
+  { label: "FAQ",       href: "/faq" },
 ];
 
 const TIMELINE = [
@@ -41,10 +37,7 @@ const VALUES = [
 ];
 
 export default async function AboutPage() {
-  const [accreditationText, contact] = await Promise.all([
-    getSetting("site.accreditationText", ""),
-    getContactInfo(),
-  ]);
+  const accreditationText = await getSetting("site.accreditationText", "");
 
   return (
     <div className="bg-surface">
@@ -168,15 +161,6 @@ export default async function AboutPage() {
           </div>
         </div>
       </div>
-
-      <CTABand
-        heading="Ready to start your healthcare career?"
-        subheading="Apply for the November 2026 intake. Hybrid classes with hands-on practicals in our skills lab."
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }
