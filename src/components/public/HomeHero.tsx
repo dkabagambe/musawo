@@ -7,36 +7,31 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 
 /* ─── Slide data ────────────────────────────────────────────── */
-// blurDataURL: tiny 8x5 WebP for the blur-up placeholder.
-// Generated with: sharp(file).resize(8,5).webp({quality:20}).toBuffer()
 const SLIDES = [
   {
     id: 1,
     src: "/assets/images/hero-training.jpg",
     alt: "Nursing care assistant in a clinical setting at Musawo Training Center skills lab",
     pos: "right 20%",
-    blur: "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAACwAQCdASoIAAUABUB8JbACdADyfwfYAPa+jaD2KBd0fMHzB/MEfGAEQCrqMK2YPjhD2dRlYAA=",
   },
   {
     id: 2,
     src: "/assets/images/musawo-session.webp",
     alt: "Musawo Training Center students in a hands-on practical training session",
     pos: "center 30%",
-    blur: "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAADQAQCdASoIAAUABUB8JaACdAD5jGKpzAD1yeuwQ9YSaHH3JiygMMhXjLjY7uTMHAAAAA==",
   },
   {
     id: 3,
     src: "/assets/images/graduates-clinic.jpg",
     alt: "Musawo Training Center graduates working in a clinical environment",
     pos: "center 25%",
-    blur: "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAQCdASoIAAUABUB8JYgCdAEWUO6AVoAA/qihPkmolmnM1/y8oZsGzZHi15t2BL9ItgAA",
   },
 ];
 
 const HOLD_MS = 5000;
 const FADE_MS = 700;
 
-/* ─── Shared card content ──────────────────────────────────── */
+/* ─── Hero card ─────────────────────────────────────────────── */
 function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
   const label = intakeLabel ?? "November 2026 intake";
   return (
@@ -49,7 +44,6 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         border: "1px solid rgba(255,255,255,0.12)",
       }}
     >
-      {/* Badge */}
       <p
         className="font-bold uppercase tracking-widest mb-5"
         style={{ fontSize: "10px", color: "#FFB200", letterSpacing: "0.13em" }}
@@ -57,7 +51,6 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         Now enrolling: {label}
       </p>
 
-      {/* H1 */}
       <h1
         className="font-extrabold text-white text-balance mb-4"
         style={{
@@ -70,7 +63,6 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         <span style={{ color: "#FFB200" }}>certified healthcare professional</span>
       </h1>
 
-      {/* Sub-copy */}
       <p
         className="mb-6"
         style={{
@@ -83,25 +75,14 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         Taught by doctors, nurses and clinicians.
       </p>
 
-      {/* Buttons */}
       <div className="flex flex-col xs:flex-row gap-3">
         <Link
           href="/apply"
           className="inline-flex items-center justify-center gap-2 font-bold
-                     text-white no-underline active:scale-[0.97] transition-all
-                     whitespace-nowrap"
-          style={{
-            backgroundColor: "#FF9F1C",
-            borderRadius: "10px",
-            padding: "11px 20px",
-            fontSize: "13.5px",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.backgroundColor = "#e8900a";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.backgroundColor = "#FF9F1C";
-          }}
+                     text-white no-underline active:scale-[0.97] transition-all whitespace-nowrap"
+          style={{ backgroundColor: "#FF9F1C", borderRadius: "10px", padding: "11px 20px", fontSize: "13.5px" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "#e8900a"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "#FF9F1C"; }}
         >
           Apply now <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
         </Link>
@@ -109,28 +90,16 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         <Link
           href="/courses"
           className="inline-flex items-center justify-center gap-2 font-semibold
-                     text-white no-underline active:scale-[0.97] transition-all
-                     whitespace-nowrap"
-          style={{
-            backgroundColor: "transparent",
-            border: "1.5px solid rgba(255,255,255,0.65)",
-            borderRadius: "10px",
-            padding: "11px 20px",
-            fontSize: "13.5px",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.12)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
-          }}
+                     text-white no-underline active:scale-[0.97] transition-all whitespace-nowrap"
+          style={{ backgroundColor: "transparent", border: "1.5px solid rgba(255,255,255,0.65)", borderRadius: "10px", padding: "11px 20px", fontSize: "13.5px" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.12)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
         >
           <BookOpen className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
           Browse courses
         </Link>
       </div>
 
-      {/* Trust line */}
       <p
         className="mt-5"
         style={{
@@ -151,13 +120,10 @@ interface HomeHeroProps {
 }
 
 export default function HomeHero({ intakeLabel }: HomeHeroProps) {
-  const [idx, setIdx]     = useState(0);
-  const [ready, setReady] = useState(false); // prevents flash before first image loads
-  const reduced           = useReducedMotion();
-  const timerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Mark ready after mount so the hero fades in cleanly on hydration
-  useEffect(() => { setReady(true); }, []);
+  const [idx, setIdx]       = useState(0);
+  const [loaded, setLoaded] = useState<boolean[]>([false, false, false]);
+  const reduced             = useReducedMotion();
+  const timerRef            = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const advance = useCallback(() => {
     setIdx((p) => (p + 1) % SLIDES.length);
@@ -169,31 +135,35 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [reduced, advance]);
 
+  const markLoaded = useCallback((i: number) => {
+    setLoaded((prev) => {
+      if (prev[i]) return prev;
+      const next = [...prev];
+      next[i] = true;
+      return next;
+    });
+  }, []);
+
   const slide = SLIDES[idx];
 
   return (
     <section
       className="hero-section relative overflow-hidden w-full"
       aria-label="Welcome to Musawo Training Center"
-      // Dark background so the blur placeholder blends in before the image loads
       style={{ backgroundColor: "#0c2c3a" }}
     >
-      {/* Background photo slides
-          - Only slide 0 uses priority (preloaded in <head>)
-          - Slides 1+ use loading="lazy" so they are NOT fetched on initial paint
-          - All slides use placeholder="blur" so there is no colour-pop before
-            the optimised image is delivered by /_next/image              */}
       {SLIDES.map((s, i) => (
         <div
           key={s.id}
-          className="absolute inset-0 will-change-[opacity]"
+          className="absolute inset-0"
           style={{
-            opacity: ready ? (i === idx ? 1 : 0) : i === 0 ? 1 : 0,
+            opacity: i === idx ? 1 : 0,
             transition: reduced ? "none" : `opacity ${FADE_MS}ms ease-in-out`,
             zIndex: i === idx ? 1 : 0,
           }}
           aria-hidden="true"
         >
+          {/* Ken-Burns zoom wrapper */}
           <div
             className="absolute inset-0"
             style={{
@@ -201,23 +171,62 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
               transition: reduced ? "none" : `transform ${HOLD_MS + FADE_MS}ms linear`,
             }}
           >
-            <Image
-              src={s.src}
-              alt={s.alt}
-              fill
-              // Slide 0: priority-preloaded in <head> for fast LCP.
-              // Slides 1+: NOT priority but still eager — loading="lazy" on
-              // fill images inside opacity:0 containers never triggers because
-              // the browser can't measure "in view", so they never load.
-              priority={i === 0}
-              placeholder="blur"
-              blurDataURL={s.blur}
-              quality={80}
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: s.pos }}
-            />
+            {i === 0 ? (
+              /*
+               * Slide 1 — use next/image with priority so it is preloaded in
+               * <head> and serves as the LCP element.
+               */
+              <Image
+                src={s.src}
+                alt={s.alt}
+                fill
+                priority
+                quality={80}
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: s.pos }}
+                onLoad={() => markLoaded(0)}
+              />
+            ) : (
+              /*
+               * Slides 2 & 3 — plain <img> tags.
+               *
+               * Why not next/image here?
+               * next/image with priority={false} silently adds loading="lazy"
+               * on fill images. Inside an opacity:0 positioned container the
+               * browser cannot measure the element's intersection and the lazy
+               * load never fires — the image just never loads.
+               *
+               * A plain <img> with fetchPriority="low" loads eagerly in the
+               * background without competing with the LCP image, solving the
+               * problem completely.
+               *
+               * The src goes directly to the static file in /public/assets/
+               * (no /_next/image optimization needed — the files are already
+               * compressed WebPs/JPEGs under 100 KB).
+               */
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={s.src}
+                alt={s.alt}
+                fetchPriority="low"
+                decoding="async"
+                onLoad={() => markLoaded(i)}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: s.pos,
+                  // Keep the dark background showing until the image is loaded
+                  opacity: loaded[i] ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+            )}
           </div>
+
           {/* Gradient overlay */}
           <div
             className="absolute inset-0"
@@ -230,7 +239,10 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
       ))}
 
       {/* Mobile + tablet: centred */}
-      <div className="absolute inset-0 flex items-center justify-center px-5 sm:px-10 lg:hidden" style={{ zIndex: 10 }}>
+      <div
+        className="absolute inset-0 flex items-center justify-center px-5 sm:px-10 lg:hidden"
+        style={{ zIndex: 10 }}
+      >
         <AnimatePresence mode="wait">
           <m.div
             key={`card-sm-${slide.id}`}
