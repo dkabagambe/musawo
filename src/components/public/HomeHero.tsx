@@ -120,10 +120,9 @@ interface HomeHeroProps {
 }
 
 export default function HomeHero({ intakeLabel }: HomeHeroProps) {
-  const [idx, setIdx]       = useState(0);
-  const [loaded, setLoaded] = useState<boolean[]>([false, false, false]);
-  const reduced             = useReducedMotion();
-  const timerRef            = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [idx, setIdx] = useState(0);
+  const reduced       = useReducedMotion();
+  const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const advance = useCallback(() => {
     setIdx((p) => (p + 1) % SLIDES.length);
@@ -134,15 +133,6 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
     timerRef.current = setInterval(advance, HOLD_MS + FADE_MS);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [reduced, advance]);
-
-  const markLoaded = useCallback((i: number) => {
-    setLoaded((prev) => {
-      if (prev[i]) return prev;
-      const next = [...prev];
-      next[i] = true;
-      return next;
-    });
-  }, []);
 
   const slide = SLIDES[idx];
 
@@ -171,11 +161,17 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
               transition: reduced ? "none" : `transform ${HOLD_MS + FADE_MS}ms linear`,
             }}
           >
+            {/*
+             * Use next/image for slide 1 (LCP, priority preload).
+             * Use plain <img> for slides 2 & 3:
+             *   - next/image adds loading="lazy" on hidden fill images,
+             *     so the browser never fires the lazy load for opacity:0 slides.
+             *   - Plain <img> with fetchPriority="low" loads eagerly in the
+             *     background without blocking the LCP image.
+             * Both approaches: no opacity gate on the image itself so the
+             * image is always visible once the parent container fades in.
+             */}
             {i === 0 ? (
-              /*
-               * Slide 1 — use next/image with priority so it is preloaded in
-               * <head> and serves as the LCP element.
-               */
               <Image
                 src={s.src}
                 alt={s.alt}
@@ -185,33 +181,14 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
                 sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: s.pos }}
-                onLoad={() => markLoaded(0)}
               />
             ) : (
-              /*
-               * Slides 2 & 3 — plain <img> tags.
-               *
-               * Why not next/image here?
-               * next/image with priority={false} silently adds loading="lazy"
-               * on fill images. Inside an opacity:0 positioned container the
-               * browser cannot measure the element's intersection and the lazy
-               * load never fires — the image just never loads.
-               *
-               * A plain <img> with fetchPriority="low" loads eagerly in the
-               * background without competing with the LCP image, solving the
-               * problem completely.
-               *
-               * The src goes directly to the static file in /public/assets/
-               * (no /_next/image optimization needed — the files are already
-               * compressed WebPs/JPEGs under 100 KB).
-               */
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={s.src}
                 alt={s.alt}
                 fetchPriority="low"
                 decoding="async"
-                onLoad={() => markLoaded(i)}
                 style={{
                   position: "absolute",
                   inset: 0,
@@ -219,9 +196,6 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
                   height: "100%",
                   objectFit: "cover",
                   objectPosition: s.pos,
-                  // Keep the dark background showing until the image is loaded
-                  opacity: loaded[i] ? 1 : 0,
-                  transition: "opacity 0.3s ease",
                 }}
               />
             )}
