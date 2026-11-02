@@ -1,11 +1,8 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import FeatureBlock from "@/components/public/FeatureBlock";
-import { getContactInfo } from "@/lib/contact";
 import {
   Smartphone, BookOpen, Video, MessageCircle,
   Eye, Clock, Globe, Shield,
@@ -91,7 +88,6 @@ const WHAT_TO_EXPECT = [
 ];
 
 export default async function HowYouLearnPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -192,12 +188,6 @@ export default async function HowYouLearnPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Ready to start learning?"
-        subheading="Enrol today and study from wherever you are in Uganda."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

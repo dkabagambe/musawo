@@ -1,9 +1,6 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
-import { getContactInfo } from "@/lib/contact";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -49,7 +46,6 @@ const INSTALMENT_PLAN = [
 ];
 
 export default async function FeesPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -146,14 +142,6 @@ export default async function FeesPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Flexible fees, real skills."
-        subheading="Apply for the next intake. Hybrid classes with hands-on practicals."
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

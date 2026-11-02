@@ -1,10 +1,7 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import { getContactInfo } from "@/lib/contact";
 import { Award, FileText, QrCode, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -48,7 +45,6 @@ const ASSESSMENTS = [
 ];
 
 export default async function ExamsPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -207,12 +203,6 @@ export default async function ExamsPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Work towards your certificate."
-        subheading="Clear assessments, recognised qualification, employment support."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

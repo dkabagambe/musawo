@@ -5,13 +5,16 @@ import { z } from "zod";
 
 const ApplySchema = z.object({
   fullName:             z.string().min(2).max(120),
-  email:                z.string().trim().email().toLowerCase(),
+  email:                z.string().trim().email().toLowerCase().optional().or(z.literal("")),
   phone:                z.string().min(7).max(20),
   courseId:             z.string().cuid(),
   intakeLabel:          z.string().min(1).max(80),
   category:             z.enum(["OPEN", "PROFESSIONAL"]),
   professionalTitle:    z.string().max(120).optional(),
   registrationNumber:   z.string().max(80).optional(),
+  gender:               z.string().max(30).optional(),
+  dateOfBirth:          z.string().max(20).optional(),
+  district:             z.string().max(80).optional(),
   highestQualification: z.string().min(1).max(80),
   howHeard:             z.string().max(80).optional(),
   notes:                z.string().max(1000).optional(),
@@ -54,10 +57,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check for duplicate application (same email + course) in last 30 days
+    // Check for duplicate application (same phone + course) in last 30 days
     const existingApplication = await db.application.findFirst({
       where: {
-        email: data.email,
+        phone:    data.phone,
         courseId: data.courseId,
         createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
         status: { notIn: ["REJECTED", "WITHDRAWN"] },
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
     });
     if (existingApplication) {
       return NextResponse.json(
-        { error: "An application for this course already exists for this email address. Please contact admissions@musawo.ug if you need help." },
+        { error: "An application for this course already exists for this phone number. Please contact admissions@musawo.ug if you need help." },
         { status: 409 }
       );
     }
@@ -82,11 +85,14 @@ export async function POST(req: Request) {
         courseId:             data.courseId,
         intakeId:             intake?.id ?? null,
         fullName:             data.fullName,
-        email:                data.email,
+        email:                data.email || null,
         phone:                data.phone,
         category:             data.category,
         professionalTitle:    data.professionalTitle ?? null,
         registrationNumber:   data.registrationNumber ?? null,
+        gender:               data.gender ?? null,
+        dateOfBirth:          data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        district:             data.district ?? null,
         highestQualification: data.highestQualification,
         howHeard:             data.howHeard ?? null,
         notes:                data.notes ?? null,
@@ -97,18 +103,20 @@ export async function POST(req: Request) {
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.musawo.ug";
 
-    // Email applicant confirmation
-    await sendEmail({
-      to:       data.email,
-      subject:  `Application received - ${course.title}`,
-      template: "application-confirmation",
-      variables: {
-        name:           data.fullName,
-        courseName:     course.title,
-        intakeLabel:    data.intakeLabel,
-        applicationRef: application.id,
-      },
-    });
+    // Email applicant confirmation — only if they provided an email
+    if (data.email) {
+      await sendEmail({
+        to:       data.email,
+        subject:  `Application received - ${course.title}`,
+        template: "application-confirmation",
+        variables: {
+          name:           data.fullName,
+          courseName:     course.title,
+          intakeLabel:    data.intakeLabel,
+          applicationRef: application.id,
+        },
+      });
+    }
 
     // Notify Registrar(s)
     const registrars = await db.user.findMany({
@@ -126,7 +134,7 @@ export async function POST(req: Request) {
           name:        data.fullName,
           courseName:  course.title,
           category:    data.category === "PROFESSIONAL" ? "Professional" : "Open to all",
-          email:       data.email,
+          email:       data.email ?? "(no email provided)",
           phone:       data.phone,
           submittedAt: new Date().toLocaleDateString("en-UG"),
           reviewUrl:   `${siteUrl}/registrar/applications/${application.id}`,

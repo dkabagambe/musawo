@@ -1,10 +1,7 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import { getContactInfo } from "@/lib/contact";
 import { getSetting } from "@/lib/settings";
 import { Smartphone, CheckCircle, AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
@@ -21,8 +18,7 @@ const ADMISSIONS_NAV = [
 ];
 
 export default async function PaymentOptionsPage() {
-  const [contact, mtnCode, airtelMerchantId] = await Promise.all([
-    getContactInfo(),
+  const [mtnCode, airtelMerchantId] = await Promise.all([
     getSetting("payment.mtnMomoCode",      "582962"),
     getSetting("payment.airtelMerchantId", "4363108"),
   ]);
@@ -167,14 +163,6 @@ export default async function PaymentOptionsPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Pay in minutes, start learning today."
-        subheading={`MTN MoMo code ${mtnCode} or Airtel Money merchant ${airtelMerchantId}. No bank account needed.`}
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

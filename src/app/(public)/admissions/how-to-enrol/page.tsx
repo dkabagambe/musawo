@@ -1,9 +1,6 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
-import { getContactInfo } from "@/lib/contact";
 import {
   CheckCircle,
   ArrowRight,
@@ -70,7 +67,6 @@ const REQUIREMENTS = [
 ];
 
 export default async function HowToEnrolPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -195,7 +191,6 @@ export default async function HowToEnrolPage() {
         </div>
       </div>
 
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

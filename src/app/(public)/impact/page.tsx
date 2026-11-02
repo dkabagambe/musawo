@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { ArrowRight, MessageSquare } from "lucide-react";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import AnimateIn from "@/components/public/AnimateIn";
 
 export const revalidate = 3600; // static content - cache 1 hour
@@ -122,14 +120,6 @@ export default async function ImpactPage() {
 
       </div>
 
-      <CTABand
-        heading="Be part of Uganda's community health story."
-        subheading="Train with Musawo. Serve your community. Transform lives."
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

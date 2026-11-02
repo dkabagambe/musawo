@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
 import PageHero from "@/components/public/PageHero";
-import ContactBand from "@/components/public/ContactBand";
-import { getContactInfo } from "@/lib/contact";
 import ApplyForm from "./ApplyForm";
 
 export const metadata: Metadata = {
@@ -19,14 +17,13 @@ export default async function ApplyPage({
 }) {
   const preselectedSlug = typeof searchParams.course === "string" ? searchParams.course : undefined;
 
-  const [courses, intakeLabel, contact] = await Promise.all([
+  const [courses, intakeLabel] = await Promise.all([
     db.course.findMany({
       where: { status: "PUBLISHED" },
       select: { id: true, slug: true, title: true, category: true, durationMonths: true },
       orderBy: { createdAt: "asc" },
     }),
     getSetting("intake.currentLabel", "November 2026"),
-    getContactInfo(),
   ]);
 
   return (
@@ -69,8 +66,6 @@ export default async function ApplyPage({
           preselectedSlug={preselectedSlug}
         />
       </section>
-
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

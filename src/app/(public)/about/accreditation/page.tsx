@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
-import { getContactInfo } from "@/lib/contact";
 import { getSetting } from "@/lib/settings";
 import { CheckCircle, FileCheck } from "lucide-react";
 import type { Metadata } from "next";
@@ -26,10 +23,7 @@ const ABOUT_NAV = [
 ];
 
 export default async function AccreditationPage() {
-  const [contact, accreditationText] = await Promise.all([
-    getContactInfo(),
-    getSetting("site.accreditationText", ""),
-  ]);
+  const accreditationText = await getSetting("site.accreditationText", "");
 
   // Hide this page entirely until the accreditationText setting is filled
   if (!accreditationText) {
@@ -103,12 +97,6 @@ export default async function AccreditationPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Train with us."
-        subheading="Digital certificate with QR verification on completion."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

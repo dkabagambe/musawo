@@ -1,10 +1,7 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import { getContactInfo } from "@/lib/contact";
 import { Video, Clock, Users, Wifi, Calendar, Repeat } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -36,7 +33,6 @@ const SCHEDULE = [
 ];
 
 export default async function LiveClassesPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -151,12 +147,6 @@ export default async function LiveClassesPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Join the next cohort."
-        subheading="Small groups, expert tutors, evening classes that fit around your life."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

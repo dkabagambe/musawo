@@ -1,7 +1,5 @@
 import { db } from "@/lib/db";
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import { CheckCircle, ArrowRight } from "lucide-react";
 
 export const revalidate = 300; // courses list - cache 5 minutes
@@ -9,7 +7,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import CoursesClient from "./CoursesClient";
 import type { CourseItem } from "./CoursesClient";
-import { getContactInfo } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Courses",
@@ -114,18 +111,15 @@ const COMPARE_INSTALMENTS = [
 ];
 
 export default async function CoursesPage() {
-  const [dbCourses, contact] = await Promise.all([
-    db.course.findMany({
-      where: { status: "PUBLISHED" },
-      include: {
-        tutor: { select: { name: true } },
-        _count: { select: { enrolments: true } },
-        blocks: { select: { _count: { select: { lessons: true } } } },
-      },
-      orderBy: { createdAt: "asc" },
-    }),
-    getContactInfo(),
-  ]);
+  const dbCourses = await db.course.findMany({
+    where: { status: "PUBLISHED" },
+    include: {
+      tutor: { select: { name: true } },
+      _count: { select: { enrolments: true } },
+      blocks: { select: { _count: { select: { lessons: true } } } },
+    },
+    orderBy: { createdAt: "asc" },
+  });
 
   const courses: CourseItem[] = dbCourses.map((c) => ({
     id: c.id,
@@ -279,14 +273,6 @@ export default async function CoursesPage() {
           </div>
       </section>
 
-      <CTABand
-        heading="Not sure which course to pick?"
-        subheading="Chat with our admissions team on WhatsApp and we will help you choose the right programme."
-        primaryLabel="Apply now"
-        primaryHref="/apply"
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

@@ -1,10 +1,7 @@
 import PageHero from "@/components/public/PageHero";
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import { getContactInfo } from "@/lib/contact";
 import { GraduationCap, Clock, BookOpen, Users } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -37,7 +34,6 @@ const TUTOR_COMMITMENT = [
 ];
 
 export default async function TrainersPage() {
-  const contact = await getContactInfo();
 
   return (
     <div>
@@ -126,12 +122,6 @@ export default async function TrainersPage() {
         </div>
       </div>
 
-      <CTABand
-        heading="Learn from real healthcare professionals."
-        subheading="Our tutors practice what they teach, every day."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }

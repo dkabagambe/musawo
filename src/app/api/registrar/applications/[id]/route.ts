@@ -98,21 +98,22 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       ip: req.headers.get("x-forwarded-for") ?? undefined,
     });
 
-    // Notify the applicant
-    try {
-      await sendEmail({
-        to: application.email,
-        subject: `Your application to Musawo Training Center`,
-        template: "application-rejected",
-        variables: {
-          name: application.fullName,
-          courseName: application.course?.title ?? "the course",
-          reason: rejectionReason,
-        },
-      });
-    } catch (emailErr) {
-      console.error("[applications PATCH] rejection email failed:", emailErr);
-      // Don't block the response - rejection is saved regardless
+    // Notify the applicant (only if they have an email)
+    if (application.email) {
+      try {
+        await sendEmail({
+          to: application.email,
+          subject: `Your application to Musawo Training Center`,
+          template: "application-rejected",
+          variables: {
+            name: application.fullName,
+            courseName: application.course?.title ?? "the course",
+            reason: rejectionReason,
+          },
+        });
+      } catch (emailErr) {
+        console.error("[applications PATCH] rejection email failed:", emailErr);
+      }
     }
 
     return NextResponse.json({ status: "REJECTED" });
@@ -120,6 +121,14 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
   // ── ACCEPT: create student account via invite link ──────────────────────────
   if (action === "ACCEPT") {
+    // Applications without an email cannot receive an invite link
+    if (!application.email) {
+      return NextResponse.json(
+        { error: "This applicant has no email address. Add their email before accepting." },
+        { status: 422 }
+      );
+    }
+
     // Check if user already exists (reapplication edge case)
     const existingUser = await db.user.findUnique({ where: { email: application.email } });
     if (existingUser) {
@@ -138,9 +147,10 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
     const { createStudentWithNumber } = await import("@/lib/students");
     const courseCode = application.course?.courseCode ?? "GEN";
+    const email = application.email!; // guarded above
     const { user: student, studentNumber } = await createStudentWithNumber({
         name: application.fullName,
-        email: application.email,
+        email,
         phone: application.phone,
         role: "STUDENT",
         status: "PENDING_ACCEPTANCE",
@@ -157,7 +167,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     });
 
     // Delete any previous unused invite for this email
-    await db.staffInvite.deleteMany({ where: { email: application.email, acceptedAt: null } });
+    await db.staffInvite.deleteMany({ where: { email, acceptedAt: null } });
 
     // Create a student invite token (valid 7 days)
     const token = crypto.randomBytes(32).toString("hex");
@@ -165,7 +175,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
     const studentInvite = await db.staffInvite.create({
       data: {
-        email: application.email,
+        email,
         role: "STUDENT",
         token,
         expiresAt,
@@ -181,7 +191,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     // Send the invite email with the already assigned student number.
     try {
       await sendEmail({
-        to: application.email,
+        to: email,
         subject: `Your Musawo Training Center account is ready - ${application.course?.title ?? ""}`,
         template: "student-invite",
         variables: {
@@ -214,7 +224,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
       metadata: {
         action: "ACCEPTED",
         applicant: application.fullName,
-        email: application.email,
+        email,
         courseId: application.courseId,
       },
       ip: req.headers.get("x-forwarded-for") ?? undefined,

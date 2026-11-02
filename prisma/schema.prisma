@@ -611,7 +611,7 @@ model Application {
   intakeId             String?
   // Applicant details
   fullName             String
-  email                String
+  email                String?
   phone                String
   countryCode          String            @default("UG")
   category             String            @default("OPEN") // "OPEN" | "PROFESSIONAL"

@@ -5,8 +5,6 @@
 import PageHero from "@/components/public/PageHero";
 
 export const revalidate = 3600; // static content - cache 1 hour
-import CTABand from "@/components/public/CTABand";
-import ContactBand from "@/components/public/ContactBand";
 import { getContactInfo } from "@/lib/contact";
 import FaqContent from "./FaqContent";
 import type { Metadata } from "next";
@@ -30,12 +28,6 @@ export default async function FaqPage() {
         objectPosition="left center"
       />
       <FaqContent whatsappUrl={contact.whatsappUrl} />
-      <CTABand
-        heading="Ready to enrol?"
-        subheading="All your questions answered. Join the next intake today."
-        whatsappUrl={contact.whatsappUrl}
-      />
-      <ContactBand whatsappUrl={contact.whatsappUrl} />
     </div>
   );
 }
