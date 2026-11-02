@@ -34,7 +34,7 @@ export default async function TermsPage() {
               </p>
               <p>
                 The Platform is operated by Allied Doctors and Friends of Uganda (ADFA), trading as Musawo Training Center
-                (&ldquo;MTC&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), Plot 5 ADFA Building, Luggala Trading Center, Lubaga Division, Kampala, Uganda.
+                (&ldquo;MTC&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), Plot 5 ADFA Building, Lugala Trading Center, Lubaga Division, Kampala, Uganda.
               </p>
             </TermsSection>
 
@@ -136,7 +136,7 @@ export default async function TermsPage() {
               <p>For questions about these Terms, contact us at:</p>
               <address className="not-italic text-gray-600 text-sm leading-relaxed mt-2">
                 Musawo Training Center - ADFA<br />
-                Plot 5, ADFA Building, Luggala Trading Center, Lubaga Division<br />
+                Plot 5, ADFA Building, Lugala Trading Center, Lubaga Division<br />
                 Kampala, Uganda<br />
                 <a href={`mailto:${contact.email}`} className="text-accent no-underline hover:underline">{contact.email}</a>
               </address>

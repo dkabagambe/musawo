@@ -18,7 +18,7 @@ const ABOUT_NAV = [
 ];
 
 const TRAINER_QUALITIES = [
-  { icon: GraduationCap, heading: "Clinically qualified",    body: "All tutors hold recognised nursing or healthcare qualifications and have supervised clinical experience in Uganda." },
+  { icon: GraduationCap, heading: "Clinically qualified",    body: "All tutors are licensed doctors, nurses, midwives or other registered healthcare professionals with supervised clinical experience in Uganda." },
   { icon: Clock,         heading: "Active practitioners",    body: "Our tutors continue to practice clinically so their teaching reflects current real-world conditions in Ugandan healthcare." },
   { icon: BookOpen,      heading: "Trained educators",       body: "In addition to their clinical qualifications, our tutors complete a facilitator training programme before leading any live class." },
   { icon: Users,         heading: "Accessible and responsive", body: "Tutors respond to student questions within one working day and are available on WhatsApp during office hours for urgent queries." },
@@ -41,7 +41,7 @@ export default async function TrainersPage() {
         image="/assets/images/musawo-staff.webp"
         imageAlt="Musawo Training Center clinical educators and trainers"
         title="Our Trainers"
-        description="Qualified, practicing healthcare professionals who teach from real clinical experience."
+        description="Licensed doctors, nurses, midwives and other healthcare professionals who teach from real clinical experience."
         breadcrumbs={[
           { label: "About", href: "/about" },
           { label: "Our trainers" },
@@ -64,7 +64,7 @@ export default async function TrainersPage() {
                 Taught by people who do the work
               </h2>
               <p className="text-gray-500 text-base leading-relaxed max-w-xl">
-                Every course at MTC is taught by a qualified healthcare professional with direct clinical experience in Uganda. You learn from someone who faces the same challenges as the patients your future patients will be.
+                Every course at MTC is taught by a licensed doctor, nurse, midwife or other registered healthcare professional with direct clinical experience in Uganda. You learn from someone who faces the same challenges as the patients your future patients will be.
               </p>
             </AnimateIn>
 

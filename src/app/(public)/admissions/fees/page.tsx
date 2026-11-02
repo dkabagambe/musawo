@@ -20,7 +20,6 @@ const INCLUDED_ALL = [
   "Full course access on all devices",
   "Hybrid and online classes with hands-on practicals in our skills lab",
   "All assessments and examinations",
-  "Digital certificate with QR verification",
   "Job placement support",
 ];
 
@@ -121,8 +120,8 @@ export default async function FeesPage() {
                 <p className="font-semibold text-primary mb-1">Fee enquiries</p>
                 <p className="mb-3">
                   For current fees and payment arrangements, contact admissions at{" "}
-                  <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
-                    admissions@musawo.ug
+                  <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
+                    admissions@mtc.ac.ug
                   </a>{" "}
                   or call{" "}
                   <a href="tel:+256709184468" className="text-primary no-underline hover:underline">

@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const FROM =
-  process.env.EMAIL_FROM ?? "Musawo Training Center <noreply@musawo.ug>";
+  process.env.EMAIL_FROM ?? "Musawo Training Center <noreply@mtc.ac.ug>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.musawo.ug";
 const LOGO_URL = `${SITE_URL}/assets/logo-header.png`;
 
@@ -51,7 +51,7 @@ function renderTemplate(
       <h2>Welcome to Musawo Training Center, {{name}}!</h2>
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
-      <p>If you have any questions, email us at info@musawo.ug or call 0709 184 468.</p>
+      <p>If you have any questions, email us at info@mtc.ac.ug or call 0709 184 468.</p>
     `,
     "email-verification": `
       <h2>Verify your email address</h2>
@@ -80,7 +80,7 @@ function renderTemplate(
       <p>Your student number is: <strong>{{studentNumber}}</strong></p>
       <p>Course: {{courseName}}</p>
       <p>If your details are not correct, use the "These details are wrong" option on the activation page and the Registrar will be notified.</p>
-      <p>If you have questions, contact us at admissions@musawo.ug or call 0709 184 468.</p>
+      <p>If you have questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
     `,
     "staff-invite": `
       <h2>You have been invited to join Musawo Training Center</h2>
@@ -91,7 +91,7 @@ function renderTemplate(
           Accept invitation
         </a>
       </p>
-      <p>This link expires in 7 days. If you have questions, contact info@musawo.ug.</p>
+      <p>This link expires in 7 days. If you have questions, contact info@mtc.ac.ug.</p>
     `,
     "application-confirmation": `
       <h2>Application received - Musawo Training Center</h2>
@@ -100,7 +100,7 @@ function renderTemplate(
       <p><strong>{{courseName}}</strong> ({{intakeLabel}} intake)</p>
       <p>Our Academic Registrar will review your application. If you are accepted, you will receive a secure account activation link by email within 3 to 5 working days.</p>
       <p>Your application reference: <strong>{{applicationRef}}</strong></p>
-      <p>If you have questions, email admissions@musawo.ug or call 0709 184 468.</p>
+      <p>If you have questions, email admissions@mtc.ac.ug or call 0709 184 468.</p>
     `,
     "application-received-registrar": `
       <h2>New application received</h2>
@@ -121,7 +121,7 @@ function renderTemplate(
       <p>We have received your payment of <strong>{{amount}}</strong> on {{date}}.</p>
       <p>Reference: <strong>{{paymentRef}}</strong></p>
       <p>You can now access your course. <a href="{{portalUrl}}">Go to your dashboard</a></p>
-      <p>We do not provide accommodation. Contact us at info@musawo.ug or 0709 184 468 if you have questions.</p>
+      <p>We do not provide accommodation. Contact us at info@mtc.ac.ug or 0709 184 468 if you have questions.</p>
     `,
     "class-reminder": `
       <h2>Reminder: Live class in {{timeUntil}}</h2>
@@ -186,7 +186,7 @@ function renderTemplate(
       </p>
       <p>Intake: <strong>{{intakeLabel}}</strong></p>
       <p>Course fee: <strong>{{feeUgx}}</strong></p>
-      <p>If you have any questions, contact us at admissions@musawo.ug or call 0709 184 468.</p>
+      <p>If you have any questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
     `,
     "application-rejected": `
       <h2>Update on your application - Musawo Training Center</h2>
@@ -194,7 +194,7 @@ function renderTemplate(
       <p>Thank you for applying for <strong>{{courseName}}</strong> at Musawo Training Center.</p>
       <p>After reviewing your application, we are unable to offer you a place at this time.</p>
       <p style="background:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:4px;">{{reason}}</p>
-      <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@musawo.ug.</p>
+      <p>You are welcome to apply again for a future intake. If you have questions, please contact us at admissions@mtc.ac.ug.</p>
     `,
     plain: `<p style="white-space:pre-wrap;">{{body}}</p>`,
     "student-details-disputed": `
@@ -226,7 +226,7 @@ function renderTemplate(
       <h2>{{title}}</h2>
       <p>Dear {{name}},</p>
       <div style="white-space:pre-wrap;">{{body}}</div>
-      <p>For questions, contact the front office at info@musawo.ug.</p>
+      <p>For questions, contact the front office at info@mtc.ac.ug.</p>
     `,
     "approval-decision": `
       <h2>Your request has been {{decision}}</h2>
@@ -256,8 +256,8 @@ function renderTemplate(
       ${html}
       <hr style="margin-top: 32px; border-color: #E5E7EB;" />
       <p style="font-size: 12px; color: #6B7280;">
-        Musawo Training Center - Luggala Trading Center, Lubaga Division, Kampala<br />
-        <a href="mailto:info@musawo.ug">info@musawo.ug</a> |
+        Musawo Training Center - Lugala Trading Center, Lubaga Division, Kampala<br />
+        <a href="mailto:info@mtc.ac.ug">info@mtc.ac.ug</a> |
         <a href="tel:+256709184468">0709 184 468</a> |
         <a href="https://wa.me/256709184468">WhatsApp</a> |
         <a href="https://www.musawo.ug">www.musawo.ug</a>

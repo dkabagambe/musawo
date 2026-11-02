@@ -108,10 +108,10 @@ export default async function ImpactPage() {
                   Share your story on WhatsApp <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </a>
                 <a
-                  href="mailto:info@musawo.ug"
+                  href="mailto:info@mtc.ac.ug"
                   className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-3 rounded-xl no-underline transition-colors text-sm"
                 >
-                  Email us at info@musawo.ug
+                  Email us at info@mtc.ac.ug
                 </a>
               </div>
             </div>

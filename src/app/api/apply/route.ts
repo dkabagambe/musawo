@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     });
     if (existingApplication) {
       return NextResponse.json(
-        { error: "An application for this course already exists for this phone number. Please contact admissions@musawo.ug if you need help." },
+        { error: "An application for this course already exists for this phone number. Please contact admissions@mtc.ac.ug if you need help." },
         { status: 409 }
       );
     }
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("[api/apply] error:", err);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again or contact admissions@musawo.ug." },
+      { error: "Something went wrong. Please try again or contact admissions@mtc.ac.ug." },
       { status: 500 }
     );
   }

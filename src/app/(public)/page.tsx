@@ -56,7 +56,7 @@ async function getPublicCourses() {
 const FACTS = [
   { icon: Video, label: "Hybrid and online classes with hands-on practicals" },
   { icon: Banknote, label: "Pay with MTN MoMo or Airtel Money" },
-  { icon: Users, label: "Taught by doctors, nurses and clinicians" },
+  { icon: Users, label: "Taught by licensed doctors, nurses, midwives and other healthcare professionals" },
   { icon: Briefcase, label: "Job placement support included" },
 ];
 
@@ -83,7 +83,7 @@ const HOW_STEPS = [
     n: "04",
     icon: Award,
     title: "Pass and certify",
-    body: "Complete assessments and log book. Receive your digital certificate with QR verification, shareable with any employer.",
+    body: "Complete assessments and log book. Receive your certificate on successful completion, shareable with any employer.",
   },
 ];
 
@@ -166,7 +166,8 @@ export default async function HomePage() {
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
               Hybrid and online classes with hands-on practicals in our
-              skills lab. Taught by doctors, nurses and clinicians. Courses
+              skills lab. Taught by licensed doctors, nurses, midwives and
+              other healthcare professionals. Courses
               across nursing, childcare, mental health and life
               support.
             </p>

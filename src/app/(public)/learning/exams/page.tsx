@@ -2,7 +2,7 @@ import PageHero from "@/components/public/PageHero";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
-import { Award, FileText, QrCode, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Award, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ export default async function ExamsPage() {
         image="/assets/healthcare-services.webp"
         imageAlt="Musawo Training Center student completing their certificate"
         title="Exams and Certificates"
-        description="Clear assessment structure and a digital certificate with QR verification you can share anywhere."
+        description="Clear assessment structure and a certificate issued on completion that you can share with employers."
         breadcrumbs={[
           { label: "Learning", href: "/learning/how-you-learn" },
           { label: "Exams and certificates" },
@@ -142,43 +142,25 @@ export default async function ExamsPage() {
                 className="font-bold text-primary mb-5"
                 style={{ fontSize: "clamp(1.25rem, 2vw, 1.625rem)" }}
               >
-                Your digital certificate
+                Your certificate
               </h2>
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="bg-white rounded-2xl border border-border p-6">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                     <Award className="w-4 h-4 text-primary" aria-hidden="true" />
                   </div>
-                  <h3 className="font-bold text-primary text-sm mb-2">Issued within 48 hours</h3>
+                  <h3 className="font-bold text-primary text-sm mb-2">Issued on completion</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Once you pass your final examination, your certificate is generated automatically and available to download from your student portal within 48 hours.
-                  </p>
-                </div>
-                <div className="bg-white rounded-2xl border border-border p-6">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                    <QrCode className="w-4 h-4 text-primary" aria-hidden="true" />
-                  </div>
-                  <h3 className="font-bold text-primary text-sm mb-2">QR verification</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    Every certificate has a unique QR code. Employers can scan it to verify authenticity in seconds at www.musawo.ug/verify.
+                    Once you pass your final examination, your certificate is issued and available to collect or receive from the center.
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border p-6">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                     <FileText className="w-4 h-4 text-primary" aria-hidden="true" />
                   </div>
-                  <h3 className="font-bold text-primary text-sm mb-2">PDF format</h3>
+                  <h3 className="font-bold text-primary text-sm mb-2">Shareable</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Download a high-quality PDF you can print or share digitally. Your certificate is stored permanently in your account.
-                  </p>
-                </div>
-                <div className="bg-white rounded-2xl border border-border p-6">
-                  <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center mb-4">
-                    <CheckCircle className="w-4 h-4 text-success" aria-hidden="true" />
-                  </div>
-                  <h3 className="font-bold text-primary text-sm mb-2">QR verified</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    Every certificate has a unique ID and QR code. Employers scan it to verify authenticity online in seconds.
+                    Your certificate can be shared with employers and institutions as proof of your qualification.
                   </p>
                 </div>
               </div>
@@ -192,7 +174,7 @@ export default async function ExamsPage() {
                   <div>
                     <h3 className="font-bold text-primary mb-2">Resit policy</h3>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@musawo.ug to discuss your options.
+                      If you score between 50% and 59% on the final examination, you are entitled to one resit attempt at no extra charge within the same intake period. If you score below 50%, you must re-enrol in the next intake. Contact us at info@mtc.ac.ug to discuss your options.
                     </p>
                   </div>
                 </div>

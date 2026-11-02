@@ -45,7 +45,7 @@ export default async function AboutPage() {
         image="/assets/images/hero-about.webp"
         imageAlt="Musawo Training Center staff and skills lab"
         title="About Musawo Training Center"
-        description="Hybrid and online healthcare training with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Serving Ugandan communities since 2018."
+        description="Hybrid and online healthcare training with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Serving Ugandan communities since 2018."
         breadcrumbs={[{ label: "About" }]}
         boxSide="right"
         objectPosition="left center"
@@ -71,14 +71,13 @@ export default async function AboutPage() {
                   Our mission: to equip women and youth with practical, high-quality healthcare skills through innovative training, mentorship, and values-based education, producing competent caregivers who bring safe, compassionate, and affordable care directly to patients, families and communities.
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Our eight programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by doctors, nurses and clinicians.
+                  Our eight programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by licensed doctors, nurses, midwives and other healthcare professionals.
                 </p>
                 <ul className="space-y-3 list-none mb-8">
                   {[
                     "Hybrid and online classes with 70% hands-on practicals",
-                    "Taught by doctors, nurses and clinicians",
+                    "Taught by licensed doctors, nurses, midwives and other healthcare professionals",
                     "Pay with MTN MoMo or Airtel Money",
-                    "Digital certificate with QR verification",
                     "Flexible instalment payment plans",
                     "Job placement support in Uganda",
                     "Job opportunities abroad through licensed recruitment agencies",

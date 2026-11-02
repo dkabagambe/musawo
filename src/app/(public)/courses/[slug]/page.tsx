@@ -53,7 +53,7 @@ const HIGHLIGHTS = [
   { icon: CheckCircle, title: "Digital certificate",    body: "QR-verifiable certificate on completion." },
   { icon: Play,        title: "Hybrid delivery",        body: "Online classes + 70% practicals in our skills lab." },
   { icon: Banknote,    title: "Pay in instalments",     body: "Split your fee into interest-free payments." },
-  { icon: Video,       title: "Taught by professionals",body: "Doctors, nurses and clinicians." },
+  { icon: Video,       title: "Taught by professionals",body: "Licensed doctors, nurses, midwives and other healthcare professionals." },
 ];
 
 export default async function CourseDetailPage({ params }: Props) {
@@ -195,7 +195,7 @@ export default async function CourseDetailPage({ params }: Props) {
                 <ul className="space-y-3 list-none text-sm text-gray-700">
                   {[
                     "Hybrid and online classes with 70% hands-on practicals in our skills lab",
-                    "Taught by doctors, nurses and clinicians",
+                    "Taught by licensed doctors, nurses, midwives and other healthcare professionals",
                     `${course.intakeLabel ?? "November 2026"} intake`,
                     "Job placement support in Uganda",
                     "Job opportunities abroad through licensed recruitment agencies with pre-departure preparation",
@@ -335,8 +335,8 @@ export default async function CourseDetailPage({ params }: Props) {
                   <p className="text-base font-semibold text-gray-600 mb-1">Course fee</p>
                   <p className="text-sm text-gray-500">
                     Fee: contact admissions at{" "}
-                    <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
-                      admissions@musawo.ug
+                    <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
+                      admissions@mtc.ac.ug
                     </a>
                   </p>
                 </div>
@@ -390,7 +390,6 @@ export default async function CourseDetailPage({ params }: Props) {
               <ul className="space-y-2.5 text-xs text-gray-500 list-none">
                 {[
                   "Pay with MTN MoMo or Airtel Money",
-                  "Digital certificate with QR verification",
                   "Access on any device",
                   duration ? `Complete in ${duration}` : null,
                   "Job placement support after graduation",

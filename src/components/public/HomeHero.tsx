@@ -72,7 +72,7 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
         }}
       >
         Hybrid and online classes with 70% hands-on practicals in our skills lab.
-        Taught by doctors, nurses and clinicians.
+        Taught by licensed doctors, nurses, midwives and other healthcare professionals.
       </p>
 
       <div className="flex flex-col xs:flex-row gap-3">
@@ -109,7 +109,7 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
           paddingTop: "12px",
         }}
       >
-        Digital certificate with QR verification
+        Certificate issued on successful completion
       </p>
     </div>
   );

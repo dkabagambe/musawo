@@ -25,14 +25,14 @@ export async function getContactInfo(): Promise<ContactInfo> {
     email, admissionsEmail, phone, phone2, whatsappNumber,
     address, instagramUrl, tiktokUrl, tagline, websiteUrl,
   ] = await Promise.all([
-    getSetting("site.supportEmail",    "info@musawo.ug"),
-    getSetting("site.admissionsEmail", "admissions@musawo.ug"),
+    getSetting("site.supportEmail",    "info@mtc.ac.ug"),
+    getSetting("site.admissionsEmail", "admissions@mtc.ac.ug"),
     getSetting("site.supportPhone",    "0709 184 468"),
     getSetting("site.supportPhone2",   "0790 192 270"),
     getSetting("site.whatsappNumber",  "256709184468"),
     getSetting(
       "site.address",
-      "Luggala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)"
+      "Lugala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)"
     ),
     getSetting("site.instagramUrl", "https://www.instagram.com/musawotm"),
     getSetting("site.tiktokUrl",    "https://www.tiktok.com/@musawoadfa"),

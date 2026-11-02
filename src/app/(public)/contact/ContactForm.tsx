@@ -25,7 +25,7 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
-          email: form.email || `noreply+${Date.now()}@musawo.ug`,
+          email: form.email || `noreply+${Date.now()}@mtc.ac.ug`,
           subject: form.subject || 'Enquiry',
           message: form.message,
         }),

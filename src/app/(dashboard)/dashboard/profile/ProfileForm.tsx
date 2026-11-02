@@ -26,7 +26,7 @@ const UGANDAN_DISTRICTS = [
 
 const QUALIFICATIONS = [
   "O-Level (UCE)", "A-Level (UACE)", "Certificate", "Diploma",
-  "Bachelor's Degree", "Postgraduate Diploma", "Master's Degree",
+  "Bachelor's Degree", "Master's Degree",
   "Doctorate (PhD)", "Professional Certificate", "Other",
 ];
 

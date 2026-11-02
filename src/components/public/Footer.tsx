@@ -86,8 +86,8 @@ export default async function PublicFooter() {
 
             <p className="text-white/85 text-sm leading-relaxed mb-6 max-w-xs">
               Hybrid and online healthcare training with 70% hands-on
-              practicals. Taught by doctors, nurses and clinicians. Serving
-              Uganda since 2018.
+              practicals. Taught by licensed doctors, nurses, midwives and
+              other healthcare professionals. Serving Uganda since 2018.
             </p>
 
             {/* Social icons */}
@@ -257,14 +257,14 @@ export default async function PublicFooter() {
               <ul className="space-y-3 list-none text-sm">
                 <li>
                   <a
-                    href="mailto:admissions@musawo.ug"
+                    href="mailto:admissions@mtc.ac.ug"
                     className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                   >
                     <Mail
                       className="w-4 h-4 flex-shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
-                    admissions@musawo.ug
+                    admissions@mtc.ac.ug
                   </a>
                 </li>
                 <li>

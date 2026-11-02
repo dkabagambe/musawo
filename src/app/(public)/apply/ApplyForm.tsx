@@ -35,7 +35,6 @@ const QUALIFICATIONS = [
   "Certificate",
   "Diploma",
   "Degree",
-  "Postgraduate",
   "Other",
 ];
 
@@ -165,8 +164,8 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
         </p>
         <p className="text-xs text-gray-400 mb-6">
           Questions? Contact{" "}
-          <a href="mailto:admissions@musawo.ug" className="text-primary no-underline hover:underline">
-            admissions@musawo.ug
+          <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
+            admissions@mtc.ac.ug
           </a>{" "}
           or call <a href="tel:+256709184468" className="text-primary no-underline hover:underline">0709 184 468</a>.
         </p>

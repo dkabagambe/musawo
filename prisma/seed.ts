@@ -73,12 +73,12 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   },
   {
     key: "site.supportEmail",
-    value: "info@musawo.ug",
+    value: "info@mtc.ac.ug",
     description: "Primary support email",
   },
   {
     key: "site.admissionsEmail",
-    value: "admissions@musawo.ug",
+    value: "admissions@mtc.ac.ug",
     description: "Admissions email",
   },
   {
@@ -104,7 +104,7 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "site.address",
     value:
-      "Luggala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)",
+      "Lugala Trading Center, Lubaga Division, Kampala (near Pr. Namutebi's Church)",
     description: "Physical address",
   },
   {
@@ -3056,7 +3056,7 @@ async function main() {
       ],
       [
         "Need help finding the campus",
-        "I need directions to Luggala Trading Center for practicals.",
+        "I need directions to Lugala Trading Center for practicals.",
         "FRONT_DESK",
         TicketStatus.RESOLVED,
       ],
@@ -3096,14 +3096,14 @@ async function main() {
     const skillsLab = await prisma.venue.create({
       data: {
         name: "Skills Lab",
-        location: "Luggala Training Center",
+        location: "Lugala Training Center",
         capacity: 24,
       },
     });
     const classroom = await prisma.venue.create({
       data: {
         name: "Main Classroom",
-        location: "Luggala Training Center",
+        location: "Lugala Training Center",
         capacity: 36,
       },
     });

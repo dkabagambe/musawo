@@ -146,7 +146,7 @@ export default async function CoursesPage() {
         image="/assets/images/hero-courses.webp"
         imageAlt="Healthcare students in a Musawo Training Center skills lab session"
         title="Our Courses"
-        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. Eight programmes across nursing, childcare, mental health and life support."
+        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Eight programmes across nursing, childcare, mental health and life support."
         breadcrumbs={[{ label: "Courses" }]}
         cta={{ label: "Apply now", href: "/apply" }}
         boxSide="left"
@@ -184,17 +184,6 @@ export default async function CoursesPage() {
               aria-hidden="true"
             />
             Pay with MTN MoMo or Airtel Money
-          </div>
-          <div
-            className="hidden sm:block w-px h-5 bg-border"
-            aria-hidden="true"
-          />
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <CheckCircle
-              className="w-4 h-4 text-success flex-shrink-0"
-              aria-hidden="true"
-            />
-            Digital certificate with QR verification
           </div>
         </div>
       </div>
