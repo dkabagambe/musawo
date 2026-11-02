@@ -189,7 +189,7 @@ export default async function CoursesPage() {
               className="w-4 h-4 text-success flex-shrink-0"
               aria-hidden="true"
             />
-            Pay with MTN, Airtel or bank
+            Pay with MTN MoMo or Airtel Money
           </div>
           <div
             className="hidden sm:block w-px h-5 bg-border"

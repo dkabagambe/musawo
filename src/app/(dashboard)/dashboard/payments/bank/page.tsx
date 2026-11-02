@@ -3,12 +3,17 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import BankPaymentForm from "@/components/payment/BankPaymentForm";
+import { getSetting } from "@/lib/settings";
 
 export const metadata = { title: "Pay by Bank Transfer" };
 
 export default async function BankPaymentPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+
+  // Bank payments are off by default; only shown when the Director enables them.
+  const bankEnabled = (await getSetting("policy.bankPaymentsEnabled", "false")) === "true";
+  if (!bankEnabled) redirect("/dashboard/payments");
 
   // Get enrolled courses that are pending payment or need next instalment
   const enrolments = await db.enrolment.findMany({

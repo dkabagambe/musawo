@@ -121,6 +121,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
           highestQualification: form.highestQualification,
           howHeard:             form.howHeard || undefined,
           notes:                form.notes.trim() || undefined,
+          dataConsent:          true,
         }),
       });
       const data = (await res.json()) as { error?: string };

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { ArrowRight, Menu, X, Phone, Mail, MessageCircle, ExternalLink } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 
 /* ─────────────────────────────────────────────
@@ -28,61 +28,6 @@ const NAV: NavItem[] = [
 export interface BreadcrumbItem {
   label: string;
   href?: string;
-}
-
-/* ─────────────────────────────────────────────
-   UTILITY BAR
-   ───────────────────────────────────────────── */
-function UtilityBar() {
-  return (
-    <div
-      className="hidden lg:block bg-[#095549] text-white/80 text-xs"
-      style={{ height: 38 }}
-    >
-      <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between gap-4">
-        {/* Left */}
-        <div className="flex items-center gap-5">
-          <Link href="/login" className="hover:text-white no-underline transition-colors">
-            Student login
-          </Link>
-          <a
-            href="https://musawo.ug"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white no-underline transition-colors flex items-center gap-1"
-          >
-            Visit musawo.ug <ExternalLink className="w-3 h-3" aria-hidden="true" />
-          </a>
-        </div>
-        {/* Right */}
-        <div className="flex items-center gap-5">
-          <a
-            href="tel:+256709184468"
-            className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
-          >
-            <Phone className="w-3 h-3" aria-hidden="true" />
-            0709 184 468
-          </a>
-          <a
-            href="https://wa.me/256709184468"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
-          >
-            <MessageCircle className="w-3 h-3" aria-hidden="true" />
-            WhatsApp
-          </a>
-          <a
-            href="mailto:info@musawo.ug"
-            className="hover:text-white no-underline transition-colors flex items-center gap-1.5"
-          >
-            <Mail className="w-3 h-3" aria-hidden="true" />
-            info@musawo.ug
-          </a>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 /* ─────────────────────────────────────────────
@@ -147,10 +92,7 @@ export default function PublicHeader() {
         Skip to main content
       </a>
 
-      <header className="fixed top-0 inset-x-0 z-50 flex flex-col">
-        {/* Utility bar */}
-        <UtilityBar />
-
+      <header className="fixed top-0 inset-x-0 z-50">
         {/* Main bar */}
         <div
           className={`bg-primary transition-all duration-300 ${scrolled ? "shadow-lg border-b border-white/10" : ""}`}

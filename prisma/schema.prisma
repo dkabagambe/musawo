@@ -630,6 +630,7 @@ model Application {
   rejectionReason      String?           @db.Text
   // If accepted: link to the created user account
   createdUserId        String?
+  dataConsentAt        DateTime? // timestamp when applicant gave data-processing consent
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 

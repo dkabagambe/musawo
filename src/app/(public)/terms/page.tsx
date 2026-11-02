@@ -58,8 +58,7 @@ export default async function TermsPage() {
 
             <TermsSection title="4. Fees and payment">
               <p>
-                All fees are displayed in Ugandan Shillings (UGX) and are inclusive of any applicable taxes. Payments may be made via
-                MTN Mobile Money, Airtel Money, bank card, or bank transfer through our authorised payment processors.
+                All fees are displayed in Ugandan Shillings (UGX) and are inclusive of any applicable taxes. Payments may be made via MTN Mobile Money or Airtel Money.
               </p>
               <p>
                 Where an instalment plan is selected, subsequent instalments must be paid by the due dates shown in your student dashboard.

@@ -15,6 +15,7 @@ const ApplySchema = z.object({
   highestQualification: z.string().min(1).max(80),
   howHeard:             z.string().max(80).optional(),
   notes:                z.string().max(1000).optional(),
+  dataConsent:          z.literal(true, { errorMap: () => ({ message: "You must give data consent to apply." }) }),
 });
 
 export async function POST(req: Request) {
@@ -90,6 +91,7 @@ export async function POST(req: Request) {
         howHeard:             data.howHeard ?? null,
         notes:                data.notes ?? null,
         status:               "SUBMITTED",
+        dataConsentAt:        new Date(),
       },
     });
 

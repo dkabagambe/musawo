@@ -18,13 +18,13 @@ export async function register() {
   // crash the Node process and trigger a Render 502.
   process.on("unhandledRejection", (reason: unknown) => {
     const msg = reason instanceof Error ? reason.message : String(reason);
-    // Silence Redis ECONNREFUSED — expected when Redis is offline in demo
+    // Silence Redis ECONNREFUSED - expected when Redis is offline in demo
     if (msg.includes("ECONNREFUSED") || msg.includes("connect ETIMEDOUT")) {
       console.warn("[process] Suppressed Redis connection rejection:", msg);
       return;
     }
     console.error("[process] Unhandled rejection:", reason);
-    // Do NOT exit — keep serving traffic
+    // Do NOT exit - keep serving traffic
   });
 
   process.on("uncaughtException", (err: Error) => {
@@ -53,7 +53,7 @@ export async function register() {
   });
 
   // ── Pre-warm the DB connection pool ───────────────────────────────────────
-  // Run asynchronously after startup — do not block the server from accepting
+  // Run asynchronously after startup - do not block the server from accepting
   // requests. This ensures the pool has an open connection ready before the
   // first real page load, cutting the cold-start latency from ~800 ms to ~50 ms.
   setTimeout(async () => {
@@ -62,8 +62,8 @@ export async function register() {
       await db.$queryRaw`SELECT 1`;
       console.log("[startup] DB connection pool warmed");
     } catch (err) {
-      // Non-fatal — the app will connect on first request instead
+      // Non-fatal - the app will connect on first request instead
       console.warn("[startup] DB pre-warm failed (non-fatal):", err instanceof Error ? err.message : String(err));
     }
-  }, 500); // 500 ms after server binds — give Next.js time to finish init
+  }, 500); // 500 ms after server binds - give Next.js time to finish init
 }
