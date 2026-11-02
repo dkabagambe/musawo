@@ -40,6 +40,7 @@ async function getPublicCourses() {
       shortDescription: true,
       thumbnailUrl: true,
       fullFeeUgx: true,
+      internationalFeeUgx: true,
       feeContactOnly: true,
       durationMonths: true,
       instalmentCount: true,
@@ -53,7 +54,7 @@ async function getPublicCourses() {
 /* ─── Constants ───────────────────────────────────────────────── */
 
 const FACTS = [
-  { icon: Video, label: "Hybrid and online classes with 70% practicals" },
+  { icon: Video, label: "Hybrid and online classes with hands-on practicals" },
   { icon: Banknote, label: "Pay with MTN MoMo or Airtel Money" },
   { icon: Users, label: "Taught by doctors, nurses and clinicians" },
   { icon: Briefcase, label: "Job placement support included" },
@@ -64,7 +65,7 @@ const HOW_STEPS = [
     n: "01",
     icon: BookOpen,
     title: "Choose your course",
-    body: "Browse our eight healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support. Pick the one that fits your goals and background.",
+    body: "Browse our healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support. Pick the one that fits your goals and background.",
   },
   {
     n: "02",
@@ -76,7 +77,7 @@ const HOW_STEPS = [
     n: "03",
     icon: Video,
     title: "Learn and attend practicals",
-    body: "Study online lessons on any device, then attend hands-on sessions in our skills lab. Hybrid delivery means 70% of your learning is practical.",
+    body: "Study online lessons on any device, then attend hands-on sessions in our skills lab. Most of your learning is hands-on and practical.",
   },
   {
     n: "04",
@@ -164,9 +165,9 @@ export default async function HomePage() {
               Healthcare training courses
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
-              Hybrid and online classes with 70% hands-on practicals in our
-              skills lab. Taught by doctors, nurses and clinicians. Eight
-              programmes across nursing, childcare, mental health and life
+              Hybrid and online classes with hands-on practicals in our
+              skills lab. Taught by doctors, nurses and clinicians. Courses
+              across nursing, childcare, mental health and life
               support.
             </p>
           </AnimateIn>
@@ -232,9 +233,9 @@ export default async function HomePage() {
                             <p className="text-accent font-extrabold text-lg leading-none">
                               UGX {c.fullFeeUgx.toLocaleString()}
                             </p>
-                            {(c.instalmentCount ?? 1) > 1 && (
+                            {c.internationalFeeUgx && (
                               <p className="text-xs text-gray-400 mt-1">
-                                or {c.instalmentCount} instalments
+                                International: USD {Math.round(c.internationalFeeUgx / 3600).toLocaleString()}
                               </p>
                             )}
                           </>

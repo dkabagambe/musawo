@@ -342,9 +342,20 @@ export default async function CourseDetailPage({ params }: Props) {
                 </div>
               ) : (
                 <div className="mb-4">
-                  <p className="text-3xl font-extrabold text-accent mb-1">
-                    UGX {course.fullFeeUgx.toLocaleString()}
-                  </p>
+                  {course.internationalFeeUgx ? (
+                    <>
+                      <p className="text-3xl font-extrabold text-accent mb-1">
+                        USD {Math.round(course.internationalFeeUgx / 3600).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-400 mb-1">
+                        (UGX {course.fullFeeUgx.toLocaleString()} for local students)
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-3xl font-extrabold text-accent mb-1">
+                      UGX {course.fullFeeUgx.toLocaleString()}
+                    </p>
+                  )}
                   {instalment && (
                     <p className="text-sm text-gray-400">
                       or {course.instalmentCount} instalments of{" "}

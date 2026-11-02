@@ -13,6 +13,7 @@ export interface CourseItem {
   shortDescription: string | null;
   thumbnailUrl: string | null;
   fullFeeUgx: number | null;
+  internationalFeeUgx?: number | null;
   feeContactOnly?: boolean;
   durationWeeks: number | null;
   durationMonths: number | null;
@@ -149,9 +150,13 @@ export default function CoursesClient({ courses }: Props) {
                             <p className="text-accent font-extrabold text-lg leading-none">
                               UGX {course.fullFeeUgx.toLocaleString()}
                             </p>
-                            {course.instalmentCount > 1 && (
+                            {course.internationalFeeUgx ? (
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                Intl: USD {Math.round(course.internationalFeeUgx / 3600).toLocaleString()}
+                              </p>
+                            ) : course.instalmentCount > 1 ? (
                               <p className="text-xs text-gray-400 mt-0.5">or {course.instalmentCount} instalments</p>
-                            )}
+                            ) : null}
                           </>
                         )}
                       </div>

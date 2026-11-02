@@ -56,15 +56,15 @@ const COMPARE_ROWS = [
     ],
   },
   {
-    feature: "Fee (UGX)",
+    feature: "Fee",
     values: [
-      "2,300,000",
-      "1,800,000",
-      "1,200,000",
-      "1,800,000",
-      "1,800,000",
-      "600,000",
-      "900,000",
+      "USD 639 (≈ UGX 2,300,000)",
+      "UGX 1,800,000",
+      "UGX 1,200,000",
+      "UGX 1,800,000",
+      "UGX 1,800,000",
+      "UGX 600,000",
+      "UGX 900,000",
       "Contact admissions",
     ],
   },
@@ -134,6 +134,7 @@ export default async function CoursesPage() {
     shortDescription: c.shortDescription,
     thumbnailUrl: c.thumbnailUrl,
     fullFeeUgx: c.fullFeeUgx,
+    internationalFeeUgx: c.internationalFeeUgx,
     feeContactOnly: c.feeContactOnly,
     durationMonths: c.durationMonths,
     durationWeeks: c.durationWeeks,
@@ -239,7 +240,7 @@ export default async function CoursesPage() {
                       <td
                         key={i}
                         className={`text-center ${
-                          row.feature === "Fee (UGX)"
+                          row.feature === "Fee"
                             ? v === "Contact admissions"
                               ? "text-gray-400 italic"
                               : "font-semibold text-accent"
