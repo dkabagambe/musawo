@@ -1,43 +1,31 @@
+/**
+ * GET /api/health
+ *
+ * Render health check endpoint. Returns 200 when the app is running and
+ * the database is reachable; 503 if the DB query fails.
+ * Always bypasses auth and the demo gate middleware.
+ */
+
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const runtime = "nodejs";
+// Do not cache — Render needs a live response every poll cycle.
 export const dynamic = "force-dynamic";
 
-/**
- * GET /api/health
- * Used by Render health checks and monitoring.
- * Runs a cheap DB ping. Redis is optional (graceful degradation).
- */
 export async function GET() {
-  const start = Date.now();
-
   try {
-    // Cheap DB liveness check
+    // Lightweight DB ping — just reads a single constant from the server.
     await db.$queryRaw`SELECT 1`;
-  } catch (err) {
-    console.error("[health] DB check failed:", err);
     return NextResponse.json(
-      { status: "error", db: "unreachable", uptime: process.uptime() },
-      { status: 503 }
+      { status: "ok", timestamp: new Date().toISOString() },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.error("[health] DB ping failed:", err);
+    return NextResponse.json(
+      { status: "error", message: "Database unavailable" },
+      { status: 503 },
     );
   }
-
-  // Redis is optional — just report status, never fail health for it
-  let redisStatus = "unchecked";
-  try {
-    const { redis } = await import("@/lib/db/redis");
-    await redis.ping();
-    redisStatus = "ok";
-  } catch {
-    redisStatus = "unavailable";
-  }
-
-  return NextResponse.json({
-    status: "ok",
-    db: "ok",
-    redis: redisStatus,
-    latencyMs: Date.now() - start,
-    uptime: process.uptime(),
-    env: process.env.APP_ENV ?? "development",
-  });
 }
