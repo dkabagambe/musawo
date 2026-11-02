@@ -39,7 +39,6 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export interface NavItem {
   href: string;
@@ -81,33 +80,21 @@ function dashboardGroup(href: string, root: string): DashboardTab {
   const groupsByRoot: Record<string, Record<string, DashboardTab>> = {
     "/dashboard": {
       courses: "studies",
-      enrolled: "studies",
       gradebook: "studies",
       results: "studies",
       assignments: "studies",
-      materials: "studies",
-      exams: "studies",
-      attendance: "studies",
-      forum: "classes",
-      recordings: "classes",
-      classes: "classes",
+      forum: "studies",
       payments: "finance",
-      certificates: "finance",
+      recordings: "classes",
     },
     "/tutor": {
       courses: "teaching",
       materials: "teaching",
       classes: "teaching",
-      timetable: "teaching",
-      assignments: "teaching",
       students: "students",
       exams: "assessment",
-      results: "assessment",
       attendance: "assessment",
       announcements: "support",
-      forum: "support",
-      support: "support",
-      reports: "support",
     },
     "/registrar": {
       applications: "admissions",
@@ -115,80 +102,59 @@ function dashboardGroup(href: string, root: string): DashboardTab {
       enrolments: "academics",
       results: "academics",
       graduands: "academics",
-      transcripts: "academics",
-      timetable: "academics",
-      announcements: "admissions",
-      audit: "general",
+      audit: "reports",
     },
     "/principal": {
-      students: "students",
-      admissions: "admissions",
-      instructors: "students",
-      "user-management": "students",
-      programmes: "academics",
-      departments: "academics",
       courses: "academics",
-      classes: "academics",
-      semesters: "academics",
-      timetable: "academics",
-      attendance: "academics",
-      examinations: "academics",
+      students: "academics",
       results: "academics",
-      certificates: "academics",
-      materials: "academics",
-      calendar: "academics",
-      announcements: "operations",
-      finance: "operations",
-      "approvals-inbox": "approvals",
-      "approval-tracking": "approvals",
-      equipment: "operations",
-      support: "operations",
-      forum: "operations",
+      graduands: "academics",
       reports: "reports",
       audit: "reports",
-      delegation: "approvals",
+    },
+    "/deputy": {
+      students: "academics",
+      timetable: "academics",
+      complaints: "support",
+      reports: "reports",
+      policies: "support",
+    },
+    "/finance": {
+      payments: "payments",
+      ledger: "reconciliation",
+      approvals: "payments",
+    },
+    "/bursar": {
+      payments: "payments",
+      ledger: "reconciliation",
+      approvals: "payments",
     },
     "/admin": {
-      students: "students",
-      admissions: "admissions",
-      tutors: "students",
-      programmes: "academics",
       courses: "academics",
-      classes: "academics",
+      students: "students",
+      tutors: "staff",
       intakes: "academics",
-      timetable: "operations",
-      attendance: "academics",
-      examinations: "academics",
-      results: "academics",
-      documents: "students",
-      payments: "operations",
-      equipment: "operations",
-      support: "operations",
-      notices: "operations",
-      notifications: "general",
+      payments: "finance",
       reports: "reports",
-      settings: "general",
-      audit: "general",
-      invites: "students",
-      "partner-pages": "general",
+      settings: "settings",
+      audit: "audit",
+      "partner-pages": "settings",
     },
     "/director": {
       approvals: "approvals",
-      reports: "reports",
-      audit: "reports",
-      students: "academics",
-      instructors: "academics",
-      programmes: "academics",
-      courses: "academics",
-      examinations: "academics",
-      certificates: "academics",
-      notifications: "general",
-      profile: "general",
       staff: "staff",
+      audit: "reports",
       "access-review": "staff",
-      roles: "staff",
+      admin: "staff",
     },
-    "/system": { support: "support", settings: "system", audit: "logs" },
+    "/board": { reports: "reports", policies: "audit", graduates: "academics" },
+    "/auditor": {
+      students: "audit",
+      audit: "audit",
+      reports: "reports",
+      policies: "audit",
+    },
+    "/system": { settings: "system", audit: "logs" },
   };
   return groupsByRoot[root]?.[section] ?? "general";
 }
@@ -409,15 +375,18 @@ export function Sidebar({
             >
               <UserRound size={16} /> Profile
             </Link>
-            <Link href="/signout" role="menuitem" onClick={() => { setUserMenuOpen(false); onNavigate?.(); }}>
+            <Link
+              href="/signout"
+              role="menuitem"
+              onClick={() => {
+                setUserMenuOpen(false);
+                onNavigate?.();
+              }}
+            >
               <LogOut size={16} /> Log out
             </Link>
           </div>
         )}
-        {/* Theme toggle - visible in sidebar bottom area */}
-        <div className="flex items-center justify-end px-2 pb-1">
-          <ThemeToggle className="text-white/70 hover:text-white hover:!bg-white/10" />
-        </div>
         <button
           type="button"
           className="portal-user-button"
@@ -484,48 +453,44 @@ export function Topbar({
         </button>
         <h1>{title}</h1>
       </div>
-      <div className="flex items-center gap-1">
-        {/* Theme toggle visible in topbar - especially useful on mobile where sidebar is hidden */}
-        <ThemeToggle className="portal-topbar-theme-toggle" />
-        <div className="portal-settings-wrap" ref={menuRef}>
-          <button
-            type="button"
-            className="portal-settings-button"
-            aria-label="Settings"
-            aria-expanded={settingsOpen}
-            aria-haspopup="menu"
-            onClick={() => setSettingsOpen((value) => !value)}
-          >
-            <Settings size={19} />
-          </button>
-          {settingsOpen && (
-            <div className="portal-settings-menu" role="menu">
+      <div className="portal-settings-wrap" ref={menuRef}>
+        <button
+          type="button"
+          className="portal-settings-button"
+          aria-label="Settings"
+          aria-expanded={settingsOpen}
+          aria-haspopup="menu"
+          onClick={() => setSettingsOpen((value) => !value)}
+        >
+          <Settings size={19} />
+        </button>
+        {settingsOpen && (
+          <div className="portal-settings-menu" role="menu">
+            <Link
+              href={profile}
+              role="menuitem"
+              onClick={() => setSettingsOpen(false)}
+            >
+              <UserRound size={16} /> Profile
+            </Link>
+            {notifications && (
               <Link
-                href={profile}
+                href={notifications}
                 role="menuitem"
                 onClick={() => setSettingsOpen(false)}
               >
-                <UserRound size={16} /> Profile
+                <Bell size={16} /> Notifications settings
               </Link>
-              {notifications && (
-                <Link
-                  href={notifications}
-                  role="menuitem"
-                  onClick={() => setSettingsOpen(false)}
-                >
-                  <Bell size={16} /> Notifications settings
-                </Link>
-              )}
-              <Link
-                href={`${profile}#password`}
-                role="menuitem"
-                onClick={() => setSettingsOpen(false)}
-              >
-                <Settings size={16} /> Change password
-              </Link>
-            </div>
-          )}
-        </div>
+            )}
+            <Link
+              href={`${profile}#password`}
+              role="menuitem"
+              onClick={() => setSettingsOpen(false)}
+            >
+              <Settings size={16} /> Change password
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -43,14 +43,29 @@ export interface DashboardWidgetDefinition {
 
 /** Human-readable role labels shown in the UI (never raw enum keys). */
 export const ROLE_LABELS: Record<string, string> = {
-  DIRECTOR: "Director",
-  PRINCIPAL: "Principal",
-  ADMIN: "Administrator",
-  ACADEMIC_REGISTRAR: "Academic Registrar",
-  INSTRUCTOR: "Instructor",
-  STUDENT: "Student",
-  SYSTEM_IT: "IT Admin",
-  ARCHIVED: "Archived Account",
+  // ── Current 6-role model ─────────────────────────────────────────
+  DIRECTOR:            "Director",
+  PRINCIPAL:           "Principal",
+  ADMIN:               "Administrator",
+  ACADEMIC_REGISTRAR:  "Academic Registrar",
+  INSTRUCTOR:          "Instructor",
+  STUDENT:             "Student",
+  SYSTEM_IT:           "IT Admin",
+  ARCHIVED:            "Archived Account",
+  // ── Legacy aliases (kept so old data renders correctly) ──────────
+  SUPER_ADMIN:         "Managing Director",
+  SUPERADMIN:          "Managing Director",
+  BOARD_MEMBER:        "Board Member",
+  DEPUTY_PRINCIPAL:    "Deputy Principal",
+  REGISTRAR:           "Academic Registrar",
+  TUTOR:               "Instructor",
+  TEACHING_ASSISTANT:  "Teaching Assistant",
+  FINANCE_OFFICER:     "Finance Officer",
+  BURSAR:              "Finance Officer",
+  HR_SYSTEM_ADMIN:     "HR Admin",
+  HR_MANAGER:          "HR Manager",
+  ADMINISTRATOR:       "Administrator",
+  AUDITOR_READONLY:    "Audit",
 };
 
 export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
@@ -69,7 +84,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
   {
     id: "holds",
-    title: "Payment Holds & Upcoming Payments",
+    title: "Payment Holds",
     requiredPermission: "payments.initiate",
     defaultTab: "general",
     defaultColumn: 0,
@@ -196,17 +211,6 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     fullPageHref: "/dashboard/payments",
     roles: ["STUDENT"],
   },
-  {
-    id: "student-access-summary",
-    title: "What You Can Access",
-    requiredPermission: "payments.initiate",
-    defaultTab: "finance",
-    defaultColumn: 0,
-    component: "student-access-summary",
-    defaultSpan: 2,
-    fullPageHref: "/dashboard/courses",
-    roles: ["STUDENT"],
-  },
   // Classes tab
   {
     id: "timetable",
@@ -259,7 +263,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "teacher-classes",
     fullPageHref: "/tutor/classes",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "my-students",
@@ -270,7 +274,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "student-cards",
     defaultSpan: 2,
     fullPageHref: "/tutor/students",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "tutor-courses",
@@ -280,7 +284,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "course-cards",
     fullPageHref: "/tutor/courses",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "at-a-glance",
@@ -290,7 +294,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "metrics",
     defaultVisible: false,
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   // Teaching tab
   {
@@ -301,7 +305,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "teacher-classes",
     fullPageHref: "/tutor/classes",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "tutor-courses-tab",
@@ -311,7 +315,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "course-cards",
     fullPageHref: "/tutor/courses",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "tutor-attendance",
@@ -321,7 +325,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "attendance-overview",
     fullPageHref: "/tutor/attendance",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "tutor-recordings",
@@ -331,7 +335,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "recordings",
     fullPageHref: "/tutor/classes",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   // Students tab
   {
@@ -343,7 +347,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "student-cards",
     defaultSpan: 2,
     fullPageHref: "/tutor/students",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "student-progress",
@@ -363,7 +367,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "attendance-overview",
     fullPageHref: "/tutor/attendance",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   // Assessment tab
   {
@@ -395,7 +399,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "inbox-list",
     fullPageHref: "/tutor/announcements",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
   {
     id: "tutor-inbox",
@@ -405,7 +409,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "inbox-list",
     fullPageHref: "/tutor/announcements",
-    roles: ["INSTRUCTOR"],
+    roles: ["INSTRUCTOR", "TEACHING_ASSISTANT"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -706,8 +710,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "deputy-todos",
-    fullPageHref: "/principal/complaints",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/complaints",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-upcoming-classes",
@@ -716,8 +720,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "upcoming-classes-overview",
-    fullPageHref: "/principal/timetable",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/timetable",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-recent-students",
@@ -727,8 +731,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "recent-students-list",
     defaultSpan: 2,
-    fullPageHref: "/principal/students",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/students",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-support",
@@ -737,8 +741,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 1,
     component: "support-list",
-    fullPageHref: "/principal/complaints",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/complaints",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   // Academics tab
   {
@@ -749,8 +753,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "recent-students-list",
     defaultSpan: 2,
-    fullPageHref: "/principal/students",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/students",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-classes",
@@ -759,8 +763,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "academics",
     defaultColumn: 1,
     component: "upcoming-classes-overview",
-    fullPageHref: "/principal/timetable",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/timetable",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-graduands",
@@ -770,8 +774,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "graduand-list",
     defaultSpan: 2,
-    fullPageHref: "/principal/students",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/students",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   // Operations tab (spec: "Operations" — complaints, timetable, announcements)
   {
@@ -781,8 +785,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "operations",
     defaultColumn: 0,
     component: "support-list",
-    fullPageHref: "/principal/complaints",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/complaints",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-announcements",
@@ -791,8 +795,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "operations",
     defaultColumn: 1,
     component: "inbox-list",
-    fullPageHref: "/principal/complaints",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/complaints",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-timetable-ops",
@@ -801,8 +805,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "operations",
     defaultColumn: 0,
     component: "upcoming-classes-overview",
-    fullPageHref: "/principal/timetable",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/timetable",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   // Approvals tab (spec: "Approvals")
   {
@@ -812,8 +816,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "approvals",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/principal/reports",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/reports",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
   {
     id: "deputy-audit",
@@ -823,8 +827,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/principal/reports",
-    roles: ["PRINCIPAL"],
+    fullPageHref: "/deputy/reports",
+    roles: ["DEPUTY_PRINCIPAL"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -837,8 +841,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "finance-todos",
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/payments",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-recent-payments",
@@ -848,8 +852,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "recent-payments-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/payments",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-summary",
@@ -858,8 +862,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 1,
     component: "revenue-summary",
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/ledger",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-approvals-general",
@@ -869,8 +873,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "approval-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/approvals",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/approvals",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   // Payments tab
   {
@@ -881,8 +885,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "recent-payments-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/payments",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-payment-approvals",
@@ -892,8 +896,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "approval-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/approvals",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/approvals",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-revenue",
@@ -902,8 +906,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "payments",
     defaultColumn: 0,
     component: "revenue-summary",
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/ledger",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   // Reconciliation tab
   {
@@ -913,8 +917,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reconciliation",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/ledger",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "reconciliation-payments",
@@ -924,8 +928,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "recent-payments-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/ledger",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   // Reports tab
   {
@@ -935,8 +939,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reports",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/ledger",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
   {
     id: "finance-audit",
@@ -946,8 +950,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/approvals",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/finance/approvals",
+    roles: ["FINANCE_OFFICER", "BURSAR"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -961,7 +965,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "director-todos",
     fullPageHref: "/director/approvals",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-approvals",
@@ -972,7 +976,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "approval-list",
     defaultSpan: 2,
     fullPageHref: "/director/approvals",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-recent-payments",
@@ -983,7 +987,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "recent-payments-list",
     defaultSpan: 2,
     fullPageHref: "/director/finance",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-revenue",
@@ -993,7 +997,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "revenue-summary",
     fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   // Academics tab
   {
@@ -1004,7 +1008,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "course-cards",
     fullPageHref: "/admin/courses",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-students",
@@ -1015,7 +1019,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "recent-students-list",
     defaultSpan: 2,
     fullPageHref: "/admin/students",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-graduands",
@@ -1026,7 +1030,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "graduand-list",
     defaultSpan: 2,
     fullPageHref: "/admin/students",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-exam-results",
@@ -1036,7 +1040,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "exam-submissions-list",
     fullPageHref: "/principal/results",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   // Finance tab
   {
@@ -1047,8 +1051,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "recent-payments-list",
     defaultSpan: 2,
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/bursar/payments",
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-finance-revenue",
@@ -1057,8 +1061,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "finance",
     defaultColumn: 1,
     component: "revenue-summary",
-    fullPageHref: "/director/finance/ledger",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/bursar/ledger",
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-finance-reports",
@@ -1067,8 +1071,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "finance",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/bursar/payments",
+    roles: ["SUPER_ADMIN"],
   },
   // Staff tab
   {
@@ -1080,7 +1084,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "staff-list",
     defaultSpan: 2,
     fullPageHref: "/director/staff",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-staff-audit",
@@ -1091,7 +1095,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "audit-list",
     defaultSpan: 2,
     fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   // Approvals tab
   {
@@ -1103,7 +1107,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "approval-list",
     defaultSpan: 2,
     fullPageHref: "/director/approvals",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-approvals-audit",
@@ -1114,7 +1118,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "audit-list",
     defaultSpan: 2,
     fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   // Reports tab
   {
@@ -1125,7 +1129,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "financial-reports",
     fullPageHref: "/admin/reports",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     id: "director-academic-reports",
@@ -1135,7 +1139,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "financial-reports",
     fullPageHref: "/principal/reports",
-    roles: ["DIRECTOR"],
+    roles: ["SUPER_ADMIN"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -1149,7 +1153,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "hr-todos",
     fullPageHref: "/admin/tutors",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   {
     id: "hr-staff-general",
@@ -1160,7 +1164,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "staff-list",
     defaultSpan: 2,
     fullPageHref: "/admin/tutors",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   {
     id: "hr-operations-overview",
@@ -1170,7 +1174,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-overview",
     fullPageHref: "/admin/timetable",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   // Staff tab
   {
@@ -1182,7 +1186,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "staff-list",
     defaultSpan: 2,
     fullPageHref: "/admin/tutors",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   {
     id: "hr-leave",
@@ -1192,7 +1196,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "leave-list",
     fullPageHref: "/admin/leave",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   {
     id: "hr-access-review",
@@ -1202,7 +1206,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "access-review-summary",
     fullPageHref: "/admin/access-review",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   // Support tab
   {
@@ -1214,7 +1218,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "support-list",
     defaultSpan: 2,
     fullPageHref: "/admin/support",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   {
     id: "hr-operations",
@@ -1224,7 +1228,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-overview",
     fullPageHref: "/admin/timetable",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
   // Operations tab
   {
@@ -1235,7 +1239,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "admin-operations-todos",
     fullPageHref: "/admin/equipment",
-    roles: ["ADMIN"],
+    roles: ["HR_MANAGER"],
   },
 
   // ADMINISTRATOR — the same widgets and shell, limited by operational permissions.
@@ -1247,7 +1251,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "admin-operations-todos",
     fullPageHref: "/admin/support",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-operations-overview",
@@ -1257,7 +1261,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-overview",
     fullPageHref: "/admin/timetable",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-support-tickets",
@@ -1268,7 +1272,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "support-list",
     defaultSpan: 2,
     fullPageHref: "/admin/support",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-pending-invites",
@@ -1278,7 +1282,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-todos",
     fullPageHref: "/admin/students",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-room-bookings",
@@ -1288,7 +1292,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "admin-operations-overview",
     fullPageHref: "/admin/timetable",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-practical-equipment",
@@ -1298,7 +1302,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-overview",
     fullPageHref: "/admin/equipment",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-equipment-todos",
@@ -1308,7 +1312,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "admin-operations-overview",
     fullPageHref: "/admin/equipment",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
   {
     id: "admin-notices",
@@ -1318,7 +1322,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "admin-operations-todos",
     fullPageHref: "/admin/notices",
-    roles: ["ADMIN"],
+    roles: ["ADMINISTRATOR"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -1331,8 +1335,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "board-overview",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-recent-graduates",
@@ -1341,8 +1345,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 1,
     component: "recent-graduates-list",
-    fullPageHref: "/director/graduates",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/graduates",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-enrolment-chart",
@@ -1351,8 +1355,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 1,
     component: "course-enrolments",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-audit-general",
@@ -1362,8 +1366,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   // Reports tab
   {
@@ -1373,8 +1377,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reports",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-graduates-reports",
@@ -1383,8 +1387,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reports",
     defaultColumn: 1,
     component: "recent-graduates-list",
-    fullPageHref: "/director/graduates",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/graduates",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-course-reports",
@@ -1393,8 +1397,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reports",
     defaultColumn: 0,
     component: "course-enrolments",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   // Audit/Policies tab (spec: "Policies" tab)
   {
@@ -1405,8 +1409,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-policies",
@@ -1415,8 +1419,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "policies",
     defaultColumn: 1,
     component: "inbox-list",
-    fullPageHref: "/director/policies",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/policies",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-academics-graduates",
@@ -1425,8 +1429,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "policies",
     defaultColumn: 0,
     component: "recent-graduates-list",
-    fullPageHref: "/director/graduates",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/graduates",
+    roles: ["BOARD_MEMBER"],
   },
   {
     id: "board-academics-overview",
@@ -1435,8 +1439,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "policies",
     defaultColumn: 1,
     component: "board-overview",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/board/reports",
+    roles: ["BOARD_MEMBER"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -1449,8 +1453,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "auditor-overview",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/reports",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-recent-logs",
@@ -1460,8 +1464,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/audit",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-students",
@@ -1471,8 +1475,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "recent-students-list",
     defaultSpan: 2,
-    fullPageHref: "/director/students",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/students",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-graduates",
@@ -1481,8 +1485,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 1,
     component: "recent-graduates-list",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/reports",
+    roles: ["AUDITOR_READONLY"],
   },
   // Audit tab
   {
@@ -1493,8 +1497,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 0,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/audit",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-audit-students",
@@ -1504,8 +1508,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "recent-students-list",
     defaultSpan: 2,
-    fullPageHref: "/director/students",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/students",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-audit-graduates",
@@ -1514,8 +1518,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "audit",
     defaultColumn: 0,
     component: "recent-graduates-list",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/reports",
+    roles: ["AUDITOR_READONLY"],
   },
   // Reports tab
   {
@@ -1525,8 +1529,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "reports",
     defaultColumn: 0,
     component: "financial-reports",
-    fullPageHref: "/director/reports",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/reports",
+    roles: ["AUDITOR_READONLY"],
   },
   {
     id: "auditor-reports-audit",
@@ -1536,8 +1540,8 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "audit-list",
     defaultSpan: 2,
-    fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
+    fullPageHref: "/auditor/audit",
+    roles: ["AUDITOR_READONLY"],
   },
 
   // ════════════════════════════════════════════════════════════════
@@ -1595,16 +1599,6 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     fullPageHref: "/system/settings",
     roles: ["SYSTEM_IT"],
   },
-  {
-    id: "system-integrations-tab",
-    title: "Integrations",
-    requiredPermission: "integrations.edit",
-    defaultTab: "system",
-    defaultColumn: 1,
-    component: "system-integrations",
-    fullPageHref: "/system/settings",
-    roles: ["SYSTEM_IT"],
-  },
   // Logs tab
   {
     id: "system-logs-tab",
@@ -1626,162 +1620,5 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     component: "system-status",
     fullPageHref: "/system/settings",
     roles: ["SYSTEM_IT"],
-  },
-
-  // ════════════════════════════════════════════════════════════════
-  // NEW WIDGETS — surface newly documented role responsibilities
-  // ════════════════════════════════════════════════════════════════
-
-  // PRINCIPAL — delegation status on general tab
-  {
-    id: "principal-delegation",
-    title: "Delegation Status",
-    requiredPermission: "courses.publish",
-    defaultTab: "general",
-    defaultColumn: 1,
-    component: "delegation-status",
-    fullPageHref: "/principal",
-    roles: ["PRINCIPAL"],
-  },
-  // PRINCIPAL — marks-change approvals on approvals tab
-  {
-    id: "principal-marks-changes",
-    title: "Marks Change Requests",
-    requiredPermission: "marks.change.approve",
-    defaultTab: "approvals",
-    defaultColumn: 0,
-    component: "marks-change-requests",
-    defaultSpan: 2,
-    fullPageHref: "/director/approvals",
-    roles: ["PRINCIPAL"],
-  },
-  // PRINCIPAL — announcements in reports tab
-  {
-    id: "principal-announcements-log",
-    title: "Announcements Log",
-    requiredPermission: "announcements.send.all",
-    defaultTab: "reports",
-    defaultColumn: 0,
-    component: "principal-announcements",
-    fullPageHref: "/principal/reports",
-    roles: ["PRINCIPAL"],
-  },
-
-  // DEPUTY_PRINCIPAL — attendance alerts on academics tab
-  {
-    id: "deputy-attendance-alerts",
-    title: "Attendance Overview",
-    requiredPermission: "attendance.view.all",
-    defaultTab: "academics",
-    defaultColumn: 1,
-    component: "attendance-alerts",
-    fullPageHref: "/principal/timetable",
-    roles: ["PRINCIPAL"],
-  },
-  // DEPUTY_PRINCIPAL — disciplinary cases on operations tab
-  {
-    id: "deputy-disciplinary",
-    title: "Disciplinary Cases",
-    requiredPermission: "complaints.manage",
-    defaultTab: "operations",
-    defaultColumn: 1,
-    component: "disciplinary-cases",
-    fullPageHref: "/principal/complaints",
-    roles: ["PRINCIPAL"],
-  },
-  // DEPUTY_PRINCIPAL — marks-change requests on approvals tab (when delegated)
-  {
-    id: "deputy-marks-changes",
-    title: "Marks Change Requests",
-    requiredPermission: "marks.change.approve",
-    defaultTab: "approvals",
-    defaultColumn: 1,
-    component: "marks-change-requests",
-    defaultSpan: 2,
-    fullPageHref: "/director/approvals",
-    roles: ["PRINCIPAL"],
-  },
-
-  // ACADEMIC_REGISTRAR — transcript requests on academics tab
-  {
-    id: "reg-transcripts",
-    title: "Transcript Requests",
-    requiredPermission: "transcripts.generate",
-    defaultTab: "academics",
-    defaultColumn: 1,
-    component: "transcript-requests",
-    fullPageHref: "/registrar/graduands",
-    roles: ["ACADEMIC_REGISTRAR"],
-  },
-  // ACADEMIC_REGISTRAR — announcements sent on reports tab
-  {
-    id: "reg-announcements",
-    title: "Announcements Sent",
-    requiredPermission: "announcements.manage",
-    defaultTab: "reports",
-    defaultColumn: 0,
-    component: "announcements-sent",
-    fullPageHref: "/registrar/students",
-    roles: ["ACADEMIC_REGISTRAR"],
-  },
-
-  // INSTRUCTOR — marks-change requests on assessment tab
-  {
-    id: "tutor-marks-changes",
-    title: "Marks Change Requests",
-    requiredPermission: "marks.change.request",
-    defaultTab: "assessment",
-    defaultColumn: 0,
-    component: "instructor-marks-changes",
-    fullPageHref: "/tutor/exams",
-    roles: ["INSTRUCTOR"],
-  },
-
-  // FINANCE_OFFICER — fee reminders on general tab
-  {
-    id: "finance-fee-reminders",
-    title: "Outstanding Balances",
-    requiredPermission: "payments.hold",
-    defaultTab: "general",
-    defaultColumn: 1,
-    component: "fee-reminder-list",
-    fullPageHref: "/director/finance/payments",
-    roles: ["DIRECTOR"],
-  },
-
-  // HR_MANAGER — staff performance / approved leave on leave tab
-  {
-    id: "hr-staff-performance",
-    title: "Approved Leave",
-    requiredPermission: "staff.leave.manage",
-    defaultTab: "leave",
-    defaultColumn: 1,
-    component: "hr-staff-performance",
-    fullPageHref: "/admin/leave",
-    roles: ["ADMIN"],
-  },
-
-  // BOARD_MEMBER — board documents on policies tab
-  {
-    id: "board-documents",
-    title: "Board Documents",
-    requiredPermission: "board_documents.view",
-    defaultTab: "policies",
-    defaultColumn: 1,
-    component: "board-documents",
-    fullPageHref: "/director/policies",
-    roles: ["DIRECTOR"],
-  },
-
-  // AUDITOR_READONLY — marks-change audit on audit tab
-  {
-    id: "auditor-marks-changes",
-    title: "Marks Change Requests",
-    requiredPermission: "audit.view.full",
-    defaultTab: "audit",
-    defaultColumn: 1,
-    component: "marks-change-requests",
-    fullPageHref: "/director/audit",
-    roles: ["DIRECTOR"],
   },
 ];
