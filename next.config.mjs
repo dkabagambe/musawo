@@ -58,8 +58,18 @@ const nextConfig = {
         protocol: "https",
         hostname: "learn.musawotraining.ug",
       },
+      {
+        protocol: "https",
+        hostname: "musawo.ug",
+      },
+      {
+        protocol: "https",
+        hostname: "**.musawo.ug",
+      },
     ],
     formats: ["image/webp", "image/avif"],
+    // Cache optimized images for 1 week on Render
+    minimumCacheTTL: 604800,
   },
 
   experimental: {

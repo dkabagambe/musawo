@@ -3,6 +3,8 @@ import PageHero from "@/components/public/PageHero";
 import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
 import { CheckCircle, ArrowRight } from "lucide-react";
+
+export const revalidate = 300; // courses list - cache 5 minutes
 import Link from "next/link";
 import type { Metadata } from "next";
 import CoursesClient from "./CoursesClient";

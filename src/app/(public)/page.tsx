@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
+
+// Cache the homepage for 5 minutes on Render - avoids a cold DB hit on every visit
+export const revalidate = 300;
 import {
   BookOpen,
   Video,
@@ -169,7 +172,7 @@ export default async function HomePage() {
           </AnimateIn>
 
           <StaggerGrid className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((c) => {
+            {courses.map((c, idx) => {
               const badge = CATEGORY_BADGE[c.category] ?? CATEGORY_BADGE.OPEN;
               const img =
                 c.thumbnailUrl ??
@@ -193,6 +196,7 @@ export default async function HomePage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       sizes="(min-width:1024px) 33vw,(min-width:640px) 50vw,100vw"
+                      priority={idx < 3}
                     />
                     {duration && (
                       <span

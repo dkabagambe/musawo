@@ -2,6 +2,9 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+
+// Cache course detail pages for 10 minutes - content changes infrequently
+export const revalidate = 600;
 import {
   CheckCircle, Clock, BookOpen, Users, Video, FileText, PenSquare,
   Lock, ArrowRight, Banknote, Play, Download,

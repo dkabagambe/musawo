@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 // ─── CourseCard ───────────────────────────────────────────────────────────────
 
@@ -29,13 +30,15 @@ export function CourseCard({
   return (
     <Link href={href} className="card no-underline hover:shadow-md transition-shadow block group">
       {/* Thumbnail */}
-      <div className="rounded-xl overflow-hidden bg-primary/5 mb-4" style={{ aspectRatio: "16/9" }}>
+      <div className="rounded-xl overflow-hidden bg-primary/5 mb-4 relative" style={{ aspectRatio: "16/9" }}>
         {thumbnailUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={thumbnailUrl}
             alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            sizes="(min-width:1024px) 25vw,(min-width:640px) 50vw,100vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl" aria-hidden="true">

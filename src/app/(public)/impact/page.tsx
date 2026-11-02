@@ -3,6 +3,8 @@ import { ArrowRight, MessageSquare } from "lucide-react";
 import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
 import AnimateIn from "@/components/public/AnimateIn";
+
+export const revalidate = 3600; // static content - cache 1 hour
 import PageHero from "@/components/public/PageHero";
 import { getContactInfo } from "@/lib/contact";
 

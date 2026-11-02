@@ -3,6 +3,8 @@
  * and pass the WhatsApp URL down to the client accordion.
  */
 import PageHero from "@/components/public/PageHero";
+
+export const revalidate = 3600; // static content - cache 1 hour
 import CTABand from "@/components/public/CTABand";
 import ContactBand from "@/components/public/ContactBand";
 import { getContactInfo } from "@/lib/contact";

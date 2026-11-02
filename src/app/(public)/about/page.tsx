@@ -10,6 +10,9 @@ import { getSetting } from "@/lib/settings";
 import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
 
+// About page is mostly static content - cache for 1 hour
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "About Us",
   description:
