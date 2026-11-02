@@ -15,36 +15,25 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum UserRole {
-  // ── Active roles ──────────────────────────────────────────────
-  SUPER_ADMIN          // Managing Director / CEO / CFO. Max 3 accounts.
-  BOARD_MEMBER         // Read-only reports and aggregates.
-  PRINCIPAL            // Academic head; approves content, results, graduands.
-  DEPUTY_PRINCIPAL     // Daily operations; delegates from Principal.
-  ACADEMIC_REGISTRAR   // Student records, enrolments, academic calendar.
-  INSTRUCTOR           // Teaching staff (was TUTOR).
-  TEACHING_ASSISTANT   // Supporting staff; limited upload and roll-call.
-  FINANCE_OFFICER      // Payments, ledger, holds (was BURSAR).
-  HR_SYSTEM_ADMIN      // Staff accounts, leave, non-secret settings.
-  AUDITOR_READONLY     // Legal advisor; view-only, every view logged.
-  SYSTEM_IT            // Technical settings, integrations, backups.
-  STUDENT              // Learner account.
-  // ── Legacy aliases kept until data is migrated ────────────────
-  SUPERADMIN           // -> SUPER_ADMIN
-  ADMINISTRATOR        // -> HR_SYSTEM_ADMIN
-  BURSAR               // -> FINANCE_OFFICER
-  TUTOR                // -> INSTRUCTOR
-  REGISTRAR            // -> ACADEMIC_REGISTRAR
-  ADMIN                // -> ACADEMIC_REGISTRAR
-  SPONSOR              // -> remove after seed migration
-  EMPLOYER             // -> remove after seed migration
+  // ── Active business roles (remarks.md section 1) ──────────────
+  DIRECTOR // Managing Director; final approver. TOTP required in production.
+  PRINCIPAL // Academic head; full operational CRUD.
+  ADMIN // PA to Principal; day-to-day academic administration.
+  ACADEMIC_REGISTRAR // Dummy/inactive; shows holding page while ACADEMIC_REGISTRAR_ACTIVE=false.
+  INSTRUCTOR // Teaching staff (own assigned courses and classes only).
+  STUDENT // Learner account.
+  // ── Technical account ─────────────────────────────────────────
+  SYSTEM_IT // IT Admin; support tickets, system health, logs, non-secret settings.
+  // ── Archived roles (no login, kept for data integrity) ────────
+  ARCHIVED // Former AUDITOR_READONLY and TEACHING_ASSISTANT accounts.
 }
 
 enum UserStatus {
   ACTIVE
   SUSPENDED
-  PENDING_VERIFICATION   // email not yet confirmed
-  PENDING_ACCEPTANCE     // Registrar created account; student not yet confirmed details
-  DETAILS_DISPUTED       // student flagged details as wrong
+  PENDING_VERIFICATION // email not yet confirmed
+  PENDING_ACCEPTANCE // Registrar created account; student not yet confirmed details
+  DETAILS_DISPUTED // student flagged details as wrong
 }
 
 enum CourseStatus {
@@ -66,19 +55,19 @@ enum QuestionType {
 }
 
 enum EnrolmentStatus {
-  PENDING_PAYMENT    // registered, payment not started or failed
-  ACTIVE             // fully paid (or first instalment for instalment plan)
-  PARTIALLY_PAID     // instalment plan: some blocks unlocked, more due
-  OVERDUE            // instalment missed, in grace period
-  COMPLETED          // all lessons done, exams passed, cert issued
-  SUSPENDED          // admin-suspended
-  REFUNDED           // refund approved, access ended
-  CANCELLED          // student or admin cancelled before any payment
+  PENDING_PAYMENT // registered, payment not started or failed
+  ACTIVE // fully paid (or first instalment for instalment plan)
+  PARTIALLY_PAID // instalment plan: some blocks unlocked, more due
+  OVERDUE // instalment missed, in grace period
+  COMPLETED // all lessons done, exams passed, cert issued
+  SUSPENDED // admin-suspended
+  REFUNDED // refund approved, access ended
+  CANCELLED // student or admin cancelled before any payment
 }
 
 enum PaymentStatus {
   PENDING
-  PENDING_APPROVAL   // bank transfer uploaded, waiting admin approval
+  PENDING_APPROVAL // bank transfer uploaded, waiting admin approval
   COMPLETED
   FAILED
   REFUNDED
@@ -159,6 +148,8 @@ enum AuditAction {
   APPROVAL_REQUESTED
   APPROVAL_APPROVED
   APPROVAL_REJECTED
+  APPROVAL_FORWARDED // reviewer forwarded to final approver
+  APPROVAL_APPLIED // approved effect has been applied
   BREAK_GLASS_GRANTED
   BREAK_GLASS_EXPIRED
   TOTP_ENABLED
@@ -179,11 +170,10 @@ enum AuditAction {
   BOARD_DOCUMENT_CREATED
   BOARD_DOCUMENT_UPDATED
   BOARD_DOCUMENT_DELETED
-  // Storage retention (section 10)
-  STORAGE_SCAN
-  STORAGE_PURGE_REQUESTED
-  STORAGE_PURGE_CONFIRMED
-  STORAGE_PURGE_EXECUTED
+  STUDENT_LOOKUP
+  ACCOUNT_RESET_SENT
+  SUPPORT_TICKET_REPLIED
+  OPERATIONAL_NOTICE_SENT
 }
 
 enum ClaimStatus {
@@ -201,30 +191,37 @@ enum ManualPaymentMethod {
 }
 
 enum ApprovalRequestType {
+  // Finance
   REFUND
   WAIVER
   FEE_CHANGE
+  // Staff accounts
   STAFF_ACCOUNT_CREATE
   STAFF_ACCOUNT_SUSPEND
   STAFF_ACCOUNT_ROLE_CHANGE
-  MARKS_CHANGE             // Instructor or Registrar requests a mark change after results are released; Principal approves
-  BULK_EXPORT              // Any bulk export of personal data; SUPER_ADMIN approves
-  ADMISSION                // added in 20261031120000
-  ACADEMIC_PROGRAMME_CHANGE
-  COURSE_CHANGE
-  RESULTS_PUBLICATION
-  CERTIFICATE_ISSUANCE
-  PAYMENT_PROOF
-  EQUIPMENT_REQUEST
-  STORAGE_CLEARING         // Admin prepares, Principal confirms, Director notified (section 10)
-  ROLE_ASSIGNMENT
+  // Academic
+  MARKS_CHANGE // Instructor requests mark change; Principal approves
+  BULK_EXPORT // Any bulk export; Director approves
+  // remarks.md section 5 types
+  ADMISSION // Admin prepares; Principal is final approver
+  ACADEMIC_PROGRAMME_CHANGE // Principal prepares; Director approves
+  COURSE_CHANGE // Principal prepares; Director approves
+  RESULTS_PUBLICATION // Instructor -> Admin -> Principal -> Director
+  CERTIFICATE_ISSUANCE // Admin lists, Principal requests; Director approves
+  PAYMENT_PROOF // Admin collects; Principal reviews; Director approves
+  EQUIPMENT_REQUEST // Admin prepares; Principal or Director approves
+  STORAGE_CLEARING // Admin prepares; Principal confirms; Director notified
+  ROLE_ASSIGNMENT // Director assigns Director/Principal; Principal assigns others
 }
 
 enum ApprovalRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  EXPIRED
+  DRAFT // saved but not yet submitted
+  SUBMITTED // submitted; awaiting first reviewer
+  IN_REVIEW // a reviewer has opened it but not yet forwarded/decided
+  APPROVED // final approver approved
+  REJECTED // rejected at any stage (reason required)
+  APPLIED // approved and the effect has been applied
+  EXPIRED // token expired without a decision
 }
 
 // ─────────────────────────────────────────────
@@ -232,60 +229,61 @@ enum ApprovalRequestStatus {
 // ─────────────────────────────────────────────
 
 model User {
-  id                String      @id @default(cuid())
-  studentNumber     String?     @unique  // MTC-2026-00042
-  name              String
-  email             String?     @unique
-  phone             String?     @unique
-  professionalTitle String?
-  registrationNumber String?
-  dateOfBirth       DateTime?
-  gender            String?
-  district          String?
-  countryCode       String      @default("UG")
+  id                   String     @id @default(cuid())
+  studentNumber        String?    @unique // 2026/MHC/005 (per-course-per-year format)
+  name                 String
+  email                String?    @unique
+  phone                String?    @unique
+  professionalTitle    String?
+  registrationNumber   String?
+  dateOfBirth          DateTime?
+  gender               String?
+  district             String?
+  countryCode          String     @default("UG")
   highestQualification String?
-  idNumberEncrypted String?
-  emergencyContact  String?
-  emailVerified     DateTime?
-  phoneVerified     DateTime?
-  passwordHash      String?
-  role              UserRole    @default(STUDENT)
-  status            UserStatus  @default(PENDING_VERIFICATION)
-  avatarUrl         String?
-  dataConsentAt     DateTime?
-  // Institution Secretary flag: a BOARD_MEMBER with this flag also gets
-  // policies.manage and board_documents.manage (checked via canForUser).
-  institutionSecretary Boolean  @default(false)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  idNumberEncrypted    String?
+  emergencyContact     String?
+  emailVerified        DateTime?
+  phoneVerified        DateTime?
+  passwordHash         String?
+  role                 UserRole   @default(STUDENT)
+  status               UserStatus @default(PENDING_VERIFICATION)
+  avatarUrl            String?
+  dataConsentAt        DateTime?
+  // Institution Secretary flag: legacy field, kept for data integrity.
+  // No longer used after role consolidation in remarks.md batch 1A.
+  institutionSecretary Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 
   // TOTP / 2FA - required for SUPERADMIN, optional for staff
-  totpSecret        String?     // encrypted at app layer
-  totpEnabled       Boolean     @default(false)
-  totpVerifiedAt    DateTime?   // last successful TOTP verification in session
+  totpSecret     String? // encrypted at app layer
+  totpEnabled    Boolean   @default(false)
+  totpVerifiedAt DateTime? // last successful TOTP verification in session
 
   // Access review
   lastAccessReviewAt DateTime?
 
   // Auth.js
-  accounts          Account[]
-  sessions          Session[]
+  accounts Account[]
+  sessions Session[]
 
   // Learning
-  enrolments        Enrolment[]
-  lessonProgress    LessonProgress[]
-  examAttempts      ExamAttempt[]
-  attendance        Attendance[]
-  presence          PlatformPresence?
-  certificates      Certificate[]
-  notifications     Notification[]
-  notificationPrefs NotificationPref[]
+  enrolments                 Enrolment[]
+  lessonProgress             LessonProgress[]
+  examAttempts               ExamAttempt[]
+  attendance                 Attendance[]
+  presence                   PlatformPresence?
+  certificates               Certificate[]
+  notifications              Notification[]
+  notificationPrefs          NotificationPref[]
   dashboardWidgetPreferences DashboardWidgetPreference[]
 
   // Staff
-  taughtCourses     Course[]          @relation("CourseMainTutor")
-  coTaughtCourses   CoTutor[]
-  liveClasses       LiveClass[]
+  taughtCourses      Course[]            @relation("CourseMainTutor")
+  coTaughtCourses    CoTutor[]
+  liveClasses        LiveClass[]
+  classPresentations ClassPresentation[]
   shortAnswerReviews ShortAnswerReview[]
 
   // Assignments
@@ -293,53 +291,59 @@ model User {
   gradedSubmissions     AssignmentSubmission[] @relation("GraderSubmissions")
 
   // Announcements & forum
-  announcements     Announcement[]
-  forumThreads      ForumThread[]
-  forumReplies      ForumReply[]
+  announcements Announcement[]
+  forumThreads  ForumThread[]
+  forumReplies  ForumReply[]
+
+  // Groups
+  classGroupMemberships ClassGroupMember[]
+  gradedGroupWork       GroupWorkSubmission[] @relation("GroupWorkGrader")
 
   // Support
-  supportTickets    SupportTicket[]
-  assignedTickets   SupportTicket[] @relation("AssignedTickets")
-  supportReplies    SupportReply[]
+  supportTickets  SupportTicket[]
+  assignedTickets SupportTicket[] @relation("AssignedTickets")
+  supportReplies  SupportReply[]
 
   // Grades
-  gradeEntries      GradeEntry[]
+  gradeEntries GradeEntry[]
 
   // Admin
-  auditLogs         AuditLog[]        @relation("ActorAuditLog")
-  settingsUpdated   SiteSetting[]
-  resources         Resource[]
+  auditLogs       AuditLog[]    @relation("ActorAuditLog")
+  settingsUpdated SiteSetting[]
+  resources       Resource[]
 
   // OTPs
-  otpCodes          OtpCode[]
+  otpCodes OtpCode[]
 
   // Approvals
   approvalRequestsInitiated ApprovalRequest[] @relation("ApprovalInitiator")
   approvalRequestsDecided   ApprovalRequest[] @relation("ApprovalDecider")
+  approvalRequestsReviewed  ApprovalRequest[] @relation("ApprovalReviewer")
 
   // Break-glass
-  breakGlassGrants  BreakGlassGrant[]
+  breakGlassGrants BreakGlassGrant[]
+  leaveRequests    LeaveRequest[]    @relation("LeaveRequester")
+  leaveDecisions   LeaveRequest[]    @relation("LeaveDecider")
 
   // Staff invites created by this user
-  staffInvitesSent      StaffInvite[]
+  staffInvitesSent StaffInvite[]
   // Student invites sent to this user (resendable, so many)
-  studentInvites        StaffInvite[]  @relation("StudentInviteUser")
+  studentInvites   StaffInvite[] @relation("StudentInviteUser")
 
   // Manual payment claims
-  fraudStrikes      Int                    @default(0)
-  claimsSubmitted   ManualPaymentClaim[]   @relation("ClaimantClaims")
-  claimsReviewed    ManualPaymentClaim[]   @relation("ClaimReviewer")
-  claimsVerified    ManualPaymentClaim[]   @relation("ClaimVerifier")
-  statementImports  StatementImport[]
+  fraudStrikes     Int                  @default(0)
+  claimsSubmitted  ManualPaymentClaim[] @relation("ClaimantClaims")
+  claimsReviewed   ManualPaymentClaim[] @relation("ClaimReviewer")
+  claimsVerified   ManualPaymentClaim[] @relation("ClaimVerifier")
+  statementImports StatementImport[]
 
   // Board documents authored by this user
-  boardDocuments    BoardDocument[]        @relation("BoardDocAuthor")
+  boardDocuments BoardDocument[] @relation("BoardDocAuthor")
 
-  // Storage cleanup jobs confirmed by this user (section 10)
-  storageCleanupConfirmed StorageCleanupJob[] @relation("StorageCleanupConfirmer")
-
+  @@index([role, status])
   @@map("users")
 }
+
 model DashboardWidgetPreference {
   id        String   @id @default(cuid())
   userId    String
@@ -400,7 +404,7 @@ model OtpCode {
   id        String    @id @default(cuid())
   userId    String
   code      String
-  purpose   String    // "LOGIN" | "REGISTER" | "RESET"
+  purpose   String // "LOGIN" | "REGISTER" | "RESET"
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
@@ -415,49 +419,64 @@ model OtpCode {
 // ─────────────────────────────────────────────
 
 model Course {
-  id                 String       @id @default(cuid())
-  title              String
-  slug               String       @unique
-  description        String       @db.Text
-  shortDescription   String?
-  thumbnailUrl       String?
-  flyerS3Key         String?      // admin-uploaded course flyer (image or PDF)
-  status             CourseStatus @default(DRAFT)
+  id                       String       @id @default(cuid())
+  title                    String
+  slug                     String       @unique
+  // Short code used in registration numbers, e.g. MHC for Medical Home Caregiver.
+  // Max 4 chars, unique, uppercase. Editable by Admin/Principal.
+  courseCode               String?      @unique
+  description              String       @db.Text
+  shortDescription         String?
+  thumbnailUrl             String?
+  flyerS3Key               String? // admin-uploaded course flyer (image or PDF)
+  status                   CourseStatus @default(DRAFT)
   // Category: "PROFESSIONAL" requires title+reg number; "OPEN" is open to all
-  category           String       @default("OPEN")  // "OPEN" | "PROFESSIONAL"
-  targetAudience     String?      @db.Text  // e.g. "Nurses, midwives, clinical officers"
-  eligibilityText    String?      @db.Text  // shown on apply form
-  durationMonths     Int?         // preferred over durationWeeks for real courses
-  freePreviewPercent Int          @default(12)
-  minimumAttendancePercent Int    @default(75)
-  fullFeeUgx         Int?         // null means "contact admissions"
-  internationalFeeUgx Int?        // null means use the national fee
-  feeContactOnly     Boolean      @default(false) // true = hide fee, show contact message
-  instalmentCount    Int          @default(1)
-  durationWeeks      Int?         // kept for backward compat
-  accreditationText  String?
-  intakeLabel        String?      // e.g. "November 2026"
-  contentNote        String?      @db.Text // e.g. "draft for Principal review"
-  tutorId            String
-  accessThresholds   Json?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  category                 String       @default("OPEN") // "OPEN" | "PROFESSIONAL"
+  targetAudience           String?      @db.Text // e.g. "Nurses, midwives, clinical officers"
+  eligibilityText          String?      @db.Text // shown on apply form
+  durationMonths           Int? // preferred over durationWeeks for real courses
+  freePreviewPercent       Int          @default(12)
+  minimumAttendancePercent Int          @default(75)
+  fullFeeUgx               Int? // null means "contact admissions"
+  internationalFeeUgx      Int? // null means use the national fee
+  feeContactOnly           Boolean      @default(false) // true = hide fee, show contact message
+  instalmentCount          Int          @default(1)
+  durationWeeks            Int? // kept for backward compat
+  accreditationText        String?
+  intakeLabel              String? // e.g. "November 2026"
+  contentNote              String?      @db.Text // e.g. "draft for Principal review"
+  tutorId                  String
+  accessThresholds         Json?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
 
-  tutor        User         @relation("CourseMainTutor", fields: [tutorId], references: [id])
-  coTutors     CoTutor[]
-  blocks       Block[]
-  intakes      Intake[]
-  enrolments   Enrolment[]
-  exams        Exam[]
-  liveClasses  LiveClass[]
-  certificates Certificate[]
-  assignments  Assignment[]
+  tutor         User           @relation("CourseMainTutor", fields: [tutorId], references: [id])
+  coTutors      CoTutor[]
+  blocks        Block[]
+  intakes       Intake[]
+  enrolments    Enrolment[]
+  exams         Exam[]
+  liveClasses   LiveClass[]
+  certificates  Certificate[]
+  assignments   Assignment[]
   announcements Announcement[]
-  forumThreads ForumThread[]
-  gradeEntries GradeEntry[]
-  applications Application[]
+  forumThreads  ForumThread[]
+  gradeEntries  GradeEntry[]
+  applications  Application[]
 
   @@map("courses")
+}
+
+// Per-course-per-year sequence for student registration numbers.
+// Format: {YYYY}/{COURSE_CODE}/{SEQ:3}, e.g. 2026/MHC/005
+model StudentNumberSequence {
+  id         String @id @default(cuid())
+  courseCode String
+  year       Int
+  lastSeq    Int    @default(0)
+
+  @@unique([courseCode, year])
+  @@map("student_number_sequences")
 }
 
 model CoTutor {
@@ -473,15 +492,15 @@ model CoTutor {
 }
 
 model Block {
-  id                    String   @id @default(cuid())
-  courseId              String
-  order                 Int
-  title                 String
-  description           String?  @db.Text
-  prerequisiteBlockOrder Int?    // must complete exam in this block order first (null = no gate)
-  createdAt             DateTime @default(now())
+  id                     String   @id @default(cuid())
+  courseId               String
+  order                  Int
+  title                  String
+  description            String?  @db.Text
+  prerequisiteBlockOrder Int? // must complete exam in this block order first (null = no gate)
+  createdAt              DateTime @default(now())
 
-  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons     Lesson[]
   instalments Instalment[]
   liveClasses LiveClass[]
@@ -498,19 +517,18 @@ model Lesson {
   order         Int
   title         String
   type          LessonType
-  bunnyVideoId  String?    // Bunny Stream video GUID
-  notesS3Key    String?    // S3 object key
-  sizeBytes     Int?       // file size in bytes (set at upload time)
-  isFree        Boolean    @default(false)  // always free, even logged-out
-  isFreePreview Boolean    @default(false)  // free for registered-not-enrolled users
+  bunnyVideoId  String? // Bunny Stream video GUID
+  notesS3Key    String? // S3 object key
+  isFree        Boolean    @default(false) // always free, even logged-out
+  isFreePreview Boolean    @default(false) // free for registered-not-enrolled users
   durationSec   Int?
   transcript    String?    @db.Text
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  block          Block            @relation(fields: [blockId], references: [id], onDelete: Cascade)
-  progress       LessonProgress[]
-  quizQuestions  QuizQuestion[]
+  block         Block            @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  progress      LessonProgress[]
+  quizQuestions QuizQuestion[]
 
   @@unique([blockId, order])
   @@map("lessons")
@@ -522,14 +540,14 @@ model QuizQuestion {
   examId        String?
   text          String       @db.Text
   type          QuestionType
-  options       Json?        // [{id, text}] for MCQ
-  correctAnswer String?      // option id or "true"/"false"
+  options       Json? // [{id, text}] for MCQ
+  correctAnswer String? // option id or "true"/"false"
   points        Int          @default(1)
   explanation   String?      @db.Text
   createdAt     DateTime     @default(now())
 
-  lesson          Lesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  exam            Exam?              @relation(fields: [examId], references: [id], onDelete: Cascade)
+  lesson             Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exam               Exam?               @relation(fields: [examId], references: [id], onDelete: Cascade)
   shortAnswerReviews ShortAnswerReview[]
 
   @@map("quiz_questions")
@@ -547,6 +565,7 @@ model LessonProgress {
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+  @@index([userId])
   @@map("lesson_progress")
 }
 
@@ -555,18 +574,18 @@ model LessonProgress {
 // ─────────────────────────────────────────────
 
 model Intake {
-  id               String   @id @default(cuid())
-  courseId         String
-  label            String   // e.g. "November 2026 Cohort"
-  startDate        DateTime
-  endDate          DateTime
-  seats            Int
-  isOpen           Boolean  @default(true)
-  createdAt        DateTime @default(now())
+  id        String   @id @default(cuid())
+  courseId  String
+  label     String // e.g. "November 2026 Cohort"
+  startDate DateTime
+  endDate   DateTime
+  seats     Int
+  isOpen    Boolean  @default(true)
+  createdAt DateTime @default(now())
 
-  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrolments    Enrolment[]
-  applications  Application[]
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolments   Enrolment[]
+  applications Application[]
 
   @@map("intakes")
 }
@@ -578,11 +597,11 @@ model Intake {
 // ─────────────────────────────────────────────
 
 enum ApplicationStatus {
-  SUBMITTED       // applicant submitted; waiting for Registrar
-  UNDER_REVIEW    // Registrar opened
-  ACCEPTED        // account created, invite sent
-  REJECTED        // not admitted
-  WITHDRAWN       // applicant withdrew
+  SUBMITTED // applicant submitted; waiting for Registrar
+  UNDER_REVIEW // Registrar opened
+  ACCEPTED // account created, invite sent
+  REJECTED // not admitted
+  WITHDRAWN // applicant withdrew
 }
 
 model Application {
@@ -614,93 +633,96 @@ model Application {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
-  course      Course?  @relation(fields: [courseId], references: [id])
-  intake      Intake?  @relation(fields: [intakeId], references: [id])
+  course Course? @relation(fields: [courseId], references: [id])
+  intake Intake? @relation(fields: [intakeId], references: [id])
 
+  @@index([status, createdAt])
+  @@index([email])
   @@map("applications")
 }
 
 // Add relation back on Course for applications
-
 
 // ─────────────────────────────────────────────
 // ENROLMENT & PAYMENTS
 // ─────────────────────────────────────────────
 
 model Enrolment {
-  id              String          @id @default(cuid())
-  userId          String
-  courseId        String
-  intakeId        String?
-  status          EnrolmentStatus @default(PENDING_PAYMENT)
-  planType        String          @default("FULL") // "FULL" | "INSTALMENT"
-  countryCode     String          @default("UG")
-  totalAmountUgx  Int
-  paidAmountUgx   Int             @default(0)
-  unlockedBlockOrder Int          @default(0) // highest block order unlocked
-  paidPercent     Int             @default(0) // 0-100
+  id                 String          @id @default(cuid())
+  userId             String
+  courseId           String
+  intakeId           String?
+  status             EnrolmentStatus @default(PENDING_PAYMENT)
+  planType           String          @default("FULL") // "FULL" | "INSTALMENT"
+  countryCode        String          @default("UG")
+  totalAmountUgx     Int
+  paidAmountUgx      Int             @default(0)
+  unlockedBlockOrder Int             @default(0) // highest block order unlocked
+  paidPercent        Int             @default(0) // 0-100
   // Overdue / grace period
-  overdueSince    DateTime?       // when the missed instalment became overdue
-  graceUntil      DateTime?       // overdue access window ends here
+  overdueSince       DateTime? // when the missed instalment became overdue
+  graceUntil         DateTime? // overdue access window ends here
   // Provisional bank-transfer access
-  provisionalUntil DateTime?      // temporary access granted pending bank approval
+  provisionalUntil   DateTime? // temporary access granted pending bank approval
   // Timestamps
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
-  course       Course        @relation(fields: [courseId], references: [id])
-  intake       Intake?       @relation(fields: [intakeId], references: [id])
-  payments     Payment[]
-  instalments  Instalment[]
-  ledger       LedgerEntry[]
-  claims       ManualPaymentClaim[]
+  user        User                 @relation(fields: [userId], references: [id])
+  course      Course               @relation(fields: [courseId], references: [id])
+  intake      Intake?              @relation(fields: [intakeId], references: [id])
+  payments    Payment[]
+  instalments Instalment[]
+  ledger      LedgerEntry[]
+  claims      ManualPaymentClaim[]
 
   @@unique([userId, courseId])
-  @@index([courseId, status])
   @@index([userId, status])
+  @@index([courseId, status])
   @@map("enrolments")
 }
 
 model Payment {
-  id               String         @id @default(cuid())
-  enrolmentId      String
-  amount           Int            // UGX
-  currency         String         @default("UGX")
-  method           PaymentMethod
-  gateway          PaymentGateway
-  gatewayRef       String?        @unique
-  gatewayOrderId   String?
-  status           PaymentStatus  @default(PENDING)
-  paidAt           DateTime?
-  receiptS3Key     String?        // generated receipt PDF
+  id                 String         @id @default(cuid())
+  enrolmentId        String
+  amount             Int // UGX
+  currency           String         @default("UGX")
+  method             PaymentMethod
+  gateway            PaymentGateway
+  gatewayRef         String?        @unique
+  gatewayOrderId     String?
+  status             PaymentStatus  @default(PENDING)
+  paidAt             DateTime?
+  receiptS3Key       String? // generated receipt PDF
   // Bank transfer fields
-  bankReceiptS3Key String?        // student-uploaded bank receipt image/PDF
-  bankTransferRef  String?        // student-provided bank reference number
-  bankName         String?        // bank name e.g. "Stanbic", "Centenary"
-  bankApprovedBy   String?        // admin user ID who approved
-  bankApprovedAt   DateTime?
-  bankRejectedAt   DateTime?
+  bankReceiptS3Key   String? // student-uploaded bank receipt image/PDF
+  bankTransferRef    String? // student-provided bank reference number
+  bankName           String? // bank name e.g. "Stanbic", "Centenary"
+  bankApprovedBy     String? // admin user ID who approved
+  bankApprovedAt     DateTime?
+  bankRejectedAt     DateTime?
   bankRejectedReason String?
   //
-  failureReason    String?
-  refundedAt       DateTime?
-  refundedBy       String?
-  notes            String?        // admin internal notes
+  failureReason      String?
+  refundedAt         DateTime?
+  refundedBy         String?
+  notes              String? // admin internal notes
   // Manual claim fields
-  claimId          String?        @unique
-  receiptNumber    String?        @unique
-  reversedAt       DateTime?
-  reversedBy       String?
-  reversalReason   String?
-  fraudStrike      Boolean        @default(false)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  claimId            String?        @unique
+  receiptNumber      String?        @unique
+  reversedAt         DateTime?
+  reversedBy         String?
+  reversalReason     String?
+  fraudStrike        Boolean        @default(false)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
-  enrolment  Enrolment    @relation(fields: [enrolmentId], references: [id])
+  enrolment  Enrolment           @relation(fields: [enrolmentId], references: [id])
   instalment Instalment?
   claim      ManualPaymentClaim? @relation(fields: [claimId], references: [id])
 
+  @@index([enrolmentId, createdAt])
+  @@index([status])
   @@map("payments")
 }
 
@@ -715,9 +737,9 @@ model Instalment {
   paymentId      String?   @unique
   createdAt      DateTime  @default(now())
 
-  enrolment     Enrolment @relation(fields: [enrolmentId], references: [id], onDelete: Cascade)
-  unlocksBlock  Block?    @relation(fields: [unlocksBlockId], references: [id])
-  payment       Payment?  @relation(fields: [paymentId], references: [id])
+  enrolment    Enrolment @relation(fields: [enrolmentId], references: [id], onDelete: Cascade)
+  unlocksBlock Block?    @relation(fields: [unlocksBlockId], references: [id])
+  payment      Payment?  @relation(fields: [paymentId], references: [id])
 
   @@unique([enrolmentId, number])
   @@map("instalments")
@@ -746,59 +768,68 @@ model LedgerEntry {
 // ─────────────────────────────────────────────
 
 model LiveClass {
-  id            String          @id @default(cuid())
-  courseId      String
-  blockId       String?
-  tutorId       String
-  title         String
-  description   String?
-  scheduledAt   DateTime
-  durationMin   Int             @default(60)
-  joinUrl       String
-  recordingUrl  String?
-  platform      String          @default("link") // link|bbb|jitsi
-  providerMeetingId String?
-  recordingEnabled Boolean      @default(true)
-  recordingStatus String        @default("PENDING")
-  studentsMaySpeak Boolean      @default(false)
-  selfCheckInOpensAt DateTime?
-  selfCheckInClosesAt DateTime?
-  minimumAttendancePercent Int  @default(75)
-  status        LiveClassStatus @default(SCHEDULED)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id                       String          @id @default(cuid())
+  courseId                 String
+  blockId                  String?
+  tutorId                  String
+  title                    String
+  description              String?
+  scheduledAt              DateTime
+  durationMin              Int             @default(60)
+  joinUrl                  String
+  recordingUrl             String?
+  platform                 String          @default("link") // link|bbb|jitsi
+  providerMeetingId        String?
+  recordingEnabled         Boolean         @default(true)
+  recordingStatus          String          @default("PENDING")
+  studentsMaySpeak         Boolean         @default(false)
+  selfCheckInOpensAt       DateTime?
+  selfCheckInClosesAt      DateTime?
+  minimumAttendancePercent Int             @default(75)
+  status                   LiveClassStatus @default(SCHEDULED)
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
 
-  course     Course       @relation(fields: [courseId], references: [id])
-  block      Block?       @relation(fields: [blockId], references: [id])
-  tutor      User         @relation(fields: [tutorId], references: [id])
-  attendance Attendance[]
-  reminders  LiveClassReminder[]
+  course        Course              @relation(fields: [courseId], references: [id])
+  block         Block?              @relation(fields: [blockId], references: [id])
+  tutor         User                @relation(fields: [tutorId], references: [id])
+  attendance    Attendance[]
+  reminders     LiveClassReminder[]
+  presentations ClassPresentation[]
+  groups        ClassGroup[]
+  forumThreads  ForumThread[]
 
-  @@index([courseId, status])
-  @@index([tutorId, status])
+  @@index([courseId, scheduledAt])
   @@index([status, scheduledAt])
   @@map("live_classes")
 }
 
+enum SpeakStatus {
+  LISTEN_ONLY
+  REQUESTED
+  CAN_SPEAK
+}
+
 model Attendance {
-  id           String    @id @default(cuid())
-  liveClassId  String
-  userId       String
-  joinedAt     DateTime?
+  id                   String          @id @default(cuid())
+  liveClassId          String
+  userId               String
+  joinedAt             DateTime?
   admissionRequestedAt DateTime?
-  admittedAt   DateTime?
-  leftAt       DateTime?
-  startMark    AttendanceMark?
-  endMark      AttendanceMark?
-  startComment String?   @db.Text
-  endComment   String?   @db.Text
-  selfCheckedInAt DateTime?
-  handRaisedAt DateTime?
-  canSpeak     Boolean   @default(false)
-  isMuted      Boolean   @default(true)
-  isPresenter  Boolean   @default(false)
-  markedPresent Boolean  @default(false)
-  createdAt    DateTime  @default(now())
+  admittedAt           DateTime?
+  leftAt               DateTime?
+  startMark            AttendanceMark?
+  endMark              AttendanceMark?
+  startComment         String?         @db.Text
+  endComment           String?         @db.Text
+  selfCheckedInAt      DateTime?
+  handRaisedAt         DateTime?
+  canSpeak             Boolean         @default(false)
+  isMuted              Boolean         @default(true)
+  isPresenter          Boolean         @default(false)
+  speakStatus          SpeakStatus     @default(LISTEN_ONLY)
+  markedPresent        Boolean         @default(false)
+  createdAt            DateTime        @default(now())
 
   liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -810,11 +841,11 @@ model Attendance {
 }
 
 model PlatformPresence {
-  userId       String   @id
-  lastSeenAt   DateTime @default(now())
+  userId         String   @id
+  lastSeenAt     DateTime @default(now())
   currentClassId String?
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([lastSeenAt])
   @@map("platform_presence")
@@ -837,23 +868,43 @@ model LiveClassReminder {
   @@map("live_class_reminders")
 }
 
+// Slides or PDF uploaded by the instructor for a live class.
+// Students see these in-platform only (no download link ever served).
+model ClassPresentation {
+  id          String   @id @default(cuid())
+  liveClassId String
+  uploadedBy  String
+  fileName    String
+  s3Key       String
+  mimeType    String   @default("application/pdf")
+  sizeBytes   Int
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  uploader  User      @relation(fields: [uploadedBy], references: [id])
+
+  @@index([liveClassId])
+  @@map("class_presentations")
+}
+
 // ─────────────────────────────────────────────
 // EXAMS
 // ─────────────────────────────────────────────
 
 model Exam {
-  id             String     @id @default(cuid())
-  courseId       String
-  blockId        String?
-  title          String
-  instructions   String?    @db.Text
-  timeLimitMin   Int?
-  attemptLimit   Int        @default(2)
-  passPercent    Int        @default(60)
-  shuffleQuestions Boolean  @default(true)
-  status         ExamStatus @default(DRAFT)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id               String     @id @default(cuid())
+  courseId         String
+  blockId          String?
+  title            String
+  instructions     String?    @db.Text
+  timeLimitMin     Int?
+  attemptLimit     Int        @default(2)
+  passPercent      Int        @default(60)
+  shuffleQuestions Boolean    @default(true)
+  status           ExamStatus @default(DRAFT)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   course    Course         @relation(fields: [courseId], references: [id])
   block     Block?         @relation(fields: [blockId], references: [id])
@@ -864,30 +915,30 @@ model Exam {
 }
 
 model ExamAttempt {
-  id           String        @id @default(cuid())
-  examId       String
-  userId       String
-  number       Int
-  status       AttemptStatus @default(IN_PROGRESS)
-  startedAt    DateTime      @default(now())
-  submittedAt  DateTime?
-  timeLimitEndsAt DateTime?
-  score        Int?
-  maxScore     Int?
-  passed       Boolean?
-  tabSwitches  Int           @default(0)
-  answers      Json          // {questionId: answer}
-  createdAt    DateTime      @default(now())
+  id                   String        @id @default(cuid())
+  examId               String
+  userId               String
+  number               Int
+  status               AttemptStatus @default(IN_PROGRESS)
+  startedAt            DateTime      @default(now())
+  submittedAt          DateTime?
+  timeLimitEndsAt      DateTime?
+  score                Int?
+  maxScore             Int?
+  passed               Boolean?
+  tabSwitches          Int           @default(0)
+  answers              Json // {questionId: answer}
+  currentQuestionIndex Int           @default(0) // forward-only: next question index to answer
+  questionOrder        Json? // ordered question ids for this attempt (shuffled order)
+  createdAt            DateTime      @default(now())
 
-  exam              Exam               @relation(fields: [examId], references: [id])
-  user              User               @relation(fields: [userId], references: [id])
+  exam               Exam                @relation(fields: [examId], references: [id])
+  user               User                @relation(fields: [userId], references: [id])
   shortAnswerReviews ShortAnswerReview[]
 
   @@unique([examId, userId, number])
-  @@index([examId, userId])
   @@index([userId, status])
-  // Partial index for auto-submit cron (timed-out in-progress attempts)
-  @@index([timeLimitEndsAt, status])
+  @@index([examId, status])
   @@map("exam_attempts")
 }
 
@@ -923,8 +974,8 @@ model Certificate {
   revokedReason String?
   revokedBy     String?
 
-  user          User          @relation(fields: [userId], references: [id])
-  course        Course        @relation(fields: [courseId], references: [id])
+  user          User               @relation(fields: [userId], references: [id])
+  course        Course             @relation(fields: [courseId], references: [id])
   verifications CertVerification[]
 
   @@map("certificates")
@@ -950,7 +1001,7 @@ model Notification {
   id        String              @id @default(cuid())
   userId    String
   channel   NotificationChannel @default(IN_APP)
-  type      String              // e.g. PAYMENT_RECEIPT, CLASS_REMINDER
+  type      String // e.g. PAYMENT_RECEIPT, CLASS_REMINDER
   subject   String?
   body      String              @db.Text
   metadata  Json?
@@ -961,6 +1012,7 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt])
+  @@index([userId, createdAt])
   @@map("notifications")
 }
 
@@ -1035,61 +1087,29 @@ model SiteSetting {
 }
 
 // ─────────────────────────────────────────────
-// STORAGE RETENTION (section 10)
-// Tracks scheduled cleanup jobs: previous-intake files listed,
-// Principal confirms, 14-day trash, then permanent deletion.
-// ─────────────────────────────────────────────
-
-model StorageCleanupJob {
-  id              String    @id @default(cuid())
-  intakeId        String?   // the intake whose files are being cleared (null = manual)
-  intakeLabel     String    // human-readable label e.g. "November 2026 Cohort"
-  /// PENDING_CONFIRMATION | CONFIRMED | IN_TRASH | EXECUTED | CANCELLED
-  status          String    @default("PENDING_CONFIRMATION")
-  /// JSON array of {type,id,s3Key?,recordingUrl?,fileName,sizeBytes,courseTitle,intakeLabel}
-  itemsJson       Json      @default("[]")
-  totalSizeBytes  BigInt    @default(0)
-  trashDays       Int       @default(14)
-  confirmedById   String?
-  confirmedAt     DateTime?
-  executeAfter    DateTime? // confirmedAt + trashDays
-  executedAt      DateTime?
-  cancelledAt     DateTime?
-  exportUrl       String?   // pre-signed export archive URL
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  confirmedBy User? @relation("StorageCleanupConfirmer", fields: [confirmedById], references: [id])
-
-  @@index([status])
-  @@index([executeAfter])
-  @@map("storage_cleanup_jobs")
-}
-
-// ─────────────────────────────────────────────
 // GRADEBOOK (materialised summary per student per course)
 // Updated by triggers / background jobs after each exam/assignment
 // ─────────────────────────────────────────────
 
 model GradeEntry {
-  id           String    @id @default(cuid())
-  userId       String
-  courseId     String
-  itemType     String    // "EXAM" | "ASSIGNMENT"
-  itemId       String    // examId or assignmentId
-  itemTitle    String
-  score        Int?
-  maxScore     Int?
-  percentage   Float?
-  passed       Boolean?
-  gradedAt     DateTime?
+  id               String    @id @default(cuid())
+  userId           String
+  courseId         String
+  itemType         String // "EXAM" | "ASSIGNMENT"
+  itemId           String // examId or assignmentId
+  itemTitle        String
+  score            Int?
+  maxScore         Int?
+  percentage       Float?
+  passed           Boolean?
+  gradedAt         DateTime?
   // Release tracking: set when Principal publishes final results for this item.
   // A grade cannot be changed after release without an approved MARKS_CHANGE request.
-  releasedAt       DateTime?  // null = not yet released (editable); set = released (locked)
+  releasedAt       DateTime? // null = not yet released (editable); set = released (locked)
   // Change audit: populated when a released grade is altered via an approved MARKS_CHANGE approval.
-  changeReason     String?    @db.Text
-  changeApprovalId String?    // ApprovalRequest.id that authorised the change
-  updatedAt    DateTime  @updatedAt
+  changeReason     String?   @db.Text
+  changeApprovalId String? // ApprovalRequest.id that authorised the change
+  updatedAt        DateTime  @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -1103,19 +1123,19 @@ model GradeEntry {
 // ─────────────────────────────────────────────
 
 model Assignment {
-  id            String           @id @default(cuid())
-  courseId      String
-  blockId       String?
-  title         String
-  instructions  String           @db.Text
-  dueDate       DateTime?
-  maxPoints     Int              @default(100)
-  status        AssignmentStatus @default(DRAFT)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  id           String           @id @default(cuid())
+  courseId     String
+  blockId      String?
+  title        String
+  instructions String           @db.Text
+  dueDate      DateTime?
+  maxPoints    Int              @default(100)
+  status       AssignmentStatus @default(DRAFT)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
-  course      Course             @relation(fields: [courseId], references: [id])
-  block       Block?             @relation(fields: [blockId], references: [id])
+  course      Course                 @relation(fields: [courseId], references: [id])
+  block       Block?                 @relation(fields: [blockId], references: [id])
   submissions AssignmentSubmission[]
 
   @@map("assignments")
@@ -1131,7 +1151,7 @@ model AssignmentSubmission {
   id           String           @id @default(cuid())
   assignmentId String
   userId       String
-  fileS3Key    String?          // uploaded file
+  fileS3Key    String? // uploaded file
   textBody     String?          @db.Text
   submittedAt  DateTime         @default(now())
   status       SubmissionStatus @default(SUBMITTED)
@@ -1161,7 +1181,7 @@ enum SubmissionStatus {
 
 model Announcement {
   id        String   @id @default(cuid())
-  courseId  String?  // null = site-wide
+  courseId  String? // null = site-wide
   authorId  String
   title     String
   body      String   @db.Text
@@ -1169,10 +1189,70 @@ model Announcement {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  course  Course? @relation(fields: [courseId], references: [id])
-  author  User    @relation(fields: [authorId], references: [id])
+  course Course? @relation(fields: [courseId], references: [id])
+  author User    @relation(fields: [authorId], references: [id])
 
   @@map("announcements")
+}
+
+// ─────────────────────────────────────────────
+// BREAKAWAY GROUPS (per live class)
+// ─────────────────────────────────────────────
+
+model ClassGroup {
+  id          String   @id @default(cuid())
+  liveClassId String
+  name        String // e.g. "Group A", "Sanyu Team"
+  meetLink    String? // optional Meet link for the group
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  liveClass   LiveClass             @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  members     ClassGroupMember[]
+  submissions GroupWorkSubmission[]
+
+  @@index([liveClassId])
+  @@map("class_groups")
+}
+
+model ClassGroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  group ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("class_group_members")
+}
+
+// One submission per group; optional individual grade adjustments stored in JSON
+model GroupWorkSubmission {
+  id              String    @id @default(cuid())
+  groupId         String
+  liveClassId     String
+  title           String
+  body            String?   @db.Text
+  fileS3Key       String?
+  submittedAt     DateTime  @default(now())
+  groupMark       Int? // 0-100 shared mark
+  // individual adjustments: [{userId, mark, note}]
+  individualMarks Json?
+  gradedAt        DateTime?
+  gradedBy        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  group  ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  grader User?      @relation("GroupWorkGrader", fields: [gradedBy], references: [id])
+
+  @@unique([groupId, liveClassId])
+  @@index([liveClassId])
+  @@map("group_work_submissions")
 }
 
 // ─────────────────────────────────────────────
@@ -1180,20 +1260,27 @@ model Announcement {
 // ─────────────────────────────────────────────
 
 model ForumThread {
-  id        String   @id @default(cuid())
-  courseId  String
-  authorId  String
-  title     String
-  body      String   @db.Text
-  pinned    Boolean  @default(false)
-  locked    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  courseId    String
+  // Optional scoping: class-level or group-level threads
+  liveClassId String?
+  groupId     String?
+  authorId    String
+  title       String
+  body        String   @db.Text
+  pinned      Boolean  @default(false)
+  locked      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  course  Course      @relation(fields: [courseId], references: [id])
-  author  User        @relation(fields: [authorId], references: [id])
-  replies ForumReply[]
+  course    Course       @relation(fields: [courseId], references: [id])
+  liveClass LiveClass?   @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  author    User         @relation(fields: [authorId], references: [id])
+  replies   ForumReply[]
 
+  @@index([courseId])
+  @@index([liveClassId])
+  @@index([groupId])
   @@map("forum_threads")
 }
 
@@ -1216,30 +1303,114 @@ model ForumReply {
 // ─────────────────────────────────────────────
 
 model SupportTicket {
-  id          String        @id @default(cuid())
-  userId      String
-  subject     String
-  body        String        @db.Text
-  status      TicketStatus  @default(OPEN)
-  priority    TicketPriority @default(NORMAL)
-  assignedTo  String?
-  resolvedAt  DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String         @id @default(cuid())
+  userId     String
+  subject    String
+  body       String         @db.Text
+  category   String         @default("GENERAL")
+  status     TicketStatus   @default(OPEN)
+  priority   TicketPriority @default(NORMAL)
+  assignedTo String?
+  resolvedAt DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
-  user     User              @relation(fields: [userId], references: [id])
-  assignee User?             @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  user     User           @relation(fields: [userId], references: [id])
+  assignee User?          @relation("AssignedTickets", fields: [assignedTo], references: [id])
   replies  SupportReply[]
 
+  @@index([userId, status])
+  @@index([status])
+  @@index([assignedTo])
   @@map("support_tickets")
 }
 
-model SupportReply {
+model Venue {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  location  String?
+  capacity  Int?
+  notes     String?  @db.Text
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings          VenueBooking[]
+  practicalSessions PracticalSession[]
+
+  @@map("venues")
+}
+
+model VenueBooking {
+  id          String   @id @default(cuid())
+  venueId     String
+  title       String
+  startsAt    DateTime
+  endsAt      DateTime
+  status      String   @default("CONFIRMED")
+  notes       String?  @db.Text
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([venueId, startsAt, endsAt])
+  @@map("venue_bookings")
+}
+
+model PracticalSession {
+  id          String   @id @default(cuid())
+  title       String
+  venueId     String
+  startsAt    DateTime
+  endsAt      DateTime
+  courseName  String?
+  notes       String?  @db.Text
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  venue     Venue                    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  equipment PracticalEquipmentItem[]
+
+  @@index([venueId, startsAt, endsAt])
+  @@map("practical_sessions")
+}
+
+model PracticalEquipmentItem {
+  id                 String   @id @default(cuid())
+  practicalSessionId String
+  name               String
+  needed             Int      @default(1)
+  available          Int      @default(0)
+  notes              String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  practicalSession PracticalSession @relation(fields: [practicalSessionId], references: [id], onDelete: Cascade)
+
+  @@map("practical_equipment_items")
+}
+
+model OperationalNotice {
   id       String   @id @default(cuid())
-  ticketId String
-  authorId String
+  title    String
   body     String   @db.Text
-  isStaff  Boolean  @default(false)
+  audience String
+  channel  String   @default("IN_APP")
+  sentById String
+  sentAt   DateTime @default(now())
+
+  @@map("operational_notices")
+}
+
+model SupportReply {
+  id        String   @id @default(cuid())
+  ticketId  String
+  authorId  String
+  body      String   @db.Text
+  isStaff   Boolean  @default(false)
   createdAt DateTime @default(now())
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
@@ -1281,48 +1452,58 @@ model AuditLog {
 
   actor User? @relation("ActorAuditLog", fields: [actorId], references: [id])
 
+  @@index([actorId, createdAt])
   @@index([entityType, entityId])
-  @@index([actorId, createdAt(sort: Desc)])
+  @@index([createdAt])
   @@map("audit_logs")
 }
 
 // ─────────────────────────────────────────────
 // APPROVAL REQUESTS
-// Separation of duties: initiator ≠ approver.
-// Only SUPERADMIN can approve.
+// Separation of duties: initiator != approver.
+// Multi-step: some types go through a reviewer (Principal) before the final approver (Director).
 // ─────────────────────────────────────────────
 
 model ApprovalRequest {
-  id           String                @id @default(cuid())
-  type         ApprovalRequestType
-  status       ApprovalRequestStatus @default(PENDING)
-  initiatorId  String
+  id                   String                @id @default(cuid())
+  type                 ApprovalRequestType
+  status               ApprovalRequestStatus @default(SUBMITTED)
+  initiatorId          String
+  // Multi-step reviewer (optional; only populated when the type has a review step)
+  reviewerId           String? // the Principal (or other reviewer) who forwards to final approver
+  reviewedAt           DateTime?
+  reviewNote           String?               @db.Text
   // Subject entity references (all optional; use whichever applies)
-  studentId    String?
-  enrolmentId  String?
-  paymentId    String?
-  staffUserId  String?               // for staff account actions
-  gradeEntryId String?               // for MARKS_CHANGE requests
-  examId       String?               // for MARKS_CHANGE: the exam whose grade is disputed
-  proposedScore Int?                 // for MARKS_CHANGE: the corrected score being requested
+  studentId            String?
+  enrolmentId          String?
+  paymentId            String?
+  staffUserId          String? // for staff account actions
+  gradeEntryId         String? // for MARKS_CHANGE requests
+  examId               String? // for MARKS_CHANGE: the exam whose grade is disputed
+  proposedScore        Int? // for MARKS_CHANGE: the corrected score being requested
+  courseId             String? // for COURSE_CHANGE / RESULTS_PUBLICATION / CERTIFICATE_ISSUANCE
   // Request details
-  amount       Int?                  // for REFUND / WAIVER / FEE_CHANGE (UGX)
-  reason       String                @db.Text
-  evidence     String?               // S3 key or URL to supporting doc
+  amount               Int? // for REFUND / WAIVER / FEE_CHANGE (UGX)
+  reason               String                @db.Text
+  evidence             String? // S3 key or URL to supporting doc
   // Decision
-  decidedById  String?
-  decidedAt    DateTime?
-  decisionNote String?               @db.Text
-  // Secure approval link
-  approvalToken        String?       @unique
+  decidedById          String?
+  decidedAt            DateTime?
+  decisionNote         String?               @db.Text
+  // Secure approval link (email one-click)
+  approvalToken        String?               @unique
   approvalTokenExpires DateTime?
   // Timestamps
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
-  initiator  User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
-  decidedBy  User? @relation("ApprovalDecider",   fields: [decidedById], references: [id])
+  initiator User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
+  decidedBy User? @relation("ApprovalDecider", fields: [decidedById], references: [id])
+  reviewer  User? @relation("ApprovalReviewer", fields: [reviewerId], references: [id])
 
+  @@index([status])
+  @@index([initiatorId, status])
+  @@index([reviewerId, status])
   @@map("approval_requests")
 }
 
@@ -1336,15 +1517,15 @@ model BreakGlassGrant {
   id          String    @id @default(cuid())
   requesterId String
   reason      String    @db.Text
-  scope       String                // e.g. "student_payments", "personal_data"
+  scope       String // e.g. "student_payments", "personal_data"
   grantedById String?
   grantedAt   DateTime?
   expiresAt   DateTime?
   revokedAt   DateTime?
-  accessedAt  DateTime?             // when requester first used the grant
+  accessedAt  DateTime? // when requester first used the grant
   createdAt   DateTime  @default(now())
 
-  requester User  @relation(fields: [requesterId], references: [id])
+  requester User @relation(fields: [requesterId], references: [id])
 
   @@map("break_glass_grants")
 }
@@ -1356,11 +1537,31 @@ model BreakGlassGrant {
 model AccessReview {
   id           String   @id @default(cuid())
   reviewedById String
-  quarter      String   // e.g. "2026-Q4"
+  quarter      String // e.g. "2026-Q4"
   notes        String?  @db.Text
   completedAt  DateTime @default(now())
 
   @@map("access_reviews")
+}
+
+model LeaveRequest {
+  id           String    @id @default(cuid())
+  userId       String
+  startsAt     DateTime
+  endsAt       DateTime
+  reason       String    @db.Text
+  status       String    @default("PENDING")
+  decidedById  String?
+  decidedAt    DateTime?
+  decisionNote String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user      User  @relation("LeaveRequester", fields: [userId], references: [id])
+  decidedBy User? @relation("LeaveDecider", fields: [decidedById], references: [id])
+
+  @@index([status, startsAt])
+  @@map("leave_requests")
 }
 
 // ─────────────────────────────────────────────
@@ -1373,15 +1574,15 @@ model StaffInvite {
   id          String    @id @default(cuid())
   email       String
   role        UserRole
-  token       String    @unique  // secure random hex, single-use
+  token       String    @unique // secure random hex, single-use
   expiresAt   DateTime
   acceptedAt  DateTime?
   createdById String
   createdAt   DateTime  @default(now())
   // For student invites: points to the pre-created user account
   userId      String?
-  courseId    String?   // optional teaching assignment applied when the invite is accepted
-  intakeId    String?   // selected student intake shown on the invite review screen
+  courseId    String? // optional teaching assignment applied when the invite is accepted
+  intakeId    String? // selected student intake shown on the invite review screen
 
   createdBy User  @relation(fields: [createdById], references: [id])
   user      User? @relation("StudentInviteUser", fields: [userId], references: [id])
@@ -1419,11 +1620,11 @@ model ManualPaymentClaim {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
-  enrolment     Enrolment       @relation(fields: [enrolmentId], references: [id])
-  claimant      User            @relation("ClaimantClaims", fields: [claimantId], references: [id])
-  reviewer      User?           @relation("ClaimReviewer", fields: [reviewedById], references: [id])
-  verifier      User?           @relation("ClaimVerifier", fields: [verifiedById], references: [id])
-  statementLine StatementLine?  @relation(fields: [statementLineId], references: [id])
+  enrolment     Enrolment      @relation(fields: [enrolmentId], references: [id])
+  claimant      User           @relation("ClaimantClaims", fields: [claimantId], references: [id])
+  reviewer      User?          @relation("ClaimReviewer", fields: [reviewedById], references: [id])
+  verifier      User?          @relation("ClaimVerifier", fields: [verifiedById], references: [id])
+  statementLine StatementLine? @relation(fields: [statementLineId], references: [id])
   payment       Payment?
 
   @@map("manual_payment_claims")
@@ -1434,18 +1635,18 @@ model ManualPaymentClaim {
 // ─────────────────────────────────────────────
 
 model StatementImport {
-  id             String          @id @default(cuid())
+  id             String   @id @default(cuid())
   uploadedById   String
   filename       String
   bank           String
   periodStart    DateTime
   periodEnd      DateTime
   lineCount      Int
-  matchedCount   Int             @default(0)
-  unmatchedCount Int             @default(0)
-  unclaimedCount Int             @default(0)
+  matchedCount   Int      @default(0)
+  unmatchedCount Int      @default(0)
+  unclaimedCount Int      @default(0)
   s3Key          String
-  createdAt      DateTime        @default(now())
+  createdAt      DateTime @default(now())
 
   uploadedBy User            @relation(fields: [uploadedById], references: [id])
   lines      StatementLine[]
@@ -1464,8 +1665,8 @@ model StatementLine {
   matchStatus String   @default("UNMATCHED")
   createdAt   DateTime @default(now())
 
-  import  StatementImport        @relation(fields: [importId], references: [id], onDelete: Cascade)
-  claims  ManualPaymentClaim[]
+  import StatementImport      @relation(fields: [importId], references: [id], onDelete: Cascade)
+  claims ManualPaymentClaim[]
 
   @@map("statement_lines")
 }
@@ -1487,15 +1688,15 @@ enum BoardDocumentCategory {
 }
 
 model BoardDocument {
-  id          String                 @id @default(cuid())
+  id          String                @id @default(cuid())
   title       String
-  description String?                @db.Text
+  description String?               @db.Text
   fileS3Key   String?
   fileUrl     String?
-  category    BoardDocumentCategory  @default(GENERAL)
+  category    BoardDocumentCategory @default(GENERAL)
   authorId    String
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
 
   author User @relation("BoardDocAuthor", fields: [authorId], references: [id])
 

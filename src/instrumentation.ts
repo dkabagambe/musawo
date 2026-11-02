@@ -45,9 +45,9 @@ export async function register() {
   // Render sends SIGTERM before killing the container. Give in-flight requests
   // up to 5 seconds to complete before we exit.
   process.once("SIGTERM", () => {
-    console.log("[process] SIGTERM received — shutting down gracefully (5 s)");
+    console.log("[process] SIGTERM received - shutting down gracefully (5 s)");
     setTimeout(() => {
-      console.log("[process] Graceful shutdown timeout reached — exiting");
+      console.log("[process] Graceful shutdown timeout reached - exiting");
       process.exit(0);
     }, 5000).unref();
   });

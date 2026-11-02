@@ -145,13 +145,13 @@ export default async function AdminLayout({
   const name = session.user.name ?? "Admin";
   const tabs: DashboardTab[] = [
     "general",
-    ...(can(session.user.role, "staff.view") ? ["staff"] : []),
-    ...(can(session.user.role, "staff.leave.manage") ? ["leave"] : []),
+    ...(can(session.user.role, "staff.view") ? (["staff"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "staff.leave.manage") ? (["leave"] as DashboardTab[]) : []),
     ...(can(session.user.role, "support.manage") &&
     !can(session.user.role, "staff.leave.manage")
-      ? ["support", "timetable"]
+      ? (["support", "timetable"] as DashboardTab[])
       : []),
-    ...(can(session.user.role, "reports.operational") ? ["operations"] : []),
+    ...(can(session.user.role, "reports.operational") ? (["operations"] as DashboardTab[]) : []),
   ];
   return (
     <AppShell

@@ -38,7 +38,7 @@ Set these **exactly** in the Render dashboard (Settings tab for the web service)
 migrations in transactions, so the migration failed and was marked as failed in the DB.
 The `--rolled-back` resolve tells Prisma to forget the failed attempt so `migrate deploy`
 can re-run the corrected version (which uses plain `CREATE INDEX IF NOT EXISTS`).
-The resolve command is idempotent — once the migration succeeds it does nothing on
+The resolve command is idempotent - once the migration succeeds it does nothing on
 subsequent deploys.
 
 **Why SKIP_DB_MIGRATE in the build?** The build worker on Render does not have a database

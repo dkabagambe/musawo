@@ -1,5 +1,5 @@
 -- Section 11: Concurrency indexes for hot query paths
--- NOTE: CONCURRENTLY removed — Prisma runs migrations inside a transaction
+-- NOTE: CONCURRENTLY removed - Prisma runs migrations inside a transaction
 -- and PostgreSQL does not allow CREATE INDEX CONCURRENTLY inside a transaction.
 -- Plain CREATE INDEX IF NOT EXISTS acquires a ShareLock which is fine for a
 -- deploy-time migration (table writes queue briefly, no data loss).
