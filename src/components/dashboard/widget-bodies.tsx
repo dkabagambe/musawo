@@ -1320,7 +1320,7 @@ async function StaffListBody({ fullPageHref }: WidgetBodyProps) {
 }
 
 /* ═══════════════════════════════════════════════
-   SYSTEM / AUDITOR WIDGETS
+   SYSTEM_IT WIDGETS
    ═══════════════════════════════════════════════ */
 
 /* support-list  (deputy/HR support - open support tickets) */

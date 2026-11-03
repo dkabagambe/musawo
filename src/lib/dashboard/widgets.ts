@@ -52,20 +52,15 @@ export const ROLE_LABELS: Record<string, string> = {
   STUDENT:             "Student",
   SYSTEM_IT:           "IT Admin",
   ARCHIVED:            "Archived Account",
-  // ── Legacy aliases (kept so old data renders correctly) ──────────
-  SUPER_ADMIN:         "Managing Director",
-  SUPERADMIN:          "Managing Director",
-  BOARD_MEMBER:        "Board Member",
-  DEPUTY_PRINCIPAL:    "Deputy Principal",
+  // ── Migration aliases only (redirect safety; not shown in new UI) ──
+  SUPER_ADMIN:         "Director",
+  SUPERADMIN:          "Director",
   REGISTRAR:           "Academic Registrar",
   TUTOR:               "Instructor",
-  TEACHING_ASSISTANT:  "Teaching Assistant",
-  FINANCE_OFFICER:     "Finance Officer",
-  BURSAR:              "Finance Officer",
-  HR_SYSTEM_ADMIN:     "HR Admin",
-  HR_MANAGER:          "HR Manager",
-  ADMINISTRATOR:       "Administrator",
-  AUDITOR_READONLY:    "Audit",
+  BURSAR:              "Finance",
+  HR_SYSTEM_ADMIN:     "Admin",
+  ADMINISTRATOR:       "Admin",
+  ADMIN_LEGACY:        "Admin",
 };
 
 export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [

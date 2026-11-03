@@ -27,14 +27,12 @@ export default async function AnnouncementsPage() {
   });
 
   const ROLE_LABEL: Record<string, string> = {
-    INSTRUCTOR: "Tutor", TEACHING_ASSISTANT: "Teaching Assistant",
-    ACADEMIC_REGISTRAR: "Registrar", FINANCE_OFFICER: "Finance",
-    PRINCIPAL: "Principal", DEPUTY_PRINCIPAL: "Deputy Principal",
-    SUPER_ADMIN: "Director", HR_MANAGER: "HR", ADMINISTRATOR: "Admin",
-    SYSTEM_IT: "IT", AUDITOR_READONLY: "Auditor", BOARD_MEMBER: "Board",
-    // Legacy aliases
-    TUTOR: "Tutor", REGISTRAR: "Registrar", SUPERADMIN: "Director", BURSAR: "Finance",
-    ADMIN: "Admin",
+    DIRECTOR: "Director", PRINCIPAL: "Principal", ADMIN: "Admin",
+    ACADEMIC_REGISTRAR: "Registrar", INSTRUCTOR: "Instructor",
+    STUDENT: "Student", SYSTEM_IT: "IT Admin",
+    // Migration aliases only
+    SUPER_ADMIN: "Director", SUPERADMIN: "Director",
+    TUTOR: "Instructor", REGISTRAR: "Registrar",
   };
 
   return (
