@@ -4,6 +4,8 @@ import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { getStorageUsageSummary } from "@/lib/storage/retention";
 import StorageDashboard from "@/components/storage/StorageDashboard";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Storage - Principal" };
 

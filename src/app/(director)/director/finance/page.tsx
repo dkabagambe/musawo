@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Finance Overview - Director" };
 

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "My Courses - Tutor" };
 

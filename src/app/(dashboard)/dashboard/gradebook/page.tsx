@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { BarChart2, CheckCircle2, XCircle, Clock } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Gradebook" };
 

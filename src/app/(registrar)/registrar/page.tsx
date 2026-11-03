@@ -4,6 +4,8 @@ import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
 import type { DashboardTab } from "@/lib/dashboard/widgets";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Academic Registrar" };
 

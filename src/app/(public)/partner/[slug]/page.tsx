@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPresignedDownloadUrl } from "@/lib/s3";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 interface Props {
   params: { slug: string };

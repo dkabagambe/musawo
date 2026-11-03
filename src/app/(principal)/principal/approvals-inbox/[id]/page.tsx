@@ -3,6 +3,8 @@ import { can } from "@/lib/rbac";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import ApprovalForwardForm from "../ApprovalForwardForm";
+export const dynamic = "force-dynamic";
+
 
 interface Props { params: { id: string } }
 

@@ -4,6 +4,8 @@ import AdminSettingsForm from "./SettingsForm";
 import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Site Settings" };
 

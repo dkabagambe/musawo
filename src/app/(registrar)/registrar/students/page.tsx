@@ -5,6 +5,8 @@ import { can } from "@/lib/rbac";
 import Link from "next/link";
 import InviteActions from "@/components/ui/InviteActions";
 import StudentCsvImport from "./StudentCsvImport";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Students - Registrar" };
 

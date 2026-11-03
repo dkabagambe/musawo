@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { STAFF_ROLES } from "@/lib/rbac";
 import CompleteReviewForm from "./CompleteReviewForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Access Review - Director" };
 

@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { notFound } from "next/navigation";
 import ApprovalDecisionForm from "./ApprovalDecisionForm";
+export const dynamic = "force-dynamic";
+
 
 interface Props {
   params: { token: string };

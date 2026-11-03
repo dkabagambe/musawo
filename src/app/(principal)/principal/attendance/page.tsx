@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Attendance - Principal" };
 

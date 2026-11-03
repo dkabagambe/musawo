@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import ApplicationActions from "./ApplicationActions";
+export const dynamic = "force-dynamic";
+
 
 interface Props {
   params: { id: string };

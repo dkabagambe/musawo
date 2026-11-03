@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import Link from "next/link";
 import { MessageSquare } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Discussion Forum - Teaching Portal" };
 

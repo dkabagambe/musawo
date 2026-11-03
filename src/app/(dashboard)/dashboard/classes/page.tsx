@@ -8,6 +8,8 @@ import MyGroupCard from "@/components/live/MyGroupCard";
 import GroupWorkSubmitCard from "@/components/live/GroupWorkSubmitCard";
 import { Video, Calendar } from "lucide-react";
 import React from "react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Classes - Student" };
 

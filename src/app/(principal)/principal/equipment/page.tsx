@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import ApprovalDecisionForm from "@/app/approval/[token]/ApprovalDecisionForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Equipment - Principal" };
 

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { CreditCard, CheckCircle2, Clock, XCircle, ArrowRight } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Payments" };
 

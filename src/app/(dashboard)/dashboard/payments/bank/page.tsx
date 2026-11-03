@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import BankPaymentForm from "@/components/payment/BankPaymentForm";
 import { getSetting } from "@/lib/settings";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Pay by Bank Transfer" };
 

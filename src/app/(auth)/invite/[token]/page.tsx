@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import AcceptInviteForm from "./AcceptInviteForm";
 import StudentAcceptForm from "./StudentAcceptForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Accept Invite - Musawo Training Center" };
 

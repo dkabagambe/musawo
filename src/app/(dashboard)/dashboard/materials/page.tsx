@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { BookOpen, FileText, Video, Lock } from "lucide-react";
 import { getAccessLevel } from "@/lib/enrolment/access";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Learning Materials - Student" };
 

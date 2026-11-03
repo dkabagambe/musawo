@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import NewForumThreadForm from "./NewForumThreadForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "New Thread - Forum" };
 

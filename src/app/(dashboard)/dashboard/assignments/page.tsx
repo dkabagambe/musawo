@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { FileText, Clock, CheckCircle2, AlertCircle, BookOpen } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Assignments - Musawo Training Center" };
 

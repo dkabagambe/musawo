@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import { ClipboardList, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { can } from "@/lib/rbac";
 import ReviewAttempt from "./ReviewAttempt";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Exams - Tutor" };
 

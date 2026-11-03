@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import AnnouncementComposer from "./AnnouncementComposer";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Class announcements" };
 

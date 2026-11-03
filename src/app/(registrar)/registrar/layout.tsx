@@ -8,6 +8,8 @@ import {
   FileText, Bell, User, Search,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 // While the ACADEMIC_REGISTRAR_ACTIVE setting is false, the account can log
 // in and sees only this portal shell with a holding page. Full nav is
 // visible only when the setting is true.

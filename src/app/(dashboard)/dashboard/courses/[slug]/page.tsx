@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getBunnySignedUrl } from "@/lib/bunny";
 import { canAccessLesson, getAccessLevel } from "@/lib/enrolment/access";
 import CoursePlayerClient from "./CoursePlayerClient";
+export const dynamic = "force-dynamic";
+
 
 interface Props {
   params: { slug: string };

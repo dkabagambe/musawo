@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, ArrowRight, CheckCircle2 } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "My Courses" };
 

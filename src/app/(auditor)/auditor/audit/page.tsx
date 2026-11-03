@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Audit Log - Auditor" };
 

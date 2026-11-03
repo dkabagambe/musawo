@@ -5,6 +5,8 @@ import AnimateIn from "@/components/public/AnimateIn";
 import { getSetting } from "@/lib/settings";
 import { CheckCircle, FileCheck } from "lucide-react";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getSetting("site.accreditationText", "");

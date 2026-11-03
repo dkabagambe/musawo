@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
+export const dynamic = "force-dynamic";
+
 
 export const metadata: Metadata = { title: "Timetable - Academic Registrar" };
 

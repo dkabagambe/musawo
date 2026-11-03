@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
 import PageHero from "@/components/public/PageHero";
 import ApplyForm from "./ApplyForm";
+export const revalidate = 3600;
+
 
 export const metadata: Metadata = {
   title: "Apply Now | Musawo Training Center",

@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { getAccessLevel } from "@/lib/enrolment/access";
 import RecordingViewer from "./RecordingViewer";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Class replays" };
 export default async function RecordingsPage() {

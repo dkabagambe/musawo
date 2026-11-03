@@ -5,6 +5,8 @@ import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { can } from "@/lib/rbac";
 import { ClipboardList } from "lucide-react";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Assignments - Teaching Portal" };
 

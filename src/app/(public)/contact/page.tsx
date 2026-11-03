@@ -6,6 +6,8 @@ import AnimateIn from "@/components/public/AnimateIn";
 import ContactForm from "./ContactForm";
 import ClinicMap from "./ClinicMap";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 export const metadata: Metadata = {
   title: "Contact Us",

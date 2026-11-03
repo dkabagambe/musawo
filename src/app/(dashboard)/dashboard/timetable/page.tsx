@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { Calendar, Video, PlayCircle } from "lucide-react";
 import StudentJoinClass from "./StudentJoinClass";
 import PresentationViewer from "@/components/live/PresentationViewer";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Timetable" };
 

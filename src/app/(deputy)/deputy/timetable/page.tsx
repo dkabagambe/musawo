@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { Calendar, Clock } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Timetable - Deputy Principal" };
 

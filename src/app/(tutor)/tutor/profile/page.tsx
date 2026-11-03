@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import InstructorProfileForm from "./InstructorProfileForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Profile - Teaching Portal" };
 

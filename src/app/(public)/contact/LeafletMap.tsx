@@ -9,7 +9,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Luggala Trading Center, Lubaga Division, Kampala
+// Lugala Trading Center, Lubaga Division, Kampala
 const ZOOM = 16;
 
 interface Props {
@@ -93,7 +93,7 @@ export default function LeafletMap({ latitude, longitude, onError }: Props) {
           .addTo(map)
           .bindPopup(
             '<strong style="color:#0B6B5D">Musawo Training Center</strong><br>' +
-            "Plot 5, ADFA Building, Luggala Trading Center, Lubaga Division<br>Kampala, Uganda",
+            "Plot 5, ADFA Building, Lugala Trading Center, Lubaga Division<br>Kampala, Uganda",
           )
           .openPopup();
 
@@ -128,7 +128,7 @@ export default function LeafletMap({ latitude, longitude, onError }: Props) {
       ref={containerRef}
       className="w-full h-full rounded-2xl"
       role="application"
-      aria-label="Interactive map showing Musawo Training Center in Luggala, Lubaga, Kampala"
+      aria-label="Interactive map showing Musawo Training Center in Lugala, Lubaga, Kampala"
     />
   );
 }

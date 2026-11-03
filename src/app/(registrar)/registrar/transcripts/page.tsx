@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Transcripts - Registrar" };
 

@@ -5,6 +5,8 @@ import StaggerGrid from "@/components/public/StaggerGrid";
 import { getSetting } from "@/lib/settings";
 import { Smartphone, CheckCircle, AlertCircle } from "lucide-react";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 export const metadata: Metadata = {
   title: "Payment Options",

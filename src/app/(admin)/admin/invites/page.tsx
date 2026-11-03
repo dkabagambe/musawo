@@ -5,6 +5,8 @@ import { getAllSettings } from "@/lib/settings";
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import InviteActions from "@/components/ui/InviteActions";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Pending Invites" };
 

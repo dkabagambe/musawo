@@ -7,6 +7,8 @@ import Link from "next/link";
 export const metadata = { title: "Approval Inbox - Director" };
 
 import type { ApprovalRequestStatus } from "@prisma/client";
+export const dynamic = "force-dynamic";
+
 
 const ACTIONABLE: ApprovalRequestStatus[] = ["SUBMITTED", "IN_REVIEW"];
 

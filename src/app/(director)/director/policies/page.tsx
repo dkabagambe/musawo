@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import PoliciesEditor from "./PoliciesEditor";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Policies & Settings - Director" };
 

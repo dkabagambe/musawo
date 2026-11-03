@@ -2,6 +2,8 @@ import PageHero from "@/components/public/PageHero";
 import Link from "next/link";
 import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 export const metadata: Metadata = {
   title: "Privacy Policy",

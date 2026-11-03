@@ -84,8 +84,8 @@ export default function ClinicMap({ address, latitude, longitude }: Props) {
                 transition: "opacity 0.4s ease",
               }}
               loading="lazy"
-              title="Musawo Training Center location - Luggala, Lubaga, Kampala"
-              aria-label="Map showing Musawo Training Center in Luggala, Lubaga, Kampala"
+              title="Musawo Training Center location - Lugala, Lubaga, Kampala"
+              aria-label="Map showing Musawo Training Center in Lugala, Lubaga, Kampala"
               onLoad={() => setIframeLoaded(true)}
               onError={downgrade}
             />

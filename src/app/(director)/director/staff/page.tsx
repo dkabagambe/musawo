@@ -3,6 +3,8 @@ import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { MAX_SUPER_ADMIN_ACCOUNTS, STAFF_ROLES } from "@/lib/rbac";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Staff Accounts - Director" };
 

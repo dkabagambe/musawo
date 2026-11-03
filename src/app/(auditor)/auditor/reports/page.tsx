@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { BarChart2, Users, Award, TrendingUp } from "lucide-react";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Reports - Auditor" };
 

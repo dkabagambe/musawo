@@ -5,6 +5,8 @@ import { can } from "@/lib/rbac";
 import InviteStaffForm from "./InviteStaffForm";
 import InviteActions from "@/components/ui/InviteActions";
 import { getAllSettings } from "@/lib/settings";
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "Staff - Admin" };
 
 export default async function AdminTutorsPage() {

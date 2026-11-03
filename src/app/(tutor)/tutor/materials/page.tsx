@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import MaterialsManager from "./MaterialsManager";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { can } from "@/lib/rbac";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Materials - Tutor" };
 

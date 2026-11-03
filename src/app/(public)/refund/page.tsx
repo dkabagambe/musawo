@@ -3,6 +3,8 @@ import Link from "next/link";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { getContactInfo } from "@/lib/contact";
 import type { Metadata } from "next";
+export const revalidate = 3600;
+
 
 export const metadata: Metadata = {
   title: "Refund Policy",

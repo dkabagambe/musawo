@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import CreateStudentForm from "../CreateStudentForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Create Student Account - Registrar" };
 

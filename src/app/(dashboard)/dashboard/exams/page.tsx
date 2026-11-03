@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Examinations - Student" };
 

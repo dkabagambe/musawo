@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import PageHeader from "@/components/ui/PageHeader";
 import EquipmentRequestForm from "./EquipmentRequestForm";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Equipment - Admin" };
 

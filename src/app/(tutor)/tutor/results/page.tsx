@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { can } from "@/lib/rbac";
+export const dynamic = "force-dynamic";
+
 
 export const metadata = { title: "Marks & Results - Teaching Portal" };
 
