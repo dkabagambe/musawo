@@ -80,7 +80,7 @@ export default async function StudentClassesPage() {
         </div>
         {isLive && <div className="mt-2 px-1"><PresentationViewer classId={cls.id} /></div>}
         {isLive && <div className="mt-2 px-1"><MyGroupCard classId={cls.id} courseId={cls.course?.id ?? ""} /></div>}
-        {isLive && <div className="mt-2 px-1"><GroupWorkSubmitCard classId={cls.id} /></div>}
+        {isLive && <div className="mt-2 px-1"><GroupWorkSubmitCard classId={cls.id} userId={session.user.id} /></div>}
       </React.Fragment>
     );
   };

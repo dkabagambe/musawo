@@ -8,19 +8,27 @@
 import React, { useEffect, useState } from "react";
 import { ClipboardList } from "lucide-react";
 
+interface IndividualMark {
+  userId: string;
+  mark: number;
+  note?: string;
+}
+
 interface Submission {
   id: string;
   title: string;
   body?: string | null;
   groupMark: number | null;
   gradedAt: string | null;
+  individualMarks?: IndividualMark[] | null;
 }
 
 interface Props {
   classId: string;
+  userId?: string;
 }
 
-export default function GroupWorkSubmitCard({ classId }: Props) {
+export default function GroupWorkSubmitCard({ classId, userId }: Props & { userId?: string }) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: "", body: "" });
@@ -77,11 +85,23 @@ export default function GroupWorkSubmitCard({ classId }: Props) {
       <div className="flex items-center gap-2 mb-2">
         <ClipboardList className="w-4 h-4 text-accent" />
         <span className="font-semibold text-sm text-primary">Group Work</span>
-        {existing?.groupMark !== null && existing?.groupMark !== undefined && (
-          <span className="ml-auto text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">
-            Mark: {existing.groupMark}/100
-          </span>
-        )}
+        {existing?.groupMark !== null && existing?.groupMark !== undefined && (() => {
+          const myMark = userId ? existing.individualMarks?.find((im) => im.userId === userId) : null;
+          const displayMark = myMark ?? null;
+          return (
+            <span className="ml-auto flex flex-col items-end gap-0.5">
+              <span className="text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">
+                Group mark: {existing.groupMark}/100
+              </span>
+              {displayMark && (
+                <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  Your mark: {displayMark.mark}/100
+                  {displayMark.note && <span className="font-normal ml-1 text-gray-500">{displayMark.note}</span>}
+                </span>
+              )}
+            </span>
+          );
+        })()}
       </div>
 
       {msg && <p className="text-sm text-accent font-medium mb-2">{msg}</p>}

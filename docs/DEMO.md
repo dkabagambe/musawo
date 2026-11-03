@@ -73,7 +73,7 @@ Instructor 3 is Atim Jennifer.
 3. Click **Courses** - all 7 courses. Fees show "Fee: contact admissions" until set.
 4. Click **Medical Home Care Course** - curriculum blocks, free-preview lessons, eligibility.
 5. Click a free-preview lesson - plays without signing in.
-6. Check **Contact** - correct address (Luggala Trading Center, Lubaga Division, Kampala).
+6. Check **Contact** - correct address (Lugala Trading Center, Lubaga Division, Kampala).
 
 ### 2. Application flow (no login needed)
 

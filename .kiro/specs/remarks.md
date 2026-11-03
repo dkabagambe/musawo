@@ -183,3 +183,4 @@ STEP 2: website cleanup (the new section of remarks.md)
 - "How did you hear about us" options: Community Health Workers (CHW), Village Health Teams (VHT), Friend or family, Social media, Radio or TV, Poster or flyer, Other (please specify).
 - FAQ, exactly three short items: (1) What do I need to study? A smartphone or a laptop. (2) Are the classes really hands-on? Yes: online classes and physical practical sessions. (3) Who can apply? Each course has its own eligibility criteria; check the course page for details.
 - Update unit and Playwright tests (navbar tabs, consent required, FAQ, no stats, no downloads wording), run tsc and the full suite (DB-dependent ones may fail from environment; say so), update docs/PROGRESS.md.
+  ---------------------------------END----------------------------------
