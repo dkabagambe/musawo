@@ -82,7 +82,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
         <h2 className="font-semibold">Applicant details</h2>
         <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
           <Detail label="Full name"   value={application.fullName} />
-          <Detail label="Email"       value={application.email ?? "—"} />
+          <Detail label="Email"       value={application.email ?? "N/A"} />
           <Detail label="Phone"       value={application.phone} />
           <Detail label="Category"    value={application.category === "PROFESSIONAL" ? "Professional" : "Open"} />
           {application.professionalTitle && (

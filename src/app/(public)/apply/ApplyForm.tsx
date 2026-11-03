@@ -308,7 +308,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
               <option value="">Select a course</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.title}{c.durationMonths ? ` — ${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""}` : ""}
+                  {c.title}{c.durationMonths ? ` (${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""})` : ""}
                 </option>
               ))}
             </select>
@@ -316,7 +316,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
           </div>
         </div>
 
-        {/* Category — auto-set, read-only */}
+        {/* Category: auto-set, read-only */}
         {selectedCourse && (
           <div className="space-y-1.5">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Category</p>
