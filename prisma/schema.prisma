@@ -1478,6 +1478,7 @@ model ApprovalRequest {
   studentId            String?
   enrolmentId          String?
   paymentId            String?
+  applicationId        String? // for ADMISSION requests
   staffUserId          String? // for staff account actions
   gradeEntryId         String? // for MARKS_CHANGE requests
   examId               String? // for MARKS_CHANGE: the exam whose grade is disputed

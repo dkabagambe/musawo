@@ -176,6 +176,101 @@ export async function PATCH(
 
   // ── Side-effects on APPROVED ──────────────────────────────────────────────
   if (parsed.data.decision === "APPROVED") {
+    // PAYMENT_PROOF: mark payment COMPLETED and recalculate enrolment access
+    if (request.type === "PAYMENT_PROOF" && request.paymentId) {
+      const payment = await db.payment.findUnique({
+        where: { id: request.paymentId },
+        include: { enrolment: true },
+      });
+      if (payment) {
+        await db.payment.update({
+          where: { id: request.paymentId },
+          data: { status: "COMPLETED", paidAt: new Date() },
+        });
+        const enrolment = payment.enrolment;
+        const allPayments = await db.payment.findMany({
+          where: { enrolmentId: enrolment.id, status: { in: ["COMPLETED"] } },
+          select: { amount: true },
+        });
+        // Include the just-approved payment amount
+        const totalPaid = allPayments.reduce((sum, p) => sum + p.amount, 0) + payment.amount;
+        const paidPercent = (enrolment as { totalFeeUgx?: number | null }).totalFeeUgx && (enrolment as { totalFeeUgx?: number | null }).totalFeeUgx! > 0
+          ? Math.min(100, Math.round((totalPaid / (enrolment as { totalFeeUgx?: number | null }).totalFeeUgx!) * 100))
+          : 0;
+        const newStatus = paidPercent >= 100
+          ? "ACTIVE" as const
+          : paidPercent >= 50
+          ? "PARTIALLY_PAID" as const
+          : "PENDING_PAYMENT" as const;
+        await db.enrolment.update({
+          where: { id: enrolment.id },
+          data: { paidPercent, status: newStatus },
+        });
+        await audit({
+          actorId: session.user.id, action: "PAYMENT_CLAIM_VERIFIED",
+          entityType: "Payment", entityId: request.paymentId,
+          metadata: { approvalId: request.id, paidPercent, newStatus },
+          ip: req.headers.get("x-forwarded-for") ?? undefined,
+        });
+      }
+    }
+
+    // ADMISSION: create student account and send set-password email
+    const appId = (request as unknown as { applicationId?: string | null }).applicationId;
+    if (request.type === "ADMISSION" && appId) {
+      const application = await db.application.findUnique({
+        where: { id: appId },
+        include: { course: { select: { courseCode: true, title: true } } },
+      });
+      if (application && (application.status === "SUBMITTED" || application.status === "UNDER_REVIEW") && application.email) {
+        const existingUser = await db.user.findUnique({ where: { email: application.email } });
+        if (!existingUser) {
+          const { createStudentWithNumber } = await import("@/lib/students");
+          const { saveStudentProfile } = await import("@/lib/students/profile");
+          const { user: student, studentNumber } = await createStudentWithNumber(
+            { name: application.fullName, email: application.email, phone: application.phone, role: "STUDENT", status: "PENDING_ACCEPTANCE" },
+            application.course?.courseCode ?? "GEN"
+          );
+          await saveStudentProfile(student.id, {
+            professionalTitle: application.professionalTitle,
+            registrationNumber: application.registrationNumber,
+            dateOfBirth: application.dateOfBirth,
+            gender: application.gender,
+            district: application.district,
+            highestQualification: application.highestQualification,
+          });
+          await db.staffInvite.deleteMany({ where: { email: application.email, acceptedAt: null } });
+          const { randomBytes } = await import("crypto");
+          const token = randomBytes(32).toString("hex");
+          const studentInvite = await db.staffInvite.create({
+            data: { email: application.email, role: "STUDENT", token, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), createdById: session.user.id, userId: student.id },
+          });
+          await db.$executeRaw`UPDATE staff_invites SET "courseId" = ${application.courseId} WHERE id = ${studentInvite.id}`;
+          const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+          try {
+            await sendEmail({
+              to: application.email,
+              subject: `Your Musawo Training Center account is ready - ${application.course?.title ?? ""}`,
+              template: "student-invite",
+              variables: { name: application.fullName, studentNumber, courseName: application.course?.title ?? "your course", inviteUrl: `${siteUrl}/invite/${token}` },
+            });
+          } catch (emailErr) {
+            console.error("[approvals PATCH ADMISSION] invite email failed:", emailErr);
+          }
+          await db.application.update({
+            where: { id: appId },
+            data: { status: "ACCEPTED", createdUserId: student.id, reviewedById: session.user.id, reviewedAt: new Date() },
+          });
+          await audit({
+            actorId: session.user.id, action: "CREATE",
+            entityType: "Application", entityId: appId,
+            metadata: { action: "ADMISSION_APPROVED", applicant: application.fullName, email: application.email },
+            ip: req.headers.get("x-forwarded-for") ?? undefined,
+          });
+        }
+      }
+    }
+
     // MARKS_CHANGE: apply the grade update
     if (request.type === "MARKS_CHANGE" && request.gradeEntryId) {
       const entry = await db.gradeEntry.findUnique({ where: { id: request.gradeEntryId } });

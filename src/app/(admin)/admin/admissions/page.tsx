@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
+import { getSetting } from "@/lib/settings";
 import Link from "next/link";
 import AdminAdmissionActions from "./AdminAdmissionActions";
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
   const where: Record<string, unknown> = {};
   if (statusFilter !== "ALL") where.status = statusFilter;
 
-  const [applications, total, counts] = await Promise.all([
+  const [applications, total, counts, requireApprovalSetting] = await Promise.all([
     db.application.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -58,7 +59,9 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
       by: ["status"],
       _count: { _all: true },
     }),
+    getSetting("feature.requireAdmissionApproval", "true"),
   ]);
+  const requireApproval = requireApprovalSetting !== "false";
 
   const countMap = Object.fromEntries(
     counts.map((c) => [c.status, c._count._all])
@@ -143,6 +146,7 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
                     applicantName={app.fullName}
                     courseName={app.course?.title}
                     currentStatus={app.status}
+                    requireApproval={requireApproval}
                   />
                 )}
                 {app.status === "ACCEPTED" && (

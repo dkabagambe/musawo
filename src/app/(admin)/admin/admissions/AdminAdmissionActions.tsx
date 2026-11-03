@@ -8,6 +8,7 @@ interface Props {
   applicantName: string;
   courseName?: string | null;
   currentStatus: string;
+  requireApproval?: boolean;
 }
 
 export default function AdminAdmissionActions({
@@ -15,6 +16,7 @@ export default function AdminAdmissionActions({
   applicantName,
   courseName,
   currentStatus,
+  requireApproval = true,
 }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<null | "review" | "accept" | "reject">(null);
@@ -27,6 +29,26 @@ export default function AdminAdmissionActions({
     setLoading(true);
     setError("");
     try {
+      if (action === "ACCEPT" && requireApproval) {
+        const res = await fetch("/api/approvals", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "ADMISSION",
+            reason: `Admission request for ${applicantName}${courseName ? ` to ${courseName}` : ""}. Submitted by Admin for Principal approval.`,
+            applicationId,
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json() as { error?: string };
+          setError(d.error ?? "Failed to submit for approval.");
+          return;
+        }
+        setDone("Submitted for Principal approval.");
+        setMode(null);
+        router.refresh();
+        return;
+      }
       const res = await fetch(`/api/registrar/applications/${applicationId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -77,7 +99,7 @@ export default function AdminAdmissionActions({
           className="btn-primary text-xs px-3 py-1.5"
           onClick={() => setMode("accept")}
         >
-          Admit &amp; register
+          {requireApproval ? "Submit to Principal" : "Admit & register"}
         </button>
         <button
           className="btn-ghost text-xs px-3 py-1.5 text-danger"
@@ -93,8 +115,10 @@ export default function AdminAdmissionActions({
     return (
       <div className="flex-shrink-0 max-w-56 text-right">
         <p className="text-xs text-gray-600 mb-2">
-          Admit <strong>{applicantName}</strong>{courseName ? ` to ${courseName}` : ""}?
-          An account will be created and they will receive a set-password link.
+          {requireApproval
+            ? <>Submit <strong>{applicantName}</strong>{courseName ? ` (${courseName})` : ""} for Principal approval? The account will be created after approval.</>
+            : <>Admit <strong>{applicantName}</strong>{courseName ? ` to ${courseName}` : ""}? An account will be created and they will receive a set-password link.</>
+          }
         </p>
         {error && <p className="text-xs text-danger mb-2">{error}</p>}
         <div className="flex gap-2 justify-end">
@@ -106,7 +130,7 @@ export default function AdminAdmissionActions({
             onClick={() => void submit("ACCEPT")}
             disabled={loading}
           >
-            {loading ? "Processing..." : "Confirm"}
+            {loading ? "Processing..." : requireApproval ? "Send to Principal" : "Confirm"}
           </button>
         </div>
       </div>
