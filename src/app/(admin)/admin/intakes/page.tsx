@@ -5,7 +5,7 @@ import { can } from "@/lib/rbac";
 export const dynamic = "force-dynamic";
 
 
-export const metadata = { title: "Intakes - Admin" };
+export const metadata = { title: "Academic Years & Semesters - Admin" };
 
 export default async function AdminIntakesPage() {
   const session = await auth();

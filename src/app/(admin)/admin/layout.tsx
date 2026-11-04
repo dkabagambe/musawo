@@ -11,59 +11,194 @@ import {
   Calendar,
   Settings,
   Search,
-  HeadphonesIcon,
   MapPinned,
   Wrench,
   Bell,
-  UserRoundSearch,
+  ClipboardList,
+  Library,
+  BookOpen,
+  Layers,
+  CheckSquare,
+  ClipboardCheck,
+  BarChart,
+  FileText,
+  BarChart2,
+  Megaphone,
+  User,
+  CreditCard,
+  LifeBuoy,
+  Mail,
 } from "lucide-react";
 
 const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
+  // ── Spec tabs (section 4) ──────────────────────────────────────────
   {
     item: {
       href: "/admin",
-      label: "Overview",
+      label: "Dashboard",
       icon: <LayoutDashboard className="w-4 h-4" />,
     },
     permission: "reports.operational",
   },
   {
     item: {
+      href: "/admin/students",
+      label: "Students",
+      icon: <Users className="w-4 h-4" />,
+    },
+    permission: "students.view",
+  },
+  {
+    item: {
+      href: "/admin/admissions",
+      label: "Admissions",
+      icon: <ClipboardList className="w-4 h-4" />,
+    },
+    permission: "applications.view",
+  },
+  {
+    item: {
       href: "/admin/tutors",
-      label: "Staff",
+      label: "Instructors",
       icon: <GraduationCap className="w-4 h-4" />,
     },
     permission: "staff.view",
   },
   {
     item: {
-      href: "/admin/students",
-      label: "Student Lookup",
-      icon: <UserRoundSearch className="w-4 h-4" />,
+      href: "/admin/programmes",
+      label: "Academic Programmes",
+      icon: <Library className="w-4 h-4" />,
     },
-    permission: "students.lookup",
+    permission: "courses.view",
+  },
+  {
+    item: {
+      href: "/admin/courses",
+      label: "Courses",
+      icon: <BookOpen className="w-4 h-4" />,
+    },
+    permission: "courses.view",
+  },
+  {
+    item: {
+      href: "/admin/classes",
+      label: "Classes & Groups",
+      icon: <Layers className="w-4 h-4" />,
+    },
+    permission: "classes.view",
   },
   {
     item: {
       href: "/admin/intakes",
-      label: "Intakes",
+      label: "Academic Years & Semesters",
       icon: <Calendar className="w-4 h-4" />,
     },
     permission: "intakes.manage",
   },
   {
     item: {
+      href: "/admin/timetable",
+      label: "Timetable",
+      icon: <MapPinned className="w-4 h-4" />,
+    },
+    permission: "venues.manage",
+  },
+  {
+    item: {
+      href: "/admin/attendance",
+      label: "Attendance",
+      icon: <CheckSquare className="w-4 h-4" />,
+    },
+    permission: "attendance.view",
+  },
+  {
+    item: {
+      href: "/admin/examinations",
+      label: "Examinations",
+      icon: <ClipboardCheck className="w-4 h-4" />,
+    },
+    permission: "exams.create",
+  },
+  {
+    item: {
+      href: "/admin/results",
+      label: "Results & Grading",
+      icon: <BarChart className="w-4 h-4" />,
+    },
+    permission: "grades.view",
+  },
+  {
+    item: {
+      href: "/admin/documents",
+      label: "Student Documents",
+      icon: <FileText className="w-4 h-4" />,
+    },
+    permission: "student.documents.manage",
+  },
+  {
+    item: {
+      href: "/admin/reports",
+      label: "Reports",
+      icon: <BarChart2 className="w-4 h-4" />,
+    },
+    permission: "reports.view",
+  },
+  {
+    item: {
+      href: "/admin/announcements",
+      label: "Announcements",
+      icon: <Megaphone className="w-4 h-4" />,
+    },
+    permission: "announcements.manage",
+  },
+  {
+    item: {
+      href: "/admin/notifications",
+      label: "Notifications",
+      icon: <Bell className="w-4 h-4" />,
+    },
+    permission: "students.view",
+  },
+  {
+    item: {
+      href: "/admin/profile",
+      label: "Profile",
+      icon: <User className="w-4 h-4" />,
+    },
+    permission: "students.view",
+  },
+  // ── ADD items (meeting notes) ─────────────────────────────────────
+  {
+    item: {
+      href: "/admin/payments",
+      label: "Payments",
+      icon: <CreditCard className="w-4 h-4" />,
+    },
+    permission: "payments.view",
+  },
+  {
+    item: {
+      href: "/admin/equipment",
+      label: "Equipment",
+      icon: <Wrench className="w-4 h-4" />,
+    },
+    permission: "equipment.manage",
+  },
+  {
+    item: {
       href: "/admin/support",
       label: "Support",
-      icon: <HeadphonesIcon className="w-4 h-4" />,
+      icon: <LifeBuoy className="w-4 h-4" />,
     },
-    permission: "support.manage",
+    permission: "support.submit",
   },
+  // ── Extra tabs (operations, not in spec but useful) ────────────────
   {
     item: {
       href: "/admin/invites",
       label: "Invites",
-      icon: <Users className="w-4 h-4" />,
+      icon: <Mail className="w-4 h-4" />,
     },
     permission: "invites.resend",
   },
@@ -82,22 +217,6 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       icon: <Search className="w-4 h-4" />,
     },
     permission: "staff.access_review",
-  },
-  {
-    item: {
-      href: "/admin/timetable",
-      label: "Timetable",
-      icon: <MapPinned className="w-4 h-4" />,
-    },
-    permission: "venues.manage",
-  },
-  {
-    item: {
-      href: "/admin/equipment",
-      label: "Equipment",
-      icon: <Wrench className="w-4 h-4" />,
-    },
-    permission: "equipment.manage",
   },
   {
     item: {
