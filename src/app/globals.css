@@ -439,7 +439,9 @@
 }
 .portal-user-menu { left: 4px; bottom: calc(100% + 8px); }
 .portal-user-menu a,
-.portal-settings-menu a {
+.portal-settings-menu a,
+.portal-user-menu div[role=menuitem],
+.portal-settings-menu div[role=menuitem] {
   min-height: 38px;
   display: flex;
   align-items: center;
@@ -1662,7 +1664,9 @@
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.04);
 }
 .dark .portal-user-menu a,
-.dark .portal-settings-menu a {
+.dark .portal-settings-menu a,
+.dark .portal-user-menu div[role=menuitem],
+.dark .portal-settings-menu div[role=menuitem] {
   color: var(--portal-text);
 }
 .dark .portal-user-menu a:hover,

@@ -39,6 +39,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export interface NavItem {
   href: string;
@@ -385,6 +386,14 @@ export function Sidebar({
             >
               <LogOut size={16} /> Log out
             </Link>
+            <div
+              role="menuitem"
+              className="min-h-[38px] flex items-center gap-[9px] px-[10px] rounded-[6px] text-[13px]"
+              style={{ color: "var(--portal-text)" }}
+            >
+              <span className="text-[13px]">Theme</span>
+              <ThemeToggle className="ml-auto" />
+            </div>
           </div>
         )}
         <button
@@ -502,6 +511,13 @@ export function Topbar({
             >
               <Settings size={16} /> Change password
             </Link>
+            <div
+              role="menuitem"
+              className="min-h-[38px] flex items-center gap-[9px] px-[10px] rounded-[6px]"
+            >
+              <span className="text-[13px] text-[var(--portal-text)]">Theme</span>
+              <ThemeToggle className="ml-auto" />
+            </div>
           </div>
         )}
       </div>
