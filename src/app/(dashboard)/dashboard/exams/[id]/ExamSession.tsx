@@ -26,8 +26,13 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentIdx, setCurrentIdx] = useState(0);
+  // Total exam countdown
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timeLimitEndsAt, setTimeLimitEndsAt] = useState<string | null>(null);
+  // Per-question countdown
+  const [perQuestionSec, setPerQuestionSec] = useState<number | null>(null);
+  const [questionDeadlineAt, setQuestionDeadlineAt] = useState<string | null>(null);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [advancing, setAdvancing] = useState(false);
   const [result, setResult] = useState<{
@@ -39,6 +44,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
   } | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const qTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const submittedRef = useRef(false);
 
   // Tab-switch detection
@@ -59,7 +65,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [state, attemptId]);
 
-  // Timer
+  // Total exam timer
   useEffect(() => {
     if (!timeLimitEndsAt || state !== "active") return;
 
@@ -81,6 +87,29 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLimitEndsAt, state]);
 
+  // Per-question timer — auto-advances when it hits zero
+  useEffect(() => {
+    if (!questionDeadlineAt || state !== "active") return;
+    if (qTimerRef.current) clearInterval(qTimerRef.current);
+
+    function tick() {
+      const ms = new Date(questionDeadlineAt!).getTime() - Date.now();
+      if (ms <= 0) {
+        setQuestionTimeLeft(0);
+        if (!advancing) advance();
+        return;
+      }
+      setQuestionTimeLeft(Math.floor(ms / 1000));
+    }
+
+    tick();
+    qTimerRef.current = setInterval(tick, 1000);
+    return () => {
+      if (qTimerRef.current) clearInterval(qTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questionDeadlineAt, state]);
+
   async function startExam() {
     setState("loading");
     setErrorMsg("");
@@ -99,6 +128,8 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
       setAttemptId(data.attemptId);
       setQuestions(data.questions ?? []);
       setTimeLimitEndsAt(data.timeLimitEndsAt ?? null);
+      setPerQuestionSec(data.perQuestionSec ?? null);
+      setQuestionDeadlineAt(data.questionDeadlineAt ?? null);
       // Resume a forward-only attempt at the saved position.
       setCurrentIdx(typeof data.currentQuestionIndex === "number" ? data.currentQuestionIndex : 0);
       setState("active");
@@ -159,6 +190,11 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
         await submitExam();
       } else {
         setCurrentIdx((i) => i + 1);
+        // Update per-question deadline from server response
+        if (data.questionDeadlineAt) {
+          setQuestionDeadlineAt(data.questionDeadlineAt);
+          setQuestionTimeLeft(null); // reset display; effect will recompute
+        }
       }
     } catch {
       setErrorMsg("Connection lost. Please try again.");
@@ -195,11 +231,12 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
             Pass mark: {passPercent}%
           </p>
           <ul className="text-sm text-gray-500 text-left mb-8 space-y-1 inline-block">
-            <li>⚠️ Do not switch tabs during the exam - it will be logged.</li>
-            <li>⏱ Submit before the timer runs out.</li>
-            <li>➡️ The exam is forward-only: once you move to the next question you cannot go back.</li>
-            <li>✅ MCQ and True/False answers are auto-marked.</li>
-            <li>📝 Short answers are reviewed by your tutor.</li>
+            <li>Do not switch tabs during the exam - it will be logged.</li>
+            <li>Submit before the timer runs out.</li>
+            <li>The exam is forward-only: once you move to the next question you cannot go back.</li>
+            {perQuestionSec && <li>Each question has a {perQuestionSec}s time limit - it advances automatically.</li>}
+            <li>MCQ and True/False answers are auto-marked.</li>
+            <li>Short answers are reviewed by your tutor.</li>
           </ul>
           <button
             onClick={startExam}
@@ -281,6 +318,20 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
           <p className="text-sm text-gray-500">
             {answered}/{questions.length} answered
           </p>
+          {/* Per-question timer */}
+          {questionTimeLeft !== null && perQuestionSec && (
+            <div
+              className={`font-mono font-bold text-base px-3 py-1 rounded-xl ${
+                questionTimeLeft < 10 ? "text-danger bg-danger/10 animate-pulse" : "text-amber-700 bg-amber-50"
+              }`}
+              aria-live="polite"
+              aria-label={`Time for this question: ${formatTime(questionTimeLeft)}`}
+              title="Time remaining for this question"
+            >
+              Q: {formatTime(questionTimeLeft)}
+            </div>
+          )}
+          {/* Total exam timer */}
           {timeLeft !== null && (
             <div
               className={`font-mono font-bold text-lg px-3 py-1 rounded-xl ${

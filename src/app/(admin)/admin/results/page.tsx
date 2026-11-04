@@ -53,10 +53,21 @@ export default async function AdminResultsPage({ searchParams }: Props) {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Results &amp; Grading</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Process submitted exam results and request publication
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold">Results &amp; Grading</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Process submitted exam results and request publication
+            </p>
+          </div>
+          <a
+            href="/api/results/export"
+            className="btn-outline text-sm no-underline flex-shrink-0"
+            download
+          >
+            Download all marks (CSV)
+          </a>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-6 border-b border-border pb-2 flex-wrap">

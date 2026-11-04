@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 
 const Schema = z.object({
-  name: z.string().min(2).max(100).optional(),
+  // name and registrationNumber are intentionally excluded —
+  // students may not change these fields (remarks.md section 2).
   phone: z.string().min(9).max(20).optional(),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   gender: z.string().max(30).optional(),
@@ -12,7 +13,6 @@ const Schema = z.object({
   countryCode: z.string().length(2).optional(),
   highestQualification: z.string().max(100).optional(),
   professionalTitle: z.string().max(100).optional(),
-  registrationNumber: z.string().max(100).optional(),
   emergencyContact: z.string().max(200).optional(),
 });
 
@@ -26,7 +26,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
   const {
-    name,
     phone,
     dateOfBirth,
     gender,
@@ -34,7 +33,6 @@ export async function PATCH(req: NextRequest) {
     countryCode,
     highestQualification,
     professionalTitle,
-    registrationNumber,
     emergencyContact,
   } = parsed.data;
 
@@ -52,7 +50,6 @@ export async function PATCH(req: NextRequest) {
   const user = await db.user.update({
     where: { id: session.user.id },
     data: {
-      ...(name ? { name } : {}),
       ...(phone !== undefined ? { phone: phone || null } : {}),
       ...(dateOfBirth ? { dateOfBirth: new Date(dateOfBirth) } : {}),
       ...(gender !== undefined ? { gender: gender || null } : {}),
@@ -63,9 +60,6 @@ export async function PATCH(req: NextRequest) {
         : {}),
       ...(professionalTitle !== undefined
         ? { professionalTitle: professionalTitle || null }
-        : {}),
-      ...(registrationNumber !== undefined
-        ? { registrationNumber: registrationNumber || null }
         : {}),
       ...(emergencyContact !== undefined
         ? { emergencyContact: emergencyContact || null }

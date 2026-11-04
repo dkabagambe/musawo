@@ -44,6 +44,8 @@ export default async function AdminProfilePage() {
           user={{
             name: user.name,
             email: user.email ?? "",
+            studentNumber: null,
+            registrationNumber: user.registrationNumber,
             phone: user.phone ?? "",
             dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().slice(0, 10) : null,
             gender: user.gender,
@@ -51,7 +53,6 @@ export default async function AdminProfilePage() {
             countryCode: user.countryCode,
             highestQualification: user.highestQualification,
             professionalTitle: user.professionalTitle,
-            registrationNumber: user.registrationNumber,
             emergencyContact: user.emergencyContact,
           }}
         />

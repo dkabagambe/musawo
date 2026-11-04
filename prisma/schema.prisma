@@ -899,7 +899,8 @@ model Exam {
   blockId          String?
   title            String
   instructions     String?    @db.Text
-  timeLimitMin     Int?
+  timeLimitMin     Int?       // total exam time limit in minutes
+  perQuestionSec   Int?       // optional per-question time limit in seconds (overrides total if set)
   attemptLimit     Int        @default(2)
   passPercent      Int        @default(60)
   shuffleQuestions Boolean    @default(true)
@@ -924,6 +925,7 @@ model ExamAttempt {
   startedAt            DateTime      @default(now())
   submittedAt          DateTime?
   timeLimitEndsAt      DateTime?
+  questionDeadlineAt   DateTime?     // per-question deadline; reset each time advance() is called
   score                Int?
   maxScore             Int?
   passed               Boolean?

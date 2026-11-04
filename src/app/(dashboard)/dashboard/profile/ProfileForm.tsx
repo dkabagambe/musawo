@@ -6,6 +6,8 @@ interface Props {
   user: {
     name: string;
     email: string;
+    studentNumber: string | null;
+    registrationNumber: string | null;
     phone: string;
     dateOfBirth: string | null;
     gender: string | null;
@@ -13,7 +15,6 @@ interface Props {
     countryCode: string;
     highestQualification: string | null;
     professionalTitle: string | null;
-    registrationNumber: string | null;
     emergencyContact: string | null;
   };
 }
@@ -32,7 +33,6 @@ const QUALIFICATIONS = [
 
 export default function ProfileForm({ user }: Props) {
   const [form, setForm] = useState({
-    name: user.name,
     phone: user.phone,
     dateOfBirth: user.dateOfBirth ?? "",
     gender: user.gender ?? "",
@@ -40,7 +40,6 @@ export default function ProfileForm({ user }: Props) {
     countryCode: user.countryCode,
     highestQualification: user.highestQualification ?? "",
     professionalTitle: user.professionalTitle ?? "",
-    registrationNumber: user.registrationNumber ?? "",
     emergencyContact: user.emergencyContact ?? "",
   });
   const [profileMsg, setProfileMsg] = useState("");
@@ -65,7 +64,6 @@ export default function ProfileForm({ user }: Props) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name.trim(),
           phone: form.phone.trim() || undefined,
           dateOfBirth: form.dateOfBirth || undefined,
           gender: form.gender || undefined,
@@ -73,7 +71,6 @@ export default function ProfileForm({ user }: Props) {
           countryCode: form.countryCode || "UG",
           highestQualification: form.highestQualification || undefined,
           professionalTitle: form.professionalTitle || undefined,
-          registrationNumber: form.registrationNumber || undefined,
           emergencyContact: form.emergencyContact || undefined,
         }),
       });
@@ -142,14 +139,18 @@ export default function ProfileForm({ user }: Props) {
           </div>
         )}
         <form onSubmit={handleProfileSave} noValidate>
-          {/* Name */}
+
+          {/* Full name — locked, set by Admin */}
           <div className="mb-4">
             <label htmlFor="name" className="label">Full name</label>
-            <input id="name" type="text" required value={form.name}
-              onChange={set("name")} className="input" />
+            <input id="name" type="text" disabled value={user.name}
+              className="input opacity-60 cursor-not-allowed" aria-describedby="name-hint" />
+            <p id="name-hint" className="text-xs text-gray-400 mt-1">
+              Contact the Registrar to correct your name.
+            </p>
           </div>
 
-          {/* Email - read-only */}
+          {/* Email — locked */}
           <div className="mb-4">
             <label htmlFor="email" className="label">Email address</label>
             <input id="email" type="email" disabled value={user.email}
@@ -159,21 +160,45 @@ export default function ProfileForm({ user }: Props) {
             </p>
           </div>
 
-          {/* Phone */}
+          {/* Student number — locked, read-only display */}
+          {user.studentNumber && (
+            <div className="mb-4">
+              <label className="label">Student number</label>
+              <input type="text" disabled value={user.studentNumber}
+                className="input opacity-60 cursor-not-allowed font-mono" />
+            </div>
+          )}
+
+          {/* Professional registration number — locked, set by Admin */}
+          {user.registrationNumber && (
+            <div className="mb-4">
+              <label className="label">
+                Professional registration number
+              </label>
+              <input type="text" disabled value={user.registrationNumber}
+                className="input opacity-60 cursor-not-allowed font-mono"
+                aria-describedby="regnum-hint" />
+              <p id="regnum-hint" className="text-xs text-gray-400 mt-1">
+                Contact the Registrar to update your registration number.
+              </p>
+            </div>
+          )}
+
+          {/* Phone — editable */}
           <div className="mb-4">
             <label htmlFor="phone" className="label">Phone number</label>
             <input id="phone" type="tel" value={form.phone}
               onChange={set("phone")} className="input" placeholder="+256 700 000000" />
           </div>
 
-          {/* Date of birth */}
+          {/* Date of birth — editable */}
           <div className="mb-4">
             <label htmlFor="dob" className="label">Date of birth</label>
             <input id="dob" type="date" value={form.dateOfBirth}
               onChange={set("dateOfBirth")} className="input" />
           </div>
 
-          {/* Gender */}
+          {/* Gender — editable */}
           <div className="mb-4">
             <label htmlFor="gender" className="label">Gender</label>
             <select id="gender" value={form.gender} onChange={set("gender")} className="input">
@@ -184,7 +209,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* District */}
+          {/* District — editable */}
           <div className="mb-4">
             <label htmlFor="district" className="label">District (Uganda)</label>
             <select id="district" value={form.district} onChange={set("district")} className="input">
@@ -195,7 +220,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* Highest qualification */}
+          {/* Highest qualification — editable */}
           <div className="mb-4">
             <label htmlFor="qualification" className="label">Highest qualification</label>
             <select id="qualification" value={form.highestQualification}
@@ -207,7 +232,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* Professional title (for health workers) */}
+          {/* Professional title — editable */}
           <div className="mb-4">
             <label htmlFor="profTitle" className="label">
               Professional title{" "}
@@ -218,18 +243,7 @@ export default function ProfileForm({ user }: Props) {
               placeholder="e.g. Registered Nurse, Clinical Officer" />
           </div>
 
-          {/* Registration number */}
-          <div className="mb-4">
-            <label htmlFor="regNum" className="label">
-              Professional registration number{" "}
-              <span className="text-xs text-gray-400">(health professionals only)</span>
-            </label>
-            <input id="regNum" type="text" value={form.registrationNumber}
-              onChange={set("registrationNumber")} className="input"
-              placeholder="e.g. NMS-12345" />
-          </div>
-
-          {/* Emergency contact */}
+          {/* Emergency contact — editable */}
           <div className="mb-6">
             <label htmlFor="emergency" className="label">
               Emergency contact{" "}
@@ -241,7 +255,7 @@ export default function ProfileForm({ user }: Props) {
           </div>
 
           <button type="submit" disabled={profileLoading} className="btn-primary">
-            {profileLoading ? "Saving…" : "Save changes"}
+            {profileLoading ? "Saving..." : "Save changes"}
           </button>
         </form>
       </section>
@@ -282,7 +296,7 @@ export default function ProfileForm({ user }: Props) {
               className="input" />
           </div>
           <button type="submit" disabled={pwLoading} className="btn-primary">
-            {pwLoading ? "Changing…" : "Change password"}
+            {pwLoading ? "Changing..." : "Change password"}
           </button>
         </form>
       </section>

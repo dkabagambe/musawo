@@ -71,6 +71,8 @@ export default async function ProfilePage() {
         user={{
           name: user.name,
           email: user.email ?? "",
+          studentNumber: user.studentNumber ?? null,
+          registrationNumber: user.registrationNumber ?? null,
           phone: user.phone ?? "",
           dateOfBirth: user.dateOfBirth
             ? user.dateOfBirth.toISOString().slice(0, 10)
@@ -80,7 +82,6 @@ export default async function ProfilePage() {
           countryCode: user.countryCode ?? "UG",
           highestQualification: user.highestQualification,
           professionalTitle: user.professionalTitle,
-          registrationNumber: user.registrationNumber,
           emergencyContact: user.emergencyContact,
         }}
       />

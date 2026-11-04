@@ -116,6 +116,8 @@ async function handleStart(req: NextRequest, userId: string) {
       timeLimitEndsAt: activeAttempt.timeLimitEndsAt,
       questions: resumed,
       currentQuestionIndex: activeAttempt.currentQuestionIndex,
+      perQuestionSec: exam.perQuestionSec ?? null,
+      questionDeadlineAt: activeAttempt.questionDeadlineAt ?? null,
       resumed: true,
     });
   }
@@ -157,6 +159,10 @@ async function handleStart(req: NextRequest, userId: string) {
       answers: {},
       currentQuestionIndex: 0,
       questionOrder,
+      // Set the first question's deadline if perQuestionSec is configured
+      questionDeadlineAt: exam.perQuestionSec
+        ? new Date(Date.now() + exam.perQuestionSec * 1000)
+        : null,
     },
   });
 
@@ -173,6 +179,8 @@ async function handleStart(req: NextRequest, userId: string) {
     timeLimitEndsAt,
     questions,
     currentQuestionIndex: 0,
+    perQuestionSec: exam.perQuestionSec ?? null,
+    questionDeadlineAt: attempt.questionDeadlineAt ?? null,
   });
 }
 
@@ -196,6 +204,14 @@ async function handleAnswer(req: NextRequest, userId: string) {
   if (attempt.timeLimitEndsAt && attempt.timeLimitEndsAt <= new Date()) {
     return NextResponse.json(
       { error: "Time limit has expired. Your attempt will be submitted automatically." },
+      { status: 409 },
+    );
+  }
+
+  // Per-question deadline enforcement
+  if (attempt.questionDeadlineAt && attempt.questionDeadlineAt <= new Date()) {
+    return NextResponse.json(
+      { error: "Time for this question has expired. Moving to the next question." },
       { status: 409 },
     );
   }
@@ -229,15 +245,27 @@ async function handleAnswer(req: NextRequest, userId: string) {
   const answers = { ...existing, [body.questionId]: body.answer };
   const nextIndex = body.index + 1;
 
+  // Compute next question's deadline if exam uses per-question timer
+  const exam = await db.exam.findUnique({ where: { id: attempt.examId }, select: { perQuestionSec: true } });
+  const nextQuestionDeadlineAt =
+    exam?.perQuestionSec && nextIndex < (attempt.questionOrder as string[]).length
+      ? new Date(Date.now() + exam.perQuestionSec * 1000)
+      : null;
+
   await db.examAttempt.update({
     where: { id: attempt.id },
-    data: { answers, currentQuestionIndex: nextIndex },
+    data: {
+      answers,
+      currentQuestionIndex: nextIndex,
+      questionDeadlineAt: nextQuestionDeadlineAt,
+    },
   });
 
   return NextResponse.json({
     ok: true,
     currentQuestionIndex: nextIndex,
-    finished: nextIndex >= order.length,
+    finished: nextIndex >= (attempt.questionOrder as string[]).length,
+    questionDeadlineAt: nextQuestionDeadlineAt,
   });
 }
 

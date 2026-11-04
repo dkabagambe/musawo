@@ -55,11 +55,20 @@ export default async function PrincipalResultsPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Exam Results</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          {total.toLocaleString()} submitted result{total !== 1 ? "s" : ""} pending release
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Exam Results</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {total.toLocaleString()} submitted result{total !== 1 ? "s" : ""} pending release
+          </p>
+        </div>
+        <a
+          href="/api/results/export"
+          className="btn-outline text-sm no-underline flex-shrink-0"
+          download
+        >
+          Download all marks (CSV)
+        </a>
       </div>
 
       <form method="GET" className="flex gap-3">

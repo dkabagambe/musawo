@@ -49,11 +49,20 @@ export default async function TutorResultsPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Marks & Results</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Submit marks for Principal review. Results are published only after Director approval.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Marks & Results</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Submit marks for Principal review. Results are published only after Director approval.
+          </p>
+        </div>
+        <a
+          href="/api/results/export"
+          className="btn-outline text-sm no-underline flex-shrink-0"
+          download
+        >
+          Download all marks (CSV)
+        </a>
       </div>
 
       {pendingApprovals.length > 0 && (
@@ -88,13 +97,22 @@ export default async function TutorResultsPage() {
                     <h2 className="font-bold text-primary">{exam.title}</h2>
                     <p className="text-xs text-gray-500 mt-0.5">{exam.course.title}</p>
                   </div>
-                  <div className="text-right text-xs text-gray-400">
-                    <p>{exam._count.attempts} total submissions</p>
-                    {graded.length > 0 && (
-                      <p className="font-semibold text-primary">
-                        {passed}/{graded.length} passed ({Math.round((passed / graded.length) * 100)}%)
-                      </p>
-                    )}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="text-right text-xs text-gray-400">
+                      <p>{exam._count.attempts} total submissions</p>
+                      {graded.length > 0 && (
+                        <p className="font-semibold text-primary">
+                          {passed}/{graded.length} passed ({Math.round((passed / graded.length) * 100)}%)
+                        </p>
+                      )}
+                    </div>
+                    <a
+                      href={`/api/results/export?examId=${exam.id}`}
+                      className="btn-outline text-xs no-underline flex-shrink-0"
+                      download
+                    >
+                      Download CSV
+                    </a>
                   </div>
                 </div>
 
@@ -111,23 +129,29 @@ export default async function TutorResultsPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
-                        {exam.attempts.map((att) => (
-                          <tr key={att.id} className="hover:bg-surface/40">
-                            <td className="py-2 pr-4 font-medium">{att.user.name}</td>
-                            <td className="py-2 pr-4 font-mono text-xs text-gray-500">{att.user.studentNumber ?? "-"}</td>
-                            <td className="py-2 pr-4 font-semibold">
-                              {att.score != null ? `${att.score}%` : "Pending"}
-                            </td>
-                            <td className="py-2 pr-4">
-                              {att.passed === true && <span className="badge badge-success text-xs">Pass</span>}
-                              {att.passed === false && <span className="badge badge-danger text-xs">Fail</span>}
-                              {att.passed === null && <span className="badge badge-warning text-xs">Pending</span>}
-                            </td>
-                            <td className="py-2 text-xs text-gray-400">
-                              {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "-"}
-                            </td>
-                          </tr>
-                        ))}
+                        {exam.attempts.map((att) => {
+                          const pct =
+                            att.score != null && att.maxScore && att.maxScore > 0
+                              ? Math.round((att.score / att.maxScore) * 100)
+                              : null;
+                          return (
+                            <tr key={att.id} className="hover:bg-surface/40">
+                              <td className="py-2 pr-4 font-medium">{att.user.name}</td>
+                              <td className="py-2 pr-4 font-mono text-xs text-gray-500">{att.user.studentNumber ?? "-"}</td>
+                              <td className="py-2 pr-4 font-semibold">
+                                {pct != null ? `${pct}%` : "Pending"}
+                              </td>
+                              <td className="py-2 pr-4">
+                                {att.passed === true && <span className="badge badge-success text-xs">Pass</span>}
+                                {att.passed === false && <span className="badge badge-danger text-xs">Fail</span>}
+                                {att.passed === null && <span className="badge badge-warning text-xs">Pending</span>}
+                              </td>
+                              <td className="py-2 text-xs text-gray-400">
+                                {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : "-"}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
