@@ -1955,7 +1955,7 @@ async function ExamSubmissionsListBody({ fullPageHref }: WidgetBodyProps) {
           }
           date={a.submittedAt ? fmtDay(a.submittedAt) : undefined}
         >
-          {displayName(a.user.name)} - {a.exam.title}
+          {displayName(a.user?.name ?? null)} - {a.exam.title}
         </ListRow>
       ))}
       {attempts.length > visible.length && (
@@ -1994,7 +1994,7 @@ async function RecentPaymentsListBody({ fullPageHref }: WidgetBodyProps) {
           icon={<Receipt size={16} />}
           date={p.paidAt ? fmtDay(p.paidAt) : undefined}
         >
-          {displayName(p.enrolment.user.name)} - {fmtUGX(p.amount)}
+          {displayName(p.enrolment?.user?.name ?? null)} - {fmtUGX(p.amount)}
         </ListRow>
       ))}
       {payments.length > visible.length && (
