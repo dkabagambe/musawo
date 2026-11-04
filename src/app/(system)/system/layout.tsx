@@ -13,7 +13,7 @@ const NAV: NavItem[] = [
   { href: "/system/profile",  label: "Profile",        icon: <User className="w-4 h-4" /> },
 ];
 
-const TABS = ["general", "support", "system", "logs"] as const;
+const TABS = ["general", "system", "logs"] as const;
 
 export default async function SystemLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();

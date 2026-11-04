@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Academic Registrar" };
 
-const VALID_TABS = new Set<string>(["general", "admissions", "students", "academics"]);
+const VALID_TABS = new Set<string>(["general", "admissions", "students", "academics", "reports"]);
 
 async function isRegistrarActive(): Promise<boolean> {
   const setting = await db.siteSetting.findUnique({

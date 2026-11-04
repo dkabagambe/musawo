@@ -42,7 +42,7 @@ const NAV: NavItem[] = [
   { href: "/principal/storage",          label: "Storage",                icon: <HardDrive className="w-4 h-4" /> },
 ];
 
-const TABS = ["general", "students", "academics", "approvals", "operations", "reports"] as const;
+const TABS = ["general", "academics", "approvals", "reports"] as const;
 
 export default async function PrincipalLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();

@@ -5,7 +5,7 @@ import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import {
   LayoutDashboard, ClipboardList, Users, BookOpen, Calendar,
-  FileText, Bell, User, Search,
+  FileText, Bell, User, Search, Library, ClipboardCheck, Award, BarChart2,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -26,17 +26,23 @@ const HOLDING_NAV: NavItem[] = [
 ];
 
 const FULL_NAV: NavItem[] = [
-  { href: "/registrar",               label: "Dashboard",    icon: <LayoutDashboard className="w-4 h-4" /> },
-  { href: "/registrar/applications",  label: "Admissions",   icon: <ClipboardList className="w-4 h-4" /> },
-  { href: "/registrar/students",      label: "Students",     icon: <Users className="w-4 h-4" /> },
-  { href: "/registrar/enrolments",    label: "Enrolments",   icon: <BookOpen className="w-4 h-4" /> },
-  { href: "/registrar/results",       label: "Results",      icon: <FileText className="w-4 h-4" /> },
-  { href: "/registrar/graduands",     label: "Graduands",    icon: <Users className="w-4 h-4" /> },
-  { href: "/registrar/timetable",     label: "Timetable",    icon: <Calendar className="w-4 h-4" /> },
-  { href: "/registrar/transcripts",   label: "Transcripts",  icon: <FileText className="w-4 h-4" /> },
-  { href: "/registrar/announcements", label: "Announcements", icon: <Bell className="w-4 h-4" /> },
-  { href: "/registrar/audit",         label: "Audit Log",    icon: <Search className="w-4 h-4" /> },
-  { href: "/registrar/profile",       label: "Profile",      icon: <User className="w-4 h-4" /> },
+  { href: "/registrar",               label: "Dashboard",           icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/registrar/applications",  label: "Admissions",          icon: <ClipboardList className="w-4 h-4" /> },
+  { href: "/registrar/students",      label: "Students",            icon: <Users className="w-4 h-4" /> },
+  { href: "/registrar/programmes",    label: "Academic Programmes", icon: <Library className="w-4 h-4" /> },
+  { href: "/registrar/courses",       label: "Courses",             icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/registrar/examinations",  label: "Examinations",        icon: <ClipboardCheck className="w-4 h-4" /> },
+  { href: "/registrar/results",       label: "Results",             icon: <FileText className="w-4 h-4" /> },
+  { href: "/registrar/certificates",  label: "Certificates",        icon: <Award className="w-4 h-4" /> },
+  { href: "/registrar/transcripts",   label: "Transcripts",         icon: <FileText className="w-4 h-4" /> },
+  { href: "/registrar/reports",       label: "Reports",             icon: <BarChart2 className="w-4 h-4" /> },
+  // ── operational extras ────────────────────────────────────────────────────
+  { href: "/registrar/enrolments",    label: "Enrolments",          icon: <BookOpen className="w-4 h-4" /> },
+  { href: "/registrar/graduands",     label: "Graduands",           icon: <Users className="w-4 h-4" /> },
+  { href: "/registrar/timetable",     label: "Timetable",           icon: <Calendar className="w-4 h-4" /> },
+  { href: "/registrar/announcements", label: "Announcements",       icon: <Bell className="w-4 h-4" /> },
+  { href: "/registrar/audit",         label: "Audit Log",           icon: <Search className="w-4 h-4" /> },
+  { href: "/registrar/profile",       label: "Profile",             icon: <User className="w-4 h-4" /> },
 ];
 
 export default async function RegistrarLayout({ children }: { children: React.ReactNode }) {
@@ -59,7 +65,7 @@ export default async function RegistrarLayout({ children }: { children: React.Re
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
       userAvatarUrl={dbUser?.avatarUrl ?? null}
-      tabs={active ? ["general", "admissions", "students", "academics"] : ["general"]}
+      tabs={active ? ["general", "admissions", "students", "academics", "reports"] : ["general"]}
     >
       {children}
     </AppShell>

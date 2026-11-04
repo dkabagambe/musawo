@@ -24,7 +24,7 @@ const NAV: NavItem[] = [
 ];
 
 // Tabs: Director monitors and approves; most important first
-const TABS = ["general", "approvals", "reports", "academics", "staff", "audit"] as const;
+const TABS = ["general", "academics", "finance", "staff", "approvals", "reports"] as const;
 
 export default async function DirectorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();

@@ -481,13 +481,32 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "students.lookup",
   ],
 
-  // ── ACADEMIC_REGISTRAR: dummy/inactive role ───────────────────────────────
-  // While ACADEMIC_REGISTRAR_ACTIVE=false this account sees only a holding page.
-  // Kept for formality; no operational permissions granted here.
+  // ── ACADEMIC_REGISTRAR ───────────────────────────────────────────────────
+  // While ACADEMIC_REGISTRAR_ACTIVE=false the layout shows only a holding page.
+  // These permissions activate once the setting is turned on; they cover the
+  // full active-registrar feature set (read-only academic view + registry ops).
   ACADEMIC_REGISTRAR: [
     "support.submit",
     "policies.view",
-    "students.lookup",  // needed to pass the /registrar portal guard
+    "students.lookup",      // needed to pass the /registrar portal guard
+    "students.view",
+    "students.create",
+    "students.edit",
+    "enrolments.view",
+    "enrolments.create",
+    "applications.view",
+    "applications.process",
+    "courses.view",
+    "grades.view",
+    "certificates.view",
+    "transcripts.generate",
+    "transcripts.view",
+    "graduands.prepare",
+    "classes.view",
+    "announcements.manage",
+    "audit.view",
+    "reports.view",
+    "reports.academic",
   ],
 
   // ── INSTRUCTOR: own assigned courses and classes only ─────────────────────

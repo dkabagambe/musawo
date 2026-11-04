@@ -4,14 +4,14 @@ import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import {
   LayoutDashboard, BookOpen, Video, Calendar, CheckSquare, FileText,
-  ClipboardList, BarChart, Megaphone, BarChart2, Bell, User, MessageSquare, LifeBuoy,
+  ClipboardList, BarChart, Megaphone, BarChart2, Bell, User, Users, MessageSquare, LifeBuoy,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
   { href: "/tutor",               label: "Dashboard",      icon: <LayoutDashboard className="w-4 h-4" /> },
   { href: "/tutor/courses",       label: "My Courses",     icon: <BookOpen className="w-4 h-4" /> },
   { href: "/tutor/classes",       label: "My Classes",     icon: <Video className="w-4 h-4" /> },
-  { href: "/tutor/students",      label: "Students",       icon: <LayoutDashboard className="w-4 h-4" /> },
+  { href: "/tutor/students",      label: "Students",       icon: <Users className="w-4 h-4" /> },
   { href: "/tutor/timetable",     label: "Timetable",      icon: <Calendar className="w-4 h-4" /> },
   { href: "/tutor/attendance",    label: "Attendance",     icon: <CheckSquare className="w-4 h-4" /> },
   { href: "/tutor/materials",     label: "Learning Materials", icon: <FileText className="w-4 h-4" /> },

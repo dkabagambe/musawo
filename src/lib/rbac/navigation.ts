@@ -34,6 +34,13 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/registrar/transcripts", permissions: ["transcripts.generate"] },
   { prefix: "/registrar/announcements", permissions: ["announcements.manage"] },
   { prefix: "/registrar/audit", permissions: ["audit.view"] },
+  // ── new registrar routes ──────────────────────────────────────────────────
+  { prefix: "/registrar/programmes", permissions: ["courses.view"] },
+  { prefix: "/registrar/courses", permissions: ["courses.view"] },
+  { prefix: "/registrar/examinations", permissions: ["grades.view"] },
+  { prefix: "/registrar/certificates", permissions: ["certificates.view"] },
+  { prefix: "/registrar/reports", permissions: ["grades.view"] },
+  // ─────────────────────────────────────────────────────────────────────────
   { prefix: "/registrar/profile", permissions: ["students.lookup"] },
   { prefix: "/registrar", permissions: ["students.create", "students.lookup"] },
   { prefix: "/principal/courses", permissions: ["courses.view"] },
