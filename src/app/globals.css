@@ -504,6 +504,7 @@
   letter-spacing: -0.02em;
 }
 .portal-settings-wrap { position: relative; }
+.portal-topbar-actions { display: flex; align-items: center; gap: 4px; }
 .portal-settings-button {
   width: 36px; height: 36px;
   display: grid; place-items: center;

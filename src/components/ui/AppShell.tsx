@@ -386,14 +386,6 @@ export function Sidebar({
             >
               <LogOut size={16} /> Log out
             </Link>
-            <div
-              role="menuitem"
-              className="min-h-[38px] flex items-center gap-[9px] px-[10px] rounded-[6px] text-[13px]"
-              style={{ color: "var(--portal-text)" }}
-            >
-              <span className="text-[13px]">Theme</span>
-              <ThemeToggle className="ml-auto" />
-            </div>
           </div>
         )}
         <button
@@ -475,51 +467,47 @@ export function Topbar({
         </button>
         <h1>{title}</h1>
       </div>
-      <div className="portal-settings-wrap" ref={menuRef}>
-        <button
-          type="button"
-          className="portal-settings-button"
-          aria-label="Settings"
-          aria-expanded={settingsOpen}
-          aria-haspopup="menu"
-          onClick={() => setSettingsOpen((value) => !value)}
-        >
-          <Settings size={19} />
-        </button>
-        {settingsOpen && (
-          <div className="portal-settings-menu" role="menu">
-            <Link
-              href={profile}
-              role="menuitem"
-              onClick={() => setSettingsOpen(false)}
-            >
-              <UserRound size={16} /> Profile
-            </Link>
-            {notifications && (
+      <div className="portal-topbar-actions">
+        <ThemeToggle className="portal-topbar-theme-toggle" />
+        <div className="portal-settings-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="portal-settings-button"
+            aria-label="Settings"
+            aria-expanded={settingsOpen}
+            aria-haspopup="menu"
+            onClick={() => setSettingsOpen((value) => !value)}
+          >
+            <Settings size={19} />
+          </button>
+          {settingsOpen && (
+            <div className="portal-settings-menu" role="menu">
               <Link
-                href={notifications}
+                href={profile}
                 role="menuitem"
                 onClick={() => setSettingsOpen(false)}
               >
-                <Bell size={16} /> Notifications settings
+                <UserRound size={16} /> Profile
               </Link>
-            )}
-            <Link
-              href={`${profile}#password`}
-              role="menuitem"
-              onClick={() => setSettingsOpen(false)}
-            >
-              <Settings size={16} /> Change password
-            </Link>
-            <div
-              role="menuitem"
-              className="min-h-[38px] flex items-center gap-[9px] px-[10px] rounded-[6px]"
-            >
-              <span className="text-[13px] text-[var(--portal-text)]">Theme</span>
-              <ThemeToggle className="ml-auto" />
+              {notifications && (
+                <Link
+                  href={notifications}
+                  role="menuitem"
+                  onClick={() => setSettingsOpen(false)}
+                >
+                  <Bell size={16} /> Notifications settings
+                </Link>
+              )}
+              <Link
+                href={`${profile}#password`}
+                role="menuitem"
+                onClick={() => setSettingsOpen(false)}
+              >
+                <Settings size={16} /> Change password
+              </Link>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );
