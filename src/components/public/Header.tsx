@@ -231,7 +231,7 @@ export default function PublicHeader() {
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/10">
           <Link
             href="/"
-            className="flex items-center gap-2.5 no-underline group"
+            className="flex items-center no-underline group"
             onClick={() => setDrawer(false)}
             aria-label="Musawo Training Center home"
           >
@@ -240,16 +240,11 @@ export default function PublicHeader() {
                              transition-transform duration-200 group-hover:scale-105">
               <Image
                 src="/assets/logo-header.png"
-                alt=""
+                alt="Musawo Training Center"
                 width={36}
                 height={36}
                 className="w-full h-full object-contain"
-                aria-hidden="true"
               />
-            </span>
-            <span className="text-white font-bold text-sm leading-tight">
-              Musawo<br />
-              <span className="font-normal text-white/70 text-xs">Training Center</span>
             </span>
           </Link>
           <button

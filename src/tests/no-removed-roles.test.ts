@@ -34,14 +34,6 @@ const ALLOWED_FILES = new Set([
   "src/tests/redirect.test.ts",
   "src/tests/role-integration.test.ts",   // tests the migration mapping exhaustively
   "src/tests/no-removed-roles.test.ts",
-  // Legacy portal route groups kept as empty stubs guarded by RBAC; reachable
-  // only by DIRECTOR via audit.view permission. They contain no active role checks.
-  "src/app/(auditor)/auditor/layout.tsx",
-  "src/app/(auditor)/auditor/roles/page.tsx",
-  "src/app/(board)/board/layout.tsx",
-  "src/app/(bursar)/bursar/layout.tsx",
-  "src/app/(deputy)/deputy/layout.tsx",
-  "src/app/(finance)/finance/layout.tsx",
   "src/app/api/board/documents/route.ts",
   "src/app/api/grades/change-request/route.ts",
 ]);
