@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import InstructorProfileForm from "./InstructorProfileForm";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
@@ -29,6 +31,10 @@ export default async function TutorProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
+        <Link href="/tutor" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-3 no-underline transition-colors">
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          Back to dashboard
+        </Link>
         <h1 className="text-2xl font-bold text-primary">My Profile</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
       </div>

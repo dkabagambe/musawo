@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileEditForm from "./ProfileEditForm";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
@@ -31,6 +33,10 @@ export default async function DirectorProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
+        <Link href="/director" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-3 no-underline transition-colors">
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          Back to dashboard
+        </Link>
         <h1 className="text-2xl font-bold text-primary">Profile & Settings</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
       </div>

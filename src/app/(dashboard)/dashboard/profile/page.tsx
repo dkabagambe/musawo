@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileForm from "./ProfileForm";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
@@ -38,6 +40,10 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-4 no-underline transition-colors">
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+        Back to dashboard
+      </Link>
       <h1 className="text-2xl mb-6">My Profile</h1>
 
       {/* User info card */}

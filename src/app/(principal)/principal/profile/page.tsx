@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileForm from "@/app/(dashboard)/dashboard/profile/ProfileForm";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
@@ -35,6 +37,10 @@ export default async function PrincipalProfilePage() {
 
   return (
     <div className="max-w-xl mx-auto">
+      <Link href="/principal" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-4 no-underline transition-colors">
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+        Back to dashboard
+      </Link>
       <div className="mb-6">
         <h1 className="text-2xl font-bold">My Profile</h1>
         <p className="text-sm text-gray-500 mt-1">Update your personal details</p>
