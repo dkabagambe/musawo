@@ -41,9 +41,8 @@ export default async function PrincipalStoragePage() {
         j."executeAfter",
         j."executedAt",
         j."createdAt",
-        u.name AS "confirmedByName"
+        j."confirmedBy" AS "confirmedByName"
       FROM storage_cleanup_jobs j
-      LEFT JOIN users u ON j."confirmedById" = u.id
       ORDER BY j."createdAt" DESC
       LIMIT 50
     `,

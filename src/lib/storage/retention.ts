@@ -232,7 +232,7 @@ export async function confirmJob(
   await db.$executeRaw`
     UPDATE storage_cleanup_jobs SET
       status = 'IN_TRASH',
-      "confirmedById" = ${principalId},
+      "confirmedBy" = (SELECT name FROM users WHERE id = ${principalId} LIMIT 1),
       "confirmedAt" = NOW(),
       "executeAfter" = ${executeAfter},
       "updatedAt" = NOW()

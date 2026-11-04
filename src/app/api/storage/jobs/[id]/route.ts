@@ -52,9 +52,8 @@ export async function GET(
       j."executeAfter",
       j."executedAt",
       j."createdAt",
-      u.name AS "confirmedByName"
+      j."confirmedBy" AS "confirmedByName"
     FROM storage_cleanup_jobs j
-    LEFT JOIN users u ON j."confirmedById" = u.id
     WHERE j.id = ${params.id}
     LIMIT 1
   `;
