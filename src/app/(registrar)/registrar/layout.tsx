@@ -46,6 +46,10 @@ export default async function RegistrarLayout({ children }: { children: React.Re
 
   const active = await isRegistrarActive();
   const name = session.user.name ?? "Registrar";
+  const dbUser = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { avatarUrl: true },
+  });
 
   return (
     <AppShell
@@ -54,6 +58,7 @@ export default async function RegistrarLayout({ children }: { children: React.Re
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={active ? ["general", "admissions", "students", "academics"] : ["general"]}
     >
       {children}

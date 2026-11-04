@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileForm from "./ProfileForm";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 export const dynamic = "force-dynamic";
 
 
@@ -40,14 +41,16 @@ export default async function ProfilePage() {
       <h1 className="text-2xl mb-6">My Profile</h1>
 
       {/* User info card */}
-      <div className="card mb-6 flex items-center gap-4">
-        <div
-          className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold flex-shrink-0"
-          aria-hidden="true"
-        >
-          {user.name.charAt(0).toUpperCase()}
+      <div className="card mb-6 flex items-start gap-4">
+        <div className="flex-shrink-0">
+          <AvatarUpload
+            userId={user.id}
+            avatarUrl={user.avatarUrl}
+            name={user.name}
+            size="md"
+          />
         </div>
-        <div>
+        <div className="pt-1">
           <h2 className="font-semibold">{user.name}</h2>
           {user.studentNumber && (
             <p className="text-xs text-gray-400 font-mono">{user.studentNumber}</p>

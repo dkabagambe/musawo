@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
+import { db } from "@/lib/db";
 import {
   LayoutDashboard, Users, ClipboardList, GraduationCap, Library, Building2,
   BookOpen, Layers, CalendarRange, Calendar, CheckSquare, ClipboardCheck,
@@ -47,6 +48,10 @@ export default async function PrincipalLayout({ children }: { children: React.Re
   const session = await auth();
   if (!session?.user || !can(session.user.role, "content.approve")) redirect("/dashboard");
   const name = session.user.name ?? "Principal";
+  const dbUser = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { avatarUrl: true },
+  });
   return (
     <AppShell
       nav={NAV}
@@ -54,6 +59,7 @@ export default async function PrincipalLayout({ children }: { children: React.Re
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
       {children}

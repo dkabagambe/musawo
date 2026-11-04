@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
+import { db } from "@/lib/db";
 import type { DashboardTab } from "@/lib/dashboard/widgets";
 import {
   LayoutDashboard,
@@ -143,6 +144,10 @@ export default async function AdminLayout({
   )
     redirect("/403");
   const name = session.user.name ?? "Admin";
+  const dbUser = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { avatarUrl: true },
+  });
   const tabs: DashboardTab[] = [
     "general",
     ...(can(session.user.role, "staff.view") ? (["staff"] as DashboardTab[]) : []),
@@ -162,6 +167,7 @@ export default async function AdminLayout({
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={tabs}
     >
       {children}

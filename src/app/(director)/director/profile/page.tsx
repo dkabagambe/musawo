@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileEditForm from "./ProfileEditForm";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 export const dynamic = "force-dynamic";
 
 
@@ -22,6 +23,7 @@ export default async function DirectorProfilePage() {
       createdAt: true,
       role: true,
       status: true,
+      avatarUrl: true,
     },
   });
   if (!user) redirect("/login");
@@ -34,11 +36,16 @@ export default async function DirectorProfilePage() {
       </div>
 
       <div className="card">
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-          <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-            {user.name?.charAt(0).toUpperCase() ?? "D"}
+        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-border">
+          <div className="flex-shrink-0">
+            <AvatarUpload
+              userId={user.id}
+              avatarUrl={user.avatarUrl}
+              name={user.name}
+              size="md"
+            />
           </div>
-          <div>
+          <div className="pt-1">
             <p className="font-semibold text-lg text-primary">{user.name}</p>
             <p className="text-xs text-gray-400 uppercase tracking-wide">Director</p>
           </div>

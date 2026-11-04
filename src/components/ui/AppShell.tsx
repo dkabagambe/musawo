@@ -56,10 +56,8 @@ interface AppShellProps {
   permissionRole: UserRole;
   userName: string;
   userInitial: string;
+  userAvatarUrl?: string | null;
   accentClass?: string;
-  /** Explicit ordered tab list for the dashboard page header.
-   *  When provided, overrides the tabs derived from nav grouping.
-   *  Each entry is a valid DashboardTab id. */
   tabs?: DashboardTab[];
 }
 
@@ -232,6 +230,7 @@ export function Sidebar({
   pathname,
   userName,
   userInitial,
+  userAvatarUrl,
   role,
   collapsed,
   onToggle,
@@ -241,6 +240,7 @@ export function Sidebar({
   pathname: string;
   userName: string;
   userInitial: string;
+  userAvatarUrl?: string | null;
   role: string;
   collapsed: boolean;
   onToggle: () => void;
@@ -395,7 +395,20 @@ export function Sidebar({
           aria-haspopup="menu"
           title={collapsed ? userName : undefined}
         >
-          <span className="portal-avatar">{userInitial}</span>
+          <span className="portal-avatar" aria-hidden="true">
+            {userAvatarUrl ? (
+              <Image
+                src={userAvatarUrl}
+                alt={userName}
+                width={32}
+                height={32}
+                className="w-full h-full object-cover rounded-full"
+                unoptimized
+              />
+            ) : (
+              userInitial
+            )}
+          </span>
           <span className="portal-user-copy">
             <strong>{userName}</strong>
             <small>{role}</small>
@@ -503,6 +516,7 @@ export default function AppShell({
   permissionRole,
   userName,
   userInitial,
+  userAvatarUrl,
   tabs: tabsProp,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -632,6 +646,7 @@ export default function AppShell({
           pathname={pathname}
           userName={userName}
           userInitial={userInitial}
+          userAvatarUrl={userAvatarUrl}
           role={role}
           collapsed={collapsed}
           onToggle={toggleCollapsed}
@@ -682,6 +697,7 @@ export default function AppShell({
           pathname={pathname}
           userName={userName}
           userInitial={userInitial}
+          userAvatarUrl={userAvatarUrl}
           role={role}
           collapsed={false}
           onToggle={closeDrawer}

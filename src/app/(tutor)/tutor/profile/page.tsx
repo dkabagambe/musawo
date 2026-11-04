@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import InstructorProfileForm from "./InstructorProfileForm";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 export const dynamic = "force-dynamic";
 
 
@@ -18,6 +19,7 @@ export default async function TutorProfilePage() {
       select: {
         id: true, name: true, email: true, phone: true,
         totpEnabled: true, createdAt: true, status: true,
+        avatarUrl: true,
       },
     }),
     db.course.count({ where: teachingCourseWhere(session.user.id) }),
@@ -32,11 +34,16 @@ export default async function TutorProfilePage() {
       </div>
 
       <div className="card">
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-          <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-            {user.name?.charAt(0).toUpperCase() ?? "I"}
+        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-border">
+          <div className="flex-shrink-0">
+            <AvatarUpload
+              userId={user.id}
+              avatarUrl={user.avatarUrl}
+              name={user.name}
+              size="md"
+            />
           </div>
-          <div>
+          <div className="pt-1">
             <p className="font-semibold text-lg text-primary">{user.name}</p>
             <p className="text-xs text-gray-400 uppercase tracking-wide">Instructor</p>
             <p className="text-xs text-gray-400">{courseCount} course{courseCount !== 1 ? "s" : ""} assigned</p>

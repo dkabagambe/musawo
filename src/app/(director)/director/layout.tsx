@@ -30,6 +30,8 @@ export default async function DirectorLayout({ children }: { children: React.Rea
   const session = await auth();
   if (!session?.user || !can(session.user.role, "approvals.decide")) redirect("/login");
   const name = session.user.name ?? "Director";
+  const { db } = await import("@/lib/db");
+  const dbUser = await db.user.findUnique({ where: { id: session.user.id }, select: { avatarUrl: true } });
   return (
     <AppShell
       nav={NAV}
@@ -37,6 +39,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
       {children}

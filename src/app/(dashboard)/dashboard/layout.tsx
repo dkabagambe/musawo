@@ -34,6 +34,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await auth();
   if (!session?.user) redirect("/login");
   const name = session.user.name ?? "Student";
+  const dbUser = await import("@/lib/db").then(m => m.db.user.findUnique({
+    where: { id: session.user.id }, select: { avatarUrl: true },
+  }));
   return (
     <AppShell
       nav={NAV}
@@ -41,6 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
       {children}

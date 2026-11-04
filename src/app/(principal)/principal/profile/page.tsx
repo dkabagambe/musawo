@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileForm from "@/app/(dashboard)/dashboard/profile/ProfileForm";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 export const dynamic = "force-dynamic";
 
 
@@ -26,6 +27,7 @@ export default async function PrincipalProfilePage() {
       professionalTitle: true,
       registrationNumber: true,
       emergencyContact: true,
+      avatarUrl: true,
     },
   });
 
@@ -36,6 +38,14 @@ export default async function PrincipalProfilePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">My Profile</h1>
         <p className="text-sm text-gray-500 mt-1">Update your personal details</p>
+      </div>
+      <div className="card mb-6 flex justify-center">
+        <AvatarUpload
+          userId={user.id}
+          avatarUrl={user.avatarUrl}
+          name={user.name}
+          size="lg"
+        />
       </div>
       <div className="card">
         <ProfileForm

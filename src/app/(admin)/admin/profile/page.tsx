@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ProfileForm from "@/app/(dashboard)/dashboard/profile/ProfileForm";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 export const dynamic = "force-dynamic";
 
 
@@ -26,6 +27,7 @@ export default async function AdminProfilePage() {
       professionalTitle: true,
       registrationNumber: true,
       emergencyContact: true,
+      avatarUrl: true,
     },
   });
 
@@ -38,6 +40,14 @@ export default async function AdminProfilePage() {
         <p className="text-sm text-gray-500 mt-1">
           Hello Rahiima! Update your personal details below.
         </p>
+      </div>
+      <div className="card mb-6 flex justify-center">
+        <AvatarUpload
+          userId={user.id}
+          avatarUrl={user.avatarUrl}
+          name={user.name}
+          size="lg"
+        />
       </div>
       <div className="card">
         <ProfileForm

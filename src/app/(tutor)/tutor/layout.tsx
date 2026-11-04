@@ -32,6 +32,8 @@ export default async function TutorLayout({ children }: { children: React.ReactN
   const session = await auth();
   if (!session?.user || !can(session.user.role, "classes.view")) redirect("/dashboard");
   const name = session.user.name ?? "Instructor";
+  const { db } = await import("@/lib/db");
+  const dbUser = await db.user.findUnique({ where: { id: session.user.id }, select: { avatarUrl: true } });
   return (
     <AppShell
       nav={NAV}
@@ -39,6 +41,7 @@ export default async function TutorLayout({ children }: { children: React.ReactN
       permissionRole={session.user.role}
       userName={name}
       userInitial={name.charAt(0).toUpperCase()}
+      userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
       {children}
