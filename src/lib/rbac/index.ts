@@ -36,25 +36,11 @@ export const STAFF_ROLES: UserRole[] = [
 
 export const DIRECTOR_ROLES: UserRole[] = ["DIRECTOR"];
 
-// Legacy exports kept so existing imports do not break during the 1B nav refactor.
-// These will be removed in batch 1B.
-/** @deprecated Use DIRECTOR_ROLES */
-export const SUPER_ADMIN_ROLES: UserRole[] = ["DIRECTOR"];
-/** @deprecated Use DIRECTOR_ROLES */
-export const SUPERADMIN_ROLES: UserRole[] = ["DIRECTOR"];
-/** @deprecated */
-export const FINANCE_ROLES: UserRole[] = ["DIRECTOR", "PRINCIPAL"];
-/** @deprecated */
-export const ACADEMIC_ROLES: UserRole[] = [
-  "DIRECTOR",
-  "PRINCIPAL",
-  "ADMIN",
-  "INSTRUCTOR",
-];
-
-export const MAX_SUPER_ADMIN_ACCOUNTS = 3;
-/** @deprecated */
-export const MAX_SUPERADMIN_ACCOUNTS = 3;
+/**
+ * Maximum number of Director-level accounts allowed in the system.
+ * The Director role is the top of the hierarchy and accounts are limited.
+ */
+export const MAX_DIRECTOR_ACCOUNTS = 3;
 
 /**
  * Canonical role tree for the new 6-role model.

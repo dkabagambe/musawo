@@ -90,7 +90,7 @@ const CAPABILITY_GROUPS: Array<{
       { key: "certificates.issue", label: "Issue certificates" },
       {
         key: "certificates.revoke",
-        label: "Revoke certificates (Super Admin)",
+        label: "Revoke certificates (Director)",
       },
       { key: "graduates.view", label: "Access graduates register" },
       { key: "transcripts.generate", label: "Generate transcripts" },
@@ -104,9 +104,9 @@ const CAPABILITY_GROUPS: Array<{
       { key: "ledger.view", label: "View ledger" },
       { key: "finance.totals.view", label: "View finance totals (read-only)" },
       { key: "refunds.initiate", label: "Request refund" },
-      { key: "refunds.approve", label: "Approve refund (Super Admin)" },
-      { key: "waivers.approve", label: "Approve waiver (Super Admin)" },
-      { key: "fees.change.approve", label: "Approve fee change (Super Admin)" },
+      { key: "refunds.approve", label: "Approve refund (Director)" },
+      { key: "waivers.approve", label: "Approve waiver (Director)" },
+      { key: "fees.change.approve", label: "Approve fee change (Director)" },
       { key: "reconciliation.view", label: "Reconciliation" },
     ],
   },
@@ -116,16 +116,16 @@ const CAPABILITY_GROUPS: Array<{
       { key: "staff.view", label: "View staff list" },
       {
         key: "staff.create.initiate",
-        label: "Invite staff (HR or Super Admin)",
+        label: "Invite staff (Admin or Principal)",
       },
       {
         key: "staff.create.approve",
-        label: "Approve staff creation (Super Admin)",
+        label: "Approve staff creation (Director)",
       },
       { key: "staff.suspend.initiate", label: "Initiate staff suspension" },
       {
         key: "staff.role.change.approve",
-        label: "Approve role change (Super Admin)",
+        label: "Approve role change (Director)",
       },
       { key: "staff.leave.manage", label: "Manage leave (HR)" },
     ],
@@ -148,7 +148,7 @@ const CAPABILITY_GROUPS: Array<{
       { key: "audit.comment", label: "Flag or comment on audit items" },
       {
         key: "approvals.decide",
-        label: "Decide approval requests (Super Admin)",
+        label: "Decide approval requests (Director)",
       },
       { key: "access_review.complete", label: "Complete access review" },
     ],
@@ -165,7 +165,7 @@ const CAPABILITY_GROUPS: Array<{
       { key: "break_glass.request", label: "Request break-glass access" },
       {
         key: "break_glass.approve",
-        label: "Approve break-glass (Super Admin)",
+        label: "Approve break-glass (Director)",
       },
     ],
   },
@@ -511,22 +511,11 @@ export default function RolesPermissionsView() {
             to get the granting role.
           </p>
           <p>
-            <strong>Institution Secretary.</strong> A Director account with
-            the{" "}
+            <strong>Record-level scoping.</strong> A permission does not remove
+            the need to scope records to assigned courses, intakes or accounts.
+            Instructor queries must go through the teaching-scope helpers in{" "}
             <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
-              institutionSecretary
-            </code>{" "}
-            flag also holds{" "}
-            <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
-              policies.manage
-            </code>{" "}
-            and{" "}
-            <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
-              board_documents.manage
-            </code>
-            . Check with{" "}
-            <code className="font-mono text-xs bg-[#F3F7F6] px-1 rounded">
-              canForUser(role, permission, &#x7B; institutionSecretary &#x7D;)
+              @/lib/teaching/scope
             </code>
             .
           </p>

@@ -1,9 +1,9 @@
 /**
- * GET  /api/principal/delegation         - list current delegations (PRINCIPAL or SUPER_ADMIN)
- * POST /api/principal/delegation         - grant a delegation (PRINCIPAL or SUPER_ADMIN)
- * DELETE /api/principal/delegation/[perm] - revoke a delegation (PRINCIPAL or SUPER_ADMIN)
+ * GET  /api/principal/delegation         - list current delegations (PRINCIPAL or DIRECTOR)
+ * POST /api/principal/delegation         - grant a delegation (PRINCIPAL or DIRECTOR)
+ * DELETE /api/principal/delegation/[perm] - revoke a delegation (PRINCIPAL or DIRECTOR)
  *
- * Delegation allows the Deputy Principal to perform specific actions that
+ * Delegation allows the Director to perform specific actions that
  * normally require the Principal.  Each delegation has an expiry datetime.
  *
  * Delegatable permissions (spec):
@@ -22,7 +22,7 @@ import { audit } from "@/lib/audit";
 import { z } from "zod";
 
 function canManageDelegation(role: string) {
-  return role === "PRINCIPAL" || role === "SUPER_ADMIN" || role === "SUPERADMIN";
+  return role === "PRINCIPAL" || role === "DIRECTOR";
 }
 
 /** GET: return current delegations and their expiry */

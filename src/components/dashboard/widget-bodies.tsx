@@ -1637,7 +1637,7 @@ async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/* director-todos  (super admin / director general) */
+/* director-todos  (Director) */
 async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
   const [pendingApprovals, pendingClaims, draftCourses] = await Promise.all([
     db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),

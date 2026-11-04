@@ -1,8 +1,7 @@
 /**
  * /admin/support
  *
- * Support ticket management for HR_SYSTEM_ADMIN.
- * HR manages support tickets (infrastructure/staff issues).
+ * Support ticket management for the Admin.
  */
 
 import type { Metadata } from "next";

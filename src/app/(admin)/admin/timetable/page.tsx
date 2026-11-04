@@ -1,8 +1,7 @@
 /**
  * /admin/timetable
  *
- * Timetable and venue management for HR_SYSTEM_ADMIN.
- * HR manages timetables and venues (non-academic settings).
+ * Timetable and venue management for the Admin.
  */
 
 import type { Metadata } from "next";

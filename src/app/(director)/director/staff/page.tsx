@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { MAX_SUPER_ADMIN_ACCOUNTS, STAFF_ROLES } from "@/lib/rbac";
+import { MAX_DIRECTOR_ACCOUNTS, STAFF_ROLES } from "@/lib/rbac";
 export const dynamic = "force-dynamic";
 
 
@@ -38,7 +38,7 @@ export default async function DirectorStaffPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl">Staff Accounts</h1>
         <p className="text-xs text-gray-400">
-          Director slots: {directorCount}/{MAX_SUPER_ADMIN_ACCOUNTS}
+          Director slots: {directorCount}/{MAX_DIRECTOR_ACCOUNTS}
         </p>
       </div>
 

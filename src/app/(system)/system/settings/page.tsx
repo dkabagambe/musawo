@@ -40,7 +40,7 @@ export default async function SystemSettingsPage() {
       <h1 className="text-2xl mb-2">Site Settings</h1>
       <p className="text-xs text-gray-400 mb-6">
         Secret values are masked. Click Edit to update a value.
-        Payment and exam settings require SUPER_ADMIN.
+        Payment and exam settings require the Director.
       </p>
 
       {Object.entries(grouped).map(([prefix, keys]) => (
@@ -71,7 +71,7 @@ export default async function SystemSettingsPage() {
                   </form>
                 )}
                 {!canEditKey(s.key) && (
-                  <span className="text-xs text-gray-400 italic">SUPER_ADMIN only</span>
+                  <span className="text-xs text-gray-400 italic">Director only</span>
                 )}
               </div>
             ))}

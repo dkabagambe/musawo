@@ -1,8 +1,8 @@
 /**
- * /director/roles - Roles and Permissions page for SUPER_ADMIN.
+ * /director/roles - Roles and Permissions page for the Director.
  *
  * Read-only view of the role tree and capability matrix.
- * Access is gated on settings.view (SUPER_ADMIN always has this).
+ * Access is gated on settings.view (Director always has this).
  */
 
 import type { Metadata } from "next";
