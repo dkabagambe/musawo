@@ -108,7 +108,7 @@ export default function PublicHeader() {
               className="flex items-center no-underline flex-shrink-0"
               aria-label="Musawo Training Center - home"
             >
-              <span className="flex items-center justify-center bg-white rounded-xl w-[52px] h-[52px] shadow-sm p-1.5">
+              <span className="flex items-center justify-center bg-white rounded-full w-[52px] h-[52px] shadow-md ring-2 ring-white/30 p-1.5">
                 <Image
                   src="/assets/logo-header.png"
                   alt=""
@@ -221,7 +221,7 @@ export default function PublicHeader() {
             onClick={() => setDrawer(false)}
             aria-label="Musawo Training Center home"
           >
-            <span className="flex items-center justify-center bg-white rounded-xl w-11 h-11 p-1.5 flex-shrink-0">
+            <span className="flex items-center justify-center bg-white rounded-full w-11 h-11 p-1.5 flex-shrink-0 shadow-md ring-2 ring-white/30">
               <Image
                 src="/assets/logo-header.png"
                 alt=""

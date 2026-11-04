@@ -58,7 +58,7 @@ export default function AuthLayoutClient({ children }: { children: React.ReactNo
               className="flex items-center gap-2 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
               aria-label="Musawo Training Center - back to home"
             >
-              <span className="flex items-center justify-center bg-white rounded-lg w-9 h-9 flex-shrink-0 shadow-sm p-1">
+              <span className="flex items-center justify-center bg-white rounded-full w-9 h-9 flex-shrink-0 shadow-md ring-2 ring-white/30 p-1">
                 <Image
                   src="/assets/logo-header.png"
                   alt="Musawo Training Center"
@@ -97,7 +97,7 @@ export default function AuthLayoutClient({ children }: { children: React.ReactNo
             className="flex items-center gap-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
             aria-label="Musawo Training Center - back to home"
           >
-            <span className="flex items-center justify-center bg-white rounded-xl w-[46px] h-[46px] flex-shrink-0 shadow-sm border border-border/60 p-1.5">
+            <span className="flex items-center justify-center bg-white rounded-full w-[46px] h-[46px] flex-shrink-0 shadow-md ring-2 ring-primary/20 p-1.5">
               <Image
                 src="/assets/logo-header.png"
                 alt="Musawo Training Center"

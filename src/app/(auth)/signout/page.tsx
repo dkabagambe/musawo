@@ -33,7 +33,7 @@ export default function SignOutPage() {
       {/* Logo - top left */}
       <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-10">
         <Link href="/" className="flex items-center gap-2.5 no-underline group">
-          <span className="flex items-center justify-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl w-10 h-10 p-1.5 group-hover:bg-white/25 transition-colors">
+          <span className="flex items-center justify-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-full w-10 h-10 p-1.5 group-hover:bg-white/25 transition-colors shadow-md">
             <Image src="/assets/logo-header.png" alt="MTC" width={28} height={28} className="w-full h-full object-contain" />
           </span>
           <span className="hidden sm:block text-white font-bold text-sm drop-shadow">
