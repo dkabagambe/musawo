@@ -59,7 +59,7 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
       by: ["status"],
       _count: { _all: true },
     }),
-    getSetting("feature.requireAdmissionApproval", "true"),
+    getSetting("policy.requireAdmissionApproval", "true"),
   ]);
   const requireApproval = requireApprovalSetting !== "false";
 

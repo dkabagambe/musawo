@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
+import ApprovalRequestForm from "../ApprovalRequestForm";
 export const dynamic = "force-dynamic";
 
 
@@ -85,6 +86,18 @@ export default async function PrincipalProgrammesPage() {
         Changes to programmes require Director approval. Submit via{" "}
         <Link href="/principal/approval-tracking" className="underline">Approval Tracking</Link>.
       </p>
+
+      {can(session.user.role, "courses.publish") && (
+        <div className="mt-4">
+          <ApprovalRequestForm
+            type="ACADEMIC_PROGRAMME_CHANGE"
+            label="Academic Programme Change"
+            description="Request Director approval to create, modify or archive an academic programme."
+            buttonLabel="Submit programme change request"
+            placeholder="Describe the programme change (e.g. new programme, modification to duration, archiving an old programme) and the reason..."
+          />
+        </div>
+      )}
     </div>
   );
 }

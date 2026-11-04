@@ -22,7 +22,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 // Types where Principal is the FINAL approver (no Director forwarding needed)
-const PRINCIPAL_FINAL = new Set(["ADMISSION", "MARKS_CHANGE"]);
+const PRINCIPAL_FINAL = new Set(["ADMISSION", "MARKS_CHANGE", "EQUIPMENT_REQUEST"]);
 
 interface Props {
   searchParams: { status?: string };

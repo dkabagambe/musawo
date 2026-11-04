@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
+import ApprovalRequestForm from "../ApprovalRequestForm";
 export const dynamic = "force-dynamic";
 
 
@@ -27,9 +28,20 @@ export default async function PrincipalCoursesPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Courses</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Review and approve course content</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Courses</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Review and approve course content</p>
+        </div>
+        {can(session.user.role, "courses.edit") && (
+          <ApprovalRequestForm
+            type="COURSE_CHANGE"
+            label="Course / Subject Change"
+            description="Courses and subjects require Director approval to create or modify."
+            buttonLabel="Submit course change request"
+            placeholder="Describe the new course or the modification (title, content, duration, prerequisites, instructor) and the reason..."
+          />
+        )}
       </div>
 
       <div className="card overflow-x-auto">

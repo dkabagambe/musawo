@@ -130,29 +130,35 @@ export async function POST(req: NextRequest) {
     ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  // Email every DIRECTOR (final approver for all requests)
-  const superadmins = await db.user.findMany({
-    where: { role: "DIRECTOR", status: "ACTIVE" },
-    select: { email: true, name: true },
-  });
-
   const approvalUrl = `${process.env.NEXTAUTH_URL}/approval/${approvalToken}`;
   const typeLabel = data.type.replace(/_/g, " ");
 
-  for (const sa of superadmins) {
-    if (!sa.email) continue;
+  // ADMISSION: notify Principals (they are the final approver for admissions)
+  // All other types: notify Directors
+  const notifyRole = data.type === "ADMISSION" ? "PRINCIPAL" : "DIRECTOR";
+  const notifyUrl  = data.type === "ADMISSION"
+    ? `${process.env.NEXTAUTH_URL}/principal/approvals-inbox`
+    : approvalUrl;
+
+  const notifyUsers = await db.user.findMany({
+    where: { role: notifyRole, status: "ACTIVE" },
+    select: { email: true, name: true },
+  });
+
+  for (const recipient of notifyUsers) {
+    if (!recipient.email) continue;
     await sendEmail({
-      to:       sa.email,
+      to:       recipient.email,
       subject:  `Action required: ${typeLabel} request from ${request.initiator.name}`,
       template: "approval-request",
       variables: {
-        name:        sa.name,
+        name:        recipient.name,
         requester:   request.initiator.name,
         type:        typeLabel,
         reason:      data.reason,
         amount:      data.amount ? `UGX ${data.amount.toLocaleString()}` : "N/A",
-        approvalUrl,
-        expiresIn:   "72 hours",
+        approvalUrl: notifyUrl,
+        expiresIn:   data.type === "ADMISSION" ? "pending" : "72 hours",
       },
     });
   }

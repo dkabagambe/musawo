@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { can } from "@/lib/rbac";
+import InstructorResultsPublicationForm from "./ResultsPublicationForm";
 export const dynamic = "force-dynamic";
 
 
@@ -16,11 +17,19 @@ export default async function TutorResultsPage() {
   const exams = await db.exam.findMany({
     where: { course: teachingCourseWhere(session.user.id) },
     orderBy: { createdAt: "desc" },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      status: true,
       course: { select: { title: true } },
       attempts: {
         where: { status: "SUBMITTED" },
-        include: {
+        select: {
+          id: true,
+          score: true,
+          maxScore: true,
+          passed: true,
+          submittedAt: true,
           user: { select: { name: true, studentNumber: true } },
           shortAnswerReviews: { select: { score: true } },
         },
@@ -40,6 +49,16 @@ export default async function TutorResultsPage() {
     take: 10,
   });
 
+  // Exams available for publication request (have submissions, not already PUBLISHED)
+  const examsForPublication = exams
+    .filter((e) => e._count.attempts > 0 && e.status !== "PUBLISHED")
+    .map((e) => ({
+      examId:          e.id,
+      examTitle:       e.title,
+      courseName:      e.course.title,
+      submissionCount: e._count.attempts,
+    }));
+
   const STATUS_STYLE: Record<string, string> = {
     SUBMITTED: "badge-warning",
     IN_REVIEW: "badge-info",
@@ -53,16 +72,19 @@ export default async function TutorResultsPage() {
         <div>
           <h1 className="text-2xl font-bold text-primary">Marks & Results</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Submit marks for Principal review. Results are published only after Director approval.
+            Submit marks for Admin processing, then Principal and Director approval before results are published to students.
           </p>
         </div>
-        <a
-          href="/api/results/export"
-          className="btn-outline text-sm no-underline flex-shrink-0"
-          download
-        >
-          Download all marks (CSV)
-        </a>
+        <div className="flex gap-2 flex-wrap flex-shrink-0">
+          <InstructorResultsPublicationForm exams={examsForPublication} />
+          <a
+            href="/api/results/export"
+            className="btn-outline text-sm no-underline flex-shrink-0"
+            download
+          >
+            Download all marks (CSV)
+          </a>
+        </div>
       </div>
 
       {pendingApprovals.length > 0 && (

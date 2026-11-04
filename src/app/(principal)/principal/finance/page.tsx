@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
+import FeeRequestForm from "./FeeRequestForm";
 export const dynamic = "force-dynamic";
 
 
@@ -86,11 +87,14 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Finance</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Review payment proofs, fee requests and forwarding to Director
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold">Finance</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Review payment proofs, fee requests and forwarding to Director
+          </p>
+        </div>
+        <FeeRequestForm />
       </div>
 
       {/* Payment stats */}

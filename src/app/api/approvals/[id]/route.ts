@@ -142,18 +142,24 @@ export async function PATCH(
         { status: 403 }
       );
     }
+  } else if (request.type === "ADMISSION") {
+    // ADMISSION: Principal is the final approver
+    if (!can(role, "applications.process") && !can(role, "approvals.decide")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  } else if (request.type === "EQUIPMENT_REQUEST") {
+    // EQUIPMENT_REQUEST: Principal (if available) or Director -- either can approve
+    if (!can(role, "content.approve") && !can(role, "approvals.decide")) {
+      return NextResponse.json(
+        { error: "Only the Principal or Director may approve equipment requests." },
+        { status: 403 }
+      );
+    }
   } else {
-    // ADMISSION: Principal may approve directly (no Director step)
-    if (request.type === "ADMISSION") {
-      if (!can(role, "applications.process") && !can(role, "approvals.decide")) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-    } else {
-      try { requirePermission(role, "approvals.decide"); }
-      catch (e) {
-        if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 });
-        throw e;
-      }
+    try { requirePermission(role, "approvals.decide"); }
+    catch (e) {
+      if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 });
+      throw e;
     }
   }
 
@@ -286,6 +292,51 @@ export async function PATCH(
           actorId: session.user.id, action: "GRADE_CHANGE_APPROVED",
           entityType: "GradeEntry", entityId: request.gradeEntryId,
           metadata: { approvalId: request.id, newScore, reason: request.reason, via: role },
+          ip: req.headers.get("x-forwarded-for") ?? undefined,
+        });
+      }
+    }
+
+    // RESULTS_PUBLICATION: mark the exam as published so students can see results
+    if (request.type === "RESULTS_PUBLICATION" && request.courseId) {
+      // courseId on this type stores the examId (see ResultsPublicationForm)
+      const exam = await db.exam.findUnique({ where: { id: request.courseId } });
+      if (exam && exam.status !== "PUBLISHED") {
+        await db.exam.update({
+          where: { id: request.courseId },
+          data: { status: "PUBLISHED" },
+        });
+        await audit({
+          actorId: session.user.id, action: "GRADE_RELEASED",
+          entityType: "Exam", entityId: request.courseId,
+          metadata: { approvalId: request.id, examTitle: exam.title },
+          ip: req.headers.get("x-forwarded-for") ?? undefined,
+        });
+      }
+    }
+
+    // CERTIFICATE_ISSUANCE: create the Certificate record
+    if (request.type === "CERTIFICATE_ISSUANCE" && request.studentId && request.courseId) {
+      const existing = await db.certificate.findFirst({
+        where: { userId: request.studentId, courseId: request.courseId, revokedAt: null },
+      });
+      if (!existing) {
+        // Generate a unique certificate ID: MTC-YYYY-XXXX
+        const year = new Date().getFullYear();
+        const count = await db.certificate.count();
+        const uniqueId = `MTC-${year}-${String(count + 1).padStart(5, "0")}`;
+        const cert = await db.certificate.create({
+          data: {
+            userId:    request.studentId,
+            courseId:  request.courseId,
+            uniqueId,
+            issuedAt:  new Date(),
+          },
+        });
+        await audit({
+          actorId: session.user.id, action: "CERTIFICATE_ISSUED",
+          entityType: "Certificate", entityId: cert.id,
+          metadata: { approvalId: request.id, studentId: request.studentId, courseId: request.courseId },
           ip: req.headers.get("x-forwarded-for") ?? undefined,
         });
       }

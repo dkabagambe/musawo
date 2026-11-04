@@ -11,7 +11,7 @@ interface Props { params: { id: string } }
 const ACTIONABLE = new Set(["SUBMITTED", "IN_REVIEW"]);
 
 // Types where the Principal is the FINAL approver (no Director step needed)
-const PRINCIPAL_FINAL = new Set(["ADMISSION", "MARKS_CHANGE"]);
+const PRINCIPAL_FINAL = new Set(["ADMISSION", "MARKS_CHANGE", "EQUIPMENT_REQUEST"]);
 
 const STATUS_LABEL: Record<string, string> = {
   SUBMITTED:  "Pending",
