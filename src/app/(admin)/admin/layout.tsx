@@ -28,6 +28,7 @@ import {
   CreditCard,
   LifeBuoy,
   Mail,
+  Globe,
 } from "lucide-react";
 
 const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
@@ -130,14 +131,6 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
   },
   {
     item: {
-      href: "/admin/documents",
-      label: "Student Documents",
-      icon: <FileText className="w-4 h-4" />,
-    },
-    permission: "student.documents.manage",
-  },
-  {
-    item: {
       href: "/admin/reports",
       label: "Reports",
       icon: <BarChart2 className="w-4 h-4" />,
@@ -231,6 +224,14 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       href: "/admin/settings",
       label: "Settings",
       icon: <Settings className="w-4 h-4" />,
+    },
+    permission: "settings.edit.operational",
+  },
+  {
+    item: {
+      href: "/admin/partner-pages",
+      label: "Partner Pages",
+      icon: <Globe className="w-4 h-4" />,
     },
     permission: "settings.edit.operational",
   },

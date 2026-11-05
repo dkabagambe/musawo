@@ -141,10 +141,14 @@ function dashboardGroup(href: string, root: string): DashboardTab {
     },
     "/director": {
       approvals: "approvals",
-      staff: "staff",
-      audit: "reports",
+      finance:   "finance",
+      staff:     "staff",
+      roles:     "staff",
       "access-review": "staff",
-      admin: "staff",
+      graduates: "academics",
+      policies:  "reports",
+      audit:     "reports",
+      admin:     "staff",
     },
     "/board": { reports: "reports", policies: "audit", graduates: "academics" },
     "/auditor": {

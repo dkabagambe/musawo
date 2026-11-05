@@ -42,10 +42,6 @@ export default async function PrincipalDepartmentsPage() {
           </div>
         ))}
       </div>
-
-      <p className="text-xs text-gray-400 mt-6">
-        Departments are editable placeholders. Contact IT Admin to add or modify departments.
-      </p>
     </div>
   );
 }
