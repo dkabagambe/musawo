@@ -313,29 +313,10 @@ export default async function PublicFooter() {
       {/* Bottom bar */}
       <div className="bg-[#0A5A4E]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-5 pb-[88px] sm:pb-6 text-center">
-          <p className="text-[15px] text-white/88 font-normal mb-3">
+          <p className="text-[15px] text-white/88 font-normal">
             &copy; {new Date().getFullYear()} MUSAWO / Allied Doctors and
             Friends of Uganda (ADFA). All rights reserved.
           </p>
-          <nav aria-label="Legal links">
-            <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 list-none text-sm">
-              {[
-                { label: "Privacy Policy", href: "/privacy" },
-                { label: "Terms of Service", href: "/terms" },
-                { label: "Refund Policy", href: "/refund" },
-                { label: "FAQ", href: "/faq" },
-              ].map(({ label, href }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="text-white/60 hover:text-white no-underline transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
       </div>
 

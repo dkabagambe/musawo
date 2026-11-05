@@ -160,20 +160,12 @@ export default function CoursesClient({ courses }: Props) {
                           </>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="text-xs font-semibold text-primary hover:text-accent no-underline transition-colors border border-border px-3 py-1.5 rounded-xl"
-                        >
-                          View details
-                        </Link>
-                        <Link
-                          href={`/apply?course=${course.slug}`}
-                          className="inline-flex items-center gap-1 bg-accent hover:bg-accent-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl no-underline transition-colors"
-                        >
-                          Apply <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                        </Link>
-                      </div>
+                      <Link
+                        href={`/apply?course=${course.slug}`}
+                        className="inline-flex items-center gap-1 bg-accent hover:bg-accent-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl no-underline transition-colors"
+                      >
+                        Apply <ArrowRight className="w-3 h-3" aria-hidden="true" />
+                      </Link>
                     </div>
                   </div>
                 </m.article>
