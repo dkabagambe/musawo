@@ -131,7 +131,7 @@ export default async function HomePage() {
             {FACTS.map((f, i) => (
               <li
                 key={f.label}
-                className="flex items-start gap-4 px-6 py-6 sm:px-7 sm:py-7"
+                className="flex items-start gap-3 px-4 py-5 sm:px-6 sm:py-6"
                 style={{
                   animation: `fadeUp 0.4s ${0.08 + i * 0.08}s ease-out both`,
                 }}
@@ -211,7 +211,7 @@ export default async function HomePage() {
                       </span>
                     )}
                   </div>
-                  <div className="p-8 flex flex-col flex-1">
+                  <div className="p-5 sm:p-6 flex flex-col flex-1">
                     <span
                       className={`self-start text-xs font-semibold px-2.5 py-0.5 rounded-full mb-3 ${badge.cls}`}
                     >
@@ -294,7 +294,7 @@ export default async function HomePage() {
             {HOW_STEPS.map(({ n, icon: Icon, title, body }) => (
               <div
                 key={n}
-                className="bg-surface rounded-2xl p-8 border border-border
+                className="bg-surface rounded-2xl p-5 sm:p-6 border border-border
                            hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className="flex items-center gap-3 mb-5">

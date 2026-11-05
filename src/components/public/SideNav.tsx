@@ -32,7 +32,7 @@ export default function SideNav({ items, title }: SideNavProps) {
     <>
       {/* ── Desktop side nav ──────────────────────────────────────── */}
       <nav
-        className="hidden lg:block sticky top-[128px] w-56 flex-shrink-0"
+        className="hidden lg:block sticky top-[calc(var(--banner-h,0px)+100px)] w-56 flex-shrink-0"
         aria-label={`${title} navigation`}
       >
         <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3 px-3">

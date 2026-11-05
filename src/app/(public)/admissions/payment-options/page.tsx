@@ -83,7 +83,7 @@ export default async function PaymentOptionsPage() {
       />
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
-        <div className="flex gap-12 items-start">
+        <div className="sidenav-layout">
           <SideNav title="Admissions" items={ADMISSIONS_NAV} />
 
           <div className="flex-1 min-w-0">

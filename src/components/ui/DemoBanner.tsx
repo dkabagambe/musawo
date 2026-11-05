@@ -22,13 +22,18 @@ export default function DemoBanner() {
       <div
         role="alert"
         aria-live="polite"
-        className="fixed inset-x-0 top-0 w-full bg-amber-500 text-white text-xs font-semibold py-1.5 text-center"
+        className="fixed inset-x-0 top-0 w-full bg-amber-500 text-white text-xs font-semibold py-1.5 text-center px-2"
         style={{ zIndex: 60, height: BANNER_H }}
       >
-        {label} environment &mdash; not for real use. Data may be reset at any time.{" "}
-        <a href="/dev/login" className="underline ml-1">
-          Demo accounts
-        </a>
+        {/* Short text on narrow phones, full text on wider screens */}
+        <span className="sm:hidden">
+          {label} &mdash; demo only.{" "}
+          <a href="/dev/login" className="underline">Accounts</a>
+        </span>
+        <span className="hidden sm:inline">
+          {label} environment &mdash; not for real use. Data may be reset at any time.{" "}
+          <a href="/dev/login" className="underline ml-1">Demo accounts</a>
+        </span>
       </div>
     </>
   );

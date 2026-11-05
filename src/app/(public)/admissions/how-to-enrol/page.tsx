@@ -84,7 +84,7 @@ export default async function HowToEnrolPage() {
       />
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
-        <div className="flex gap-12 items-start">
+        <div className="sidenav-layout">
           <SideNav title="Admissions" items={ADMISSIONS_NAV} />
 
           <div className="flex-1 min-w-0">
@@ -106,12 +106,12 @@ export default async function HowToEnrolPage() {
             <div className="mt-10 space-y-6">
               {STEPS.map(({ n, icon: Icon, title, body, cta }, i) => (
                 <AnimateIn key={n} delay={i * 0.08}>
-                  <div className="bg-white rounded-2xl border border-border p-6 sm:p-8 flex gap-6 items-start hover:shadow-card-hover transition-shadow">
-                    <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                  <div className="bg-white rounded-2xl border border-border p-5 sm:p-7 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start hover:shadow-card-hover transition-shadow">
+                    <div className="flex sm:flex-col flex-row items-center gap-3 sm:gap-2 flex-shrink-0">
                       <span className="text-xs font-extrabold text-accent/60 tracking-widest">
                         {n}
                       </span>
-                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Icon
                           className="w-5 h-5 text-primary"
                           aria-hidden="true"

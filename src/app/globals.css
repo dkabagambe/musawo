@@ -121,6 +121,16 @@
   h5,
   h6 {
     @apply text-primary font-bold tracking-tight;
+    overflow-wrap: anywhere;
+  }
+
+  p, li, td, th {
+    overflow-wrap: anywhere;
+  }
+
+  /* Prevent iOS from zooming on input focus — all inputs must be >= 16px */
+  input, select, textarea {
+    font-size: max(16px, 1em);
   }
 
   a {
@@ -1109,11 +1119,11 @@
   .portal-mobile-menu { display: inline-flex; }
   .portal-content { padding: 16px; }
   .portal-scrim {
-    position: fixed; inset: 0; z-index: 40; display: block; border: 0;
+    position: fixed; top: var(--banner-h, 0px); bottom: 0; left: 0; right: 0; z-index: 40; display: block; border: 0;
     background: rgb(17 24 39 / 0.48);
   }
   .portal-mobile-drawer {
-    position: fixed; inset: 0 auto 0 0; z-index: 50; display: block;
+    position: fixed; top: var(--banner-h, 0px); bottom: 0; left: 0; right: auto; z-index: 50; display: block;
     width: min(280px, calc(100vw - 48px));
     transform: translateX(-102%); visibility: hidden;
     transition: transform 180ms ease, visibility 180ms;
@@ -1365,7 +1375,7 @@
 
   /* ── Side nav layout (with sticky side nav) ───────────────────── */
   .sidenav-layout {
-    @apply flex gap-12 items-start;
+    @apply flex flex-col lg:flex-row gap-8 lg:gap-12 items-start;
   }
 
   /* ── Divider ───────────────────────────────────────────────────── */
@@ -1418,6 +1428,26 @@
   .animate-on-scroll.is-visible {
     @apply opacity-100 translate-y-0;
   }
+}
+
+/* ── Responsive table scroll ───────────────────────────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.table-scroll table {
+  min-width: 540px;
+}
+
+/* ── WhatsApp FAB clearance ────────────────────────────────────────────────── */
+/* Add to any page that shows the floating WhatsApp button so text isn't hidden
+   under it on mobile. Footer already uses pb-[88px] sm:pb-6 for this. */
+.whatsapp-page-padding {
+  padding-bottom: 80px;
+}
+@media (min-width: 640px) {
+  .whatsapp-page-padding { padding-bottom: 0; }
 }
 
 /* ── Global keyframes ──────────────────────────────────────────── */
