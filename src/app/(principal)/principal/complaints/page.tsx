@@ -15,7 +15,14 @@ export default async function PrincipalComplaintsPage({ searchParams }: Props) {
   if (!session?.user || !can(session.user.role, "support.view")) redirect("/login");
 
   const statusFilter = searchParams.status;
-  const where = statusFilter ? { status: statusFilter as never } : {};
+
+  const VALID_STATUSES = new Set(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]);
+  const where =
+    statusFilter && VALID_STATUSES.has(statusFilter)
+      ? { status: statusFilter as "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED" }
+      : statusFilter === "ALL"
+      ? {}
+      : { status: { in: ["OPEN", "IN_PROGRESS"] as ("OPEN" | "IN_PROGRESS")[] } };
 
   const [tickets, openCount] = await Promise.all([
     db.supportTicket.findMany({
@@ -38,13 +45,13 @@ export default async function PrincipalComplaintsPage({ searchParams }: Props) {
   };
 
   const STATUSES = [
-    { label: `Open (${openCount})`, value: "" },
+    { label: `Open (${openCount})`, value: "OPEN" },
     { label: "In progress",         value: "IN_PROGRESS" },
     { label: "Resolved",            value: "RESOLVED" },
     { label: "All",                 value: "ALL" },
   ];
 
-  const filtered = statusFilter === "ALL" ? tickets : tickets;
+  const filtered = tickets;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -57,9 +64,9 @@ export default async function PrincipalComplaintsPage({ searchParams }: Props) {
         {STATUSES.map((s) => (
           <Link
             key={s.value}
-            href={`/principal/complaints${s.value ? `?status=${s.value}` : ""}`}
+            href={`/principal/complaints?status=${s.value}`}
             className={`px-4 py-2 rounded-xl text-sm font-medium no-underline transition-colors ${
-              (statusFilter ?? "") === s.value
+              (statusFilter ?? "OPEN") === s.value
                 ? "bg-primary text-white"
                 : "text-gray-500 hover:bg-surface"
             }`}
@@ -79,7 +86,7 @@ export default async function PrincipalComplaintsPage({ searchParams }: Props) {
           {filtered.map((t) => (
             <Link
               key={t.id}
-              href={`/principal/support`}
+              href={`/principal/support?ticketId=${t.id}`}
               className="card flex items-start gap-4 hover:shadow-md transition-shadow no-underline block"
             >
               <div className="flex-1 min-w-0">

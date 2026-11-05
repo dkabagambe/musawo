@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
+import ToggleStatusButton from "./ToggleStatusButton";
 export const dynamic = "force-dynamic";
 
 
@@ -101,32 +102,3 @@ export default async function AdminCoursesPage() {
   );
 }
 
-// Inline client component for toggling publish status
-function ToggleStatusButton({
-  courseId,
-  currentStatus,
-}: {
-  courseId: string;
-  currentStatus: string;
-}) {
-  const nextStatus = currentStatus === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
-  const label = currentStatus === "PUBLISHED" ? "Unpublish" : "Publish";
-  return (
-    <form
-      action={`/api/admin/courses/${courseId}`}
-      method="POST"
-      className="inline"
-    >
-      <input type="hidden" name="_method" value="PATCH" />
-      <input type="hidden" name="status" value={nextStatus} />
-      <button
-        type="submit"
-        className={`text-xs no-underline hover:underline ${
-          currentStatus === "PUBLISHED" ? "text-danger" : "text-success"
-        }`}
-      >
-        {label}
-      </button>
-    </form>
-  );
-}

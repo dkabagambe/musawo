@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
+import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export const metadata = { title: "Notifications - Director" };
 
 export default async function DirectorNotificationsPage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user || !can(session.user.role, "approvals.decide")) redirect("/login");
 
   const [notifications, unreadCount] = await Promise.all([
     db.notification.findMany({

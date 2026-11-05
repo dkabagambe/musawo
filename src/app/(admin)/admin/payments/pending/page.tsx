@@ -1,3 +1,6 @@
+import { auth } from "@/lib/auth/server";
+import { redirect } from "next/navigation";
+import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { getPresignedDownloadUrl } from "@/lib/s3";
 import ApprovePaymentButtons from "./ApproveButtons";
@@ -7,6 +10,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Pending Bank Payments" };
 
 export default async function PendingPaymentsPage() {
+  const session = await auth();
+  if (!session?.user || !can(session.user.role, "payments.view")) redirect("/login");
   const pending = await db.payment.findMany({
     where: { status: "PENDING_APPROVAL", method: "BANK_TRANSFER" },
     include: {

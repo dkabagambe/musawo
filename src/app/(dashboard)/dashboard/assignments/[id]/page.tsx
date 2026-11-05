@@ -1,82 +1,119 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { auth } from "@/lib/auth/server";
+import { redirect, notFound } from "next/navigation";
+import { db } from "@/lib/db";
 import Link from "next/link";
-import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import AssignmentSubmitForm from "./AssignmentSubmitForm";
 
-export default function AssignmentSubmitPage() {
-  const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const [text, setText]       = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone]       = useState(false);
-  const [error, setError]     = useState("");
+export const dynamic = "force-dynamic";
 
-  if (done) {
-    return (
-      <div className="max-w-2xl mx-auto card text-center py-12">
-        <CheckCircle2 className="w-12 h-12 text-success mx-auto mb-3" aria-hidden="true" />
-        <h1 className="text-xl font-bold text-primary mb-2">Assignment submitted!</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          Your tutor will review and grade it. You&apos;ll see the result in your Gradebook.
-        </p>
-        <Link href="/dashboard/assignments" className="btn-secondary no-underline text-sm">
-          Back to assignments
-        </Link>
-      </div>
-    );
-  }
+interface Props {
+  params: { id: string };
+}
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!text.trim()) { setError("Please write your answer before submitting."); return; }
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/assignments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignmentId: params.id, textBody: text }),
-      });
-      const data = await res.json() as { error?: string };
-      if (!res.ok) { setError(data.error ?? "Submission failed."); return; }
-      setDone(true);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
+export async function generateMetadata({ params }: Props) {
+  const assignment = await db.assignment.findUnique({
+    where: { id: params.id },
+    select: { title: true },
+  });
+  return { title: assignment ? `${assignment.title} — Submit` : "Submit Assignment" };
+}
+
+export default async function AssignmentSubmitPage({ params }: Props) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  const assignment = await db.assignment.findUnique({
+    where: { id: params.id, status: "PUBLISHED" },
+    include: {
+      course: { select: { title: true } },
+    },
+  });
+
+  if (!assignment) notFound();
+
+  // Verify the student is enrolled in the course
+  const enrolled = await db.enrolment.findFirst({
+    where: {
+      userId:   session.user.id,
+      courseId: assignment.courseId,
+      status:   { in: ["ACTIVE", "COMPLETED"] },
+    },
+    select: { id: true },
+  });
+  if (!enrolled) redirect("/403");
+
+  // Load any existing submission
+  const existingSubmission = await db.assignmentSubmission.findUnique({
+    where: {
+      assignmentId_userId: { assignmentId: assignment.id, userId: session.user.id },
+    },
+    select: { textBody: true, status: true, grade: true, feedback: true },
+  });
+
+  const isPastDeadline = assignment.dueDate && assignment.dueDate < new Date();
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Link href="/dashboard/assignments" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-6 no-underline">
+      <Link
+        href="/dashboard/assignments"
+        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-6 no-underline"
+      >
         <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to assignments
       </Link>
-      <h1 className="text-2xl font-bold text-primary mb-6">Submit assignment</h1>
 
-      {error && (
-        <div role="alert" className="auth-banner-error mb-4">{error}</div>
+      {/* Assignment details */}
+      <div className="mb-6">
+        <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+          {assignment.course.title}
+        </p>
+        <h1 className="text-2xl font-bold text-primary mb-2">{assignment.title}</h1>
+
+        {assignment.dueDate && (
+          <p className={`text-sm mb-3 ${isPastDeadline ? "text-danger font-medium" : "text-gray-500"}`}>
+            {isPastDeadline ? "⚠️ Deadline passed: " : "Due: "}
+            {new Date(assignment.dueDate).toLocaleString("en-UG")}
+          </p>
+        )}
+
+        {assignment.instructions && (
+          <div className="card bg-surface/60 p-4 mb-4">
+            <h2 className="text-sm font-semibold text-gray-700 mb-2">Instructions</h2>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{assignment.instructions}</p>
+          </div>
+        )}
+
+        <p className="text-xs text-gray-400">
+          Max score: <span className="font-semibold">{assignment.maxPoints} points</span>
+        </p>
+      </div>
+
+      {/* Grade & feedback (if already graded) */}
+      {existingSubmission?.grade != null && (
+        <div className="card bg-success/5 border-success/30 mb-6">
+          <p className="text-sm font-semibold text-green-800 mb-1">
+            Graded: {existingSubmission.grade} / {assignment.maxPoints}
+          </p>
+          {existingSubmission.feedback && (
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              {existingSubmission.feedback}
+            </p>
+          )}
+        </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card p-6">
-        <label htmlFor="answer" className="label">Your answer</label>
-        <textarea
-          id="answer"
-          rows={12}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="input py-3 resize-y mb-4"
-          placeholder="Type your answer here…"
-          required
+      {isPastDeadline && !existingSubmission ? (
+        <div className="card text-center py-10">
+          <p className="text-3xl mb-3" aria-hidden="true">⏰</p>
+          <p className="text-gray-700 font-medium">The deadline for this assignment has passed.</p>
+          <p className="text-sm text-gray-500 mt-1">Submissions are no longer accepted.</p>
+        </div>
+      ) : (
+        <AssignmentSubmitForm
+          assignmentId={assignment.id}
+          existingSubmission={existingSubmission}
         />
-        <p className="text-xs text-gray-400 mb-4">{text.length} characters</p>
-        <button type="submit" disabled={loading} className="auth-btn-primary">
-          {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
-          {loading ? "Submitting…" : "Submit assignment"}
-        </button>
-      </form>
+      )}
     </div>
   );
 }

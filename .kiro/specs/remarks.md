@@ -184,3 +184,83 @@ STEP 2: website cleanup (the new section of remarks.md)
 - FAQ, exactly three short items: (1) What do I need to study? A smartphone or a laptop. (2) Are the classes really hands-on? Yes: online classes and physical practical sessions. (3) Who can apply? Each course has its own eligibility criteria; check the course page for details.
 - Update unit and Playwright tests (navbar tabs, consent required, FAQ, no stats, no downloads wording), run tsc and the full suite (DB-dependent ones may fail from environment; say so), update docs/PROGRESS.md.
   ---------------------------------END----------------------------------
+
+• Errors Summary (ERROR_RISK + NO AUTH only)
+
+─────────────────────────────────────────────────────────────────────────
+
+🔐 NO AUTH — Security (2 issues)
+
+┌──────────────────────────┬────────────────────────────────────────┐
+│ Page │ Problem │
+├──────────────────────────┼────────────────────────────────────────┤
+│ /admin/payments/pending │ No auth() call at all. Anyone on the │
+│ │ internet can access pending bank │
+│ │ payment data and download student │
+│ │ payment receipts via S3 links. │
+├─────────────────────────┼─────────────────────────────────────────┤
+│ /director/notifications │ No can() RBAC check — any logged-in │
+│ │ user who navigates here directly can │
+│ │ read the Director's notifications. │
+└─────────────────────────┴─────────────────────────────────────────┘
+
+─────────────────────────────────────────────────────────────────────────
+
+🔴 ERROR_RISK — Crashes / Broken Actions (10 issues)
+
+┌───────────────────────┬───────────────────────────────────────────┐
+│ Page │ Problem │
+├───────────────────────┼───────────────────────────────────────────┤
+│ /principal/complaints │ "All" tab passes status: "ALL" to Prisma │
+│ │ — "ALL" is not a valid enum value. Page │
+│ │ crashes every time that tab is clicked. │
+├───────────────────────┼───────────────────────────────────────────┤
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /director/finance │ Reads p.enrolment.user.name without │
+│ │ null-checking. One orphaned payment │
+│ │ row (deleted enrolment) crashes the │
+│ │ entire page with a TypeError. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /director/finance/approvals │ Same null-dereference — │
+│ │ e.enrolment.course.title — crashes │
+│ │ on any orphaned record. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /director/finance/ledger │ Same null-dereference pattern — │
+│ │ crashes on orphaned ledger entries. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /principal/equipment │ ApprovalDecisionForm is imported │
+│ │ from the public token-approval │
+│ │ route. It posts to the wrong API │
+│ │ endpoint — all approval buttons on │
+│ │ this page are broken and do │
+│ │ nothing. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /admin/courses │ Publish/Unpublish button uses │
+│ │ \_method=PATCH in a POST form. │
+│ │ Next.js ignores method overrides — │
+│ │ the toggle silently does nothing. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /admin/documents │ Queries db.studentDocument which │
+│ │ does not exist in the Prisma │
+│ │ schema. Page always renders empty — │
+│ │ the entire Student Documents │
+│ │ feature is non-functional. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /dashboard/assignments/[id] │ Pure "use client" component with no │
+│ │ server-side auth check. Student │
+│ │ submits without ever seeing the │
+│ │ assignment title, description, or │
+│ │ deadline — submitting completely │
+│ │ blind. │
+├─────────────────────────────┼─────────────────────────────────────┤
+│ /director/storage │ Raw $queryRaw on │
+│ │ storage_cleanup_jobs table. If the │
+│ │ table wasn't migrated, the entire │
+│ │ page throws and crashes. │
+└─────────────────────────────┴─────────────────────────────────────┘
+
+─────────────────────────────────────────────────────────────────────────
+
+Total: 12 errors (2 security + 10 broken pages/actions). The most urgent
+fix is /admin/payments/pending — it's a public page serving sensitive
+financial data.

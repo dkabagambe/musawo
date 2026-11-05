@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
-import ApprovalDecisionForm from "@/app/approval/[token]/ApprovalDecisionForm";
+import ApprovalDecisionForm from "@/app/(principal)/principal/ApprovalDecisionForm";
 export const dynamic = "force-dynamic";
 
 
