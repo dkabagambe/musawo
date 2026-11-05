@@ -242,7 +242,18 @@ export default async function HomePage() {
                           </>
                         )}
                       </div>
-
+                      <Link
+                        href={`/apply?course=${c.slug}`}
+                        className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-600
+                                   text-white text-xs font-bold px-4 py-2.5 rounded-xl
+                                   no-underline transition-colors flex-shrink-0"
+                      >
+                        Apply{" "}
+                        <ArrowRight
+                          className="w-3.5 h-3.5"
+                          aria-hidden="true"
+                        />
+                      </Link>
                     </div>
                   </div>
                 </article>
