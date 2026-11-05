@@ -71,7 +71,12 @@ const config: Config = {
         mono:    ["JetBrains Mono", "Fira Code", "monospace"],
       },
       screens: {
-        xs: "375px",
+        xs:  "375px",   // large phones
+        // Tailwind defaults: sm=640 md=768 lg=1024 xl=1280 2xl=1536
+        // Extended for wide / ultra-wide / presentation / 4K screens:
+        "3xl": "1920px", // Full HD / 1080p monitors, office desktops
+        "4xl": "2560px", // 2K / QHD / wide presentations
+        "5xl": "3840px", // 4K / UHD displays
       },
       borderRadius: {
         widget: "8px",
