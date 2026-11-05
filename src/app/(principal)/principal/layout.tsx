@@ -28,6 +28,7 @@ const NAV: NavItem[] = [
   { href: "/principal/certificates",     label: "Certificates",           icon: <Award className="w-4 h-4" /> },
   { href: "/principal/materials",        label: "Learning Materials",     icon: <FileText className="w-4 h-4" /> },
   { href: "/principal/announcements",    label: "Announcements",          icon: <Megaphone className="w-4 h-4" /> },
+  { href: "/principal/messages",        label: "Messages",               icon: <MessageSquare className="w-4 h-4" /> },
   { href: "/principal/finance",          label: "Finance & Fees",         icon: <CreditCard className="w-4 h-4" /> },
   { href: "/principal/reports",          label: "Reports & Analytics",    icon: <BarChart2 className="w-4 h-4" /> },
   { href: "/principal/approval-tracking", label: "Approval Tracking",    icon: <ApprovalIcon className="w-4 h-4" /> },

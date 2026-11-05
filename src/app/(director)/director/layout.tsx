@@ -6,6 +6,7 @@ import {
   LayoutDashboard, ClipboardCheck, BarChart2, Search, Users, GraduationCap,
   BookOpen, Library, ClipboardList, Award, Bell, User, Settings, HardDrive,
   CreditCard, UserCog, ShieldCheck, GraduationCap as GradCapIcon, FileText,
+  Megaphone, MessageSquare,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -25,6 +26,8 @@ const NAV: NavItem[] = [
   { href: "/director/examinations",   label: "Examinations & Results", icon: <ClipboardList className="w-4 h-4" /> },
   { href: "/director/certificates",   label: "Certificates",           icon: <Award className="w-4 h-4" /> },
   { href: "/director/policies",       label: "Policies & Settings",    icon: <FileText className="w-4 h-4" /> },
+  { href: "/director/announcements", label: "Announcements",          icon: <Megaphone className="w-4 h-4" /> },
+  { href: "/director/messages",      label: "Messages",              icon: <MessageSquare className="w-4 h-4" /> },
   { href: "/director/notifications",  label: "Notifications",          icon: <Bell className="w-4 h-4" /> },
   { href: "/director/storage",        label: "Storage",                icon: <HardDrive className="w-4 h-4" /> },
   { href: "/director/profile",        label: "Profile & Settings",     icon: <User className="w-4 h-4" /> },

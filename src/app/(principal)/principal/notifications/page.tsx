@@ -31,6 +31,7 @@ export default async function PrincipalNotificationsPage() {
     SYSTEM_ALERT:      "⚠️",
     ANNOUNCEMENT:      "📢",
     STAFF_INVITE:      "👤",
+    DIRECT_MESSAGE:    "✉️",
   };
 
   return (

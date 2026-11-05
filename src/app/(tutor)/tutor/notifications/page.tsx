@@ -24,6 +24,7 @@ export default async function TutorNotificationsPage() {
     MARKS_CHANGE:   "📝",
     SYSTEM_ALERT:   "⚠️",
     ANNOUNCEMENT:   "📢",
+    DIRECT_MESSAGE: "✉️",
   };
 
   return (

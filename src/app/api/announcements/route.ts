@@ -35,7 +35,12 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({ announcements });
 }
 
-const CreateSchema = z.object({ courseId: z.string().cuid(), title: z.string().min(3).max(160), body: z.string().min(3).max(10000) });
+const CreateSchema = z.object({
+  courseId: z.string().cuid().optional(),
+  title: z.string().min(3).max(160),
+  body: z.string().min(3).max(10000),
+  pinned: z.boolean().optional(),
+});
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -43,10 +48,40 @@ export async function POST(req: NextRequest) {
   const parsed = CreateSchema.safeParse(await req.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid announcement" }, { status: 400 });
 
+  const isSiteWide = !parsed.data.courseId;
   const ownClassPermission = can(session.user.role, "announcements.send.own");
   const allClassPermission = can(session.user.role, "announcements.send.all");
   if (!ownClassPermission && !allClassPermission) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  if (ownClassPermission && !allClassPermission && !await canAccessTeachingCourse(parsed.data.courseId, session.user.id)) {
+
+  // ── Site-wide announcement (Director / Principal) ────────────────────────
+  if (isSiteWide) {
+    if (!allClassPermission) return NextResponse.json({ error: "Only the Principal or Director can send institution-wide announcements." }, { status: 403 });
+    try { requirePermission(session.user.role, "announcements.send.all"); }
+    catch (error) { if (error instanceof ForbiddenError) return NextResponse.json({ error: error.message }, { status: 403 }); throw error; }
+
+    const recipients = await db.user.findMany({
+      where: { status: "ACTIVE" },
+      select: { id: true },
+    });
+    const announcement = await db.$transaction(async (tx) => {
+      const created = await tx.announcement.create({
+        data: { courseId: null, authorId: session.user.id, title: parsed.data.title, body: parsed.data.body, pinned: parsed.data.pinned ?? false },
+      });
+      if (recipients.length) await tx.notification.createMany({
+        data: recipients.map(({ id: userId }) => ({
+          userId, channel: "IN_APP" as const, type: "ANNOUNCEMENT",
+          subject: parsed.data.title, body: parsed.data.body,
+          metadata: { announcementId: created.id, scope: "ALL" },
+        })),
+      });
+      return created;
+    });
+    await audit({ actorId: session.user.id, action: "CREATE", entityType: "Announcement", entityId: announcement.id, metadata: { siteWide: true, recipientCount: recipients.length } });
+    return NextResponse.json({ announcement, recipientCount: recipients.length }, { status: 201 });
+  }
+
+  // ── Course-specific announcement (Instructor / Admin) ────────────────────
+  if (ownClassPermission && !allClassPermission && !await canAccessTeachingCourse(parsed.data.courseId!, session.user.id)) {
     return NextResponse.json({ error: "You can only announce to an assigned course." }, { status: 403 });
   }
   try { requirePermission(session.user.role, ownClassPermission ? "announcements.send.own" : "announcements.send.all"); }
@@ -59,7 +94,7 @@ export async function POST(req: NextRequest) {
     select: { userId: true },
   });
   const announcement = await db.$transaction(async (tx) => {
-    const created = await tx.announcement.create({ data: { courseId: course.id, authorId: session.user.id, title: parsed.data.title, body: parsed.data.body } });
+    const created = await tx.announcement.create({ data: { courseId: course.id, authorId: session.user.id, title: parsed.data.title, body: parsed.data.body, pinned: parsed.data.pinned ?? false } });
     if (recipients.length) await tx.notification.createMany({ data: recipients.map(({ userId }) => ({ userId, channel: "IN_APP" as const, type: "COURSE_ANNOUNCEMENT", subject: parsed.data.title, body: parsed.data.body, metadata: { courseId: course.id, announcementId: created.id } })) });
     return created;
   });

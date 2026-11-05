@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
+import SiteAnnouncementComposer from "@/components/dashboard/SiteAnnouncementComposer";
+
 export const dynamic = "force-dynamic";
 
 
@@ -12,37 +14,31 @@ export default async function PrincipalAnnouncementsPage() {
   if (!session?.user || !can(session.user.role, "announcements.send.all"))
     redirect("/principal");
 
-  const recent = await db.auditLog.findMany({
-    where: { entityType: "Announcement" },
-    orderBy: { createdAt: "desc" },
+  const announcements = await db.announcement.findMany({
+    where: { courseId: null },
+    orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
     take: 20,
-    include: { actor: { select: { name: true } } },
+    include: { author: { select: { name: true } } },
   });
 
+  const initial = announcements.map((a) => ({
+    id: a.id,
+    title: a.title,
+    body: a.body,
+    pinned: a.pinned,
+    createdAt: a.createdAt.toISOString(),
+    authorName: a.author?.name ?? undefined,
+  }));
+
   return (
-    <main className="portal-page">
+    <main className="max-w-4xl mx-auto space-y-6">
       <div className="portal-page-header">
         <h1 className="portal-page-title">Announcements</h1>
         <p className="portal-page-subtitle">
-          Institution-wide announcements sent by you or delegated staff.
+          Send institution-wide announcements. Every active user receives a notification.
         </p>
       </div>
-
-      {recent.length === 0 ? (
-        <p className="portal-empty-state">No announcements have been logged yet.</p>
-      ) : (
-        <div className="portal-list">
-          {recent.map((entry) => (
-            <div key={entry.id} className="portal-list-item">
-              <span className="portal-list-item-title">{entry.entityId}</span>
-              <span className="portal-list-item-meta">
-                {entry.actor?.name ?? "Unknown"} &mdash;{" "}
-                {new Date(entry.createdAt).toLocaleDateString("en-GB")}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      <SiteAnnouncementComposer initial={initial} />
     </main>
   );
 }

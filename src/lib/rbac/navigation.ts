@@ -50,6 +50,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/principal/reports", permissions: ["reports.academic"] },
   { prefix: "/principal/audit", permissions: ["audit.view"] },
   { prefix: "/principal/announcements", permissions: ["announcements.send.all"] },
+  { prefix: "/principal/messages",     permissions: ["messaging.send"] },
   { prefix: "/principal/delegation", permissions: ["courses.publish"] },
   { prefix: "/principal", permissions: ["content.approve"] },
   // /deputy, /finance, /bursar route groups removed (roles eliminated in remarks.md section 1)
@@ -74,6 +75,8 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/director/access-review",  permissions: ["access_review.view"] },
   { prefix: "/director/graduates",      permissions: ["graduates.view"] },
   { prefix: "/director/policies",       permissions: ["policies.view", "policies.edit"] },
+  { prefix: "/director/announcements",  permissions: ["announcements.send.all"] },
+  { prefix: "/director/messages",      permissions: ["messaging.send"] },
   { prefix: "/director/audit",          permissions: ["audit.view"] },
   { prefix: "/director",                permissions: ["approvals.decide"] },
   // /board, /auditor route groups removed (roles eliminated in remarks.md section 1)

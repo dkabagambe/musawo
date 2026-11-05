@@ -29,6 +29,8 @@ export default async function DirectorNotificationsPage() {
     CLASS_REMINDER:     "📅",
     PAYMENT_RECEIPT:    "💳",
     SYSTEM_ALERT:       "⚠️",
+    DIRECT_MESSAGE:     "✉️",
+    ANNOUNCEMENT:       "📢",
   };
 
   return (

@@ -18,7 +18,8 @@ export const dynamic = "force-dynamic";
 const TYPE_ICON: Record<string, string> = {
   EXAM_RESULT: "📋", CLASS_REMINDER: "📹", PAYMENT_REMINDER: "💳",
   WELCOME: "👋", CERTIFICATE_READY: "🎓", CLAIM_SUBMITTED: "📨",
-  APPROVAL_NEEDED: "📋", EXAM_REVIEW: "✏️",
+  APPROVAL_NEEDED: "📋", EXAM_REVIEW: "✏️", DIRECT_MESSAGE: "✉️",
+  ANNOUNCEMENT: "📢", COURSE_ANNOUNCEMENT: "📢",
 };
 
 export default function NotificationsPage() {

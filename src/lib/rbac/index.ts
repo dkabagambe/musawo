@@ -149,6 +149,7 @@ export type Permission =
 
   // Messaging
   | "messaging.students.own"    // Instructor chats with own students
+  | "messaging.send"            // Director / Principal sends a direct message to any user
 
   // Staff accounts (Admin creates and manages; Director assigns Director/Principal)
   | "staff.view"
@@ -302,6 +303,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "policies.edit",
     // Announcements (read)
     "announcements.send.all",
+    // Messaging (direct message to any user)
+    "messaging.send",
     // Support
     "support.submit",
     "support.view",
@@ -367,6 +370,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     // Announcements (institution-wide)
     "announcements.send.all",
     "announcements.manage",
+    // Messaging (direct message to any user)
+    "messaging.send",
     // Staff (creates staff below Director level; Director assigns Director/Principal)
     "staff.view",
     "staff.create.initiate",
