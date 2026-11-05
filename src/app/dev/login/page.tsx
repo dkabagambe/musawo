@@ -7,7 +7,7 @@ export const metadata = { title: "Demo Accounts - Dev Login" };
 
 const DEMO_ACCOUNTS = [
   {
-    label: "Director",
+    label: "Director (Dr. Mathias Senyondo)",
     email: "director@mtc.ac.ug",
     role: "DIRECTOR",
     landing: "/director",
@@ -35,7 +35,7 @@ const DEMO_ACCOUNTS = [
     icon: "🔒",
   },
   {
-    label: "IT Admin",
+    label: "IT Admin (Daniel Kabagambe)",
     email: "itadmin@mtc.ac.ug",
     role: "SYSTEM_IT",
     landing: "/system",
