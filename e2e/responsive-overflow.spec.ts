@@ -12,7 +12,7 @@
 
 import { test, expect } from "@playwright/test";
 
-const WIDTHS = [320, 375, 414];
+const WIDTHS = [320, 375, 414, 768, 1024];
 
 const PUBLIC_PAGES = [
   "/",

@@ -1106,6 +1106,10 @@
   .portal-user-button { justify-content: center; padding: 4px 0; }
   .portal-user-menu { left: 60px; bottom: 4px; }
   .portal-mobile-menu { display: inline-flex; }
+  /* Tab bar scrolls horizontally at tablet when tabs overflow */
+  .portal-tabbar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Slightly tighter content padding at tablet */
+  .portal-content { padding: 20px; }
   /* Tab bar moves to its own row */
   .dashboard-page-header { flex-wrap: wrap; }
   .dashboard-page-header h1 { flex: 1; }
@@ -1375,7 +1379,7 @@
 
   /* ── Side nav layout (with sticky side nav) ───────────────────── */
   .sidenav-layout {
-    @apply flex flex-col lg:flex-row gap-8 lg:gap-12 items-start;
+    @apply flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12 items-start;
   }
 
   /* ── Divider ───────────────────────────────────────────────────── */

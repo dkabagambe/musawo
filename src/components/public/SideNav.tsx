@@ -30,9 +30,9 @@ export default function SideNav({ items, title }: SideNavProps) {
 
   return (
     <>
-      {/* ── Desktop side nav ──────────────────────────────────────── */}
+      {/* ── Desktop side nav (md = 768px+) ───────────────────────── */}
       <nav
-        className="hidden lg:block sticky top-[calc(var(--banner-h,0px)+100px)] w-56 flex-shrink-0"
+        className="hidden md:block sticky top-[calc(var(--banner-h,0px)+100px)] w-48 lg:w-56 flex-shrink-0"
         aria-label={`${title} navigation`}
       >
         <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3 px-3">
@@ -68,8 +68,8 @@ export default function SideNav({ items, title }: SideNavProps) {
         </ul>
       </nav>
 
-      {/* ── Mobile chip strip (accordion) ─────────────────────────── */}
-      <div className="lg:hidden mb-8">
+      {/* ── Mobile chip strip — below md only ──────────────────────── */}
+      <div className="md:hidden mb-6">
         <button
           type="button"
           aria-expanded={open}
