@@ -32,7 +32,7 @@ export default async function SupportPage() {
           <h1 className="text-2xl">Student Support</h1>
           <p className="text-sm text-gray-500 mt-1">
             Need help? Our team responds within 1 business day. You can also reach us on{" "}
-            <a href="tel:+256700000000" className="text-accent">+256 700 000000</a>.
+            <a href="tel:+256709184468" className="text-accent">+256 709 184 468</a>.
           </p>
         </div>
       </div>

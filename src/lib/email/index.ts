@@ -51,7 +51,7 @@ function renderTemplate(
       <h2>Welcome to Musawo Training Center, {{name}}!</h2>
       <p>Your account has been created. You can now log in and start learning.</p>
       <p><a href="{{loginUrl}}">Log in now</a></p>
-      <p>If you have any questions, email us at info@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have any questions, email us at info@mtc.ac.ug or call +256 709 184 468.</p>
     `,
     "email-verification": `
       <h2>Verify your email address</h2>
@@ -80,7 +80,7 @@ function renderTemplate(
       <p>Your student number is: <strong>{{studentNumber}}</strong></p>
       <p>Course: {{courseName}}</p>
       <p>If your details are not correct, use the "These details are wrong" option on the activation page and the Registrar will be notified.</p>
-      <p>If you have questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have questions, contact us at admissions@mtc.ac.ug or call +256 709 184 468.</p>
     `,
     "staff-invite": `
       <h2>You have been invited to join Musawo Training Center</h2>
@@ -100,7 +100,7 @@ function renderTemplate(
       <p><strong>{{courseName}}</strong> ({{intakeLabel}} intake)</p>
       <p>Our Academic Registrar will review your application. If you are accepted, you will receive a secure account activation link by email within 3 to 5 working days.</p>
       <p>Your application reference: <strong>{{applicationRef}}</strong></p>
-      <p>If you have questions, email admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have questions, email admissions@mtc.ac.ug or call +256 709 184 468.</p>
     `,
     "application-received-registrar": `
       <h2>New application received</h2>
@@ -121,7 +121,7 @@ function renderTemplate(
       <p>We have received your payment of <strong>{{amount}}</strong> on {{date}}.</p>
       <p>Reference: <strong>{{paymentRef}}</strong></p>
       <p>You can now access your course. <a href="{{portalUrl}}">Go to your dashboard</a></p>
-      <p>We do not provide accommodation. Contact us at info@mtc.ac.ug or 0709 184 468 if you have questions.</p>
+      <p>We do not provide accommodation. Contact us at info@mtc.ac.ug or +256 709 184 468 if you have questions.</p>
     `,
     "class-reminder": `
       <h2>Reminder: Live class in {{timeUntil}}</h2>
@@ -186,7 +186,7 @@ function renderTemplate(
       </p>
       <p>Intake: <strong>{{intakeLabel}}</strong></p>
       <p>Course fee: <strong>{{feeUgx}}</strong></p>
-      <p>If you have any questions, contact us at admissions@mtc.ac.ug or call 0709 184 468.</p>
+      <p>If you have any questions, contact us at admissions@mtc.ac.ug or call +256 709 184 468.</p>
     `,
     "application-rejected": `
       <h2>Update on your application - Musawo Training Center</h2>
@@ -258,7 +258,7 @@ function renderTemplate(
       <p style="font-size: 12px; color: #6B7280;">
         Musawo Training Center - Lugala Trading Center, Lubaga Division, Kampala<br />
         <a href="mailto:info@mtc.ac.ug">info@mtc.ac.ug</a> |
-        <a href="tel:+256709184468">0709 184 468</a> |
+        <a href="tel:+256709184468">+256 709 184 468</a> |
         <a href="https://wa.me/256709184468">WhatsApp</a> |
         <a href="https://www.musawo.ug">www.musawo.ug</a>
       </p>

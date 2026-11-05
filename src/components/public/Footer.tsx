@@ -214,38 +214,26 @@ export default async function PublicFooter() {
                 </li>
                 <li>
                   <a
-                    href={`mailto:${contact.email}`}
+                    href="mailto:info@mtc.ac.ug"
                     className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                   >
                     <Mail
                       className="w-4 h-4 flex-shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
-                    {contact.email}
+                    info@mtc.ac.ug
                   </a>
                 </li>
                 <li>
                   <a
-                    href={`tel:+256709184468`}
+                    href="tel:+256709184468"
                     className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
                   >
                     <Phone
                       className="w-4 h-4 flex-shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
-                    {contact.phone}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`tel:+256790192270`}
-                    className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
-                  >
-                    <Phone
-                      className="w-4 h-4 flex-shrink-0 mt-0.5"
-                      aria-hidden="true"
-                    />
-                    0790 192 270
+                    +256 709 184 468
                   </a>
                 </li>
               </ul>
@@ -293,7 +281,7 @@ export default async function PublicFooter() {
                         className="w-4 h-4 flex-shrink-0 mt-0.5"
                         aria-hidden="true"
                       />
-                      {contact.phone}
+                      +256 709 184 468
                     </a>
                   </li>
                   <li>
@@ -313,7 +301,7 @@ export default async function PublicFooter() {
                     </a>
                   </li>
                   <li className="text-white/50 text-xs leading-snug">
-                    Mon to Fri, 8 am to 6 pm EAT.
+                    Open every day, 8 am to 5 pm EAT.
                   </li>
                 </ul>
               </div>

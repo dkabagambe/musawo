@@ -54,7 +54,7 @@ export default function FaqContent({ whatsappUrl }: { whatsappUrl: string }) {
 
       <div className="bg-primary rounded-2xl p-8 text-center text-white mt-8">
         <p className="font-bold text-lg mb-2">Still have questions?</p>
-        <p className="text-white/70 text-sm mb-5">Our admissions team is on WhatsApp Monday to Saturday, 8 am to 6 pm.</p>
+        <p className="text-white/70 text-sm mb-5">Our admissions team is on WhatsApp every day, 8 am to 5 pm.</p>
         <a
           href={whatsappUrl}
           target="_blank"

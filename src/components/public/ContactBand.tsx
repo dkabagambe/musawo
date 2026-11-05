@@ -63,7 +63,7 @@ export default function ContactBand({
             <div>
               <p className="font-bold text-primary text-base mb-1">Call or WhatsApp us</p>
               <p className="text-sm text-gray-500 leading-relaxed">
-                0709 184 468. Mon to Fri, 8 am to 6 pm EAT.
+                +256 709 184 468. Open every day, 8 am to 5 pm EAT.
               </p>
             </div>
           </a>

@@ -27,8 +27,8 @@ export async function getContactInfo(): Promise<ContactInfo> {
   ] = await Promise.all([
     getSetting("site.supportEmail",    "info@mtc.ac.ug"),
     getSetting("site.admissionsEmail", "admissions@mtc.ac.ug"),
-    getSetting("site.supportPhone",    "0709 184 468"),
-    getSetting("site.supportPhone2",   "0790 192 270"),
+    getSetting("site.supportPhone",    "+256709184468"),
+    getSetting("site.supportPhone2",   ""),
     getSetting("site.whatsappNumber",  "256709184468"),
     getSetting(
       "site.address",

@@ -83,13 +83,13 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   },
   {
     key: "site.supportPhone",
-    value: "0709 184 468",
-    description: "Primary phone (display)",
+    value: "+256709184468",
+    description: "Primary phone (display, E.164 format)",
   },
   {
     key: "site.supportPhone2",
-    value: "0790 192 270",
-    description: "Secondary phone (display)",
+    value: "",
+    description: "Secondary phone (display) — leave blank if not in use",
   },
   {
     key: "site.whatsappNumber",
@@ -110,12 +110,12 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "site.mapLat",
     value: "0.3251859",
-    description: "Map pin latitude near Lugala Trading Centre, Lubaga",
+    description: "Map pin latitude near Lugala Trading Center, Lubaga",
   },
   {
     key: "site.mapLng",
     value: "32.539685",
-    description: "Map pin longitude near Lugala Trading Centre, Lubaga",
+    description: "Map pin longitude near Lugala Trading Center, Lubaga",
   },
   {
     key: "site.instagramUrl",
@@ -3096,14 +3096,14 @@ async function main() {
     const skillsLab = await prisma.venue.create({
       data: {
         name: "Skills Lab",
-        location: "Lugala Training Center",
+        location: "Lugala Trading Center",
         capacity: 24,
       },
     });
     const classroom = await prisma.venue.create({
       data: {
         name: "Main Classroom",
-        location: "Lugala Training Center",
+        location: "Lugala Trading Center",
         capacity: 36,
       },
     });

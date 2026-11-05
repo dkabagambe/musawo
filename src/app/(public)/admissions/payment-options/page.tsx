@@ -171,7 +171,7 @@ export default async function PaymentOptionsPage() {
                   {[
                     "Always pay the exact amount shown on your invoice. Short payments will not unlock course access.",
                     "Your place is confirmed once payment is received and verified.",
-                    "If you pay by mobile money and do not receive confirmation within 15 minutes, contact us on WhatsApp at 0709 184 468.",
+                    "If you pay by mobile money and do not receive confirmation within 15 minutes, contact us on WhatsApp at +256 709 184 468.",
                     "Receipts are sent to your registered email address. Check your spam folder if you do not receive one.",
                     "Refund requests are handled under our Refund Policy. See the link in the footer.",
                   ].map((item) => (

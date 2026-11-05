@@ -167,7 +167,7 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
           <a href="mailto:admissions@mtc.ac.ug" className="text-primary no-underline hover:underline">
             admissions@mtc.ac.ug
           </a>{" "}
-          or call <a href="tel:+256709184468" className="text-primary no-underline hover:underline">0709 184 468</a>.
+          or call <a href="tel:+256709184468" className="text-primary no-underline hover:underline">+256 709 184 468</a>.
         </p>
         <button
           type="button"

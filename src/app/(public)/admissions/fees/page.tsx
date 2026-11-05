@@ -147,7 +147,7 @@ export default async function FeesPage() {
                   </a>{" "}
                   or call{" "}
                   <a href="tel:+256709184468" className="text-primary no-underline hover:underline">
-                    0709 184 468
+                    +256 709 184 468
                   </a>. International students pay in USD at a rate of UGX 3,600 per USD.
                 </p>
                 <Link
