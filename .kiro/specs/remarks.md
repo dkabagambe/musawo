@@ -185,82 +185,22 @@ STEP 2: website cleanup (the new section of remarks.md)
 - Update unit and Playwright tests (navbar tabs, consent required, FAQ, no stats, no downloads wording), run tsc and the full suite (DB-dependent ones may fail from environment; say so), update docs/PROGRESS.md.
   ---------------------------------END----------------------------------
 
-• Errors Summary (ERROR_RISK + NO AUTH only)
+### this is critical
 
-─────────────────────────────────────────────────────────────────────────
+Layout bug on the landing page (and check every public page): there is an empty white gap of about 65px between the bottom of the teal navbar and the top of the hero photo. Remove it.
 
-🔐 NO AUTH — Security (2 issues)
+1. Find the cause: inspect the layout between the <header> and the first section. Look for leftover spacing from the removed utility bar and old header design, such as padding-top or margin-top on <main> or the page wrapper, a spacer div, a CSS variable like --header-height or --utility-height that still includes the old bar, scroll-padding or top offsets, a hero min-height or negative margin calculated for a transparent header, or an empty element. Tell me what it was.
+2. Fix it so the hero photo starts exactly at the bottom edge of the navbar with no gap. If the navbar is sticky or fixed, the content offset must equal the real navbar height only (one place, one variable) and the hero must not add its own extra top space.
+3. Check it on /, /about, /how-to-enrol, /impact, the course pages, the auth pages and the dashboards at 1440, 1024, 768 and 390px, also after scrolling, and fix any other page with a gap under the navbar.
+4. Add a Playwright test that, on each public page, asserts the top of the first section is within 1px of the bottom of the navbar.
+5. Run tsc, then commit and push.
+   AND
+   Hero slideshow fix on the landing page: the text box on the photo disappears too quickly and people cannot read it.
+6. Keep the text box (eyebrow, headline, description and buttons) permanently visible and fixed. It must NOT fade, slide out or change when the photo changes; only the background photos change.
+7. Slow the photo changes: each photo stays 12 seconds by default (setting hero.slideSeconds, allow 8 to 30), with a 1 second crossfade and a slow zoom.
+8. If any slide has its own caption or text, show it for at least 15 seconds, and never auto-change while the visitor hovers, focuses or touches the hero.
+9. Add a visible Pause and Play button, and previous and next arrows with dots; pausing stays until the visitor presses Play. Under prefers-reduced-motion, do not auto-advance.
+10. The first visit should show the text box for the full load: the entrance animation of the box plays once only and never repeats when slides change.
+11. Add a test that the box stays mounted and visible across slide changes, then run tsc, commit and push.
 
-┌──────────────────────────┬────────────────────────────────────────┐
-│ Page │ Problem │
-├──────────────────────────┼────────────────────────────────────────┤
-│ /admin/payments/pending │ No auth() call at all. Anyone on the │
-│ │ internet can access pending bank │
-│ │ payment data and download student │
-│ │ payment receipts via S3 links. │
-├─────────────────────────┼─────────────────────────────────────────┤
-│ /director/notifications │ No can() RBAC check — any logged-in │
-│ │ user who navigates here directly can │
-│ │ read the Director's notifications. │
-└─────────────────────────┴─────────────────────────────────────────┘
-
-─────────────────────────────────────────────────────────────────────────
-
-🔴 ERROR_RISK — Crashes / Broken Actions (10 issues)
-
-┌───────────────────────┬───────────────────────────────────────────┐
-│ Page │ Problem │
-├───────────────────────┼───────────────────────────────────────────┤
-│ /principal/complaints │ "All" tab passes status: "ALL" to Prisma │
-│ │ — "ALL" is not a valid enum value. Page │
-│ │ crashes every time that tab is clicked. │
-├───────────────────────┼───────────────────────────────────────────┤
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /director/finance │ Reads p.enrolment.user.name without │
-│ │ null-checking. One orphaned payment │
-│ │ row (deleted enrolment) crashes the │
-│ │ entire page with a TypeError. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /director/finance/approvals │ Same null-dereference — │
-│ │ e.enrolment.course.title — crashes │
-│ │ on any orphaned record. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /director/finance/ledger │ Same null-dereference pattern — │
-│ │ crashes on orphaned ledger entries. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /principal/equipment │ ApprovalDecisionForm is imported │
-│ │ from the public token-approval │
-│ │ route. It posts to the wrong API │
-│ │ endpoint — all approval buttons on │
-│ │ this page are broken and do │
-│ │ nothing. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /admin/courses │ Publish/Unpublish button uses │
-│ │ \_method=PATCH in a POST form. │
-│ │ Next.js ignores method overrides — │
-│ │ the toggle silently does nothing. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /admin/documents │ Queries db.studentDocument which │
-│ │ does not exist in the Prisma │
-│ │ schema. Page always renders empty — │
-│ │ the entire Student Documents │
-│ │ feature is non-functional. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /dashboard/assignments/[id] │ Pure "use client" component with no │
-│ │ server-side auth check. Student │
-│ │ submits without ever seeing the │
-│ │ assignment title, description, or │
-│ │ deadline — submitting completely │
-│ │ blind. │
-├─────────────────────────────┼─────────────────────────────────────┤
-│ /director/storage │ Raw $queryRaw on │
-│ │ storage_cleanup_jobs table. If the │
-│ │ table wasn't migrated, the entire │
-│ │ page throws and crashes. │
-└─────────────────────────────┴─────────────────────────────────────┘
-
-─────────────────────────────────────────────────────────────────────────
-
-Total: 12 errors (2 security + 10 broken pages/actions). The most urgent
-fix is /admin/payments/pending — it's a public page serving sensitive
-financial data.
+There is some information missing ot,you know we deleted some pages,now like the merchants which shows how to pay,check public/assets/1,2,3,FEES_STRUCTURE_MTC.pdf confirm if fees is that one for every course ,see where to fix that payment info coz its crucuial,on how people on which pages
