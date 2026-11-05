@@ -13,7 +13,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
   if (!mounted) {
     return (
-      <span className={`w-8 h-8 inline-block ${className}`} aria-hidden="true" />
+      <span className={`w-10 h-10 inline-block ${className}`} aria-hidden="true" />
     );
   }
 
@@ -25,15 +25,15 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors
         hover:bg-white/10 text-current
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40
         ${className}`}
     >
       {isDark ? (
-        <Sun className="w-4 h-4" aria-hidden="true" />
+        <Sun className="w-5 h-5" aria-hidden="true" />
       ) : (
-        <Moon className="w-4 h-4" aria-hidden="true" />
+        <Moon className="w-5 h-5" aria-hidden="true" />
       )}
     </button>
   );

@@ -506,6 +506,7 @@
 }
 .portal-settings-wrap { position: relative; }
 .portal-topbar-actions { display: flex; align-items: center; gap: 4px; }
+.portal-topbar-theme-toggle { margin-right: 2rem; }
 .portal-settings-button {
   width: 36px; height: 36px;
   display: grid; place-items: center;
