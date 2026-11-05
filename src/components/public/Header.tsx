@@ -92,7 +92,7 @@ export default function PublicHeader() {
         Skip to main content
       </a>
 
-      <header className="fixed top-0 inset-x-0 z-50">
+      <header className="fixed inset-x-0 z-50" style={{ top: "var(--banner-h, 0px)" }}>
         {/* Main bar */}
         <div
           className={`bg-primary transition-all duration-300 ${

@@ -400,6 +400,13 @@ export default async function CourseDetailPage({ params }: Props) {
                   </li>
                 ))}
               </ul>
+
+              <Link
+                href="/admissions/payment-options"
+                className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-accent/80 no-underline transition-colors"
+              >
+                How to pay (merchant codes) <ArrowRight className="w-3 h-3" aria-hidden="true" />
+              </Link>
             </div>
           </aside>
 

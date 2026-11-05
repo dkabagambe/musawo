@@ -3,7 +3,8 @@ import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import { getSetting } from "@/lib/settings";
-import { Smartphone, CheckCircle, AlertCircle } from "lucide-react";
+import { Smartphone, CheckCircle, AlertCircle, Download } from "lucide-react";
+import Link from "next/link";
 import type { Metadata } from "next";
 export const revalidate = 3600;
 
@@ -141,6 +142,27 @@ export default async function PaymentOptionsPage() {
                 </div>
               ))}
             </StaggerGrid>
+
+            <AnimateIn className="mt-8">
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <a
+                  href="/assets/FEES_STRUCTURE_MTC.pdf"
+                  download="MTC-Fees-Structure.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold px-5 py-2.5 rounded-xl no-underline transition-colors text-sm"
+                >
+                  <Download className="w-4 h-4" aria-hidden="true" />
+                  Download fees structure (PDF)
+                </a>
+                <Link
+                  href="/admissions/fees"
+                  className="inline-flex items-center gap-2 border border-border hover:border-primary text-primary font-semibold px-5 py-2.5 rounded-xl no-underline transition-colors text-sm"
+                >
+                  Instalment plan
+                </Link>
+              </div>
+            </AnimateIn>
 
             <AnimateIn className="mt-8">
               <div className="bg-[#F1F7F5] rounded-2xl border border-border p-6 sm:p-8">

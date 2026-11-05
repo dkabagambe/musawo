@@ -1,7 +1,7 @@
 import PageHero from "@/components/public/PageHero";
 import SideNav from "@/components/public/SideNav";
 import AnimateIn from "@/components/public/AnimateIn";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, ArrowRight, Download } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -66,6 +66,28 @@ export default async function FeesPage() {
           <SideNav title="Admissions" items={ADMISSIONS_NAV} />
 
           <div className="flex-1 min-w-0">
+
+            {/* ── Fees structure PDF download ───────────────────── */}
+            <AnimateIn className="mb-10">
+              <div className="bg-primary text-white rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <p className="font-bold text-lg mb-1">Fees Structure</p>
+                  <p className="text-white/70 text-sm">
+                    Download the full fees structure for all courses (PDF).
+                  </p>
+                </div>
+                <a
+                  href="/assets/FEES_STRUCTURE_MTC.pdf"
+                  download="MTC-Fees-Structure.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-primary font-bold px-5 py-2.5 rounded-xl no-underline transition-colors text-sm flex-shrink-0"
+                >
+                  <Download className="w-4 h-4" aria-hidden="true" />
+                  Download fees PDF
+                </a>
+              </div>
+            </AnimateIn>
 
             {/* ── Payment plan ──────────────────────────────────── */}
             <AnimateIn className="mb-12">

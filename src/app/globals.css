@@ -158,6 +158,7 @@
 /* ── Shell layout ─────────────────────────────────────────────────────── */
 .portal-shell {
   min-height: 100vh;
+  padding-top: var(--banner-h, 0px);
   display: flex;
   color: var(--portal-text);
   background: var(--portal-page);
@@ -1420,15 +1421,9 @@
 
 /* ── Global keyframes ──────────────────────────────────────────── */
 /* ── Home hero section height ──────────────────────────────── */
-/* Mobile / tablet: viewport minus 72px fixed header */
+/* Fills the viewport below the fixed header (72px) + optional banner */
 .hero-section {
-  height: clamp(480px, calc(100svh - 72px), 960px);
-}
-/* Desktop (lg+): viewport minus 110px dual-bar header */
-@media (min-width: 1024px) {
-  .hero-section {
-    height: clamp(540px, calc(100svh - 110px), 960px);
-  }
+  height: clamp(480px, calc(100svh - 72px - var(--banner-h, 0px)), 960px);
 }
 
 @keyframes fadeUp {
