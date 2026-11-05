@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     // Notify student
     if (payment.enrolment.user.email) {
-      await sendEmail({
+      void sendEmail({
         to: payment.enrolment.user.email,
         subject: `Your bank payment has been approved - ${payment.enrolment.course.title}`,
         template: "payment-receipt",
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
 
     // Notify student of rejection
     if (payment.enrolment.user.email) {
-      await sendEmail({
+      void sendEmail({
         to: payment.enrolment.user.email,
         subject: `Payment update - ${payment.enrolment.course.title}`,
         template: "payment-receipt",

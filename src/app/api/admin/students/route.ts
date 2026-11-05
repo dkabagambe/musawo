@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
 
   const { sendEmail } = await import("@/lib/email");
   if (d.email) {
-    await sendEmail({
+    void sendEmail({
       to:      d.email,
       subject: "Your Musawo Training Center student account is ready",
       template: "student-invite",

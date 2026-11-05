@@ -7,11 +7,20 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { verifyPassword } from "./password";
 import { verifyTotp, decryptSecret } from "@/lib/totp";
 import { authConfig } from "./auth.config";
+import { checkRateLimit } from "@/lib/auth/rate-limit";
 import type { UserRole } from "@prisma/client";
+
+/** Extract the client IP from request headers (works behind proxies). */
+function getClientIp(): string {
+  const fwd = headers().get("x-forwarded-for");
+  const real = headers().get("x-real-ip");
+  return (fwd?.split(",")[0].trim() || real || "unknown");
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -30,6 +39,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null;
+
+        // ── Rate limit: 5 login attempts per 10 min per IP ──────────────
+        const ip = getClientIp();
+        const rl = await checkRateLimit({
+          key: `auth:login:${ip}`,
+          maxRequests: 5,
+          windowSeconds: 600,
+        });
+        if (!rl.allowed) return null; // silently fail — prevents brute-force
 
         const identifier = credentials.identifier as string;
         const password   = credentials.password   as string;
@@ -84,6 +102,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.code) return null;
+
+        // ── Rate limit: 5 OTP attempts per 10 min per IP ───────────────
+        const ip = getClientIp();
+        const rl = await checkRateLimit({
+          key: `auth:otp:${ip}`,
+          maxRequests: 5,
+          windowSeconds: 600,
+        });
+        if (!rl.allowed) return null;
 
         const phone = credentials.phone as string;
         const code  = credentials.code  as string;

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
-  await sendEmail({
+  void sendEmail({
     to: user.email!,
     subject: "Reset your Musawo Training Center password",
     template: "password-reset",

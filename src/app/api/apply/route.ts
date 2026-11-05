@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 
     // Email applicant confirmation — only if they provided an email
     if (data.email) {
-      await sendEmail({
+      void sendEmail({
         to:       data.email,
         subject:  `Application received - ${course.title}`,
         template: "application-confirmation",
@@ -126,7 +126,7 @@ export async function POST(req: Request) {
 
     for (const registrar of registrars) {
       if (!registrar.email) continue;
-      await sendEmail({
+      void sendEmail({
         to:       registrar.email,
         subject:  `New application: ${data.fullName} for ${course.title}`,
         template: "application-received-registrar",

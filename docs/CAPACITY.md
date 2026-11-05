@@ -34,6 +34,8 @@ Sliding-window rate limits (Redis sorted sets) protect hot endpoints. Fail-open:
 
 | Endpoint | Limit |
 |---|---|
+| `POST /api/auth/callback/credentials` | 5 per 10 min per IP |
+| `POST /api/auth/callback/otp` | 5 per 10 min per IP |
 | `POST /api/presence/heartbeat` | 4 per 60 s per user |
 | `POST /api/exams?action=start` | 10 per 10 min per user |
 | `POST /api/exams?action=answer` | 120 per 10 min per user |
@@ -72,6 +74,8 @@ Added in migration `20261102110000_section11_concurrency_indexes`:
 | `lesson_progress` | `(userId)` | content page load |
 | `sessions` | `(userId)` | Auth.js session lookup |
 
+All indexes above are declared as `@@index` in `prisma/schema.prisma` except the partial index on `exam_attempts(timeLimitEndsAt, status) WHERE status='IN_PROGRESS'` — Prisma does not support partial index syntax in the schema, so that one exists only via the migration SQL. Run `prisma migrate deploy` (not `prisma db push`) to preserve all indexes.
+
 ### Server-side exam clocks
 
 `timeLimitEndsAt` is recorded by the server at attempt start. Every `answer` request is rejected server-side if the clock has expired. The exam auto-submit cron (`/api/cron/exam-auto-submit`) runs every 30 seconds to finalise any `IN_PROGRESS` attempt whose `timeLimitEndsAt` has passed and whose student has disconnected. This prevents dangling in-progress attempts if a student closes their browser mid-exam.
@@ -79,6 +83,16 @@ Added in migration `20261102110000_section11_concurrency_indexes`:
 ### Background jobs
 
 All async work runs via cron HTTP calls (no queue daemon required). Schedule each at the listed interval with `Authorization: Bearer $CRON_SECRET`:
+
+| Cron route | Interval | Job |
+|---|---|---|
+| `/api/cron/exam-auto-submit` | 30 s | Finalise timed-out exam attempts (`FOR UPDATE SKIP LOCKED`) |
+| `/api/cron/live-class-housekeeping` | 2 min | Close expired LIVE classes, end BBB meetings, nudge for replays |
+| `/api/cron/class-reminders` | 5 min | Deliver email / SMS / WhatsApp class reminders (awaited) |
+| `/api/cron/live-recordings` | 5 min | Poll BBB for recording links |
+| `/api/cron/storage-retention` | daily | Scan past intakes and execute trash-window jobs |
+
+Transactional emails (invite, approval, application, password reset, support) are fired and forgotten (`void sendEmail(...)` not `await`) in API route handlers so the HTTP response is never blocked by the email provider's latency. Cron-scheduled emails are still awaited so the reminder can be marked sent before the next run.
 
 | Route | Interval | Purpose |
 |---|---|---|

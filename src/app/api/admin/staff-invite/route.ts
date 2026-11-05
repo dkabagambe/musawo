@@ -75,7 +75,7 @@ async function sendInvite(
   const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const acceptUrl = `${siteUrl}/invite/${token}`;
 
-  await sendEmail({
+  void sendEmail({
     to: email,
     subject: "You have been invited to Musawo Training Center",
     template: "staff-invite",

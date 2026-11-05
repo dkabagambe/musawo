@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
   for (const principal of principals) {
     if (!principal.email) continue;
-    await sendEmail({
+    void sendEmail({
       to:       principal.email,
       subject:  `Marks change request from ${approvalRequest.initiator.name} - ${entry.course.title}`,
       template: "approval-request",

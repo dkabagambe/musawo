@@ -97,7 +97,7 @@ export async function POST(
       where: { createdUserId: invite.userId },
       select: { course: { select: { title: true } } },
     });
-    await sendEmail({
+    void sendEmail({
       to: invite.email,
       subject: "Your Musawo Training Center account is ready",
       template: "student-invite",
@@ -118,7 +118,7 @@ export async function POST(
       },
     });
   } else {
-    await sendEmail({
+    void sendEmail({
       to: invite.email,
       subject: "Your Musawo Training Center invite",
       template: "staff-invite",

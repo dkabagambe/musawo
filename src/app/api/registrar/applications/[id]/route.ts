@@ -101,7 +101,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     // Notify the applicant (only if they have an email)
     if (application.email) {
       try {
-        await sendEmail({
+        void sendEmail({
           to: application.email,
           subject: `Your application to Musawo Training Center`,
           template: "application-rejected",
@@ -190,7 +190,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
 
     // Send the invite email with the already assigned student number.
     try {
-      await sendEmail({
+      void sendEmail({
         to: email,
         subject: `Your Musawo Training Center account is ready - ${application.course?.title ?? ""}`,
         template: "student-invite",

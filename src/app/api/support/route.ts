@@ -188,7 +188,7 @@ export async function PATCH(req: NextRequest) {
       select: { name: true, email: true },
     });
     if (requester?.email) {
-      await sendEmail({
+      void sendEmail({
         to: requester.email,
         subject: `Reply to your support ticket: ${ticket.subject}`,
         template: "support-reply",

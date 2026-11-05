@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  await sendSms({
+  void sendSms({
     to: body.phone,
     message: `Your Musawo Training Center code is: ${code}. Valid for 5 minutes. Do not share.`,
   });

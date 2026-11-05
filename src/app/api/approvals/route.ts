@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
 
   for (const recipient of notifyUsers) {
     if (!recipient.email) continue;
-    await sendEmail({
+    void sendEmail({
       to:       recipient.email,
       subject:  `Action required: ${typeLabel} request from ${request.initiator.name}`,
       template: "approval-request",

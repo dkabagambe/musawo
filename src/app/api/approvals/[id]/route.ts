@@ -111,7 +111,7 @@ export async function PATCH(
     });
     for (const d of directors) {
       if (!d.email) continue;
-      await sendEmail({
+      void sendEmail({
         to: d.email,
         subject: `Forwarded for your approval: ${request.type.replace(/_/g, " ")}`,
         template: "approval-request",
@@ -254,7 +254,7 @@ export async function PATCH(
           await db.$executeRaw`UPDATE staff_invites SET "courseId" = ${application.courseId} WHERE id = ${studentInvite.id}`;
           const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
           try {
-            await sendEmail({
+            void sendEmail({
               to: application.email,
               subject: `Your Musawo Training Center account is ready - ${application.course?.title ?? ""}`,
               template: "student-invite",
@@ -370,7 +370,7 @@ export async function PATCH(
     select: { email: true, name: true },
   });
   if (initiator?.email) {
-    await sendEmail({
+    void sendEmail({
       to:      initiator.email,
       subject: `Your request has been ${parsed.data.decision.toLowerCase()}: ${request.type.replace(/_/g, " ")}`,
       template: "approval-decision",

@@ -136,7 +136,7 @@ export async function POST(
   // Notify student by email
   const studentUser = claim.enrolment.user;
   if (studentUser.email) {
-    await sendEmail({
+    void sendEmail({
       to: studentUser.email,
       subject: `Payment claim rejected - ${claim.enrolment.course.title}`,
       template: "payment-receipt",

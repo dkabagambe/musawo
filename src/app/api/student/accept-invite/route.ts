@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
 
     for (const reg of registrars) {
       if (!reg.email) continue;
-      await sendEmail({
+      void sendEmail({
         to:       reg.email,
         subject:  `Student details dispute - ${student.name}`,
         template: "student-details-disputed",

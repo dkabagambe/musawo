@@ -388,6 +388,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -802,6 +803,8 @@ model LiveClass {
 
   @@index([courseId, scheduledAt])
   @@index([status, scheduledAt])
+  @@index([courseId, status])
+  @@index([tutorId, status])
   @@map("live_classes")
 }
 
@@ -940,6 +943,7 @@ model ExamAttempt {
   shortAnswerReviews ShortAnswerReview[]
 
   @@unique([examId, userId, number])
+  @@index([examId, userId])
   @@index([userId, status])
   @@index([examId, status])
   @@map("exam_attempts")
