@@ -13,7 +13,7 @@ interface Props {
 
 export default async function PrincipalResultsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "exams.release")) redirect("/dashboard");
+  if (!session?.user || !can(session.user.role, "grades.view")) redirect("/dashboard");
 
   const q = searchParams.q?.trim() ?? "";
   const page = Math.max(1, Number(searchParams.page ?? 1));

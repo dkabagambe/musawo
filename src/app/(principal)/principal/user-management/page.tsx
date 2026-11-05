@@ -33,7 +33,7 @@ const ROLE_BADGE: Record<string, string> = {
 
 export default async function PrincipalUserManagementPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "staff.create.approve")) redirect("/403");
+  if (!session?.user || !can(session.user.role, "staff.view")) redirect("/403");
 
   const roleFilter = searchParams.role ?? "ALL";
   const q = searchParams.q?.trim() ?? "";

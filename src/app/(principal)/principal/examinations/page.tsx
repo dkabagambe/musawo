@@ -14,7 +14,7 @@ interface Props {
 
 export default async function PrincipalExaminationsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "exams.release")) redirect("/403");
+  if (!session?.user || !can(session.user.role, "exams.mark")) redirect("/403");
 
   const tab = searchParams.tab ?? "exams";
 

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default async function DirectorRolesPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  if (!can(session.user.role, "settings.view")) redirect("/director");
+  if (!can(session.user.role, "approvals.decide")) redirect("/director");
 
   return (
     <div className="space-y-6">
