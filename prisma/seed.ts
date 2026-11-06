@@ -89,7 +89,7 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   {
     key: "site.supportPhone2",
     value: "",
-    description: "Secondary phone (display) — leave blank if not in use",
+    description: "Secondary phone (display) - leave blank if not in use",
   },
   {
     key: "site.whatsappNumber",

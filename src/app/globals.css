@@ -128,7 +128,7 @@
     overflow-wrap: anywhere;
   }
 
-  /* Prevent iOS from zooming on input focus — all inputs must be >= 16px */
+  /* Prevent iOS from zooming on input focus  - all inputs must be >= 16px */
   input, select, textarea {
     font-size: max(16px, 1em);
   }
@@ -1376,8 +1376,8 @@
    *   - 1920–2559px   : max 1600px (3xl / Full HD), 64px side padding
    *   - 2560px+       : max 1800px (4xl / 2K+), 80px side padding
    *
-   * This keeps content readable — not stretched to 5000px wide on a 4K
-   * display — but uses the extra screen real estate for generous whitespace.
+   * This keeps content readable  - not stretched to 5000px wide on a 4K
+   * display  - but uses the extra screen real estate for generous whitespace.
    */
   .container-page {
     @apply mx-auto w-full px-4 sm:px-6;
@@ -1388,7 +1388,7 @@
   @screen 3xl { .container-page { max-width: 1600px; padding-inline: 4rem; } }
   @screen 4xl { .container-page { max-width: 1800px; padding-inline: 5rem; } }
 
-  /* ── Section padding — grows on large screens ─────────────────── */
+  /* ── Section padding  - grows on large screens ─────────────────── */
   .section-pad {
     @apply py-12 sm:py-16 lg:py-24 3xl:py-32;
   }
@@ -1911,13 +1911,13 @@
 /* ══════════════════════════════════════════════════════════════════════════════
    WIDE / ULTRA-WIDE / 4K SCREEN SUPPORT
    Screens targeted:
-     xl   1280px  — large laptop (1366×768, 1440×900)
-     2xl  1536px  — large desktop / MacBook Pro 16"
-     3xl  1920px  — Full HD, 1080p office / classroom monitors
-     4xl  2560px  — 2K / QHD, presentation displays, wide monitors
-     5xl  3840px  — 4K / UHD displays
+     xl   1280px   - large laptop (1366×768, 1440×900)
+     2xl  1536px   - large desktop / MacBook Pro 16"
+     3xl  1920px   - Full HD, 1080p office / classroom monitors
+     4xl  2560px   - 2K / QHD, presentation displays, wide monitors
+     5xl  3840px   - 4K / UHD displays
    Strategy: content stays in a bounded column (max 1800px at 4K).
-   Extra space becomes generous, balanced whitespace — not stretched text.
+   Extra space becomes generous, balanced whitespace  - not stretched text.
 ══════════════════════════════════════════════════════════════════════════════ */
 
 /* ── Inline containers used on pages (max-w-[1200px]) ──────────────────────
@@ -1940,19 +1940,19 @@
   nav.max-w-\[1200px\] { padding-inline: 5rem; }
 }
 
-/* max-w-6xl (72rem = 1152px) — courses, contact */
+/* max-w-6xl (72rem = 1152px)  - courses, contact */
 @media (min-width: 1280px) { .max-w-6xl { max-width: 1280px; } }
 @media (min-width: 1536px) { .max-w-6xl { max-width: 1440px; } }
 @media (min-width: 1920px) { .max-w-6xl { max-width: 1600px; } }
 @media (min-width: 2560px) { .max-w-6xl { max-width: 1800px; } }
 
-/* max-w-5xl (64rem = 1024px) — resources, partner pages */
+/* max-w-5xl (64rem = 1024px)  - resources, partner pages */
 @media (min-width: 1280px) { .max-w-5xl { max-width: 1100px; } }
 @media (min-width: 1536px) { .max-w-5xl { max-width: 1200px; } }
 @media (min-width: 1920px) { .max-w-5xl { max-width: 1320px; } }
 @media (min-width: 2560px) { .max-w-5xl { max-width: 1480px; } }
 
-/* ── Section vertical padding — more breathing room on big screens ── */
+/* ── Section vertical padding  - more breathing room on big screens ── */
 @media (min-width: 1920px) {
   .py-14   { padding-top: 5rem;  padding-bottom: 5rem;  }
   .py-16   { padding-top: 5rem;  padding-bottom: 5rem;  }
@@ -1964,16 +1964,16 @@
   .lg\:py-24 { padding-top: 9rem; padding-bottom: 9rem; }
 }
 
-/* ── Course / content grids — add columns at very wide screens ─────── */
+/* ── Course / content grids  - add columns at very wide screens ─────── */
 /* Homepage & courses listing: 3-col becomes 4-col at 1920px */
 @media (min-width: 1920px) {
   .lg\:grid-cols-3 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 /* How-it-works 4-step grid: stays 4 on desktop, goes 4 always wide */
-/* (already 4 at lg — nothing extra needed) */
+/* (already 4 at lg  - nothing extra needed) */
 
-/* ── Typography — fluid scale ceilings extended for big screens ───── */
+/* ── Typography  - fluid scale ceilings extended for big screens ───── */
 /* Allow clamp() upper bounds to stretch beyond 2.5rem on 4K displays */
 @media (min-width: 1920px) {
   h1 { font-size: clamp(2rem, 2.8vw, 3.5rem) !important; }
@@ -1987,7 +1987,7 @@
   p, li { font-size: clamp(1rem, 0.85vw, 1.25rem); }
 }
 
-/* ── Hero section — taller on very large screens ────────────────────── */
+/* ── Hero section  - taller on very large screens ────────────────────── */
 @media (min-width: 1920px) {
   .hero-section {
     height: clamp(640px, calc(100svh - 72px - var(--banner-h, 0px)), 1100px);
@@ -1999,7 +1999,7 @@
   }
 }
 
-/* ── PageHero content box — slightly wider on big screens ───────────── */
+/* ── PageHero content box  - slightly wider on big screens ───────────── */
 @media (min-width: 1920px) {
   .max-w-\[520px\] { max-width: 600px; }
 }
@@ -2007,9 +2007,9 @@
   .max-w-\[520px\] { max-width: 680px; }
 }
 
-/* ── Header nav inner padding — already grows via max-w-[1200px] above */
+/* ── Header nav inner padding  - already grows via max-w-[1200px] above */
 
-/* ── Portal dashboard — wider content at big screens ───────────────── */
+/* ── Portal dashboard  - wider content at big screens ───────────────── */
 @media (min-width: 1920px) {
   .portal-content { padding: 32px 40px; }
   .portal-desktop-sidebar { width: 260px; flex-basis: 260px; }
@@ -2025,5 +2025,5 @@
 }
 
 /* ── Prevent images stretching beyond natural sizes on 4K ────────────
-   Images use Next.js <Image> with fill or fixed sizes — fine.
+   Images use Next.js <Image> with fill or fixed sizes  - fine.
    For <img> tags (e.g. HeroZoom), clamp via max-width already set.  */

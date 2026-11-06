@@ -158,7 +158,7 @@ export default function PublicHeader() {
 
             {/* Right actions */}
             <div className="flex items-center gap-2.5 flex-shrink-0">
-              {/* Log in — ghost bordered button */}
+              {/* Log in - ghost bordered button */}
               <Link
                 href="/login"
                 className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold
@@ -169,7 +169,7 @@ export default function PublicHeader() {
                 Log in
               </Link>
 
-              {/* Apply now — CTA */}
+              {/* Apply now - CTA */}
               <Link
                 href="/apply"
                 className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600

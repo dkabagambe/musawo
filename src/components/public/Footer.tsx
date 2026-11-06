@@ -49,7 +49,7 @@ export default async function PublicFooter() {
     "text-white/90 hover:text-accent no-underline transition-colors text-sm leading-relaxed";
 
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-primary text-white" data-testid="site-footer">
       {/* ── Main grid ─────────────────────────────────────────────── */}
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-16 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-12 gap-y-12">

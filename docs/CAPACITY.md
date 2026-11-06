@@ -74,7 +74,7 @@ Added in migration `20261102110000_section11_concurrency_indexes`:
 | `lesson_progress` | `(userId)` | content page load |
 | `sessions` | `(userId)` | Auth.js session lookup |
 
-All indexes above are declared as `@@index` in `prisma/schema.prisma` except the partial index on `exam_attempts(timeLimitEndsAt, status) WHERE status='IN_PROGRESS'` — Prisma does not support partial index syntax in the schema, so that one exists only via the migration SQL. Run `prisma migrate deploy` (not `prisma db push`) to preserve all indexes.
+All indexes above are declared as `@@index` in `prisma/schema.prisma` except the partial index on `exam_attempts(timeLimitEndsAt, status) WHERE status='IN_PROGRESS'` - Prisma does not support partial index syntax in the schema, so that one exists only via the migration SQL. Run `prisma migrate deploy` (not `prisma db push`) to preserve all indexes.
 
 ### Server-side exam clocks
 

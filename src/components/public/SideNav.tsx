@@ -68,7 +68,7 @@ export default function SideNav({ items, title }: SideNavProps) {
         </ul>
       </nav>
 
-      {/* ── Mobile chip strip — below md only ──────────────────────── */}
+      {/* Mobile chip strip - below md only ──────────────────────── */}
       <div className="md:hidden mb-6">
         <button
           type="button"

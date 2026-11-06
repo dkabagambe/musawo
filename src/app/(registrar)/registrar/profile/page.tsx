@@ -48,8 +48,8 @@ export default async function RegistrarProfilePage() {
 
       <div className="card space-y-3">
         <p className="text-sm text-gray-600"><span className="font-medium">Name:</span> {user.name}</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {user.email ?? "—"}</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.phone || "—"}</p>
+        <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {user.email ?? "N/A"}</p>
+        <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.phone || "N/A"}</p>
         <p className="text-sm text-gray-600"><span className="font-medium">Role:</span> Academic Registrar</p>
         <p className="text-sm text-gray-600"><span className="font-medium">Member since:</span>{" "}
           {new Date(user.createdAt).toLocaleDateString("en-UG", { month: "long", year: "numeric" })}

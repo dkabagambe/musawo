@@ -22,7 +22,7 @@ export default async function AdminDocumentsPage() {
       <div className="card text-center py-16">
         <p className="text-3xl mb-3" aria-hidden="true">📁</p>
         <p className="text-gray-700 font-medium mb-1">
-          Student Documents — Coming Soon
+          Student Documents - Coming Soon
         </p>
         <p className="text-sm text-gray-500 max-w-md mx-auto">
           This feature is not yet available. Document upload will be added in a

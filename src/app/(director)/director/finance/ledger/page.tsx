@@ -68,8 +68,8 @@ export default async function DirectorFinanceLedgerPage({ searchParams }: Props)
           <tbody className="divide-y divide-border">
             {entries.map((e) => (
               <tr key={e.id} className="hover:bg-surface/40">
-                <td className="py-2.5 pr-4 font-medium">{e.enrolment?.user?.name ?? "—"}</td>
-                <td className="py-2.5 pr-4 text-xs text-gray-500">{e.enrolment?.course?.title ?? "—"}</td>
+                <td className="py-2.5 pr-4 font-medium">{e.enrolment?.user?.name ?? "N/A"}</td>
+                <td className="py-2.5 pr-4 text-xs text-gray-500">{e.enrolment?.course?.title ?? "N/A"}</td>
                 <td className="py-2.5 pr-4">
                   <span className={`badge text-xs ${TYPE_STYLE[e.type] ?? "badge-info"}`}>
                     {e.type}

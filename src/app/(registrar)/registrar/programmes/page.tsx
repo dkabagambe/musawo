@@ -30,7 +30,7 @@ export default async function RegistrarProgrammesPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-primary">Academic Programmes</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {programmes.length} programme{programmes.length !== 1 ? "s" : ""} — read-only view
+          {programmes.length} programme{programmes.length !== 1 ? "s" : ""} - read-only view
         </p>
       </div>
 
@@ -61,7 +61,7 @@ export default async function RegistrarProgrammesPage() {
                     <p className="text-xs text-gray-400">/{p.slug}</p>
                   </td>
                   <td className="py-2.5 pr-4 font-mono text-xs text-gray-500">
-                    {p.courseCode ?? "—"}
+                    {p.courseCode ?? "N/A"}
                   </td>
                   <td className="py-2.5 pr-4 text-sm text-gray-600">{p.tutor.name}</td>
                   <td className="py-2.5 pr-4">
@@ -71,12 +71,12 @@ export default async function RegistrarProgrammesPage() {
                   </td>
                   <td className="py-2.5 pr-4 text-center text-sm">{p._count.enrolments}</td>
                   <td className="py-2.5 pr-4 text-xs text-gray-400">
-                    {p.durationMonths ? `${p.durationMonths} mo.` : "—"}
+                    {p.durationMonths ? `${p.durationMonths} mo.` : "N/A"}
                   </td>
                   <td className="py-2.5 text-xs text-gray-400">
                     {p.intakes.length > 0
                       ? <span className="text-green-600 font-medium">{p.intakes[0].label ?? "Open"}</span>
-                      : "—"}
+                      : "N/A"}
                   </td>
                 </tr>
               ))}

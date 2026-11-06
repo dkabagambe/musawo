@@ -79,7 +79,7 @@ export default async function RegistrarCertificatesPage({ searchParams }: Props)
                     <p className="text-xs text-gray-400">{c.user.email ?? ""}</p>
                   </td>
                   <td className="py-2.5 pr-4 font-mono text-xs text-gray-500">
-                    {c.user.studentNumber ?? "—"}
+                    {c.user.studentNumber ?? "N/A"}
                   </td>
                   <td className="py-2.5 pr-4 text-xs text-gray-500">
                     {c.course.title}

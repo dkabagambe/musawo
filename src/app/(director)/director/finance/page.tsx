@@ -114,8 +114,8 @@ export default async function DirectorFinancePage() {
           <tbody className="divide-y divide-border">
             {recentPayments.map((p) => (
               <tr key={p.id} className="hover:bg-surface/40">
-                <td className="py-2.5 pr-4 font-medium">{p.enrolment?.user?.name ?? "—"}</td>
-                <td className="py-2.5 pr-4 text-xs text-gray-500">{p.enrolment?.course?.title ?? "—"}</td>
+                <td className="py-2.5 pr-4 font-medium">{p.enrolment?.user?.name ?? "N/A"}</td>
+                <td className="py-2.5 pr-4 text-xs text-gray-500">{p.enrolment?.course?.title ?? "N/A"}</td>
                 <td className="py-2.5 pr-4 font-semibold text-primary">UGX {p.amount.toLocaleString()}</td>
                 <td className="py-2.5 pr-4">
                   <span className={`badge text-xs ${STATUS_STYLE[p.status] ?? "badge-info"}`}>

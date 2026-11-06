@@ -41,7 +41,7 @@ export default async function RegistrarCoursesPage({ searchParams }: Props) {
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Courses</h1>
-        <p className="text-sm text-gray-500 mt-0.5">All courses in the system — read-only</p>
+        <p className="text-sm text-gray-500 mt-0.5">All courses in the system - read-only</p>
       </div>
 
       <form method="GET" className="flex flex-wrap gap-3 items-center">
@@ -88,7 +88,7 @@ export default async function RegistrarCoursesPage({ searchParams }: Props) {
                     <p className="text-xs text-gray-400">/{c.slug}</p>
                   </td>
                   <td className="py-2.5 pr-4 font-mono text-xs text-gray-500">
-                    {c.courseCode ?? "—"}
+                    {c.courseCode ?? "N/A"}
                   </td>
                   <td className="py-2.5 pr-4 text-sm text-gray-600">{c.tutor.name}</td>
                   <td className="py-2.5 pr-4">

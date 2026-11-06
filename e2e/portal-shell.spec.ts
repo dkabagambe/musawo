@@ -229,12 +229,6 @@ const ROLE_ACCOUNTS: Array<{
     forbiddenUrl: "/director/staff",
   },
   {
-    email: "assistant@mtc.ac.ug",
-    urlPattern: /\/tutor/,
-    label: "Teaching Assistant",
-    forbiddenUrl: "/director/staff",
-  },
-  {
     email: "registrar@mtc.ac.ug",
     urlPattern: /\/registrar/,
     label: "Academic Registrar",
@@ -247,39 +241,15 @@ const ROLE_ACCOUNTS: Array<{
     forbiddenUrl: "/director/staff",
   },
   {
-    email: "deputyprincipal@mtc.ac.ug",
-    urlPattern: /\/deputy/,
-    label: "Deputy Principal",
-    forbiddenUrl: "/director/staff",
-  },
-  {
-    email: "finance@mtc.ac.ug",
-    urlPattern: /\/finance/,
-    label: "Finance Officer",
-    forbiddenUrl: "/director/staff",
-  },
-  {
-    email: "hr@mtc.ac.ug",
+    email: "admin@mtc.ac.ug",
     urlPattern: /\/admin/,
-    label: "HR and System Admin",
+    label: "Admin",
     forbiddenUrl: "/director/staff",
   },
   {
-    email: "auditor@mtc.ac.ug",
-    urlPattern: /\/auditor/,
-    label: "Auditor",
-    forbiddenUrl: "/director/staff",
-  },
-  {
-    email: "board@mtc.ac.ug",
-    urlPattern: /\/board/,
-    label: "Board Member",
-    forbiddenUrl: "/director/staff",
-  },
-  {
-    email: "ceo@mtc.ac.ug",
+    email: "director@mtc.ac.ug",
     urlPattern: /\/director/,
-    label: "Super Admin",
+    label: "Director",
     forbiddenUrl: "/dashboard/payments",
   },
   {

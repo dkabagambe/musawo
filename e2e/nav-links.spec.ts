@@ -100,7 +100,9 @@ test.describe("Footer appears on public pages", () => {
   for (const path of ["/", "/courses", "/about", "/contact"]) {
     test(`footer visible on ${path}`, async ({ page }) => {
       await page.goto(`${BASE}${path}`);
-      const footer = page.locator("footer");
+      // Use data-testid to target the site footer, not any inline <footer> element
+      const footer = page.locator('[data-testid="site-footer"]');
+      await footer.scrollIntoViewIfNeeded();
       await expect(footer).toBeVisible();
       await expect(footer).toContainText("MUSAWO");
     });

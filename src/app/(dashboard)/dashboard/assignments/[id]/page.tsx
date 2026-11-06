@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
     where: { id: params.id },
     select: { title: true },
   });
-  return { title: assignment ? `${assignment.title} — Submit` : "Submit Assignment" };
+  return { title: assignment ? `${assignment.title} - Submit` : "Submit Assignment" };
 }
 
 export default async function AssignmentSubmitPage({ params }: Props) {
