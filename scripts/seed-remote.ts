@@ -33,10 +33,16 @@ if (!process.env.DATABASE_URL) {
 console.log("APP_ENV=staging — proceeding with remote seed.");
 console.log("DATABASE_URL target:", process.env.DATABASE_URL.replace(/:\/\/[^@]+@/, "://<credentials>@"));
 
-console.log("\n[1/2] Running prisma migrate deploy...");
+console.log("\n[1/3] Running prisma migrate deploy...");
 execSync("npx prisma migrate deploy", { stdio: "inherit" });
 
-console.log("\n[2/2] Running prisma db seed...");
+console.log("\n[2/3] Running prisma db seed (base)...");
 execSync("npx prisma db seed", { stdio: "inherit" });
 
-console.log("\n✓ Remote seed complete.");
+console.log("\n[3/3] Running seed-topup (35+ students, live classes, all role demo data)...");
+execSync(
+  "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed-topup.ts",
+  { stdio: "inherit" },
+);
+
+console.log("\n✓ Remote seed complete (base + topup).");

@@ -140,7 +140,7 @@ export default function ProfileForm({ user }: Props) {
         )}
         <form onSubmit={handleProfileSave} noValidate>
 
-          {/* Full name - locked, set by Admin */
+          {/* Full name - locked, set by Admin */}
           <div className="mb-4">
             <label htmlFor="name" className="label">Full name</label>
             <input id="name" type="text" disabled value={user.name}
@@ -150,7 +150,7 @@ export default function ProfileForm({ user }: Props) {
             </p>
           </div>
 
-          {/* Email - locked */
+          {/* Email - locked */}
           <div className="mb-4">
             <label htmlFor="email" className="label">Email address</label>
             <input id="email" type="email" disabled value={user.email}
@@ -184,21 +184,21 @@ export default function ProfileForm({ user }: Props) {
             </div>
           )}
 
-          {/* Phone - editable */
+          {/* Phone - editable */}
           <div className="mb-4">
             <label htmlFor="phone" className="label">Phone number</label>
             <input id="phone" type="tel" value={form.phone}
               onChange={set("phone")} className="input" placeholder="+256 700 000000" />
           </div>
 
-          {/* Date of birth - editable */
+          {/* Date of birth - editable */}
           <div className="mb-4">
             <label htmlFor="dob" className="label">Date of birth</label>
             <input id="dob" type="date" value={form.dateOfBirth}
               onChange={set("dateOfBirth")} className="input" />
           </div>
 
-          {/* Gender - editable */
+          {/* Gender - editable */}
           <div className="mb-4">
             <label htmlFor="gender" className="label">Gender</label>
             <select id="gender" value={form.gender} onChange={set("gender")} className="input">
@@ -209,7 +209,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* District - editable */
+          {/* District - editable */}
           <div className="mb-4">
             <label htmlFor="district" className="label">District (Uganda)</label>
             <select id="district" value={form.district} onChange={set("district")} className="input">
@@ -220,7 +220,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* Highest qualification - editable */
+          {/* Highest qualification - editable */}
           <div className="mb-4">
             <label htmlFor="qualification" className="label">Highest qualification</label>
             <select id="qualification" value={form.highestQualification}
@@ -232,7 +232,7 @@ export default function ProfileForm({ user }: Props) {
             </select>
           </div>
 
-          {/* Professional title - editable */
+          {/* Professional title - editable */}
           <div className="mb-4">
             <label htmlFor="profTitle" className="label">
               Professional title{" "}
@@ -243,7 +243,7 @@ export default function ProfileForm({ user }: Props) {
               placeholder="e.g. Registered Nurse, Clinical Officer" />
           </div>
 
-          {/* Emergency contact - editable */
+          {/* Emergency contact - editable */}
           <div className="mb-6">
             <label htmlFor="emergency" className="label">
               Emergency contact{" "}

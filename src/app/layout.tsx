@@ -1,22 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import DemoBanner from "@/components/ui/DemoBanner";
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-  weight: ["400", "500", "600"],
-});
+// Font variables defined in CSS via @font-face or system fallback
+const jakarta = { variable: "--font-jakarta" };
+const inter = { variable: "--font-inter" };
 
 export const metadata: Metadata = {
   title: {
