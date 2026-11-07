@@ -28,27 +28,156 @@ export const metadata: Metadata = {
     "healthcare training Uganda, nursing care certificate, caregiver course Kampala, Musawo Training Center",
 };
 
+/* ─── Static fallback courses (shown when DB is unavailable at build time) ── */
+
+type PublicCourse = {
+  id: string;
+  title: string;
+  slug: string;
+  shortDescription: string | null;
+  thumbnailUrl: string | null;
+  fullFeeUgx: number | null;
+  internationalFeeUgx: number | null;
+  feeContactOnly: boolean;
+  durationMonths: number | null;
+  instalmentCount: number;
+  category: string;
+};
+
+const STATIC_COURSES: PublicCourse[] = [
+  {
+    id: "static-mhc",
+    title: "Certificate in Medical Home Care Course",
+    slug: "medical-home-caregiver",
+    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
+    thumbnailUrl: "/assets/images/cna-course.webp",
+    fullFeeUgx: 2300000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 3,
+    instalmentCount: 3,
+    category: "PROFESSIONAL",
+  },
+  {
+    id: "static-bhc",
+    title: "Certificate in Basic Home Care",
+    slug: "basic-home-caregiver",
+    shortDescription: "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care to patients in their homes and communities.",
+    thumbnailUrl: "/assets/images/basic-nursing.webp",
+    fullFeeUgx: 1800000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 3,
+    instalmentCount: 3,
+    category: "OPEN",
+  },
+  {
+    id: "static-bcs",
+    title: "Basic Certificate in Babysitting, Child Care and Safety Management",
+    slug: "babysitting-childcare-safety",
+    shortDescription: "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters. Promotes responsible caregiving, child protection and safety awareness.",
+    thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
+    fullFeeUgx: 1200000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 2,
+    instalmentCount: 2,
+    category: "OPEN",
+  },
+  {
+    id: "static-mha",
+    title: "Certificate in Mental Health Support and Advocacy",
+    slug: "mental-health-support-advocacy",
+    shortDescription: "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health, recognise psychological distress, and advocate for people living with mental health conditions in Uganda.",
+    thumbnailUrl: "/assets/community-outreach.webp",
+    fullFeeUgx: 1800000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 3,
+    instalmentCount: 3,
+    category: "OPEN",
+  },
+  {
+    id: "static-cop",
+    title: "Basic Certificate in Care of Older Persons and Persons with Disability",
+    slug: "care-older-persons-disability",
+    shortDescription: "Equips participants with the basic knowledge and practical skills to provide safe, dignified and skilled care to older persons and adults with disabilities in homes, care homes, day centres and communities.",
+    thumbnailUrl: "/assets/clinical-training.webp",
+    fullFeeUgx: 1800000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 3,
+    instalmentCount: 3,
+    category: "OPEN",
+  },
+  {
+    id: "static-bls",
+    title: "Certificate in Basic Life Support",
+    slug: "basic-life-support-first-aid",
+    shortDescription: "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies and provide high-quality care.",
+    thumbnailUrl: "/assets/training-session.webp",
+    fullFeeUgx: 600000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 1,
+    instalmentCount: 1,
+    category: "PROFESSIONAL",
+  },
+  {
+    id: "static-als",
+    title: "Certificate in Advanced Life Support",
+    slug: "advanced-life-support",
+    shortDescription: "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies. Builds on BLS competence with ACLS and post-resuscitation care.",
+    thumbnailUrl: "/assets/healthcare-services.webp",
+    fullFeeUgx: 900000,
+    internationalFeeUgx: null,
+    feeContactOnly: false,
+    durationMonths: 1,
+    instalmentCount: 1,
+    category: "PROFESSIONAL",
+  },
+  {
+    id: "static-afa",
+    title: "Certificate in Advanced First Aid",
+    slug: "advanced-first-aid",
+    shortDescription: "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately before professional medical help arrives.",
+    thumbnailUrl: "/assets/training-session.webp",
+    fullFeeUgx: null,
+    internationalFeeUgx: null,
+    feeContactOnly: true,
+    durationMonths: 1,
+    instalmentCount: 1,
+    category: "OPEN",
+  },
+];
+
 /* ─── Data ────────────────────────────────────────────────────── */
 
-async function getPublicCourses() {
-  return db.course.findMany({
-    where: { status: "PUBLISHED" },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      shortDescription: true,
-      thumbnailUrl: true,
-      fullFeeUgx: true,
-      internationalFeeUgx: true,
-      feeContactOnly: true,
-      durationMonths: true,
-      instalmentCount: true,
-      category: true,
-    },
-    orderBy: { createdAt: "asc" },
-    take: 8,
-  });
+async function getPublicCourses(): Promise<PublicCourse[]> {
+  try {
+    const rows = await db.course.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        shortDescription: true,
+        thumbnailUrl: true,
+        fullFeeUgx: true,
+        internationalFeeUgx: true,
+        feeContactOnly: true,
+        durationMonths: true,
+        instalmentCount: true,
+        category: true,
+      },
+      orderBy: { createdAt: "asc" },
+      take: 8,
+    });
+    // Fall back to static list if DB returned nothing (build-time, cold start)
+    return rows.length > 0 ? rows : STATIC_COURSES;
+  } catch {
+    return STATIC_COURSES;
+  }
 }
 
 /* ─── Constants ───────────────────────────────────────────────── */

@@ -25,6 +25,82 @@ const FALLBACK: Record<string, string> = {
   "advanced-first-aid": "/assets/training-session.webp",
 };
 
+// Static fallback courses used when the DB is unreachable at build/cold-start time
+const STATIC_COURSE_ITEMS: CourseItem[] = [
+  {
+    id: "static-mhc", title: "Certificate in Medical Home Care Course",
+    slug: "medical-home-caregiver", category: "PROFESSIONAL",
+    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
+    thumbnailUrl: null, img: "/assets/images/cna-course.webp",
+    fullFeeUgx: 2300000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 3, durationWeeks: null, instalmentCount: 3,
+    tutorName: "Dr. Mathias Senyondo", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-bhc", title: "Certificate in Basic Home Care",
+    slug: "basic-home-caregiver", category: "OPEN",
+    shortDescription: "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care.",
+    thumbnailUrl: null, img: "/assets/images/basic-nursing.webp",
+    fullFeeUgx: 1800000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 3, durationWeeks: null, instalmentCount: 3,
+    tutorName: "Mirembe Joel", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-bcs", title: "Basic Certificate in Babysitting, Child Care and Safety Management",
+    slug: "babysitting-childcare-safety", category: "OPEN",
+    shortDescription: "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters.",
+    thumbnailUrl: null, img: "/assets/images/first-aid-child-safety.jpg",
+    fullFeeUgx: 1200000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 2, durationWeeks: null, instalmentCount: 2,
+    tutorName: "Mirembe Joel", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-mha", title: "Certificate in Mental Health Support and Advocacy",
+    slug: "mental-health-support-advocacy", category: "OPEN",
+    shortDescription: "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health and advocate for people living with mental health conditions in Uganda.",
+    thumbnailUrl: null, img: "/assets/community-outreach.webp",
+    fullFeeUgx: 1800000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 3, durationWeeks: null, instalmentCount: 3,
+    tutorName: "Dr. Mathias Senyondo", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-cop", title: "Basic Certificate in Care of Older Persons and Persons with Disability",
+    slug: "care-older-persons-disability", category: "OPEN",
+    shortDescription: "Equips participants with the basic knowledge and practical skills to provide safe, dignified and skilled care to older persons and adults with disabilities.",
+    thumbnailUrl: null, img: "/assets/clinical-training.webp",
+    fullFeeUgx: 1800000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 3, durationWeeks: null, instalmentCount: 3,
+    tutorName: "Mirembe Joel", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-bls", title: "Certificate in Basic Life Support",
+    slug: "basic-life-support-first-aid", category: "PROFESSIONAL",
+    shortDescription: "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies.",
+    thumbnailUrl: null, img: "/assets/training-session.webp",
+    fullFeeUgx: 600000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 1, durationWeeks: null, instalmentCount: 1,
+    tutorName: "Dr. Mathias Senyondo", lessonCount: 5, enrolmentCount: 0,
+  },
+  {
+    id: "static-als", title: "Certificate in Advanced Life Support",
+    slug: "advanced-life-support", category: "PROFESSIONAL",
+    shortDescription: "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies.",
+    thumbnailUrl: null, img: "/assets/healthcare-services.webp",
+    fullFeeUgx: 900000, internationalFeeUgx: null, feeContactOnly: false,
+    durationMonths: 1, durationWeeks: null, instalmentCount: 1,
+    tutorName: "Dr. Mathias Senyondo", lessonCount: 6, enrolmentCount: 0,
+  },
+  {
+    id: "static-afa", title: "Certificate in Advanced First Aid",
+    slug: "advanced-first-aid", category: "OPEN",
+    shortDescription: "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies and respond appropriately before professional medical help arrives.",
+    thumbnailUrl: null, img: "/assets/training-session.webp",
+    fullFeeUgx: null, internationalFeeUgx: null, feeContactOnly: true,
+    durationMonths: 1, durationWeeks: null, instalmentCount: 1,
+    tutorName: "Mirembe Joel", lessonCount: 4, enrolmentCount: 0,
+  },
+];
+
 const COMPARE_ROWS = [
   {
     feature: "Duration",
@@ -111,34 +187,42 @@ const COMPARE_INSTALMENTS = [
 ];
 
 export default async function CoursesPage() {
-  const dbCourses = await db.course.findMany({
-    where: { status: "PUBLISHED" },
-    include: {
-      tutor: { select: { name: true } },
-      _count: { select: { enrolments: true } },
-      blocks: { select: { _count: { select: { lessons: true } } } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  let courses: CourseItem[] = STATIC_COURSE_ITEMS;
 
-  const courses: CourseItem[] = dbCourses.map((c) => ({
-    id: c.id,
-    title: c.title,
-    slug: c.slug,
-    shortDescription: c.shortDescription,
-    thumbnailUrl: c.thumbnailUrl,
-    fullFeeUgx: c.fullFeeUgx,
-    internationalFeeUgx: c.internationalFeeUgx,
-    feeContactOnly: c.feeContactOnly,
-    durationMonths: c.durationMonths,
-    durationWeeks: c.durationWeeks,
-    instalmentCount: c.instalmentCount,
-    tutorName: c.tutor.name,
-    lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
-    enrolmentCount: c._count.enrolments,
-    img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/training-session.webp",
-    category: c.category,
-  }));
+  try {
+    const dbCourses = await db.course.findMany({
+      where: { status: "PUBLISHED" },
+      include: {
+        tutor: { select: { name: true } },
+        _count: { select: { enrolments: true } },
+        blocks: { select: { _count: { select: { lessons: true } } } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (dbCourses.length > 0) {
+      courses = dbCourses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        slug: c.slug,
+        shortDescription: c.shortDescription,
+        thumbnailUrl: c.thumbnailUrl,
+        fullFeeUgx: c.fullFeeUgx,
+        internationalFeeUgx: c.internationalFeeUgx,
+        feeContactOnly: c.feeContactOnly,
+        durationMonths: c.durationMonths,
+        durationWeeks: c.durationWeeks,
+        instalmentCount: c.instalmentCount,
+        tutorName: c.tutor.name,
+        lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
+        enrolmentCount: c._count.enrolments,
+        img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/training-session.webp",
+        category: c.category,
+      }));
+    }
+  } catch {
+    // DB unavailable - use static fallback
+  }
 
   return (
     <div className="bg-surface">
