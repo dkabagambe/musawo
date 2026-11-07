@@ -339,6 +339,27 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     value: "November 2026",
     description: "Current intake label",
   },
+  // ── Auth rate-limit settings (all numbers editable by Director/IT) ───────
+  {
+    key: "auth.rateLimit.account.maxFailures",
+    value: "5",
+    description: "Failed login attempts before an account is temporarily locked",
+  },
+  {
+    key: "auth.rateLimit.account.windowSecs",
+    value: "900",
+    description: "Window in seconds for per-account failure counting (default 15 min)",
+  },
+  {
+    key: "auth.rateLimit.ip.maxFailures",
+    value: "100",
+    description: "Failed login attempts from one IP before that IP is temporarily blocked",
+  },
+  {
+    key: "auth.rateLimit.ip.windowSecs",
+    value: "900",
+    description: "Window in seconds for per-IP failure counting (default 15 min)",
+  },
 ];
 
 // ─── Student profiles ─────────────────────────────────────────────

@@ -12,7 +12,7 @@ import { db } from "@/lib/db";
 import { verifyPassword } from "./password";
 import { verifyTotp, decryptSecret } from "@/lib/totp";
 import { authConfig } from "./auth.config";
-import { checkRateLimit } from "@/lib/auth/rate-limit";
+import { checkLoginAllowed, recordLoginFailure, recordLoginSuccess } from "@/lib/auth/rate-limit";
 import type { UserRole } from "@prisma/client";
 
 /** Extract the client IP from request headers (works behind proxies). */
@@ -40,34 +40,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null;
 
-        // ── Rate limit: 5 login attempts per 10 min per IP ──────────────
-        const ip = getClientIp();
-        const rl = await checkRateLimit({
-          key: `auth:login:${ip}`,
-          maxRequests: 5,
-          windowSeconds: 600,
-        });
-        if (!rl.allowed) return null; // silently fail — prevents brute-force
-
+        const ip         = getClientIp();
         const identifier = credentials.identifier as string;
         const password   = credentials.password   as string;
         const totpCode   = (credentials.totpCode as string | undefined)?.replace(/\s/g, "") ?? "";
+
+        // ── Rate limit: check BEFORE attempting (only failures are counted) ─
+        const rlCheck = await checkLoginAllowed(identifier, ip);
+        if (!rlCheck.allowed) return null; // silently fail; message is in rlCheck.message
 
         const user = await db.user.findFirst({
           where: { OR: [{ email: identifier }, { phone: identifier }] },
         });
 
-        if (!user || !user.passwordHash) return null;
+        if (!user || !user.passwordHash) {
+          // Record failure for the IP even when account doesn't exist (enumeration)
+          await recordLoginFailure(identifier, ip);
+          return null;
+        }
         // Login is impossible before the account is accepted/active.
         // PENDING_VERIFICATION: email not confirmed (registration flow - not used for invite flow)
         // PENDING_ACCEPTANCE:   Registrar created the account; student has not confirmed details yet
         // DETAILS_DISPUTED:     student flagged details as wrong; must contact Registrar
         if (user.status === "SUSPENDED" ||
             user.status === "PENDING_ACCEPTANCE" ||
-            user.status === "DETAILS_DISPUTED") return null;
+            user.status === "DETAILS_DISPUTED") return null; // do not count as failure
 
         const valid = await verifyPassword(password, user.passwordHash);
-        if (!valid) return null;
+        if (!valid) {
+          await recordLoginFailure(identifier, ip);
+          return null;
+        }
 
         // ── TOTP enforcement ─────────────────────────────────────────
         // Any user with totpEnabled=true must supply a valid code.
@@ -81,6 +84,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const ok     = await verifyTotp(secret, totpCode);
           if (!ok) return null;
         }
+
+        // ── Successful login: clear the per-account failure counter ────
+        await recordLoginSuccess(identifier);
 
         return {
           id:          user.id,
@@ -103,13 +109,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.code) return null;
 
-        // ── Rate limit: 5 OTP attempts per 10 min per IP ───────────────
+        // ── Rate limit: OTP failures per IP ───────────────────────────
         const ip = getClientIp();
-        const rl = await checkRateLimit({
-          key: `auth:otp:${ip}`,
-          maxRequests: 5,
-          windowSeconds: 600,
-        });
+        const rl = await checkLoginAllowed(`otp:${credentials.phone as string}`, ip);
         if (!rl.allowed) return null;
 
         const phone = credentials.phone as string;
@@ -134,9 +136,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         });
 
-        if (!otp) return null;
+        if (!otp) {
+          await recordLoginFailure(`otp:${credentials.phone as string}`, ip);
+          return null;
+        }
 
         await db.otpCode.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
+        await recordLoginSuccess(`otp:${credentials.phone as string}`);
 
         if (!user.phoneVerified) {
           await db.user.update({
