@@ -24,9 +24,22 @@ test.describe("Homepage hero", () => {
     test(`renders correctly at ${vp.name}`, async ({ page }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(`${BASE}/`);
+      await page.waitForLoadState("networkidle");
 
-      const h1 = page.locator("h1").first();
-      await expect(h1).toBeVisible();
+      // Framer Motion renders h1 with opacity:0 SSR; wait for animation to complete
+      // by polling until opacity is not "0" (up to 10s)
+      await page.waitForFunction(
+        () => {
+          const h1 = document.querySelector("h1");
+          if (!h1) return false;
+          const style = window.getComputedStyle(h1);
+          return parseFloat(style.opacity) > 0;
+        },
+        { timeout: 10_000 },
+      );
+
+      const h1 = page.locator("h1:visible").first();
+      await expect(h1).toBeVisible({ timeout: 5_000 });
       await expect(h1).toContainText(/certified/i);
 
       // No horizontal scroll

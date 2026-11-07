@@ -21,7 +21,8 @@ interface Props {
 
 export default async function AdminPaymentsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "payments.view"))
+  // Finance overview is Principal+ only; Admin (operations) uses /admin/admissions for proof-of-payment
+  if (!session?.user || !can(session.user.role, "finance.totals.view"))
     redirect("/403");
 
   const page = Math.max(1, Number(searchParams.page ?? 1));

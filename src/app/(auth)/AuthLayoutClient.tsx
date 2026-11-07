@@ -75,7 +75,7 @@ export default function AuthLayoutClient({ children }: { children: React.ReactNo
               aria-label="Back to home"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              <span>Home</span>
+              <span>Back to home</span>
             </Link>
           </div>
           <div className="relative h-56 sm:h-72 overflow-hidden">

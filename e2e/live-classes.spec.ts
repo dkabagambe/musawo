@@ -11,7 +11,7 @@ test.describe("Batch B teaching and live access", () => {
   test("instructor can open material upload and PDF is an accepted file type", async ({ page }) => {
     await demoLogin(page, "tutor@mtc.ac.ug", /\/tutor/);
     await page.goto("/tutor/materials");
-    await expect(page.getByRole("heading", { name: "Materials" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Materials" }).first()).toBeVisible();
     await page.getByRole("button", { name: /upload material/i }).click();
     const file = page.getByLabel(/pdf, docx, pptx or image file/i);
     await expect(file).toBeVisible();

@@ -13,7 +13,8 @@ interface Props {
 
 export default async function AdminAuditPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "audit.view")) redirect("/403");
+  // Full audit log is Principal+ only; Admin (operations) does not have audit.view.full
+  if (!session?.user || !can(session.user.role, "audit.view.full")) redirect("/403");
 
   const actionFilter = searchParams.action ?? "";
   const page = Math.max(1, Number(searchParams.page ?? 1));

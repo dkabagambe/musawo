@@ -16,7 +16,7 @@ const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 /** Auth pages to check */
 const AUTH_PAGES = [
   { path: "/login",               formSelector: "form",              name: "Login" },
-  { path: "/register",            formSelector: "form",              name: "Register" },
+  // /register redirects to /apply (self-registration is disabled); skip it
   { path: "/forgot-password",     formSelector: "form",              name: "Forgot password" },
   { path: "/otp",                 formSelector: "form",              name: "OTP phone sign-in" },
   { path: "/check-email",         formSelector: "h1",                name: "Check email" },

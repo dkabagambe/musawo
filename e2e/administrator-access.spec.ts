@@ -22,12 +22,12 @@ test.describe("Administrator operations role", () => {
       page.getByRole("heading", { name: /hello rahiima/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Student Lookup" }),
+      page.getByRole("link", { name: "Student Lookup" }).first(),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Support" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Timetable" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Equipment" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Notices" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Support" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Timetable" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Equipment" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Notices" }).first()).toBeVisible();
 
     for (const path of [
       "/admin/support",
@@ -37,7 +37,8 @@ test.describe("Administrator operations role", () => {
       "/admin/students",
       "/admin/invites",
     ]) {
-      await page.goto(`${BASE}${path}`);
+      await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(300);
       await expect(page).not.toHaveURL(/\/403$/);
     }
   });
@@ -54,7 +55,7 @@ test.describe("Administrator operations role", () => {
       "/admin/audit",
       "/admin/partner-pages",
     ]) {
-      await page.goto(`${BASE}${path}`);
+      await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
       await expect(page).toHaveURL(/\/403$/);
     }
   });

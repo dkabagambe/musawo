@@ -59,7 +59,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   // /deputy, /finance, /bursar route groups removed (roles eliminated in remarks.md section 1)
   { prefix: "/admin/tutors", permissions: ["staff.view"] },
   { prefix: "/admin/intakes", permissions: ["intakes.manage"] },
-  { prefix: "/admin/support", permissions: ["support.manage"] },
+  { prefix: "/admin/support", permissions: ["support.submit"] },
   { prefix: "/admin/settings", permissions: ["settings.view", "settings.edit.operational"] },
   { prefix: "/admin/audit", permissions: ["audit.view"] },
   { prefix: "/admin/invites", permissions: ["invites.resend"] },

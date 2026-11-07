@@ -11,7 +11,8 @@ export const metadata = { title: "Staff - Admin" };
 
 export default async function AdminTutorsPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "staff.view")) redirect("/403");
+  // Only Principal+ can manage staff from this portal; Admin (operations) cannot
+  if (!session?.user || !can(session.user.role, "staff.create.approve")) redirect("/403");
 
   const canInvite = can(session.user.role, "staff.create.initiate");
 

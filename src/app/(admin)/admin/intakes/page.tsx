@@ -9,7 +9,8 @@ export const metadata = { title: "Academic Years & Semesters - Admin" };
 
 export default async function AdminIntakesPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "intakes.manage"))
+  // Principal+ manages intakes/academic-years; Admin (operations) is excluded
+  if (!session?.user || !can(session.user.role, "courses.publish"))
     redirect("/403");
 
   const courses = await db.course.findMany({

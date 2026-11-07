@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function AdminSupportPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "support.manage"))
+  if (!session?.user || !can(session.user.role, "support.submit"))
     redirect("/403");
 
   return (

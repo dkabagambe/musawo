@@ -44,7 +44,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
   {
     item: {
       href: "/admin/students",
-      label: "Students",
+      label: "Student Lookup",
       icon: <Users className="w-4 h-4" />,
     },
     permission: "students.view",
@@ -63,7 +63,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Instructors",
       icon: <GraduationCap className="w-4 h-4" />,
     },
-    permission: "staff.view",
+    permission: "staff.create.approve",
   },
   {
     item: {
@@ -79,7 +79,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Courses",
       icon: <BookOpen className="w-4 h-4" />,
     },
-    permission: "courses.view",
+    permission: "courses.create",
   },
   {
     item: {
@@ -95,7 +95,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Academic Years & Semesters",
       icon: <Calendar className="w-4 h-4" />,
     },
-    permission: "intakes.manage",
+    permission: "courses.publish",
   },
   {
     item: {
@@ -168,7 +168,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Payments",
       icon: <CreditCard className="w-4 h-4" />,
     },
-    permission: "payments.view",
+    permission: "finance.totals.view",
   },
   {
     item: {
@@ -241,7 +241,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Audit Log",
       icon: <Search className="w-4 h-4" />,
     },
-    permission: "audit.view",
+    permission: "audit.view.full",
   },
 ];
 

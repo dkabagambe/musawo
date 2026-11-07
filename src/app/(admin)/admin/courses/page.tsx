@@ -11,7 +11,8 @@ export const metadata = { title: "Courses - Admin" };
 
 export default async function AdminCoursesPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "courses.view"))
+  // Principal+ manages course records; Admin (operations) is read-only elsewhere
+  if (!session?.user || !can(session.user.role, "courses.create"))
     redirect("/403");
 
   const courses = await db.course.findMany({

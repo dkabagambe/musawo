@@ -25,7 +25,7 @@ const PUBLIC_PAGES = [
   "/faq",
   "/resources",
   "/contact",
-  "/scholarships",
+  // "/scholarships" — page removed; keep entry only if route is re-added
   "/privacy",
   "/terms",
   "/refund",
@@ -52,12 +52,12 @@ for (const vp of VIEWPORTS) {
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
         await page.waitForTimeout(300);
 
-        const footerBox = await page.locator("footer").boundingBox();
+        const footerBox = await page.locator("footer[data-testid='site-footer']").boundingBox();
         expect(footerBox, "footer not found").not.toBeNull();
 
         // Find the element immediately before the footer in DOM order
         const gapPx = await page.evaluate(() => {
-          const footer = document.querySelector("footer");
+          const footer = document.querySelector("footer[data-testid='site-footer']");
           if (!footer) return 0;
 
           // Walk backwards through siblings to find the last visible element
@@ -93,7 +93,7 @@ for (const vp of VIEWPORTS) {
 test.describe("Footer colour — brand teal, not near-black", () => {
   test("footer background is brand teal on homepage", async ({ page }) => {
     await page.goto(`${BASE}/`);
-    const footer = page.locator("footer");
+    const footer = page.locator("footer[data-testid='site-footer']");
     await expect(footer).toBeVisible();
 
     const bg = await footer.evaluate(

@@ -32,7 +32,7 @@ const PUBLIC_PAGES = [
   "/contact",
   "/faq",
   "/about",
-  "/scholarships",
+  // "/scholarships" — page removed
   "/admissions/how-to-enrol",
   "/admissions/fees",
   "/admissions/payment-options",
@@ -45,7 +45,7 @@ const PUBLIC_PAGES = [
 
 const AUTH_PAGES = [
   "/login",
-  "/register",
+  // "/register" — redirects to /apply; not an auth layout page
 ];
 
 test.describe("Icon assets", () => {
