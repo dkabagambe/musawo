@@ -18,9 +18,12 @@ export const authConfig: NextAuthConfig = {
 
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
 
-  // Trust the reverse proxy (Render / Vercel / nginx)
-  // AUTH_TRUST_HOST=true must be set in the environment.
-  trustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.NODE_ENV !== "production",
+  // Trust the reverse proxy (Render / Vercel / nginx) and localhost.
+  // In next-auth v5, AUTH_URL or AUTH_TRUST_HOST=true must be set, or
+  // NODE_ENV must not be "production". We force trustHost: true here so
+  // the edge middleware never throws UntrustedHost regardless of env var order.
+  // Production deployments must also set AUTH_TRUST_HOST=true (render.yaml does).
+  trustHost: true,
 
   // No providers here - added in index.ts (Node runtime only)
   providers: [],
