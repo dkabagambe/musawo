@@ -13,6 +13,8 @@ const BASE = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 /** Sign in via the dev-login quick button (no password required). */
 async function devLogin(page: Page, email: string, expectedUrlPattern: RegExp) {
+  // Clear any stale session from a previous test
+  await page.context().clearCookies();
   await page.goto(`${BASE}/dev/login`);
   const emailPattern = new RegExp(
     `^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
@@ -25,16 +27,10 @@ async function devLogin(page: Page, email: string, expectedUrlPattern: RegExp) {
 }
 
 async function logout(page: Page) {
-  await page.goto(`${BASE}/api/auth/signout`);
-  const btn = page.getByRole("button", { name: /sign out/i });
-  if (await btn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-    await btn.click();
-  }
-  await page.waitForURL(
-    (url) =>
-      url.pathname === "/" || url.pathname.startsWith("/login"),
-    { timeout: 8_000 },
-  );
+  // Clear cookies directly — faster and more reliable than navigating to
+  // the NextAuth signout page, which may not render a confirmation button
+  // in production builds.
+  await page.context().clearCookies();
 }
 
 // ─── Post-login landing per role ──────────────────────────────────────────────
@@ -45,22 +41,14 @@ test.describe("Post-login redirect by role", () => {
   });
 
   const ROLE_LANDINGS: Array<{ label: string; email: string; pattern: RegExp }> = [
-    { label: "SUPER_ADMIN",        email: "ceo@mtc.ac.ug",                pattern: /\/director/ },
-    { label: "SUPER_ADMIN (2)",    email: "deputy@mtc.ac.ug",             pattern: /\/director/ },
-    { label: "BOARD_MEMBER",       email: "board@mtc.ac.ug",              pattern: /\/board/ },
-    { label: "BOARD_MEMBER (sec)", email: "secretary@mtc.ac.ug",         pattern: /\/board/ },
-    { label: "PRINCIPAL",          email: "principal@mtc.ac.ug",          pattern: /\/principal/ },
-    { label: "DEPUTY_PRINCIPAL",   email: "deputyprincipal@mtc.ac.ug",    pattern: /\/deputy/ },
-    { label: "ACADEMIC_REGISTRAR", email: "registrar@mtc.ac.ug",          pattern: /\/registrar/ },
-    { label: "FINANCE_OFFICER",    email: "finance@mtc.ac.ug",            pattern: /\/finance/ },
-    { label: "HR_MANAGER",         email: "hr@mtc.ac.ug",                 pattern: /\/admin/ },
-    { label: "ADMINISTRATOR",      email: "admin@mtc.ac.ug",              pattern: /\/admin/ },
-    { label: "AUDITOR_READONLY",   email: "auditor@mtc.ac.ug",            pattern: /\/auditor/ },
-    { label: "SYSTEM_IT",          email: "itadmin@mtc.ac.ug",            pattern: /\/system/ },
-    { label: "INSTRUCTOR",         email: "tutor@mtc.ac.ug",              pattern: /\/tutor/ },
-    { label: "INSTRUCTOR (2)",     email: "tutor2@mtc.ac.ug",             pattern: /\/tutor/ },
-    { label: "TEACHING_ASSISTANT", email: "assistant@mtc.ac.ug",          pattern: /\/tutor/ },
-    { label: "STUDENT",            email: "student.full@example.com",     pattern: /\/dashboard/ },
+    { label: "DIRECTOR",          email: "director@mtc.ac.ug",          pattern: /\/director/ },
+    { label: "PRINCIPAL",         email: "principal@mtc.ac.ug",         pattern: /\/principal/ },
+    { label: "ADMIN",             email: "admin@mtc.ac.ug",             pattern: /\/admin/ },
+    { label: "ACADEMIC_REGISTRAR", email: "registrar@mtc.ac.ug",        pattern: /\/registrar/ },
+    { label: "INSTRUCTOR",        email: "tutor@mtc.ac.ug",             pattern: /\/tutor/ },
+    { label: "INSTRUCTOR (2)",    email: "tutor2@mtc.ac.ug",            pattern: /\/tutor/ },
+    { label: "SYSTEM_IT",         email: "itadmin@mtc.ac.ug",           pattern: /\/system/ },
+    { label: "STUDENT",           email: "student.full@example.com",    pattern: /\/dashboard/ },
   ];
 
   for (const { label, email, pattern } of ROLE_LANDINGS) {
@@ -140,13 +128,13 @@ test.describe("Access control", () => {
       "student.full@example.com",
       "tutor@mtc.ac.ug",
       "registrar@mtc.ac.ug",
-      "finance@mtc.ac.ug",
+      "admin@mtc.ac.ug",
     ];
     for (const email of accounts) {
       await devLogin(
         page,
         email,
-        /\/(dashboard|tutor|registrar|finance)/,
+        /\/(dashboard|tutor|registrar|admin)/,
       );
       expect(page.url()).not.toContain("_rbac_redirect");
       await logout(page);

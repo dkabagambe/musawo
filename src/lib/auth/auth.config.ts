@@ -25,6 +25,11 @@ export const authConfig: NextAuthConfig = {
   // Production deployments must also set AUTH_TRUST_HOST=true (render.yaml does).
   trustHost: true,
 
+  // When running a production build over HTTP (e.g. next start on localhost
+  // without HTTPS), NextAuth defaults to Secure cookies which browsers reject
+  // on plain HTTP.  Only use Secure cookies when the AUTH_URL is HTTPS.
+  useSecureCookies: process.env.AUTH_URL?.startsWith("https://"),
+
   // No providers here - added in index.ts (Node runtime only)
   providers: [],
 

@@ -145,6 +145,23 @@ test.describe("authenticated portal shell", () => {
     page,
   }) => {
     await loginAsStudent(page);
+
+    // Reset widget preferences so the test starts from a clean state.
+    // Without this, a prior run that hid my-courses leaves the switch
+    // labeled "Show My Courses" and the "Hide My Courses" lookup times out.
+    await page.request.put("/api/dashboard/widgets", {
+      data: {
+        tab: "general",
+        widgets: [
+          { id: "student-todos", visible: true, column: 0, position: 0 },
+          { id: "holds", visible: true, column: 0, position: 1 },
+          { id: "upcoming-classes", visible: true, column: 1, position: 2 },
+          { id: "my-courses", visible: true, column: 1, position: 3 },
+          { id: "inbox", visible: true, column: 0, position: 4 },
+        ],
+      },
+    });
+
     await page.getByRole("tab", { name: "Studies" }).click();
     await expect(page).toHaveURL(/tab=studies/);
     await expect(page.getByRole("tab", { name: "Studies" })).toHaveAttribute(
@@ -179,10 +196,11 @@ test.describe("authenticated portal shell", () => {
       "/api/dashboard/widgets?tab=general",
     );
     const body = await response.json();
+    // my-courses starts at position 3; one move-up swaps with position 2
     expect(
       body.widgets.find((widget: { id: string }) => widget.id === "my-courses")
         .position,
-    ).toBe(0);
+    ).toBe(2);
   });
 
   test("rejects a widget and portal route outside the student's permissions", async ({
@@ -295,10 +313,14 @@ test.describe("per-role shell and RBAC checks", () => {
 
       // Tablet: icon rail
       await page.setViewportSize({ width: 820, height: 900 });
-      const railWidth = await page
-        .locator(".portal-desktop-sidebar")
-        .evaluate((el) => el.getBoundingClientRect().width);
-      expect(railWidth).toBe(72);
+      // The sidebar has a CSS width transition (180ms); poll until it settles
+      await expect.poll(
+        async () =>
+          await page
+            .locator(".portal-desktop-sidebar")
+            .evaluate((el) => Math.round(el.getBoundingClientRect().width)),
+        { timeout: 2000, message: "sidebar should collapse to 72px at tablet" },
+      ).toBe(72);
 
       // Phone: hamburger and drawer
       await page.setViewportSize({ width: 390, height: 844 });

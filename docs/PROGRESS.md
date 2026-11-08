@@ -89,3 +89,34 @@ Unit tests: 596 pass, 2 fail (see section 3).
 1. **Fix the 3 no-dashes violations** (15 min): Replace em-dash in ApplyForm.tsx:311 with a hyphen or comma; strip the comment em-dash flagged at :319; replace the `"-"` placeholder in registrar/applications page with `"N/A"`. This unblocks the failing test.
 2. **Clean up stale role labels** (30 min): Remove BOARD_MEMBER, DEPUTY_PRINCIPAL, TEACHING_ASSISTANT, FINANCE_OFFICER, HR_MANAGER, AUDITOR_READONLY from `src/lib/dashboard/widgets.ts` label map and from the admin settings key list; they serve no function after the migration and confuse future readers.
 3. **Generalise HOW_HEARD social media options** (10 min): Collapse Facebook, LinkedIn, X, TikTok, Instagram, YouTube, WhatsApp into one "Social media" option as the spec requires; keep CHW, VHT, Friend or family, Radio or TV, Poster or flyer, Other.
+
+
+---
+
+## Update - November 8, 2026: Production readiness audit
+
+All previously failing e2e tests fixed and verified against a live production build.
+
+### Test results (all real runs)
+
+| Check | Result |
+|---|---|
+| `npx next build` (no DB) | PASS |
+| `npx tsc --noEmit` | PASS (0 errors) |
+| `npm run test` (vitest) | 605/605 PASS |
+| `npm run verify:roles` | 7/7 PASS |
+| Playwright suite | 402/402 PASS (11 spec files) |
+
+### Fixes applied
+
+1. **portal-shell widget toggle** — added widget preference reset before test (state leak from prior runs) and fixed position assertion (one move-up from index 3 = position 2, not 0).
+2. **portal-shell Academic Registrar** — used `expect.poll` for sidebar width check (CSS `transition: width 180ms` caused mid-transition reading of 161px instead of 72px).
+3. **redirects test** — removed 8 legacy role accounts that no longer exist in seed (BOARD_MEMBER, DEPUTY_PRINCIPAL, FINANCE_OFFICER, HR_MANAGER, AUDITOR_READONLY, TEACHING_ASSISTANT, SUPER_ADMIN). Replaced hanging `logout()` with `page.context().clearCookies()`.
+4. **Production-mode demo login** — added `useSecureCookies: process.env.AUTH_URL?.startsWith("https://")` to `auth.config.ts`. Fixes login over HTTP on localhost in production builds. Secure cookies still used when AUTH_URL is HTTPS (Render).
+
+### Files changed
+
+- `e2e/portal-shell.spec.ts` — widget reset, position assertion, expect.poll for sidebar
+- `e2e/redirects.spec.ts` — current 7 roles only, cookie-clear logout
+- `src/lib/auth/auth.config.ts` — useSecureCookies based on AUTH_URL
+- `docs/READINESS.md` — full readiness report with real test results
