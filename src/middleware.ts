@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authConfig } from "@/lib/auth/auth.config";
 import { canAccessPrefix, getHomeForRole } from "@/lib/rbac";
+import { isTotpEnforced } from "@/lib/env";
 import type { UserRole } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
@@ -157,15 +158,15 @@ export default auth(function middleware(req: NextRequest) {
     );
   }
 
-  // DIRECTOR and PRINCIPAL must have TOTP enabled.
-  // If they are logged in but have not set up TOTP yet, redirect them to
-  // /2fa-setup on every protected page until setup is complete.
-  // Allow /2fa-setup, /api/auth/totp, and /signout so they can complete setup or log out.
+  // DIRECTOR and PRINCIPAL must have TOTP enabled when enforcement is on.
+  // Enforcement is on in production (APP_ENV=production) or when TOTP_REQUIRED=true.
+  // In development and staging without TOTP_REQUIRED=true, demo accounts skip 2FA.
   const TOTP_REQUIRED_ROLES: UserRole[] = ["DIRECTOR", "PRINCIPAL"];
   const totpSetupPaths = ["/2fa-setup", "/api/auth/totp", "/signout", "/api/auth"];
   const needsTotpSetup =
     isLoggedIn &&
     role &&
+    isTotpEnforced() &&
     TOTP_REQUIRED_ROLES.includes(role) &&
     session?.user?.totpEnabled === false &&
     !totpSetupPaths.some((p) => pathname.startsWith(p));

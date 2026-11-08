@@ -25,7 +25,8 @@
     "verify:roles": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"moduleResolution\":\"node\"}' scripts/verify-roles.ts",
     "seed:remote": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed-remote.ts",
     "db:seed-topup": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed-topup.ts",
-    "bootstrap:prod": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/bootstrap-prod.ts"
+    "bootstrap:prod": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/bootstrap-prod.ts",
+    "reset-2fa": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/reset-2fa.ts"
   },
   "dependencies": {
     "@auth/core": "0.41.3",

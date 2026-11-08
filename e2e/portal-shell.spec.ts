@@ -10,10 +10,10 @@ async function loginAs(page: Page, email: string) {
     has: page.locator("td").filter({ hasText: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) }),
   });
   await row.getByRole("button", { name: /sign in/i }).click();
-  // DevLoginForm does a client-side signIn + router.push — wait up to 15 s.
-  // DIRECTOR and PRINCIPAL land on /2fa-setup when TOTP is not yet configured.
+  // DevLoginForm does a client-side signIn + router.push -- wait up to 15 s.
+  // In staging/development TOTP is NOT enforced so DIRECTOR/PRINCIPAL land directly.
   await expect(page).toHaveURL(
-    /\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system|2fa-setup)/,
+    /\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system)/,
     { timeout: 15_000 },
   );
 }
@@ -255,7 +255,7 @@ const ROLE_ACCOUNTS: Array<{
   },
   {
     email: "principal@mtc.ac.ug",
-    urlPattern: /\/(principal|2fa-setup)/,
+    urlPattern: /\/principal/,
     label: "Principal",
     forbiddenUrl: "/director/staff",
   },
@@ -267,7 +267,7 @@ const ROLE_ACCOUNTS: Array<{
   },
   {
     email: "director@mtc.ac.ug",
-    urlPattern: /\/(director|2fa-setup)/,
+    urlPattern: /\/director/,
     label: "Director",
     forbiddenUrl: "/dashboard/payments",
   },
@@ -287,15 +287,6 @@ test.describe("per-role shell and RBAC checks", () => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await loginAs(page, account.email);
       await expect(page).toHaveURL(account.urlPattern);
-
-      // DIRECTOR and PRINCIPAL land on /2fa-setup when TOTP is not configured.
-      // Skip portal shell checks for those accounts in demo mode.
-      const currentUrl = page.url();
-      if (currentUrl.includes("/2fa-setup")) {
-        // Verify the mandatory 2FA setup page shows the correct heading
-        await expect(page.getByRole("heading", { name: /two-factor/i })).toBeVisible();
-        return;
-      }
 
       // Shared shell must be present
       await expect(page.locator(".portal-shell")).toBeVisible();

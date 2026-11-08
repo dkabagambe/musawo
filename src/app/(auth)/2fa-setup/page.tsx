@@ -21,6 +21,7 @@ export default function TwoFASetupPage() {
   const [loading, setLoading]     = useState(false);
   const [done, setDone]           = useState(false);
   const [fetching, setFetching]   = useState(true);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const firstDigitId = useId();
@@ -86,12 +87,13 @@ export default function TwoFASetupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       });
-      const data = await res.json() as { ok?: boolean; error?: string };
+      const data = await res.json() as { ok?: boolean; error?: string; backupCodes?: string[] };
       if (!res.ok) {
         setError(data.error ?? "Invalid code. Please try again.");
         setDigits(Array(CODE_LENGTH).fill(""));
         setTimeout(() => inputRefs.current[0]?.focus(), 50);
       } else {
+        setBackupCodes(data.backupCodes ?? []);
         setDone(true);
       }
     } catch {
@@ -111,9 +113,29 @@ export default function TwoFASetupPage() {
           </div>
         </motion.div>
         <h1 className="text-2xl font-bold text-primary mb-2">2FA enabled</h1>
-        <p className="text-sm text-gray-500 mb-8">
-          Two-factor authentication is now active on your account. You&apos;ll be asked for a code each time you sign in.
+        <p className="text-sm text-gray-500 mb-4">
+          Two-factor authentication is now active on your account.
         </p>
+
+        {backupCodes.length > 0 && (
+          <div className="mb-6 text-left">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-3">
+              <p className="text-sm font-semibold text-amber-800 mb-1">Save your backup codes</p>
+              <p className="text-xs text-amber-700">
+                These 10 codes can each be used once if you lose access to your authenticator app.
+                They are shown only once and cannot be retrieved again. Store them somewhere safe.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {backupCodes.map((code) => (
+                <code key={code} className="text-center font-mono text-sm bg-surface border border-border rounded-lg px-3 py-2">
+                  {code}
+                </code>
+              ))}
+            </div>
+          </div>
+        )}
+
         <Link href={isRequired ? "/_rbac_redirect" : "/dashboard/profile"} className="auth-btn-primary no-underline">
           {isRequired ? "Continue to portal" : "Back to profile"}
         </Link>

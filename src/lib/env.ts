@@ -31,3 +31,18 @@ export function assertDemoAllowed(feature: string): void {
 export function isProduction(): boolean {
   return getAppEnv() === "production";
 }
+
+/**
+ * Whether mandatory TOTP setup is enforced for DIRECTOR and PRINCIPAL.
+ *
+ * True when:
+ *   - APP_ENV=production  (always enforced in production)
+ *   - TOTP_REQUIRED=true  (explicitly forced, e.g. on staging for testing)
+ *
+ * False (default) in development and staging so demo Director/Principal
+ * accounts can log in without a TOTP app.
+ */
+export function isTotpEnforced(): boolean {
+  if (isProduction()) return true;
+  return process.env.TOTP_REQUIRED === "true";
+}

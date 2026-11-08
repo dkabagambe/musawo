@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { generateTotpSecret, generateQrDataUrl } from "@/lib/totp";
+import { generateBackupCodes, encryptBackupCodes } from "@/lib/totp/backup-codes";
 import { audit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 
 /**
  * GET  - generate a new TOTP secret and return QR code (only if not yet enabled)
- * POST - confirm setup with a valid code, then enable TOTP on the account
+ * POST - confirm setup with a valid code, then enable TOTP + generate backup codes
  */
 export async function GET(_req: NextRequest) {
   const session = await auth();
@@ -25,8 +26,7 @@ export async function GET(_req: NextRequest) {
   const { secret, otpauthUrl } = await generateTotpSecret(label);
   const qrDataUrl = await generateQrDataUrl(otpauthUrl);
 
-  // Store the raw secret temporarily in a signed server-side value (we use a short-lived OTP record)
-  // Store in OtpCode table with purpose TOTP_SETUP - reuse the pattern
+  // Store the raw secret temporarily in an OtpCode record with purpose TOTP_SETUP
   await db.otpCode.deleteMany({ where: { userId: session.user.id, purpose: "TOTP_SETUP" } });
   await db.otpCode.create({
     data: {
@@ -64,10 +64,18 @@ export async function POST(req: NextRequest) {
 
   const encrypted = encryptSecret(pending.code);
 
+  // Generate 10 single-use backup codes (plaintext, shown once, stored hashed)
+  const { plainCodes, encryptedJson } = await generateBackupCodes(10);
+
   await db.$transaction([
     db.user.update({
       where: { id: session.user.id },
-      data:  { totpSecret: encrypted, totpEnabled: true, totpVerifiedAt: new Date() },
+      data:  {
+        totpSecret:      encrypted,
+        totpEnabled:     true,
+        totpVerifiedAt:  new Date(),
+        totpBackupCodes: encryptedJson,
+      },
     }),
     db.otpCode.update({ where: { id: pending.id }, data: { usedAt: new Date() } }),
   ]);
@@ -80,5 +88,6 @@ export async function POST(req: NextRequest) {
     ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  return NextResponse.json({ ok: true });
+  // Return plaintext backup codes -- shown once, never retrievable again
+  return NextResponse.json({ ok: true, backupCodes: plainCodes });
 }

@@ -41,10 +41,10 @@ test.describe("Post-login redirect by role", () => {
   });
 
   const ROLE_LANDINGS: Array<{ label: string; email: string; pattern: RegExp }> = [
-    // DIRECTOR and PRINCIPAL are redirected to /2fa-setup on first login
-    // because mandatory TOTP is required for those roles before portal access.
-    { label: "DIRECTOR",          email: "director@mtc.ac.ug",          pattern: /\/2fa-setup/ },
-    { label: "PRINCIPAL",         email: "principal@mtc.ac.ug",         pattern: /\/2fa-setup/ },
+    // In development/staging TOTP is not enforced, so DIRECTOR/PRINCIPAL land on their portals.
+    // In production (or TOTP_REQUIRED=true) they would land on /2fa-setup first.
+    { label: "DIRECTOR",          email: "director@mtc.ac.ug",          pattern: /\/director/ },
+    { label: "PRINCIPAL",         email: "principal@mtc.ac.ug",         pattern: /\/principal/ },
     { label: "ADMIN",             email: "admin@mtc.ac.ug",             pattern: /\/admin/ },
     { label: "ACADEMIC_REGISTRAR", email: "registrar@mtc.ac.ug",        pattern: /\/registrar/ },
     { label: "INSTRUCTOR",        email: "tutor@mtc.ac.ug",             pattern: /\/tutor/ },

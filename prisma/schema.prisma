@@ -154,6 +154,8 @@ enum AuditAction {
   BREAK_GLASS_EXPIRED
   TOTP_ENABLED
   TOTP_DISABLED
+  TOTP_RESET
+  TOTP_BACKUP_USED
   ACCESS_REVIEW_COMPLETED
   PAYMENT_CLAIM_SUBMITTED
   PAYMENT_CLAIM_VERIFIED
@@ -258,10 +260,12 @@ model User {
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt
 
-  // TOTP / 2FA - required for SUPERADMIN, optional for staff
-  totpSecret     String? // encrypted at app layer
-  totpEnabled    Boolean   @default(false)
-  totpVerifiedAt DateTime? // last successful TOTP verification in session
+  // TOTP / 2FA - required for DIRECTOR/PRINCIPAL in production, optional elsewhere
+  totpSecret      String? // encrypted at app layer
+  totpEnabled     Boolean   @default(false)
+  totpVerifiedAt  DateTime? // last successful TOTP verification in session
+  // Backup codes: JSON array of argon2-hashed single-use codes (10 generated at setup)
+  totpBackupCodes String?   @db.Text // encrypted JSON: [{hash, usedAt|null}, ...]
 
   // Access review
   lastAccessReviewAt DateTime?

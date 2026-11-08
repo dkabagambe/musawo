@@ -10,7 +10,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { verifyPassword } from "./password";
-import { verifyTotp, decryptSecret } from "@/lib/totp";
 import { authConfig } from "./auth.config";
 import { checkLoginAllowed, recordLoginFailure, recordLoginSuccess } from "@/lib/auth/rate-limit";
 import type { UserRole } from "@prisma/client";
@@ -51,6 +50,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const user = await db.user.findFirst({
           where: { OR: [{ email: identifier }, { phone: identifier }] },
+          select: {
+            id: true, name: true, email: true, role: true,
+            passwordHash: true, status: true,
+            totpEnabled: true, totpSecret: true, totpBackupCodes: true,
+          },
         });
 
         if (!user || !user.passwordHash) {
@@ -74,15 +78,50 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // ── TOTP enforcement ─────────────────────────────────────────
         // Any user with totpEnabled=true must supply a valid code.
-        // SUPERADMIN accounts that have NOT yet set up TOTP (totpEnabled=false)
-        // are allowed through - this covers freshly-seeded demo accounts and
-        // the brief window between account creation and /2fa-setup completion.
-        // Once a SUPERADMIN enables TOTP it becomes mandatory on every login.
+        // Accepts either a 6-digit TOTP code or an 8-char backup code.
         if (user.totpEnabled && user.totpSecret) {
           if (!totpCode) return null;
-          const secret = decryptSecret(user.totpSecret);
-          const ok     = await verifyTotp(secret, totpCode);
-          if (!ok) return null;
+
+          // Try TOTP code first
+          const { decryptSecret: decrypt, verifyTotp: verify } = await import("@/lib/totp");
+          const secret = decrypt(user.totpSecret);
+          const totpOk = await verify(secret, totpCode);
+
+          if (!totpOk) {
+            // Try backup code (8 hex chars, case-insensitive)
+            if (user.totpBackupCodes && totpCode.replace(/\s/g, "").length === 8) {
+              const { redeemBackupCode } = await import("@/lib/totp/backup-codes");
+              const { redeemed, updatedEncryptedJson } = await redeemBackupCode(
+                user.totpBackupCodes,
+                totpCode.replace(/\s/g, ""),
+              );
+              if (redeemed) {
+                await import("@/lib/db").then(({ db: prisma }) =>
+                  prisma.user.update({
+                    where: { id: user.id },
+                    data: { totpBackupCodes: updatedEncryptedJson },
+                  })
+                );
+                // Audit backup code use
+                try {
+                  const { audit } = await import("@/lib/audit");
+                  await audit({
+                    actorId: user.id,
+                    action: "TOTP_BACKUP_USED",
+                    entityType: "User",
+                    entityId: user.id,
+                    ip,
+                  });
+                } catch { /* non-fatal */ }
+              } else {
+                await recordLoginFailure(identifier, ip);
+                return null;
+              }
+            } else {
+              await recordLoginFailure(identifier, ip);
+              return null;
+            }
+          }
         }
 
         // ── Successful login: clear the per-account failure counter ────

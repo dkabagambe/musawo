@@ -32,17 +32,21 @@ All builds, type checks, unit tests, role verification, and 402 Playwright e2e t
 
 ## 3h. npm audit (high and critical)
 
-All vulnerabilities are in dev/build dependencies, NOT in the production runtime bundle.
+CORRECTION: `next` and `next-auth` are RUNTIME dependencies, not dev tools. Their CVEs affect production deployments.
 
-| Severity | Package | Scope |
-|---|---|---|
-| CRITICAL | `next` | DoS/cache issues in self-hosted Next.js; patch with `npm audit fix` |
-| CRITICAL | `vitest` + `tinypool` | Test runner only; never in production |
-| CRITICAL | `next-auth` + `@auth/core` | Email normalizer homoglyph; malformed Bearer header |
-| HIGH | `zod` | Memory exhaustion on oversized input; upgrade to v4 (breaking) |
-| HIGH | `postcss` + `vite` + `playwright` | Dev tools only; not in production bundle |
+| Severity | Package | Scope | Status |
+|---|---|---|---|
+| CRITICAL | `next` 14.2.35 | Runtime (DoS via Image Optimizer remotePatterns; RSC deserialization) | No patch in 14.x; fix requires upgrade to next 15+ (planned post-launch). Mitigations applied: request size limit in middleware, remotePatterns restricted to trusted hostnames only, app runs behind Render proxy which strips raw RSC headers. |
+| CRITICAL | `vitest` + `tinypool` | Test runner only; not in production build | Patched to vitest 2.1.9 (latest 2.x stable) |
+| HIGH | `next-auth` 5.0.0-beta.32 | Runtime (homoglyph email normalizer) | Already at latest beta; no newer version available |
+| HIGH | `@auth/core` 0.41.3 | Runtime (malformed Bearer) | Already at latest version |
+| HIGH | `zod` 3.23.8 | Runtime (memory exhaustion on oversized records) | Mitigated by input size limits in validators/index.ts; zod v4 is breaking change |
+| HIGH | `postcss` + `vite` + `playwright` | Dev/build tools only | Not in production runtime bundle |
 
-Action: run `npm audit fix` for auto-fixable items. The `next` and `next-auth` criticals should be patched before production.
+### next CVE detail and upgrade plan
+- CVE-1: DoS via Image Optimizer remotePatterns -- this app restricts remotePatterns to three trusted hostnames (learn.musawotraining.ug, musawo.ug, *.musawo.ug). External user-supplied image URLs are not processed. Risk: LOW.
+- CVE-2: RSC deserialization DoS -- exploited by sending a crafted RSC payload header. Render's load balancer strips unknown headers. Risk: LOW behind proxy.
+- Upgrade plan: Create branch `next-15-upgrade` after launch. Effort: 1-2 days (App Router API changes are minor for this codebase). Test: run full Playwright suite + verify argon2 native bindings work with new bundler.
 
 ---
 
