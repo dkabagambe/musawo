@@ -68,6 +68,7 @@ function resetStore() {
 // ── 1. APP_ENV feature flags ─────────────────────────────────────────────────
 
 describe("isDemoAllowed()", () => {
+  beforeEach(() => vi.resetModules());
   afterEach(() => vi.unstubAllEnvs());
 
   it("is true when APP_ENV=development (default)", async () => {
@@ -96,6 +97,7 @@ describe("isDemoAllowed()", () => {
 });
 
 describe("isProduction()", () => {
+  beforeEach(() => vi.resetModules());
   afterEach(() => vi.unstubAllEnvs());
 
   it("is true only when APP_ENV=production", async () => {
@@ -120,6 +122,7 @@ describe("isProduction()", () => {
 // ── 2. isTotpEnforced() ──────────────────────────────────────────────────────
 
 describe("isTotpEnforced()", () => {
+  beforeEach(() => vi.resetModules());
   afterEach(() => vi.unstubAllEnvs());
 
   it("is true in production regardless of TOTP_REQUIRED", async () => {
@@ -289,6 +292,7 @@ describe("Rate limit: IP locked after 100 failures", () => {
 // ── 7. validateProductionEnv() silent in non-production ──────────────────────
 
 describe("validateProductionEnv()", () => {
+  beforeEach(() => vi.resetModules());
   afterEach(() => vi.unstubAllEnvs());
 
   it("does not call process.exit in development", async () => {
@@ -305,5 +309,127 @@ describe("validateProductionEnv()", () => {
     const { validateProductionEnv } = await import("@/lib/env-validate");
     expect(() => validateProductionEnv()).not.toThrow();
     exitSpy.mockRestore();
+  });
+
+  it("calls process.exit in production when DEMO_MODE=true (loud warning)", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "true");
+    // Provide all other required vars so only DEMO_MODE triggers exit
+    vi.stubEnv("AUTH_SECRET", "secret");
+    vi.stubEnv("AUTH_URL", "https://example.com");
+    vi.stubEnv("DATABASE_URL", "postgresql://x");
+    vi.stubEnv("REDIS_URL", "redis://x");
+    vi.stubEnv("DATA_ENCRYPTION_KEY", "a".repeat(64));
+    vi.stubEnv("TOTP_ENCRYPTION_KEY", "a".repeat(64));
+    vi.stubEnv("CRON_SECRET", "secret");
+    vi.resetModules();
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("exit"); });
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { validateProductionEnv } = await import("@/lib/env-validate");
+    expect(() => validateProductionEnv()).toThrow("exit");
+    const errorOutput = consoleSpy.mock.calls.map((c) => c.join(" ")).join("\n");
+    expect(errorOutput).toContain("DEMO_MODE");
+    exitSpy.mockRestore();
+    consoleSpy.mockRestore();
+  });
+
+  it("passes in production when required vars are set and DEMO_MODE is not true", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("AUTH_SECRET", "secret");
+    vi.stubEnv("AUTH_URL", "http://localhost:3000");  // localhost skips AUTH_TRUST_HOST check
+    vi.stubEnv("DATABASE_URL", "postgresql://x");
+    vi.stubEnv("REDIS_URL", "redis://x");
+    vi.stubEnv("DATA_ENCRYPTION_KEY", "a".repeat(64));
+    vi.stubEnv("TOTP_ENCRYPTION_KEY", "a".repeat(64));
+    vi.stubEnv("CRON_SECRET", "secret");
+    vi.resetModules();
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("exit"); });
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { validateProductionEnv } = await import("@/lib/env-validate");
+    expect(() => validateProductionEnv()).not.toThrow();
+    exitSpy.mockRestore();
+    consoleSpy.mockRestore();
+  });
+});
+
+// ── 8. Production feature switch-off (isDemoAllowed gates) ──────────────────
+
+describe("Production feature switch-off: assertDemoAllowed", () => {
+  beforeEach(() => vi.resetModules());
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("throws with [SECURITY] prefix when called in production", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    const { assertDemoAllowed } = await import("@/lib/env");
+    expect(() => assertDemoAllowed("demo-payments")).toThrow(/\[SECURITY\]/);
+    expect(() => assertDemoAllowed("demo-payments")).toThrow(/production/);
+  });
+
+  it("does not throw in development", async () => {
+    vi.stubEnv("APP_ENV", "development");
+    const { assertDemoAllowed } = await import("@/lib/env");
+    expect(() => assertDemoAllowed("demo-payments")).not.toThrow();
+  });
+
+  it("does not throw in staging", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    const { assertDemoAllowed } = await import("@/lib/env");
+    expect(() => assertDemoAllowed("demo-payments")).not.toThrow();
+  });
+});
+
+// ── 9. Noindex header: production vs non-production ─────────────────────────
+
+describe("Noindex header behavior", () => {
+  beforeEach(() => vi.resetModules());
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("isProduction()=false in development (noindex header should be added)", async () => {
+    vi.stubEnv("APP_ENV", "development");
+    const { isProduction } = await import("@/lib/env");
+    // next.config adds X-Robots-Tag: noindex when !isProduction
+    expect(isProduction()).toBe(false);
+  });
+
+  it("isProduction()=false in staging (noindex header should be added)", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    const { isProduction } = await import("@/lib/env");
+    expect(isProduction()).toBe(false);
+  });
+
+  it("isProduction()=true in production (noindex header must NOT be added)", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    const { isProduction } = await import("@/lib/env");
+    // next.config skips noindex when isProduction() is true
+    expect(isProduction()).toBe(true);
+  });
+});
+
+// ── 10. TOTP_REQUIRED override in development/staging ────────────────────────
+
+describe("TOTP enforcement: production always on, staging/dev depends on TOTP_REQUIRED", () => {
+  beforeEach(() => vi.resetModules());
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("TOTP_REQUIRED=false in staging: demo DIRECTOR/PRINCIPAL can log in without 2FA", async () => {
+    vi.stubEnv("APP_ENV", "staging");
+    vi.stubEnv("TOTP_REQUIRED", "false");
+    const { isTotpEnforced } = await import("@/lib/env");
+    expect(isTotpEnforced()).toBe(false); // no 2FA required in staging
+  });
+
+  it("TOTP_REQUIRED=false in development: demo DIRECTOR/PRINCIPAL can log in without 2FA", async () => {
+    vi.stubEnv("APP_ENV", "development");
+    vi.stubEnv("TOTP_REQUIRED", "false");
+    const { isTotpEnforced } = await import("@/lib/env");
+    expect(isTotpEnforced()).toBe(false);
+  });
+
+  it("APP_ENV=production always enforces TOTP even when TOTP_REQUIRED=false", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("TOTP_REQUIRED", "false");
+    const { isTotpEnforced } = await import("@/lib/env");
+    expect(isTotpEnforced()).toBe(true);
   });
 });
