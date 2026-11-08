@@ -186,6 +186,14 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
     },
     permission: "support.submit",
   },
+  {
+    item: {
+      href: "/admin/documents",
+      label: "Student Documents",
+      icon: <FileText className="w-4 h-4" />,
+    },
+    permission: "student.documents.manage",
+  },
   // ── Extra tabs (operations, not in spec but useful) ────────────────
   {
     item: {

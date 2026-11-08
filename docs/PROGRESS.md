@@ -109,14 +109,14 @@ All previously failing e2e tests fixed and verified against a live production bu
 
 ### Fixes applied
 
-1. **portal-shell widget toggle** — added widget preference reset before test (state leak from prior runs) and fixed position assertion (one move-up from index 3 = position 2, not 0).
-2. **portal-shell Academic Registrar** — used `expect.poll` for sidebar width check (CSS `transition: width 180ms` caused mid-transition reading of 161px instead of 72px).
-3. **redirects test** — removed 8 legacy role accounts that no longer exist in seed (BOARD_MEMBER, DEPUTY_PRINCIPAL, FINANCE_OFFICER, HR_MANAGER, AUDITOR_READONLY, TEACHING_ASSISTANT, SUPER_ADMIN). Replaced hanging `logout()` with `page.context().clearCookies()`.
-4. **Production-mode demo login** — added `useSecureCookies: process.env.AUTH_URL?.startsWith("https://")` to `auth.config.ts`. Fixes login over HTTP on localhost in production builds. Secure cookies still used when AUTH_URL is HTTPS (Render).
+1. **portal-shell widget toggle** - added widget preference reset before test (state leak from prior runs) and fixed position assertion (one move-up from index 3 = position 2, not 0).
+2. **portal-shell Academic Registrar** - used `expect.poll` for sidebar width check (CSS `transition: width 180ms` caused mid-transition reading of 161px instead of 72px).
+3. **redirects test** - removed 8 legacy role accounts that no longer exist in seed (BOARD_MEMBER, DEPUTY_PRINCIPAL, FINANCE_OFFICER, HR_MANAGER, AUDITOR_READONLY, TEACHING_ASSISTANT, SUPER_ADMIN). Replaced hanging `logout()` with `page.context().clearCookies()`.
+4. **Production-mode demo login** - added `useSecureCookies: process.env.AUTH_URL?.startsWith("https://")` to `auth.config.ts`. Fixes login over HTTP on localhost in production builds. Secure cookies still used when AUTH_URL is HTTPS (Render).
 
 ### Files changed
 
-- `e2e/portal-shell.spec.ts` — widget reset, position assertion, expect.poll for sidebar
-- `e2e/redirects.spec.ts` — current 7 roles only, cookie-clear logout
-- `src/lib/auth/auth.config.ts` — useSecureCookies based on AUTH_URL
-- `docs/READINESS.md` — full readiness report with real test results
+- `e2e/portal-shell.spec.ts` - widget reset, position assertion, expect.poll for sidebar
+- `e2e/redirects.spec.ts` - current 7 roles only, cookie-clear logout
+- `src/lib/auth/auth.config.ts` - useSecureCookies based on AUTH_URL
+- `docs/READINESS.md` - full readiness report with real test results

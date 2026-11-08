@@ -1,6 +1,9 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { can } from "@/lib/rbac";
+import { db } from "@/lib/db";
+import PageHeader from "@/components/ui/PageHeader";
+import DocumentsClient from "./DocumentsClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Student Documents - Admin" };
@@ -10,26 +13,50 @@ export default async function AdminDocumentsPage() {
   if (!session?.user || !can(session.user.role, "student.documents.manage"))
     redirect("/403");
 
-  return (
-    <div className="max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Student Documents</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Upload and manage student academic and personal documents
-        </p>
-      </div>
+  // Fetch students for the dropdown
+  const students = await db.user.findMany({
+    where: { role: "STUDENT", status: { not: "SUSPENDED" } },
+    select: { id: true, name: true, studentNumber: true },
+    orderBy: { name: "asc" },
+  });
 
-      <div className="card text-center py-16">
-        <p className="text-3xl mb-3" aria-hidden="true">📁</p>
-        <p className="text-gray-700 font-medium mb-1">
-          Student Documents - Coming Soon
-        </p>
-        <p className="text-sm text-gray-500 max-w-md mx-auto">
-          This feature is not yet available. Document upload will be added in a
-          future update. Student ID scans and supporting files can currently be
-          attached via each student&apos;s profile page.
-        </p>
-      </div>
+  // Fetch existing documents
+  const documents = await db.studentDocument.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: { select: { name: true, studentNumber: true } },
+      uploadedBy: { select: { name: true } },
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Student Documents"
+        subtitle="Upload and manage student academic and personal documents"
+      />
+      <DocumentsClient
+        students={students.map((s) => ({
+          id: s.id,
+          name: s.name,
+          studentNumber: s.studentNumber,
+        }))}
+        documents={documents.map((d) => ({
+          id: d.id,
+          title: d.title,
+          type: d.type,
+          fileName: d.fileName,
+          mimeType: d.mimeType,
+          fileSize: d.fileSize,
+          createdAt: d.createdAt.toISOString(),
+          user: {
+            name: d.user.name,
+            studentNumber: d.user.studentNumber,
+          },
+          uploadedBy: { name: d.uploadedBy.name },
+        }))}
+      />
     </div>
   );
 }

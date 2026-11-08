@@ -102,4 +102,3 @@ k6 run --env VUS=60 load/students-30.js  # headroom
 |---|---|
 | k6 load test run with numbers | Pending (k6 not installed; run locally) |
 | npm audit criticals (`next`, `next-auth`) | Should patch before production |
-| Admin Documents page ("Coming Soon") | Minor; feature not implemented; Admin-only access |
