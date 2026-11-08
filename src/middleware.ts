@@ -141,7 +141,7 @@ export default auth(function middleware(req: NextRequest) {
     "max-age=63072000; includeSubDomains; preload"
   );
 
-  const session = (req as NextRequest & { auth?: { user?: { role: UserRole } } }).auth;
+  const session = (req as NextRequest & { auth?: { user?: { role: UserRole; totpEnabled?: boolean } } }).auth;
   const isLoggedIn = !!session?.user;
   const role = session?.user?.role;
 
@@ -155,6 +155,23 @@ export default auth(function middleware(req: NextRequest) {
     return NextResponse.redirect(
       new URL(pathname.replace("/bursar", "/finance"), req.url)
     );
+  }
+
+  // DIRECTOR and PRINCIPAL must have TOTP enabled.
+  // If they are logged in but have not set up TOTP yet, redirect them to
+  // /2fa-setup on every protected page until setup is complete.
+  // Allow /2fa-setup, /api/auth/totp, and /signout so they can complete setup or log out.
+  const TOTP_REQUIRED_ROLES: UserRole[] = ["DIRECTOR", "PRINCIPAL"];
+  const totpSetupPaths = ["/2fa-setup", "/api/auth/totp", "/signout", "/api/auth"];
+  const needsTotpSetup =
+    isLoggedIn &&
+    role &&
+    TOTP_REQUIRED_ROLES.includes(role) &&
+    session?.user?.totpEnabled === false &&
+    !totpSetupPaths.some((p) => pathname.startsWith(p));
+
+  if (needsTotpSetup) {
+    return NextResponse.redirect(new URL("/2fa-setup?required=1", req.url));
   }
 
   // Logged-in users hitting auth pages -> send to their portal

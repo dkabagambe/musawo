@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth/password";
 import { redis } from "@/lib/db/redis";
+import { isDemoAllowed } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Auth Check - Dev" };
@@ -119,7 +120,7 @@ async function checkAccount(email: string): Promise<AccountCheck> {
 }
 
 export default async function AuthCheckPage() {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!isDemoAllowed()) notFound();
 
   const results = await Promise.all(DEMO_ACCOUNTS.map(checkAccount));
   const allGood = results.every((r) => r.wouldAuthorize);

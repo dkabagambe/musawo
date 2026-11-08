@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useId } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,6 +10,9 @@ import { ShieldCheck, Copy, Check, AlertCircle, Loader2, ArrowLeft } from "lucid
 const CODE_LENGTH = 6;
 
 export default function TwoFASetupPage() {
+  const searchParams = useSearchParams();
+  const isRequired = searchParams.get("required") === "1";
+
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [secret, setSecret]       = useState("");
   const [copied, setCopied]       = useState(false);
@@ -110,8 +114,8 @@ export default function TwoFASetupPage() {
         <p className="text-sm text-gray-500 mb-8">
           Two-factor authentication is now active on your account. You&apos;ll be asked for a code each time you sign in.
         </p>
-        <Link href="/dashboard" className="auth-btn-primary no-underline">
-          Go to dashboard
+        <Link href={isRequired ? "/_rbac_redirect" : "/dashboard/profile"} className="auth-btn-primary no-underline">
+          {isRequired ? "Continue to portal" : "Back to profile"}
         </Link>
       </div>
     );
@@ -119,22 +123,28 @@ export default function TwoFASetupPage() {
 
   return (
     <div className="auth-card">
-      <Link
-        href="/dashboard/profile"
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-6 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded"
-      >
-        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-        Back to security settings
-      </Link>
+      {!isRequired && (
+        <Link
+          href="/dashboard/profile"
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-6 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded"
+        >
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          Back to security settings
+        </Link>
+      )}
 
       <div className="flex items-center gap-3 mb-2">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
           <ShieldCheck className="w-5 h-5 text-primary" aria-hidden="true" />
         </div>
-        <h1 className="text-2xl font-bold text-primary">Set up two-factor authentication</h1>
+        <h1 className="text-2xl font-bold text-primary">
+          {isRequired ? "Set up two-factor authentication (required)" : "Set up two-factor authentication"}
+        </h1>
       </div>
       <p className="text-gray-500 text-sm mb-8">
-        Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy), then enter the code to confirm.
+        {isRequired
+          ? "Your role requires two-factor authentication before you can access the portal. Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy), then enter the code to activate it."
+          : "Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy), then enter the code to confirm."}
       </p>
 
       {error && (

@@ -2,16 +2,22 @@
  * Next.js instrumentation hook (Node runtime only).
  *
  * Runs once when the server worker starts. Used to:
- *  1. Register global unhandledRejection / uncaughtException handlers so a
+ *  1. Validate required production environment variables and exit loudly if any are missing.
+ *  2. Register global unhandledRejection / uncaughtException handlers so a
  *     single bad async call does not take down the whole process.
- *  2. Register a SIGTERM handler for graceful shutdown on Render.
- *  3. Pre-warm the database connection pool so the first real request
+ *  3. Register a SIGTERM handler for graceful shutdown on Render.
+ *  4. Pre-warm the database connection pool so the first real request
  *     does not block waiting for a cold Prisma connection.
  *
  * https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
+
+  // ── Validate required production environment variables ─────────────────────
+  // Must run before anything else so a misconfigured deployment fails immediately.
+  const { validateProductionEnv } = await import("@/lib/env-validate");
+  validateProductionEnv();
 
   // ── Prevent crashes from unhandled promise rejections ─────────────────────
   // A rogue rejection (e.g. Redis command after disconnect) would otherwise

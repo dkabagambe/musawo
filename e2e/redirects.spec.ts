@@ -27,10 +27,10 @@ async function devLogin(page: Page, email: string, expectedUrlPattern: RegExp) {
 }
 
 async function logout(page: Page) {
-  // Clear cookies directly — faster and more reliable than navigating to
-  // the NextAuth signout page, which may not render a confirmation button
-  // in production builds.
-  await page.context().clearCookies();
+  // Navigate to the signout page which uses a server action to clear the
+  // JWT cookie server-side. The page redirects to /login on completion.
+  await page.goto(`${BASE}/signout`);
+  await page.waitForURL(/\/login/, { timeout: 10_000 });
 }
 
 // ─── Post-login landing per role ──────────────────────────────────────────────
@@ -41,8 +41,10 @@ test.describe("Post-login redirect by role", () => {
   });
 
   const ROLE_LANDINGS: Array<{ label: string; email: string; pattern: RegExp }> = [
-    { label: "DIRECTOR",          email: "director@mtc.ac.ug",          pattern: /\/director/ },
-    { label: "PRINCIPAL",         email: "principal@mtc.ac.ug",         pattern: /\/principal/ },
+    // DIRECTOR and PRINCIPAL are redirected to /2fa-setup on first login
+    // because mandatory TOTP is required for those roles before portal access.
+    { label: "DIRECTOR",          email: "director@mtc.ac.ug",          pattern: /\/2fa-setup/ },
+    { label: "PRINCIPAL",         email: "principal@mtc.ac.ug",         pattern: /\/2fa-setup/ },
     { label: "ADMIN",             email: "admin@mtc.ac.ug",             pattern: /\/admin/ },
     { label: "ACADEMIC_REGISTRAR", email: "registrar@mtc.ac.ug",        pattern: /\/registrar/ },
     { label: "INSTRUCTOR",        email: "tutor@mtc.ac.ug",             pattern: /\/tutor/ },

@@ -11,8 +11,9 @@ async function loginAs(page: Page, email: string) {
   });
   await row.getByRole("button", { name: /sign in/i }).click();
   // DevLoginForm does a client-side signIn + router.push — wait up to 15 s.
+  // DIRECTOR and PRINCIPAL land on /2fa-setup when TOTP is not yet configured.
   await expect(page).toHaveURL(
-    /\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system)/,
+    /\/(dashboard|tutor|registrar|principal|deputy|finance|bursar|admin|director|board|auditor|system|2fa-setup)/,
     { timeout: 15_000 },
   );
 }
@@ -254,7 +255,7 @@ const ROLE_ACCOUNTS: Array<{
   },
   {
     email: "principal@mtc.ac.ug",
-    urlPattern: /\/principal/,
+    urlPattern: /\/(principal|2fa-setup)/,
     label: "Principal",
     forbiddenUrl: "/director/staff",
   },
@@ -266,7 +267,7 @@ const ROLE_ACCOUNTS: Array<{
   },
   {
     email: "director@mtc.ac.ug",
-    urlPattern: /\/director/,
+    urlPattern: /\/(director|2fa-setup)/,
     label: "Director",
     forbiddenUrl: "/dashboard/payments",
   },
@@ -286,6 +287,15 @@ test.describe("per-role shell and RBAC checks", () => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await loginAs(page, account.email);
       await expect(page).toHaveURL(account.urlPattern);
+
+      // DIRECTOR and PRINCIPAL land on /2fa-setup when TOTP is not configured.
+      // Skip portal shell checks for those accounts in demo mode.
+      const currentUrl = page.url();
+      if (currentUrl.includes("/2fa-setup")) {
+        // Verify the mandatory 2FA setup page shows the correct heading
+        await expect(page.getByRole("heading", { name: /two-factor/i })).toBeVisible();
+        return;
+      }
 
       // Shared shell must be present
       await expect(page.locator(".portal-shell")).toBeVisible();

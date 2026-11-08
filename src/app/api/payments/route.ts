@@ -7,6 +7,7 @@ import { getActiveGateway } from "@/lib/settings";
 import { audit } from "@/lib/audit";
 import { InitiatePaymentSchema } from "@/lib/validators";
 import { can } from "@/lib/rbac";
+import { isDemoAllowed } from "@/lib/env";
 import { z } from "zod";
 
 export async function POST(req: NextRequest) {
@@ -124,7 +125,8 @@ export async function POST(req: NextRequest) {
   });
 
   // ── DEMO MODE: skip real gateway, return a demo-confirm URL ────
-  if (gateway === "demo" || process.env.DEMO_MODE === "true") {
+  // Only active in non-production environments. In production, DEMO_MODE is ignored.
+  if (isDemoAllowed() && (gateway === "demo" || process.env.DEMO_MODE === "true")) {
     const demoUrl = `${process.env.NEXTAUTH_URL}/api/payments/demo-confirm?paymentId=${payment.id}&enrolmentId=${enrolment.id}&ref=${merchantRef}`;
     return NextResponse.json({ type: "redirect", redirectUrl: demoUrl });
   }
