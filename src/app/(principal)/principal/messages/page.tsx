@@ -4,6 +4,7 @@ import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { ROLE_LABELS } from "@/lib/dashboard/widgets";
 import DirectMessageComposer from "@/components/dashboard/DirectMessageComposer";
+import MessageInbox from "@/components/dashboard/MessageInbox";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,12 @@ export default async function PrincipalMessagesPage() {
           Send a direct message to a staff member or student. They receive it as a notification.
         </p>
       </div>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Inbox</h2>
+        <MessageInbox />
+      </section>
+
       <DirectMessageComposer recipients={recipients} sentMessages={sentMessages} />
     </main>
   );

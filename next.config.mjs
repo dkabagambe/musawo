@@ -53,6 +53,11 @@ const nextConfig = {
   },
 
   images: {
+    // Mitigation for next CVEs in the Image Optimization API (RCE via AVIF/SVG,
+    // DoS, unbounded disk cache). Disables server-side image processing so
+    // the vulnerable code path is never reached. Images are served as-is.
+    // Upgrade to next 15+ and remove this to re-enable optimization.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -67,7 +72,6 @@ const nextConfig = {
         hostname: "**.musawo.ug",
       },
     ],
-    formats: ["image/avif", "image/webp"],
     // Cache optimised images for 2 weeks on disk. Caddy also caches /_next/image
     // for 7 days at the proxy level so warm requests never hit Node.
     minimumCacheTTL: 1209600,

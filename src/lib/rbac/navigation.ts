@@ -13,6 +13,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/dashboard/assignments", permissions: ["courses.view"] },
   { prefix: "/dashboard/forum", permissions: ["courses.view"] },
   { prefix: "/dashboard/announcements", permissions: ["enrolments.view"] },
+  { prefix: "/dashboard/messages",     permissions: ["enrolments.view"] },
   { prefix: "/dashboard/support", permissions: ["enrolments.view"] },
   { prefix: "/dashboard/notifications", permissions: ["enrolments.view"] },
   { prefix: "/dashboard/profile", permissions: ["enrolments.view"] },
@@ -22,6 +23,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/tutor/attendance", permissions: ["attendance.take", "attendance.view"] },
   { prefix: "/tutor/exams", permissions: ["exams.mark", "exams.create"] },
   { prefix: "/tutor/announcements", permissions: ["announcements.send.own"] },
+  { prefix: "/tutor/messages", permissions: ["courses.view"] },
   { prefix: "/tutor/students", permissions: ["students.view"] },
   { prefix: "/tutor/courses", permissions: ["courses.view"] },
   { prefix: "/tutor", permissions: ["courses.view"] },
@@ -70,6 +72,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/admin/notices", permissions: ["operational_notices.manage"] },
   { prefix: "/admin/students", permissions: ["students.lookup"] },
   { prefix: "/admin/partner-pages", permissions: ["settings.edit.operational"] },
+  { prefix: "/admin/messages", permissions: ["staff.view"] },
   { prefix: "/admin", permissions: ["staff.view", "settings.view", "settings.edit.operational", "support.manage", "students.lookup"] },
   { prefix: "/director/approvals", permissions: ["approvals.view", "approvals.decide"] },
   { prefix: "/director/finance",        permissions: ["payments.view"] },
@@ -85,6 +88,9 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   // /board, /auditor route groups removed (roles eliminated in remarks.md section 1)
   { prefix: "/system/settings", permissions: ["settings.view"] },
   { prefix: "/system/audit", permissions: ["audit.view"] },
+  { prefix: "/system/announcements", permissions: ["integrations.edit"] },
+  { prefix: "/system/notifications", permissions: ["integrations.edit"] },
+  { prefix: "/system/messages", permissions: ["integrations.edit"] },
   { prefix: "/system", permissions: ["integrations.edit"] },
 ];
 

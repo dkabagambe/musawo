@@ -36,7 +36,7 @@ export async function GET(_req: NextRequest) {
 }
 
 const CreateSchema = z.object({
-  courseId: z.string().cuid().optional(),
+  courseId: z.string().cuid().nullish(),
   title: z.string().min(3).max(160),
   body: z.string().min(3).max(10000),
   pinned: z.boolean().optional(),
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
   try { requirePermission(session.user.role, ownClassPermission ? "announcements.send.own" : "announcements.send.all"); }
   catch (error) { if (error instanceof ForbiddenError) return NextResponse.json({ error: error.message }, { status: 403 }); throw error; }
 
-  const course = await db.course.findUnique({ where: { id: parsed.data.courseId }, select: { id: true, title: true } });
+  const course = await db.course.findUnique({ where: { id: parsed.data.courseId! }, select: { id: true, title: true } });
   if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
   const recipients = await db.enrolment.findMany({
     where: { courseId: course.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } },

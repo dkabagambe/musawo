@@ -155,6 +155,14 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
   },
   {
     item: {
+      href: "/admin/messages",
+      label: "Messages",
+      icon: <Mail className="w-4 h-4" />,
+    },
+    permission: "students.view",
+  },
+  {
+    item: {
       href: "/admin/profile",
       label: "Profile",
       icon: <User className="w-4 h-4" />,

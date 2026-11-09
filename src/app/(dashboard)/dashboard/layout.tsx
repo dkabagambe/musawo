@@ -4,7 +4,7 @@ import AppShell, { NavItem } from "@/components/ui/AppShell";
 import {
   LayoutDashboard, User, BookMarked, BookOpen, Calendar, FileText,
   ClipboardList, CheckSquare, ClipboardCheck, BarChart2, CreditCard,
-  Award, Megaphone, Bell, LifeBuoy, Video, MessageSquare,
+  Award, Megaphone, Bell, LifeBuoy, Video, MessageSquare, Mail,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/certificates",  label: "Certificates",      icon: <Award className="w-4 h-4" /> },
   { href: "/dashboard/announcements", label: "Announcements",     icon: <Megaphone className="w-4 h-4" /> },
   { href: "/dashboard/notifications", label: "Notifications",     icon: <Bell className="w-4 h-4" /> },
+  { href: "/dashboard/messages",     label: "Messages",         icon: <Mail className="w-4 h-4" /> },
   { href: "/dashboard/support",       label: "Support",           icon: <LifeBuoy className="w-4 h-4" /> },
   { href: "/dashboard/classes",       label: "Live Classes",      icon: <Video className="w-4 h-4" /> },
   { href: "/dashboard/recordings",    label: "Class Replays",     icon: <Video className="w-4 h-4" /> },

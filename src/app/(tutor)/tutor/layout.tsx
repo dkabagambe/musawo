@@ -5,6 +5,7 @@ import { can } from "@/lib/rbac";
 import {
   LayoutDashboard, BookOpen, Video, Calendar, CheckSquare, FileText,
   ClipboardList, BarChart, Megaphone, BarChart2, Bell, User, Users, MessageSquare, LifeBuoy,
+  Mail,
 } from "lucide-react";
 
 const NAV: NavItem[] = [
@@ -21,6 +22,7 @@ const NAV: NavItem[] = [
   { href: "/tutor/announcements", label: "Announcements",  icon: <Megaphone className="w-4 h-4" /> },
   { href: "/tutor/reports",       label: "Reports",        icon: <BarChart2 className="w-4 h-4" /> },
   { href: "/tutor/notifications", label: "Notifications",  icon: <Bell className="w-4 h-4" /> },
+  { href: "/tutor/messages",     label: "Messages",      icon: <Mail className="w-4 h-4" /> },
   { href: "/tutor/profile",       label: "Profile",        icon: <User className="w-4 h-4" /> },
   { href: "/tutor/forum",         label: "Discussion Forum", icon: <MessageSquare className="w-4 h-4" /> },
   { href: "/tutor/support",       label: "Support",        icon: <LifeBuoy className="w-4 h-4" /> },

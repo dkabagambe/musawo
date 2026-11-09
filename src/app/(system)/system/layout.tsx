@@ -3,14 +3,17 @@ import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
-import { Monitor, Settings, FileSearch, LifeBuoy, User } from "lucide-react";
+import { Monitor, Settings, FileSearch, LifeBuoy, User, Mail, Bell, Megaphone } from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/system",          label: "System Health",  icon: <Monitor className="w-4 h-4" /> },
-  { href: "/system/support",  label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" /> },
-  { href: "/system/settings", label: "Settings",       icon: <Settings className="w-4 h-4" /> },
-  { href: "/system/audit",    label: "System Logs",    icon: <FileSearch className="w-4 h-4" /> },
-  { href: "/system/profile",  label: "Profile",        icon: <User className="w-4 h-4" /> },
+  { href: "/system",               label: "System Health",  icon: <Monitor className="w-4 h-4" /> },
+  { href: "/system/support",        label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" /> },
+  { href: "/system/settings",       label: "Settings",       icon: <Settings className="w-4 h-4" /> },
+  { href: "/system/audit",          label: "System Logs",    icon: <FileSearch className="w-4 h-4" /> },
+  { href: "/system/announcements",  label: "Announcements",  icon: <Megaphone className="w-4 h-4" /> },
+  { href: "/system/notifications",  label: "Notifications",   icon: <Bell className="w-4 h-4" /> },
+  { href: "/system/messages",       label: "Messages",       icon: <Mail className="w-4 h-4" /> },
+  { href: "/system/profile",        label: "Profile",        icon: <User className="w-4 h-4" /> },
 ];
 
 const TABS = ["general", "system", "logs"] as const;
