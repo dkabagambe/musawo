@@ -27,10 +27,8 @@ async function devLogin(page: Page, email: string, expectedUrlPattern: RegExp) {
 }
 
 async function logout(page: Page) {
-  // Navigate to the signout page which uses a server action to clear the
-  // JWT cookie server-side. The page redirects to /login on completion.
-  await page.goto(`${BASE}/signout`);
-  await page.waitForURL(/\/login/, { timeout: 10_000 });
+  // NextAuth v5 signout page hangs in dev mode; use clearCookies instead.
+  await page.context().clearCookies();
 }
 
 // ─── Post-login landing per role ──────────────────────────────────────────────

@@ -36,17 +36,35 @@ CORRECTION: `next` and `next-auth` are RUNTIME dependencies, not dev tools. Thei
 
 | Severity | Package | Scope | Status |
 |---|---|---|---|
-| CRITICAL | `next` 14.2.35 | Runtime (DoS via Image Optimizer remotePatterns; RSC deserialization) | No patch in 14.x; fix requires upgrade to next 15+ (planned post-launch). Mitigations applied: request size limit in middleware, remotePatterns restricted to trusted hostnames only, app runs behind Render proxy which strips raw RSC headers. |
+| CRITICAL | `next` 14.2.35 | Runtime (DoS via Image Optimizer; RSC deserialization; cache poisoning; SSRF in Server Actions; RCE in Image Optimization API) | No patch in 14.x; fix requires upgrade to next 15+. Mitigations applied: images.unoptimized=true (disables Image Optimization API entirely); serverActions.bodySizeLimit=10mb; remotePatterns restricted to 3 trusted hostnames; app runs behind Render proxy which strips unknown headers. |
 | CRITICAL | `vitest` + `tinypool` | Test runner only; not in production build | Patched to vitest 2.1.9 (latest 2.x stable) |
 | HIGH | `next-auth` 5.0.0-beta.32 | Runtime (homoglyph email normalizer) | Already at latest beta; no newer version available |
 | HIGH | `@auth/core` 0.41.3 | Runtime (malformed Bearer) | Already at latest version |
 | HIGH | `zod` 3.23.8 | Runtime (memory exhaustion on oversized records) | Mitigated by input size limits in validators/index.ts; zod v4 is breaking change |
-| HIGH | `postcss` + `vite` + `playwright` | Dev/build tools only | Not in production runtime bundle |
+| HIGH | `serialize-javascript` (via next-pwa) | Build-time only (rollup-plugin-terser); not in production runtime bundle | Fix requires next-pwa downgrade (breaking) |
+| HIGH | `postcss` (via next) | Build-time CSS processing; not in production runtime bundle | Fix requires next 15+ |
+| MODERATE | `postcss-selector-parser` (via next) | Build-time only | Fix via npm audit fix (non-breaking) |
 
-### next CVE detail and upgrade plan
-- CVE-1: DoS via Image Optimizer remotePatterns -- this app restricts remotePatterns to three trusted hostnames (learn.musawotraining.ug, musawo.ug, *.musawo.ug). External user-supplied image URLs are not processed. Risk: LOW.
-- CVE-2: RSC deserialization DoS -- exploited by sending a crafted RSC payload header. Render's load balancer strips unknown headers. Risk: LOW behind proxy.
-- Upgrade plan: Create branch `next-15-upgrade` after launch. Effort: 1-2 days (App Router API changes are minor for this codebase). Test: run full Playwright suite + verify argon2 native bindings work with new bundler.
+### next CVE advisory IDs and mitigations
+
+| Advisory ID | Feature affected | App exposed on Render? | Mitigation applied |
+|---|---|---|---|
+| GHSA-1112593 | Image Optimizer remotePatterns DoS | No user-supplied URLs; remotePatterns restricted to 3 trusted hosts | images.unoptimized=true disables the API |
+| GHSA-1112653 | RSC deserialization DoS | Behind Render proxy (strips unknown headers) | Proxy strips raw RSC headers |
+| GHSA-1114897 | HTTP request smuggling in rewrites | Rewrites are static, not user-driven | Low risk; no user-controlled rewrites |
+| GHSA-1114940 | Unbounded image disk cache growth | images.unoptimized=true disables caching | Disabled |
+| GHSA-1118952 | Image Optimization API DoS | images.unoptimized=true | Disabled |
+| GHSA-1193733 | RCE in Image Optimization API (AVIF) | images.unoptimized=true | Disabled |
+| GHSA-1242817 | RCE in Image Optimization API (SVG) | images.unoptimized=true | Disabled |
+| GHSA-1124172 | DoS in App Router Server Actions | Server actions used for forms only; bodySizeLimit=10mb | Rate limits on login; input size limits on Zod |
+| GHSA-1124185 | SSRF in Server Actions on custom servers | App runs on managed Render instance | Not custom server; Render manages the process |
+
+### Upgrade plan
+
+- Branch: `next-15-upgrade` (created post-launch)
+- Effort: 1-2 days (App Router API changes are minor for this codebase)
+- Steps: bump next to 15.x, remove images.unoptimized, run full Playwright suite, verify argon2 native bindings work with new bundler, verify next-auth v5 compatibility
+- Risk: low (no Pages Router usage; no custom server)
 
 ---
 
