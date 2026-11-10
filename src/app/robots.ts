@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { isProduction } from "@/lib/env";
 
+// Force runtime evaluation so the same build works across environments.
+export const dynamic = "force-dynamic";
+
 export default function robots(): MetadataRoute.Robots {
   if (isProduction()) {
     return {

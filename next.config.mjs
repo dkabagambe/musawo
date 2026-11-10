@@ -20,7 +20,6 @@ const nextConfig = {
 
   // Security headers
   async headers() {
-    const isProduction = process.env.APP_ENV === "production";
     const base = [
       { key: "X-DNS-Prefetch-Control",   value: "on" },
       { key: "X-XSS-Protection",         value: "1; mode=block" },
@@ -44,10 +43,8 @@ const nextConfig = {
       },
     ];
 
-    // Add noindex on staging / development
-    if (!isProduction) {
-      base.push({ key: "X-Robots-Tag", value: "noindex, nofollow" });
-    }
+    // X-Robots-Tag is set by the middleware (runtime check) so the same
+    // build works in development, staging, and production.
 
     return [{ source: "/(.*)", headers: base }];
   },

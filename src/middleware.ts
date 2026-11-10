@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authConfig } from "@/lib/auth/auth.config";
 import { canAccessPrefix, getHomeForRole } from "@/lib/rbac";
-import { isTotpEnforced } from "@/lib/env";
+import { isTotpEnforced, isProduction } from "@/lib/env";
 import type { UserRole } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
@@ -127,7 +127,7 @@ const API_PORTAL_MAP: Array<{ apiPrefix: string; portalPrefix: string }> = [
 export default auth(function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Demo gate (HTTP Basic Auth) — checked before everything else
+  // Demo gate (HTTP Basic Auth) - checked before everything else
   const gated = demoGate(req);
   if (gated) return gated;
 
@@ -141,6 +141,12 @@ export default auth(function middleware(req: NextRequest) {
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload"
   );
+
+  // Noindex in development and staging; omitted in production.
+  // Runtime check (not build-time) so the same build works across envs.
+  if (!isProduction()) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
 
   const session = (req as NextRequest & { auth?: { user?: { role: UserRole; totpEnabled?: boolean } } }).auth;
   const isLoggedIn = !!session?.user;

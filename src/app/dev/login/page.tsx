@@ -3,6 +3,9 @@ import Image from "next/image";
 import DevLoginForm from "./DevLoginForm";
 import { isDemoAllowed } from "@/lib/env";
 
+// Force runtime evaluation so the same build works across environments.
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "Demo Accounts - Dev Login" };
 
 const DEMO_ACCOUNTS = [

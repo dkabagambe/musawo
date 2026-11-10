@@ -14,6 +14,10 @@ async function signInAs(page: import("@playwright/test").Page, email: string) {
 }
 
 test.describe("Administrator operations role", () => {
+  // Full suite runs 11 spec files sequentially; this test navigates 7 pages
+  // and can take 25-35s under load. Use 60s to avoid flaky timeouts.
+  test.setTimeout(60_000);
+
   test("can use the shared operations shell and permitted pages", async ({
     page,
   }) => {

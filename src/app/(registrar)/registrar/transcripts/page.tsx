@@ -43,7 +43,7 @@ export default async function RegistrarTranscriptsPage() {
                 {e.user.name ?? "Unknown"} - {e.user.studentNumber ?? "no SN"}
               </span>
               <span className="portal-list-item-meta">
-                {e.course.title} &mdash;{" "}
+                {e.course.title} -{" "}
                 {new Date(e.updatedAt).toLocaleDateString("en-GB")}
               </span>
             </div>

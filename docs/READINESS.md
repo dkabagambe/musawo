@@ -12,7 +12,7 @@ All builds, type checks, unit tests, role verification, and 402 Playwright e2e t
 |---|---|---|---|
 | 1a | `npx next build` (SKIP_DB_MIGRATE=1, no DB) | PASS | 259 routes, no errors, Middleware 81.7 kB |
 | 1b | `npx tsc --noEmit` | PASS | 0 type errors |
-| 1c | `npm run test` (vitest) | PASS 605/605 | 18 test files, 13.7 s |
+| 1c | `npm run test` (vitest) | PASS 645/645 | 20 test files, 29 s |
 | 1d | `npm run demo:reset` (Docker + migrate + seed) | PASS | Docker Postgres 16 + Redis 7 running; 19 users seeded |
 | 1e | `npm run verify:roles` | PASS 7/7 | All roles login, land on correct portal, denied forbidden URL |
 | 1f | Playwright suite | PASS 402/402 | 11 spec files, ~9 min total |
@@ -24,7 +24,7 @@ All builds, type checks, unit tests, role verification, and 402 Playwright e2e t
 | 3e | No raw role keys in UI | PASS | no-removed-roles + no-dashes vitest tests pass |
 | 3f | No download buttons for students | PASS | Materials viewer-only; no download UI for STUDENT |
 | 3g | Secrets not in git | PASS | `.env` not tracked (git ls-files returns nothing) |
-| 3h | `npm audit` (high + critical) | RISK | 4 critical, 11 high -- all in dev/build tools (see below) |
+| 3h | `npm audit` (high + critical) | RISK | 28 vulns (6 low, 11 mod, 10 high, 1 critical). next and next-auth are runtime deps (see below) |
 | 3i | Rate limit on login | PASS | 5 attempts per 600 s per IP (Redis sliding window) |
 | 4 | k6 load test (30 users) | NOT RUN | k6 not installed; script ready at load/students-30.js |
 
@@ -49,15 +49,31 @@ CORRECTION: `next` and `next-auth` are RUNTIME dependencies, not dev tools. Thei
 
 | Advisory ID | Feature affected | App exposed on Render? | Mitigation applied |
 |---|---|---|---|
-| GHSA-1112593 | Image Optimizer remotePatterns DoS | No user-supplied URLs; remotePatterns restricted to 3 trusted hosts | images.unoptimized=true disables the API |
-| GHSA-1112653 | RSC deserialization DoS | Behind Render proxy (strips unknown headers) | Proxy strips raw RSC headers |
-| GHSA-1114897 | HTTP request smuggling in rewrites | Rewrites are static, not user-driven | Low risk; no user-controlled rewrites |
-| GHSA-1114940 | Unbounded image disk cache growth | images.unoptimized=true disables caching | Disabled |
-| GHSA-1118952 | Image Optimization API DoS | images.unoptimized=true | Disabled |
-| GHSA-1193733 | RCE in Image Optimization API (AVIF) | images.unoptimized=true | Disabled |
-| GHSA-1242817 | RCE in Image Optimization API (SVG) | images.unoptimized=true | Disabled |
-| GHSA-1124172 | DoS in App Router Server Actions | Server actions used for forms only; bodySizeLimit=10mb | Rate limits on login; input size limits on Zod |
-| GHSA-1124185 | SSRF in Server Actions on custom servers | App runs on managed Render instance | Not custom server; Render manages the process |
+| GHSA-9g9p-9gw9-jx7f | Image Optimizer remotePatterns DoS | No user-supplied URLs; remotePatterns restricted to 3 trusted hosts | images.unoptimized=true disables the API |
+| GHSA-h25m-26qc-wcjf | RSC deserialization DoS | Behind Render proxy (strips unknown headers) | Proxy strips raw RSC headers |
+| GHSA-ggv3-7p47-pfv8 | HTTP request smuggling in rewrites | Rewrites are static, not user-driven | Low risk; no user-controlled rewrites |
+| GHSA-3x4c-7xq6-9pq8 | Unbounded image disk cache growth | images.unoptimized=true disables caching | Disabled |
+| GHSA-q4gf-8mx6-v5v3 | DoS with Server Components | Server actions used for forms only; bodySizeLimit=10mb | Input size limits on Zod |
+| GHSA-8h8q-6873-q5fj | DoS with Server Components | Same as above | Same |
+| GHSA-3g8h-86w9-wvmq | Middleware/Proxy cache poisoning | No user-controlled cache keys | Low risk |
+| GHSA-ffhc-5mcf-pf4q | XSS in App Router with CSP nonces | CSP header does not use per-request nonces | Fixed CSP policy |
+| GHSA-vfv6-92ff-j949 | Cache poisoning via RSC cache-busting | Static content not cacheable | Low risk |
+| GHSA-gx5p-jg67-6x7h | XSS in beforeInteractive scripts | No beforeInteractive scripts with user input | Not used |
+| GHSA-h64f-5h5j-jqjh | DoS in Image Optimization API | images.unoptimized=true | Disabled |
+| GHSA-c4j6-fc7j-m34r | SSRF via WebSocket upgrades | No WebSocket upgrades in app | Not used |
+| GHSA-wfc6-r584-vfw7 | Cache poisoning in RSC responses | No user-controlled cache keys | Low risk |
+| GHSA-36qx-fr4f-26g5 | Middleware/Proxy bypass in i18n | No Pages Router i18n config | Not used |
+| GHSA-m99w-x7hq-7vfj | DoS in App Router Server Actions | Server actions used for forms only; bodySizeLimit=10mb | Input size limits |
+| GHSA-89xv-2m56-2m9x | SSRF in Server Actions on custom servers | App runs on managed Render instance | Not custom server |
+| GHSA-68g3-v927-f742 | Cache confusion for requests with bodies | No caching of POST responses | Not affected |
+| GHSA-4633-3j49-mh5q | Cache confusion with invalid UTF-8 | Same as above | Not affected |
+| GHSA-4c39-4ccg-62r3 | Unbounded Server Action payload in Edge runtime | No Server Actions in Edge runtime | Not used |
+| GHSA-p9j2-gv94-2wf4 | SSRF in rewrites via attacker hostname | Rewrites are static | Not affected |
+| GHSA-955p-x3mx-jcvp | Unauthenticated disclosure of Server Function endpoints | All API routes require auth | Auth required |
+| GHSA-p293-qw3h-jr36 | RCE on Windows-hosted servers | App runs on Linux (Render) | Not Windows |
+| GHSA-2xp9-vwfh-vxw4 | RCE in Image Optimization API (AVIF) | images.unoptimized=true | Disabled |
+| GHSA-2464-fhr4-w9xw | RCE in Image Optimization API (SVG) | images.unoptimized=true | Disabled |
+| GHSA-p3m5-59mp-jv5r | DoS in App Router Server Actions | Same as above | Same |
 
 ### Upgrade plan
 
@@ -75,12 +91,12 @@ CORRECTION: `next` and `next-auth` are RUNTIME dependencies, not dev tools. Thei
 | administrator-access | 2 | Admin shell + 403 checks (was failing; fixed by production build) |
 | auth-layout | 14 | Login/OTP/forgot-password layout |
 | contact-map-favicon | 8 | Contact page, map, favicon |
-| favicon | 4 | Favicon rendering |
-| footer-gap | 78 | No footer gaps at 1440/1920px across all public pages |
-| hero-logo | 21 | Hero, logo, CTA at 320-1440px |
+| favicon | 19 | Favicon rendering |
+| footer-gap | 37 | No footer gaps at 1440/1920px across all public pages |
+| hero-logo | 22 | Hero, logo, CTA at 320-1440px |
 | live-classes | 3 | Material upload, roster scope, meeting URL hidden before start |
 | nav-links | 31 | 4-tab nav, no dead links, no # hrefs, footer present |
-| portal-shell | 17 | Sidebar widths, drawer, widget toggle, per-role RBAC (7 roles) |
+| portal-shell | 15 | Sidebar widths, drawer, widget toggle, per-role RBAC (7 roles) |
 | redirects | 19 | Post-login landing per role, access control, /bursar redirect |
 | responsive-overflow | 232 | No horizontal overflow at 320-2560px across 14 public pages |
 

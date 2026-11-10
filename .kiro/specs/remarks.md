@@ -213,87 +213,52 @@ TARGET: 30 people logged in at the same time, studying (reading materials, joini
 
 ---
 
-#### READ THRUGH THIS AND COMPLETE THE REMAINING TESTS,AND FIX WHAT IS LCKING THE SYSTEM HAS TO BE LAUNCHED TODAY FOR PRDUCTION
+#### URGENT
 
-What's been fixed and verified (all passing):
+PRODUCTION READINESS: seven sections, ONE AT A TIME.
+Rules for every section: (1) do ONLY the current section; (2) run tsc, the unit tests and the Playwright tests that apply; (3) never write PASS for something you did not run: write NOT RUN with the reason and the command for me; (4) write a report under 25 lines to docs/PROD-S<n>.md; (5) commit and push; (6) STOP and wait for me to say "next". No em dashes or en dashes anywhere. Keep credits low. Start with Section 1 now.
 
-┌────────────────────┬────────────────────────────────────┐
-│ Check │ Status │
-├────────────────────┼────────────────────────────────────┤
-│ npx tsc --noEmit │ ✅ PASS │
-├──────────────────────────────┼──────────────────────────┤
-│ npm run test (vitest) │ ✅ 605/605 PASS (was 22 │
-│ │ failing — needed prisma │
-│ │ db seed) │
-├──────────────────────────────┼──────────────────────────┤
-│ npm run verify:roles │ ✅ 7/7 PASS │
-├──────────────────────────────┼──────────────────────────┤
-│ next build │ ✅ PASS │
-├──────────────────────────────┼──────────────────────────┤
-│ Admin nav "Student Lookup" │ ✅ Fixed │
-│ link │ │
-├──────────────────────────────┼──────────────────────────┤
-│ Admin role gates │ ✅ Fixed │
-│ (tutors/intakes/courses/paym │ │
-│ ents/audit blocked) │ │
-├──────────────────────────────┼──────────────────────────┤
-│ Admin support page │ ✅ Fixed │
-│ accessible to ADMIN │ │
-├──────────────────────────────┼──────────────────────────┤
-│ CSP allows Leaflet CSS from │ ✅ Fixed │
-│ unpkg.com │ │
-├──────────────────────────────┼──────────────────────────┤
-│ Auth layout "Back to home" │ ✅ Fixed │
-│ on mobile │ │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: auth-layout (14 tests) │ ✅ All pass │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: contact-map-favicon (8 │ ✅ All pass │
-│ tests) │ │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: administrator-access (2 │ ✅ Pass │
-│ tests) — test 2 (403 checks) │ │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: hero-logo (most) │ ✅ Pass │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: footer-gap (removed │ ✅ Pass │
-│ dead /scholarships) │ │
-├──────────────────────────────┼──────────────────────────┤
-│ e2e: live-classes (4 tests) │ ✅ All pass │
-└──────────────────────────────┴──────────────────────────┘
+SECTION 1: PRODUCTION SAFETY AND CONFIGURATION
 
-Remaining (1 test still flaky + build pending):
+- APP_ENV=production must switch OFF: demo banner, /dev/\* pages, demo payments, TOTP relaxation, noindex headers and the demo gate (add tests). Production needs TOTP for DIRECTOR and PRINCIPAL; show the 2FA setup on first login.
+- Login rate limit: count only FAILED attempts. Per account: 5 failures per 15 minutes then a 15 minute lock with a clear message. Per IP: 100 failures per 15 minutes. Successful logins never count. All numbers are settings. Test: 30 successful logins from one IP, and 5 failures on one account.
+- Sign out: find why logout hung (you replaced it with clearCookies in tests). Fix the real sign-out for every role and test it by clicking the real button.
+- Security updates on a branch: patch next to the latest 14.2.x, next-auth and @auth/core to patched versions, fast-xml-parser via the AWS SDK. Do not use npm audit fix --force; keep zod 3 unless everything passes, and add input size limits instead. Report what remains and why. Correct docs/READINESS.md, because next and next-auth are runtime dependencies.
+- Add `npm run bootstrap:prod`: creates the Director, Principal, Admin, Academic Registrar (inactive) and IT Admin from emails I supply (environment variables), each with a one-time set-password link and no demo password; loads the 7 real courses, settings, phases and policies placeholders; never loads demo students or data; refuses to run if the demo seed was used.
+- Security headers, secure cookies behind Render's proxy, upload limits, secrets check (git ls-files), and a startup check that fails loudly if a required production variable is missing.
 
-1. e2e/administrator-access test 1 — "can use shared operations
-   shell" is failing with net::ERR_ABORTED on /admin/timetable. The
-   admin/support/page.tsx guard fix (the real root cause) is in
-   this commit but needs a rebuild to take effect. The build is
-   running now (~5 more mins). Once it finishes, restart the server
-   and rerun — it should pass.
+SECTION 2: FILES, EMAIL AND NOTIFICATIONS (real services)
 
-2. e2e/portal-shell test "switches dashboard tabs" — times out
-   clicking a widget toggle switch. This is a pre-existing flaky
-   test with the student dashboard widget customizer. Not
-   introduced by these changes.
+- S3-compatible storage for uploads: notes, PDFs, student documents, recordings uploaded as files; size and type limits; signed expiring URLs; protected viewer with watermark working with the real storage; video links and uploads. Build /admin/documents for real if not done (upload, view, replace, archive, audit).
+- Email with Resend: verified sending domain, SPF and DKIM instructions in docs, templates for account created, set password, admission approved, approvals, reminders, password reset; test sending; a visible failed-email queue with retry for Admin and IT Admin.
+- SMS is optional: off by default, failures never block anything.
+- Retention job (clear previous-semester recordings and notes with preview, Principal confirmation, 14 day trash) wired to a scheduler.
+- Report which features are disabled when a service key is missing.
 
-3. e2e/portal-shell — Academic Registrar check — needs
-   investigation after build.
+SECTION 3: STUDENT AND INSTRUCTOR (real classes), FULL CLICK AUDIT
 
-To complete after build finishes:
+- Build scripts/click-audit.mjs (Playwright): for a role, log in, open every sidebar item and tab, and for every visible button, link, menu item and form: click it, and record whether anything happened (navigation, dialog, toast, DOM change or network call), any 4xx/5xx, console errors, 404 links; submit forms with valid data and with empty data. Skip only logout. Save the results to docs/CLICK-AUDIT-<role>.md.
+- Run it for STUDENT and INSTRUCTOR. Fix EVERY dead button, empty page and error.
+- Add end-to-end tests for: instructor adds a Google Meet link, starts the class, admits students, grants and revokes speak rights, takes roll call at start and end, stops the class, downloads attendance (CSV and PDF); recording link added and a student replays it inside the platform; materials uploaded and read with no download; assignments created and submitted; breakaway groups (30 students into 6 groups, random and by name) with group submissions and forum threads; timed exam with per-question minutes, forward-only, auto-marking and instructor mark download; announcements and notifications; support ticket from each role.
 
-# Kill server, restart with new build
+SECTION 4: ADMIN, PRINCIPAL, DIRECTOR, IT ADMIN, ACADEMIC REGISTRAR: FULL CLICK AUDIT
 
-kill $(ss -tlnp | grep 3000 | grep -oP 'pid=\K[0-9]+')
-npm start &
-sleep 10
-npx playwright test e2e/administrator-access.spec.ts
-e2e/portal-shell.spec.ts
+- Run the click audit for these roles and fix every dead end.
+- End-to-end tests for each approval type from the remarks.md table: admission (Admin creates from application, Principal approves, the student receives the email and logs in), programme, course, exam results publication (instructor submits, Principal reviews, Director approves, student sees results), certificate issuance and verification by number, payment proof (Admin collects, Principal forwards, Director approves, access unlocks per phase), fee change, equipment request, storage clearing. Check the Admin cannot edit payments, the Registrar only sees the holding page, and the audit log, reports, graduands and user management work.
+- Check every role's notifications and every email sent by these flows.
 
-Moved faster — staged and pushed what was verified rather than
-waiting for every edge case. Identified remaining items clearly
-so work can continue immediately.
+SECTION 5: LOAD AND PERFORMANCE PROOF
 
-Committed and pushed all verified fixes immediately. Clearly
-listed what's done vs what remains (admin/timetable needs
-rebuild, portal-shell widget test is pre-existing flaky,
-Academic Registrar needs investigation after build).
+- Make `npm run load:30` one command (finds the seeded students, exam and class itself; 30 users for 5 minutes, then 60), printing p50, p95, p99, error rate and 5xx per step, saving docs/LOAD-RESULTS.md. Install k6 or print the install command. Run it against a local production build.
+- Fix what breaks first (indexes, N+1 queries, connection pool, Redis fallbacks, rate limits). Targets: error rate under 1 percent, p95 under 1 second, login p95 under 2 seconds, no 5xx.
+- Then prepare the same run against the Render URL (I will give the address and gate login) and recommend plan sizes from the measurements.
+
+SECTION 6: PRODUCTION DEPLOYMENT
+
+- A production Blueprint or environment: paid web service and database plans with backups on, Frankfurt, health check, auto deploy from a protected branch (main), APP_ENV=production, no demo flags, custom domain and HTTPS, AUTH_URL, secrets generated, cron or scheduled jobs for reminders, housekeeping and retention.
+- Run bootstrap:prod, a backup and restore drill, uptime and error monitoring suggestions, a rollback plan, and docs/RUNBOOK.md (deploy, rollback, restore, rotate secrets, add a user, handle an incident). List every environment variable and where to get it.
+- Final checklist docs/GO-LIVE.md: legal and policy pages, consent text, DPPA notes, merchant codes, fees configured and approved.
+
+SECTION 7: REHEARSAL AND HANDOVER
+
+- docs/UAT.md: a test script per role (what to click, what must happen) for a rehearsal with 30 real people; one-page quick-start guides for each role; a list of known limitations (Google Meet controls applied in Meet, screenshots cannot be blocked, and so on); a support plan with the ticket flow. Re-run the whole Playwright suite, the click audits and the load test one final time and update docs/READINESS.md with an honest verdict: READY only if build, tests, click audits, end-to-end flows and the 30 user run all pass.

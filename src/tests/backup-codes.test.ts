@@ -23,8 +23,13 @@ beforeAll(() => {
     "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
 });
 
+// argon2 hashing is intentionally slow (65 536 KiB cost).
+// Each test that calls generateBackupCodes or redeemBackupCode gets
+// a 30-second timeout so they pass reliably in CI alongside other tests.
+const ARGON_TIMEOUT = 30_000;
+
 describe("Backup codes (item 4)", () => {
-  it("generateBackupCodes(10) returns exactly 10 unique 8-char codes", async () => {
+  it("generateBackupCodes(10) returns exactly 10 unique 8-char codes", { timeout: ARGON_TIMEOUT }, async () => {
     const { plainCodes, encryptedJson } = await generateBackupCodes(10);
 
     // 10 codes
@@ -44,7 +49,7 @@ describe("Backup codes (item 4)", () => {
     expect(encryptedJson).not.toContain(plainCodes[0]);
   });
 
-  it("encrypted JSON decrypts to 10 records with hash and null usedAt", async () => {
+  it("encrypted JSON decrypts to 10 records with hash and null usedAt", { timeout: ARGON_TIMEOUT }, async () => {
     const { encryptedJson } = await generateBackupCodes(10);
     const records = decryptBackupCodes(encryptedJson);
 
@@ -56,7 +61,7 @@ describe("Backup codes (item 4)", () => {
     }
   });
 
-  it("redeemBackupCode accepts a valid code and marks it used", async () => {
+  it("redeemBackupCode accepts a valid code and marks it used", { timeout: ARGON_TIMEOUT }, async () => {
     const { plainCodes, encryptedJson } = await generateBackupCodes(10);
 
     const result = await redeemBackupCode(encryptedJson, plainCodes[3]);
@@ -71,7 +76,7 @@ describe("Backup codes (item 4)", () => {
     expect(records[5].usedAt).toBeNull();
   });
 
-  it("redeemBackupCode rejects an invalid code", async () => {
+  it("redeemBackupCode rejects an invalid code", { timeout: ARGON_TIMEOUT }, async () => {
     const { encryptedJson } = await generateBackupCodes(10);
 
     const result = await redeemBackupCode(encryptedJson, "ZZZZZZZZ");
@@ -79,7 +84,7 @@ describe("Backup codes (item 4)", () => {
     expect(result.redeemed).toBe(false);
   });
 
-  it("a redeemed code cannot be reused", async () => {
+  it("a redeemed code cannot be reused", { timeout: ARGON_TIMEOUT }, async () => {
     const { plainCodes, encryptedJson } = await generateBackupCodes(10);
 
     // First use: succeeds
@@ -91,7 +96,7 @@ describe("Backup codes (item 4)", () => {
     expect(r2.redeemed).toBe(false);
   });
 
-  it("case-insensitive: lowercase code matches uppercase stored code", async () => {
+  it("case-insensitive: lowercase code matches uppercase stored code", { timeout: ARGON_TIMEOUT }, async () => {
     const { plainCodes, encryptedJson } = await generateBackupCodes(10);
 
     const result = await redeemBackupCode(

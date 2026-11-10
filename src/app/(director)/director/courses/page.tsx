@@ -36,7 +36,7 @@ export default async function DirectorCoursesPage() {
       <div>
         <h1 className="text-2xl font-bold text-primary">Courses</h1>
         <p className="text-sm text-gray-500 mt-0.5">
-          {courses.length} course{courses.length !== 1 ? "s" : ""} &mdash; read-only overview
+          {courses.length} course{courses.length !== 1 ? "s" : ""} - read-only overview
         </p>
       </div>
 

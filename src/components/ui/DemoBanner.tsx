@@ -1,12 +1,12 @@
 /**
- * DemoBanner — shown at the top of every page when APP_ENV is not production.
+ * DemoBanner - shown at the top of every page when APP_ENV is not production.
  * Server component; reads env at build/request time.
  * Rendered fixed above the navbar; sets --banner-h CSS variable so the
  * navbar and main content offset themselves correctly.
  */
 import { getAppEnv } from "@/lib/env";
 
-/** Height of the banner in px — must match the rendered height. */
+/** Height of the banner in px - must match the rendered height. */
 export const BANNER_H = 28;
 
 export default function DemoBanner() {
@@ -27,11 +27,11 @@ export default function DemoBanner() {
       >
         {/* Short text on narrow phones, full text on wider screens */}
         <span className="sm:hidden">
-          {label} &mdash; demo only.{" "}
+          {label} - demo only.{" "}
           <a href="/dev/login" className="underline">Accounts</a>
         </span>
         <span className="hidden sm:inline">
-          {label} environment &mdash; not for real use. Data may be reset at any time.{" "}
+          {label} environment - not for real use. Data may be reset at any time.{" "}
           <a href="/dev/login" className="underline ml-1">Demo accounts</a>
         </span>
       </div>
