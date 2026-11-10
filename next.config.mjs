@@ -7,6 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  // Hide the Next.js version banner from response headers
+  poweredByHeader: false,
   eslint: {
     // Lint errors will not fail the production build.
     // Run `npm run lint` locally to catch issues during development.

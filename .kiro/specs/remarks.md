@@ -230,7 +230,7 @@ SECTION 1: PRODUCTION SAFETY AND CONFIGURATION
 SECTION 2: FILES, EMAIL AND NOTIFICATIONS (real services)
 
 - S3-compatible storage for uploads: notes, PDFs, student documents, recordings uploaded as files; size and type limits; signed expiring URLs; protected viewer with watermark working with the real storage; video links and uploads. Build /admin/documents for real if not done (upload, view, replace, archive, audit).
-- Email with Resend: verified sending domain, SPF and DKIM instructions in docs, templates for account created, set password, admission approved, approvals, reminders, password reset; test sending; a visible failed-email queue with retry for Admin and IT Admin.
+- Email with Resend: verified sending domain, SPF and DKIM instructions in docs, templates for account created, set password, admission approved, approvals, reminders, password reset; test sending; a visible failed-email queue with retry for Admin and IT Admin.f
 - SMS is optional: off by default, failures never block anything.
 - Retention job (clear previous-semester recordings and notes with preview, Principal confirmation, 14 day trash) wired to a scheduler.
 - Report which features are disabled when a service key is missing.

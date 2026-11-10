@@ -76,11 +76,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
+        // Password is correct. If 2FA is enabled but no TOTP code was provided,
+        // signal the login page to show the TOTP input step.
+        if (user.totpEnabled && user.totpSecret && !totpCode) {
+          throw new Error("TOTP_REQUIRED");
+        }
+
         // ── TOTP enforcement ─────────────────────────────────────────
         // Any user with totpEnabled=true must supply a valid code.
         // Accepts either a 6-digit TOTP code or an 8-char backup code.
         if (user.totpEnabled && user.totpSecret) {
-          if (!totpCode) return null;
+          // totpCode is guaranteed non-empty here (TOTP_REQUIRED was thrown above if empty)
 
           // Try TOTP code first
           const { decryptSecret: decrypt, verifyTotp: verify } = await import("@/lib/totp");

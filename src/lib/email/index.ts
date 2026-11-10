@@ -291,7 +291,26 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
       html,
     });
   } catch (err) {
-    console.error("Email send failed:", err);
-    // Non-fatal - log and continue
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Email send failed:", message);
+    // Queue the failed email for retry once RESEND_API_KEY and domain are configured
+    try {
+      const { db } = await import("@/lib/db");
+      await db.failedEmail.create({
+        data: {
+          to:        params.to,
+          subject:   params.subject,
+          html,
+          template:  params.template,
+          variables: params.variables as Record<string, string>,
+          status:    "PENDING",
+          attempts:  1,
+          lastError: message,
+        },
+      });
+      console.log(`[email] queued to failed_emails for retry: to=${params.to} subject="${params.subject}"`);
+    } catch (qErr) {
+      console.error("Failed to queue email:", qErr);
+    }
   }
 }

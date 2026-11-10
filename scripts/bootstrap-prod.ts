@@ -215,15 +215,16 @@ const COURSES: CourseData[] = [
     eligibilityText: "Designed for health professionals. Applicants must provide their professional title and registration number.",
   },
   {
-    slug: "advanced-first-aid",
-    courseCode: "AFA",
-    title: "Certificate in Advanced First Aid",
-    shortDescription: "Open to all. Comprehensive first aid, emergency management and safety skills for workplace and community settings.",
-    category: "OPEN",
-    durationMonths: 2,
+    slug: "advanced-life-support",
+    courseCode: "ALS",
+    title: "Certificate in Advanced Life Support",
+    shortDescription: "For health professionals. Strengthens the ability to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies.",
+    category: "PROFESSIONAL",
+    durationMonths: 1,
     fullFeeUgx: 0,
     feeContactOnly: true,
-    instalmentCount: 2,
+    instalmentCount: 1,
+    eligibilityText: "Applicants must hold a professional medical, nursing or clinical officer qualification, demonstrate current BLS competence, and provide their professional title and registration number.",
   },
 ];
 

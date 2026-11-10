@@ -1756,3 +1756,29 @@ model StudentDocument {
   @@index([userId, deletedAt])
   @@map("student_documents")
 }
+
+// ─────────────────────────────────────────────
+// FAILED EMAIL QUEUE
+// When RESEND_API_KEY is not configured or Resend returns an error,
+// the email is queued here so it can be retried once the domain is
+// verified and the key is set.  A cron job (or manual Admin action)
+// replays entries in PENDING state.
+// ─────────────────────────────────────────────
+
+model FailedEmail {
+  id          String   @id @default(cuid())
+  to          String
+  subject     String
+  html        String   @db.Text
+  template    String
+  variables   Json
+  status      String   @default("PENDING") // PENDING | SENT | ABANDONED
+  attempts    Int      @default(0)
+  lastError   String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sentAt      DateTime? // set when status = SENT
+
+  @@index([status, createdAt])
+  @@map("failed_emails")
+}

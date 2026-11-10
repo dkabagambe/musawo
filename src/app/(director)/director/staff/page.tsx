@@ -3,6 +3,7 @@ import { can } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { MAX_DIRECTOR_ACCOUNTS, STAFF_ROLES } from "@/lib/rbac";
+import Reset2faButton from "./Reset2faButton";
 export const dynamic = "force-dynamic";
 
 
@@ -90,14 +91,19 @@ export default async function DirectorStaffPage() {
                 </td>
                 <td className="py-2">
                   {/* Suspension requires an approval request, not a direct button */}
-                  {s.role !== "DIRECTOR" && s.status === "ACTIVE" && (
-                    <a
-                      href={`/director/approvals/new?type=STAFF_ACCOUNT_SUSPEND&staffUserId=${s.id}`}
-                      className="text-xs text-danger no-underline hover:underline"
-                    >
-                      Request suspend
-                    </a>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    {s.role !== "DIRECTOR" && s.status === "ACTIVE" && (
+                      <a
+                        href={`/director/approvals/new?type=STAFF_ACCOUNT_SUSPEND&staffUserId=${s.id}`}
+                        className="text-xs text-danger no-underline hover:underline"
+                      >
+                        Request suspend
+                      </a>
+                    )}
+                    {s.totpEnabled && s.role !== "DIRECTOR" && (
+                      <Reset2faButton userId={s.id} userName={s.name} />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

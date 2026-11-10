@@ -105,10 +105,9 @@ const EXTRA_STUDENTS = [
   { name: "Nurse Sarah Arach",  email: "s.arach@example.com",     phone: "+256700200032", courseCode: "BLS", status: EnrolmentStatus.COMPLETED },
   // COP cohort
   { name: "Maria Nakato",       email: "s.nakato@example.com",    phone: "+256700200033", courseCode: "COP", status: EnrolmentStatus.ACTIVE },
-  // ALS cohort
+  // ALS cohort (Advanced Life Support — the 7th production course)
   { name: "Dr. James Lubega",   email: "s.lubega@example.com",    phone: "+256700200034", courseCode: "ALS", status: EnrolmentStatus.ACTIVE },
-  // AFA
-  { name: "Susan Laker",        email: "s.laker@example.com",     phone: "+256700200035", courseCode: "AFA", status: EnrolmentStatus.PENDING_PAYMENT },
+  { name: "Susan Laker",        email: "s.laker@example.com",     phone: "+256700200035", courseCode: "ALS", status: EnrolmentStatus.PENDING_PAYMENT },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -312,7 +311,6 @@ async function main() {
       { code: "COP", title: "Care of Older Persons: Final Assessment", mins: 40, pass: 65 },
       { code: "BLS", title: "Basic Life Support: Practical Theory Exam", mins: 30, pass: 75 },
       { code: "ALS", title: "Advanced Life Support: Certification Exam", mins: 45, pass: 75 },
-      { code: "AFA", title: "Advanced First Aid: Assessment", mins: 30, pass: 60 },
     ];
 
     for (const ed of examCourses) {
@@ -401,7 +399,7 @@ async function main() {
       { title: "BLS CPR Practical Review", courseCode: "BLS", tutorId: tutor3.id, daysOffset: 2, hour: 14, min: 30, dur: 60, status: LiveClassStatus.SCHEDULED },
       { title: "ALS ACLS Algorithm Session", courseCode: "ALS", tutorId: tutor.id, daysOffset: 4, hour: 10, min: 0, dur: 120, status: LiveClassStatus.SCHEDULED },
       { title: "MHC Final Revision (Intake 6)", courseCode: "MHC", tutorId: tutor.id, daysOffset: 6, hour: 18, min: 0, dur: 90, status: LiveClassStatus.SCHEDULED },
-      { title: "AFA Emergency Scenarios", courseCode: "AFA", tutorId: tutor2.id, daysOffset: 6, hour: 18, min: 0, dur: 60, status: LiveClassStatus.SCHEDULED },
+      { title: "ALS Emergency Scenarios", courseCode: "ALS", tutorId: tutor2.id, daysOffset: 6, hour: 18, min: 0, dur: 60, status: LiveClassStatus.SCHEDULED },
       // PAST - for recordings / replay
       { title: "MHC Block 1: Foundations - Recorded", courseCode: "MHC", tutorId: tutor.id, daysOffset: -21, hour: 9, min: 0, dur: 90, status: LiveClassStatus.COMPLETED, recordingUrl: "https://meet.google.com/recording/demo-mhc-b1" },
       { title: "BHC Intro Session - Recorded", courseCode: "BHC", tutorId: tutor2.id, daysOffset: -18, hour: 14, min: 0, dur: 60, status: LiveClassStatus.COMPLETED, recordingUrl: "https://meet.google.com/recording/demo-bhc-intro" },
