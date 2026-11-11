@@ -11,8 +11,61 @@ export const metadata = { title: "Class replays" };
 export default async function RecordingsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  const enrolments = await db.enrolment.findMany({ where: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } }, include: { course: { select: { id: true, title: true, liveClasses: { where: { status: "COMPLETED", recordingUrl: { not: null } }, orderBy: { scheduledAt: "desc" }, select: { id: true, title: true, recordingUrl: true, scheduledAt: true, durationMin: true } } } } } });
-  const available = enrolments.filter((item) => getAccessLevel(item) !== "NONE").flatMap((item) => item.course.liveClasses.map((liveClass) => ({ ...liveClass, courseTitle: item.course.title, enrolmentCourseId: item.course.id })));
+
+  const enrolments = await db.enrolment.findMany({
+    where: {
+      userId: session.user.id,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+    },
+    select: {
+      id: true,
+      status: true,
+      paidPercent: true,
+      provisionalUntil: true,
+      graceUntil: true,
+      overdueSince: true,
+      course: {
+        select: {
+          id: true,
+          title: true,
+          liveClasses: {
+            where: {
+              status: "COMPLETED",
+              recordingUrl: { not: null },
+            },
+            orderBy: { scheduledAt: "desc" },
+            select: {
+              id: true,
+              title: true,
+              recordingUrl: true,
+              scheduledAt: true,
+              durationMin: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Filter by access level - must have at least PARTIAL access (50%+ paid)
+  const available = enrolments
+    .filter((enr) => {
+      const level = getAccessLevel({
+        status: enr.status,
+        paidPercent: enr.paidPercent,
+        provisionalUntil: enr.provisionalUntil,
+        graceUntil: enr.graceUntil,
+        overdueSince: enr.overdueSince,
+      });
+      return ["PARTIAL", "FULL", "OVERDUE", "COMPLETED"].includes(level);
+    })
+    .flatMap((item) =>
+      item.course.liveClasses.map((liveClass) => ({
+        ...liveClass,
+        courseTitle: item.course.title,
+        enrolmentCourseId: item.course.id,
+      }))
+    );
   const attendance = available.length ? await db.$queryRaw<Array<{ liveClassId: string; startMark: string | null; endMark: string | null }>>`SELECT "liveClassId", "startMark"::text, "endMark"::text FROM attendance WHERE "userId" = ${session.user.id} AND "liveClassId" IN (${(await import("@prisma/client")).Prisma.join(available.map((item) => item.id))})` : [];
   const markByClass = new Map(attendance.map((item) => [item.liveClassId, item]));
   available.sort((a, b) => {

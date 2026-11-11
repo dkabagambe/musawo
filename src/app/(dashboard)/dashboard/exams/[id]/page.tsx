@@ -30,16 +30,54 @@ export default async function ExamPage({ params }: Props) {
 
   if (!exam) notFound();
 
-  // Check enrolment
+  // Check enrolment and payment status
   const enrolment = await db.enrolment.findFirst({
     where: {
       userId: session.user.id,
       courseId: exam.courseId,
-      status: "ACTIVE",
+    },
+    select: {
+      id: true,
+      status: true,
+      paidPercent: true,
+      provisionalUntil: true,
+      graceUntil: true,
+      overdueSince: true,
     },
   });
 
   if (!enrolment) redirect(`/courses/${exam.course.slug}`);
+
+  // Import access utilities
+  const { getAccessLevel, canAccessLesson } = await import("@/lib/enrolment/access");
+  const accessLevel = getAccessLevel({
+    status: enrolment.status,
+    paidPercent: enrolment.paidPercent,
+    provisionalUntil: enrolment.provisionalUntil,
+    graceUntil: enrolment.graceUntil,
+    overdueSince: enrolment.overdueSince,
+  });
+
+  // Exams require full payment (100%) or ACTIVE status
+  if (accessLevel !== "FULL" && accessLevel !== "COMPLETED") {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="card text-center py-10">
+          <p className="text-4xl mb-4" aria-hidden="true">🔒</p>
+          <h1 className="text-xl font-bold mb-2">Exam locked</h1>
+          <p className="text-sm text-gray-500 mb-4">
+            {enrolment.paidPercent < 100
+              ? `Pay 100% of your fees to unlock this exam. You have paid ${enrolment.paidPercent}%.`
+              : "Complete your payment to unlock this exam."
+            }
+          </p>
+          <a href="/dashboard/payments/claim" className="btn-primary no-underline">
+            Pay now
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // Check attempt limit
   const attemptCount = await db.examAttempt.count({

@@ -32,16 +32,51 @@ export default async function AssignmentSubmitPage({ params }: Props) {
 
   if (!assignment) notFound();
 
-  // Verify the student is enrolled in the course
-  const enrolled = await db.enrolment.findFirst({
+  // Verify the student is enrolled with appropriate payment level
+  const enrolment = await db.enrolment.findFirst({
     where: {
       userId:   session.user.id,
       courseId: assignment.courseId,
-      status:   { in: ["ACTIVE", "COMPLETED"] },
     },
-    select: { id: true },
+    select: {
+      id: true,
+      status: true,
+      paidPercent: true,
+      provisionalUntil: true,
+      graceUntil: true,
+      overdueSince: true,
+    },
   });
-  if (!enrolled) redirect("/403");
+  if (!enrolment) redirect("/403");
+
+  // Check payment level - assignments typically require at least 50% paid
+  const { getAccessLevel } = await import("@/lib/enrolment/access");
+  const accessLevel = getAccessLevel({
+    status: enrolment.status,
+    paidPercent: enrolment.paidPercent,
+    provisionalUntil: enrolment.provisionalUntil,
+    graceUntil: enrolment.graceUntil,
+    overdueSince: enrolment.overdueSince,
+  });
+
+  // Allow PARTIAL (50%+), FULL, OVERDUE (in grace), and COMPLETED
+  const canAccess = ["PARTIAL", "FULL", "OVERDUE", "COMPLETED"].includes(accessLevel);
+  if (!canAccess) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="card text-center py-10">
+          <p className="text-4xl mb-4" aria-hidden="true">🔒</p>
+          <h1 className="text-xl font-bold mb-2">Assignment locked</h1>
+          <p className="text-sm text-gray-500 mb-4">
+            Pay at least 50% of your fees to access assignments. You have paid {enrolment.paidPercent}%.
+          </p>
+          <a href="/dashboard/payments/claim" className="btn-primary no-underline">
+            Pay now
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // Load any existing submission
   const existingSubmission = await db.assignmentSubmission.findUnique({

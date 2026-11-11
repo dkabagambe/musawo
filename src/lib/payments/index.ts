@@ -127,7 +127,8 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
         provisionalUntil: null,
       },
     });
-  } else if (paidPercent >= 25) {
+  } else if (paidPercent >= 50) {
+    // Student must pay at least 50% to unlock Block 1 and start the course
     newStatus = remainingInstalments.length > 0 ? "PARTIALLY_PAID" : "ACTIVE";
     await db.enrolment.update({
       where: { id: enrolment.id },
@@ -141,13 +142,15 @@ export async function processConfirmedPayment(paymentId: string): Promise<void> 
       },
     });
   } else {
-    newStatus = enrolment.status;
+    // Less than 50% paid - status remains PENDING_PAYMENT, no content access yet
+    newStatus = "PENDING_PAYMENT";
     await db.enrolment.update({
       where: { id: enrolment.id },
       data: {
+        status: "PENDING_PAYMENT",
         paidAmountUgx: newPaid,
         paidPercent,
-        unlockedBlockOrder: newUnlockedBlockOrder,
+        unlockedBlockOrder: 0,
       },
     });
   }

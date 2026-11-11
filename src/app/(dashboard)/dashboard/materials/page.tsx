@@ -47,7 +47,15 @@ export default async function StudentMaterialsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const accessible = enrolments.filter((e) => getAccessLevel(e) !== "NONE");
+  const accessible = enrolments.filter((e) =>
+    getAccessLevel({
+      status: e.status,
+      paidPercent: e.paidPercent ?? 0,
+      provisionalUntil: e.provisionalUntil,
+      graceUntil: e.graceUntil,
+      overdueSince: e.overdueSince,
+    }) !== "NONE"
+  );
 
   const TYPE_ICON: Record<string, React.ReactNode> = {
     VIDEO: <Video className="w-4 h-4 text-primary" />,

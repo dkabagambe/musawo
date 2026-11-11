@@ -36,7 +36,7 @@ export async function GET(_req: NextRequest) {
 }
 
 const CreateSchema = z.object({
-  courseId: z.string().cuid().nullish(),
+  courseId: z.union([z.string().cuid(), z.null(), z.undefined()]).optional(),
   title: z.string().min(3).max(160),
   body: z.string().min(3).max(10000),
   pinned: z.boolean().optional(),
