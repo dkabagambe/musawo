@@ -43,7 +43,7 @@ import { sendSms } from "@/lib/sms";
 const mockPayment = {
   id: "pay-1",
   enrolmentId: "enr-1",
-  amount: 283334,
+  amount: 425000,
   currency: "UGX",
   method: "MTN_MOMO",
   gateway: "PESAPAL",
@@ -81,10 +81,11 @@ const mockPayment = {
     updatedAt: new Date(),
     user: { id: "user-1", name: "Sarah Auma", email: "sarah@test.com", phone: "+256701234567" },
     course: { id: "course-1", title: "CNA", slug: "cna" },
+    // 50/25/25 instalment plan (remarks.md): first instalment = 50% of fee.
     instalments: [
-      { id: "inst-1", number: 1, amount: 283334, paidAt: null, unlocksBlockId: "block-1" },
-      { id: "inst-2", number: 2, amount: 283333, paidAt: null, unlocksBlockId: "block-2" },
-      { id: "inst-3", number: 3, amount: 283333, paidAt: null, unlocksBlockId: "block-3" },
+      { id: "inst-1", number: 1, amount: 425000, paidAt: null, unlocksBlockId: "block-1" },
+      { id: "inst-2", number: 2, amount: 212500, paidAt: null, unlocksBlockId: "block-2" },
+      { id: "inst-3", number: 3, amount: 212500, paidAt: null, unlocksBlockId: "block-3" },
     ],
   },
 };

@@ -71,10 +71,14 @@ export async function POST(req: NextRequest) {
 
   const instalmentCount =
     body.planType === "INSTALMENT" ? course.instalmentCount : 1;
+  // 50/25/25 payment plan (remarks.md): the first instalment is 50% of the fee
+  // so the student crosses the 50% access threshold and can start the course.
+  // The remaining 50% is split equally across the rest of the instalments
+  // (so 3 instalments = 50/25/25, 2 instalments = 50/50). Full plans are 100%.
   const firstAmount =
-    body.planType === "INSTALMENT"
-      ? Math.ceil(totalAmount / instalmentCount)
-      : totalAmount;
+    instalmentCount <= 1
+      ? totalAmount
+      : Math.round(totalAmount * 0.5);
 
   const merchantRef = `MTC-${Date.now()}-${enrolment.id.slice(-6)}`;
   const gateway = await getActiveGateway();
@@ -100,15 +104,25 @@ export async function POST(req: NextRequest) {
       where: { courseId: course.id },
       orderBy: { order: "asc" },
     });
+    // 50/25/25 plan: first instalment = 50%, remaining 50% split equally.
+    const restCount = instalmentCount - 1;
+    const restPer = restCount > 0 ? Math.ceil((totalAmount - firstAmount) / restCount) : 0;
+    let allocated = 0;
     for (let i = 0; i < instalmentCount; i++) {
+      let amt: number;
+      if (i === 0) {
+        amt = firstAmount;
+      } else if (i === instalmentCount - 1) {
+        amt = totalAmount - allocated; // last instalment absorbs rounding remainder
+      } else {
+        amt = restPer;
+      }
+      allocated += amt;
       await db.instalment.create({
         data: {
           enrolmentId: enrolment.id,
           number: i + 1,
-          amount:
-            i === instalmentCount - 1
-              ? totalAmount - firstAmount * (instalmentCount - 1)
-              : firstAmount,
+          amount: amt,
           unlocksBlockId: blocks[i]?.id ?? null,
         },
       });
