@@ -55,6 +55,7 @@ export default async function PrincipalProfilePage() {
       </div>
       <div className="card">
         <ProfileForm
+          allowNameEdit
           user={{
             name: user.name,
             email: user.email ?? "",

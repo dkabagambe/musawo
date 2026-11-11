@@ -44,7 +44,7 @@ export default async function AdminProfilePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">My Profile</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Hello Rahiima! Update your personal details below.
+          Update your personal details below.
         </p>
       </div>
       <div className="card mb-6 flex justify-center">
@@ -57,6 +57,7 @@ export default async function AdminProfilePage() {
       </div>
       <div className="card">
         <ProfileForm
+          allowNameEdit
           user={{
             name: user.name,
             email: user.email ?? "",

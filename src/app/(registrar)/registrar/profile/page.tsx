@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import RegistrarProfileEditForm from "./ProfileEditForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export default async function RegistrarProfilePage() {
       phone: true,
       avatarUrl: true,
       createdAt: true,
+      status: true,
     },
   });
   if (!user) redirect("/login");
@@ -29,31 +31,52 @@ export default async function RegistrarProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <Link href="/registrar" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-3 no-underline transition-colors">
+        <Link
+          href="/registrar"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-3 no-underline transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           Back to dashboard
         </Link>
         <h1 className="text-2xl font-bold text-primary">Profile</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Your account details</p>
+        <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
       </div>
 
-      <div className="card flex justify-center">
-        <AvatarUpload
-          userId={user.id}
-          avatarUrl={user.avatarUrl}
-          name={user.name}
-          size="lg"
+      <div className="card">
+        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-border">
+          <div className="flex-shrink-0">
+            <AvatarUpload
+              userId={user.id}
+              avatarUrl={user.avatarUrl}
+              name={user.name}
+              size="md"
+            />
+          </div>
+          <div className="pt-1">
+            <p className="font-semibold text-lg text-primary">{user.name}</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Academic Registrar</p>
+            <p className="text-xs text-gray-400">
+              Member since{" "}
+              {new Date(user.createdAt).toLocaleDateString("en-UG", {
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+            <p
+              className={`text-xs font-semibold mt-1 ${
+                user.status === "ACTIVE" ? "text-success" : "text-danger"
+              }`}
+            >
+              {user.status}
+            </p>
+          </div>
+        </div>
+
+        <RegistrarProfileEditForm
+          initialName={user.name ?? ""}
+          initialPhone={user.phone ?? ""}
+          email={user.email ?? ""}
         />
-      </div>
-
-      <div className="card space-y-3">
-        <p className="text-sm text-gray-600"><span className="font-medium">Name:</span> {user.name}</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {user.email ?? "N/A"}</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.phone || "N/A"}</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Role:</span> Academic Registrar</p>
-        <p className="text-sm text-gray-600"><span className="font-medium">Member since:</span>{" "}
-          {new Date(user.createdAt).toLocaleDateString("en-UG", { month: "long", year: "numeric" })}
-        </p>
       </div>
     </div>
   );

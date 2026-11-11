@@ -17,6 +17,11 @@ interface Props {
     professionalTitle: string | null;
     emergencyContact: string | null;
   };
+  /**
+   * When true the Full name field is editable (for staff roles).
+   * Students leave this false — their name is locked and set by the Admin.
+   */
+  allowNameEdit?: boolean;
 }
 
 const UGANDAN_DISTRICTS = [
@@ -31,8 +36,9 @@ const QUALIFICATIONS = [
   "Doctorate (PhD)", "Professional Certificate", "Other",
 ];
 
-export default function ProfileForm({ user }: Props) {
+export default function ProfileForm({ user, allowNameEdit = false }: Props) {
   const [form, setForm] = useState({
+    name: user.name,
     phone: user.phone,
     dateOfBirth: user.dateOfBirth ?? "",
     gender: user.gender ?? "",
@@ -64,6 +70,7 @@ export default function ProfileForm({ user }: Props) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(allowNameEdit ? { name: form.name.trim() } : {}),
           phone: form.phone.trim() || undefined,
           dateOfBirth: form.dateOfBirth || undefined,
           gender: form.gender || undefined,
@@ -140,14 +147,29 @@ export default function ProfileForm({ user }: Props) {
         )}
         <form onSubmit={handleProfileSave} noValidate>
 
-          {/* Full name - locked, set by Admin */}
+          {/* Full name - locked for students, editable for staff */}
           <div className="mb-4">
             <label htmlFor="name" className="label">Full name</label>
-            <input id="name" type="text" disabled value={user.name}
-              className="input opacity-60 cursor-not-allowed" aria-describedby="name-hint" />
-            <p id="name-hint" className="text-xs text-gray-400 mt-1">
-              Contact the Registrar to correct your name.
-            </p>
+            {allowNameEdit ? (
+              <input
+                id="name"
+                type="text"
+                value={form.name}
+                onChange={set("name")}
+                className="input"
+                required
+                minLength={2}
+                maxLength={120}
+              />
+            ) : (
+              <>
+                <input id="name" type="text" disabled value={user.name}
+                  className="input opacity-60 cursor-not-allowed" aria-describedby="name-hint" />
+                <p id="name-hint" className="text-xs text-gray-400 mt-1">
+                  Contact the Registrar to correct your name.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Email - locked */}
