@@ -43,7 +43,7 @@ export default async function TutorSupportPage() {
             {tickets.map((t) => (
               <Link
                 key={t.id}
-                href={`/dashboard/support/${t.id}`}
+                href={`/tutor/support/${t.id}`}
                 className="card flex items-center justify-between hover:shadow-md transition-shadow no-underline"
               >
                 <div className="flex-1 min-w-0">

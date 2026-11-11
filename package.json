@@ -23,6 +23,7 @@
     "demo:start": "docker compose up -d postgres redis && until docker compose exec postgres pg_isready -U mtc -d mtc_db -q; do sleep 1; done && npx prisma migrate deploy && npx prisma db seed && npm run dev",
     "rate-limit:reset": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/rate-limit-reset.ts",
     "verify:roles": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"moduleResolution\":\"node\"}' scripts/verify-roles.ts",
+    "click:audit": "node scripts/click-audit.mjs --role STUDENT && node scripts/click-audit.mjs --role INSTRUCTOR",
     "seed:remote": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/seed-remote.ts",
     "db:seed-topup": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed-topup.ts",
     "bootstrap:prod": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/bootstrap-prod.ts",

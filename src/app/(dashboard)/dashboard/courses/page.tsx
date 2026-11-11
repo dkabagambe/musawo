@@ -32,6 +32,7 @@ export default async function MyCoursesPage() {
     include: {
       course: {
         select: {
+          id: true,
           title: true, slug: true, thumbnailUrl: true,
           accreditationText: true, durationWeeks: true,
           blocks: { select: { _count: { select: { lessons: true } } } },
@@ -41,13 +42,20 @@ export default async function MyCoursesPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Per-course lesson progress
-  const progressRows = await db.lessonProgress.groupBy({
-    by: ["userId"],
-    where: { userId: session.user.id, completedAt: { not: null } },
-    _count: { lessonId: true },
-  });
-  const completedCount = progressRows[0]?._count.lessonId ?? 0;
+  // Per-course lesson progress: join through lesson -> block -> course
+  const progressRows = await db.$queryRaw<Array<{ courseId: string; count: bigint }>>`
+    SELECT b."courseId", COUNT(lp.id) as count
+    FROM lesson_progress lp
+    JOIN lessons l ON lp."lessonId" = l.id
+    JOIN blocks b ON l."blockId" = b.id
+    WHERE lp."userId" = ${session.user.id}
+      AND lp."completedAt" IS NOT NULL
+    GROUP BY b."courseId"
+  `;
+  // Build a map: courseId -> completed lessons count
+  const progressByCourse = new Map(
+    progressRows.map((r) => [r.courseId, Number(r.count)]),
+  );
 
   const canAccess = (status: string) =>
     ["ACTIVE","PARTIALLY_PAID","OVERDUE","COMPLETED"].includes(status);
@@ -79,6 +87,7 @@ export default async function MyCoursesPage() {
         <div className="grid sm:grid-cols-2 gap-5">
           {enrolments.map((enr) => {
             const total = enr.course.blocks.reduce((s, b) => s + b._count.lessons, 0);
+            const completedCount = progressByCourse.get(enr.course.id) ?? 0;
             const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
             const access = canAccess(enr.status);
             return (

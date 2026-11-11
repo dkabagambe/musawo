@@ -115,7 +115,7 @@ export default async function TutorForumPage({
           {threads.map((t) => (
             <Link
               key={t.id}
-              href={`/dashboard/forum/${t.id}`}
+              href={`/tutor/forum/${t.id}`}
               className="card flex items-start gap-4 hover:shadow-md transition-shadow no-underline block"
             >
               <div className="flex-1 min-w-0">

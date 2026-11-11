@@ -1,30 +1,17 @@
-import { auth } from "@/lib/auth/server";
-import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import { teachingCourseWhere } from "@/lib/teaching/scope";
-import NewForumThreadForm from "./NewForumThreadForm";
-export const dynamic = "force-dynamic";
+"use client";
 
+/**
+ * Tutor forum new-thread page — reuses the student new-thread form.
+ * The /api/forum GET is role-aware and returns only the tutor's assigned courses.
+ * After submission, redirects back to /tutor/forum.
+ */
+import { Suspense } from "react";
+import NewForumThreadInner from "@/app/(dashboard)/dashboard/forum/new/page";
 
-export const metadata = { title: "New Thread - Forum" };
-
-export default async function TutorForumNewPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-
-  const courses = await db.course.findMany({
-    where: teachingCourseWhere(session.user.id),
-    select: { id: true, title: true },
-    orderBy: { title: "asc" },
-  });
-
+export default function TutorNewForumThreadPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">New Discussion Thread</h1>
-        <p className="text-sm text-gray-500 mt-1">Start a discussion for your students</p>
-      </div>
-      <NewForumThreadForm courses={courses} />
-    </div>
+    <Suspense>
+      <NewForumThreadInner />
+    </Suspense>
   );
 }
