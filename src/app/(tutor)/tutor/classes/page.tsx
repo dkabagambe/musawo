@@ -163,7 +163,7 @@ export default function TutorClassesPage() {
                       <p className="font-medium text-sm">{cls.title}</p>
                       <p className="text-xs text-gray-400">{cls.course.title} · {new Date(cls.scheduledAt).toLocaleString("en-UG")} · {cls.durationMin} min</p>
                     </div>
-                    <a href={`/tutor/attendance`} className="btn-outline text-xs no-underline">Roll call</a>
+                    <a href={`/tutor/attendance?classId=${cls.id}`} className="btn-outline text-xs no-underline">Roll call</a>
                     {canManageClasses && <button type="button" className="btn-outline text-xs" onClick={async () => {
                       const action = cls.status === "LIVE" ? "stop" : "start";
                       const response = await fetch("/api/tutor/classes", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ classId: cls.id, action }) });

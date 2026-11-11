@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Upload failed. Please try again." }, { status: 500 });
   }
 
-  // Build a public-ish URL via the app's own proxy route
-  // (avoids exposing S3 credentials in the browser)
+  // Build a proxy URL — avoids exposing S3 credentials in the browser.
+  // The image is served by /api/profile/avatar/[userId]/route.ts
   const avatarUrl = `/api/profile/avatar/${session.user.id}`;
 
   await db.user.update({
@@ -68,21 +68,3 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ avatarUrl });
 }
 
-// Serve the avatar through the app so the S3 key is never exposed
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("uid");
-  if (!userId) return new NextResponse("Not found", { status: 404 });
-
-  const { getInlineObject } = await import("@/lib/s3");
-  try {
-    const { body, contentType } = await getInlineObject(`avatars/${userId}.jpg`);
-    return new NextResponse(body as ReadableStream, {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-      },
-    });
-  } catch {
-    return new NextResponse("Not found", { status: 404 });
-  }
-}

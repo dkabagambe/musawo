@@ -27,6 +27,22 @@ function isPdf(mime: string) {
   return mime === "application/pdf";
 }
 
+function isPowerPoint(mime: string, fileName: string) {
+  return (
+    mime === "application/vnd.ms-powerpoint" ||
+    mime === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+    /\.(ppt|pptx)$/i.test(fileName)
+  );
+}
+
+function isOfficeDoc(mime: string, fileName: string) {
+  return (
+    mime.includes("word") ||
+    mime.includes("spreadsheet") ||
+    /\.(doc|docx|xls|xlsx)$/i.test(fileName)
+  );
+}
+
 export default function PresentationViewer({ classId }: { classId: string }) {
   const [items, setItems]   = useState<Presentation[]>([]);
   const [index, setIndex]   = useState(0);
@@ -111,14 +127,27 @@ export default function PresentationViewer({ classId }: { classId: string }) {
             draggable={false}
           />
         )}
-        {!isPdf(current.mimeType) && !isImage(current.mimeType) && (
+        {(isPowerPoint(current.mimeType, current.fileName) || isOfficeDoc(current.mimeType, current.fileName)) && (
+          // Use Google Docs viewer for PowerPoint and Word files (read-only, no download).
+          // The signed URL is passed as the doc param so it opens inside the viewer iframe.
+          <iframe
+            title={current.fileName}
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(current.viewUrl)}&embedded=true`}
+            className="absolute inset-0 w-full h-full"
+            sandbox="allow-same-origin allow-scripts allow-popups"
+          />
+        )}
+        {!isPdf(current.mimeType) &&
+          !isImage(current.mimeType) &&
+          !isPowerPoint(current.mimeType, current.fileName) &&
+          !isOfficeDoc(current.mimeType, current.fileName) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
             <FileText className="w-10 h-10 text-gray-400" aria-hidden="true" />
             <p className="text-sm text-gray-500 text-center">
               {current.fileName}
             </p>
             <p className="text-xs text-gray-400 text-center">
-              This file type is viewable only via the preview below.
+              This file type cannot be previewed in the browser.
             </p>
           </div>
         )}

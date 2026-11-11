@@ -894,14 +894,17 @@ async function PaymentActionBody({ userId, fullPageHref }: WidgetBodyProps) {
     take: 5,
   });
   if (!enrolments.length) return <Empty>No outstanding payments.</Empty>;
-  const href = fullPageHref ?? "/dashboard/payments";
+  const href = fullPageHref ?? "/dashboard/payments/claim";
   return (
     <>
       {enrolments.map((enr) => {
         const balance = enr.totalAmountUgx - enr.paidAmountUgx;
+        const phase =
+          enr.paidPercent >= 75 ? "Final 25%" :
+          enr.paidPercent >= 50 ? "Next 25%" : "First 50%";
         return (
           <ListRow key={enr.id} href={href} icon={<Wallet size={16} />}>
-            Pay {fmtUGX(balance)} for {enr.course.title}
+            {enr.course.title}: pay {phase} ({fmtUGX(balance)} remaining)
           </ListRow>
         );
       })}

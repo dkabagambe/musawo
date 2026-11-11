@@ -7,8 +7,8 @@ type Student = { id: string; name: string; studentNumber: string | null; present
 type WaitingStudent = { userId: string; name: string; studentNumber: string | null; admissionRequestedAt: string; handRaisedAt?: string | null };
 type Presence = { id: string; name: string; status: string; lastSeenAt: string | null; classTitle: string | null };
 
-export default function AttendanceManager({ classes, canMark, canAdmit, canExport }: { classes: ClassItem[]; canMark: boolean; canAdmit: boolean; canExport: boolean }) {
-  const [classId, setClassId] = useState(classes[0]?.id ?? "");
+export default function AttendanceManager({ classes, initialClassId, canMark, canAdmit, canExport }: { classes: ClassItem[]; initialClassId?: string; canMark: boolean; canAdmit: boolean; canExport: boolean }) {
+  const [classId, setClassId] = useState(initialClassId ?? classes[0]?.id ?? "");
   const [students, setStudents] = useState<Student[]>([]);
   const [waiting, setWaiting] = useState<WaitingStudent[]>([]);
   const [raisedHands, setRaisedHands] = useState<WaitingStudent[]>([]);

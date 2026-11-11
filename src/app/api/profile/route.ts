@@ -3,9 +3,11 @@ import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
-const Schema = z.object({
-  // name and registrationNumber are intentionally excluded —
-  // students may not change these fields (remarks.md section 2).
+// Fields open to every authenticated user
+const BaseSchema = z.object({
+  // name is excluded for STUDENT — set by Admin only (remarks.md section 2).
+  // Non-student roles (INSTRUCTOR, ADMIN, etc.) may update their own name.
+  name: z.string().min(2).max(120).optional(),
   phone: z.string().min(9).max(20).optional(),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   gender: z.string().max(30).optional(),
@@ -21,11 +23,12 @@ export async function PATCH(req: NextRequest) {
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const parsed = Schema.safeParse(await req.json());
+  const parsed = BaseSchema.safeParse(await req.json());
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
   const {
+    name,
     phone,
     dateOfBirth,
     gender,
@@ -35,6 +38,15 @@ export async function PATCH(req: NextRequest) {
     professionalTitle,
     emergencyContact,
   } = parsed.data;
+
+  // Students cannot change their own name — it is set by the Admin.
+  const isStudent = session.user.role === "STUDENT";
+  if (name && isStudent) {
+    return NextResponse.json(
+      { error: "Students cannot change their name. Contact the Registrar." },
+      { status: 403 },
+    );
+  }
 
   if (phone) {
     const existing = await db.user.findFirst({
@@ -50,6 +62,7 @@ export async function PATCH(req: NextRequest) {
   const user = await db.user.update({
     where: { id: session.user.id },
     data: {
+      ...(name && !isStudent ? { name: name.trim() } : {}),
       ...(phone !== undefined ? { phone: phone || null } : {}),
       ...(dateOfBirth ? { dateOfBirth: new Date(dateOfBirth) } : {}),
       ...(gender !== undefined ? { gender: gender || null } : {}),

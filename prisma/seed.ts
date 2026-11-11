@@ -2221,7 +2221,66 @@ async function main() {
     console.log("  ✓ Live classes (6: 2 past with replays, 4 upcoming)");
   }
 
-  // ── Breakaway Groups (Section 9) ───────────────────────────────
+  // ── Class Presentations (Slides seeded to demo live classes) ──────────────
+  const existingPresentations = await prisma.classPresentation.count();
+  if (existingPresentations === 0) {
+    // Attach a PDF slide deck to the first two completed live classes so the
+    // PresentationViewer has real data in the student dashboard and the
+    // PresentationPanel shows the uploaded file for the instructor.
+    const completedClasses = await prisma.liveClass.findMany({
+      where: { status: "COMPLETED", tutorId: tutor.id },
+      orderBy: { scheduledAt: "asc" },
+      take: 2,
+      select: { id: true, title: true },
+    });
+    const presData = [
+      {
+        fileName: "Block 2 Infection Control Slides.pdf",
+        s3Key: "presentations/block2-infection-control.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 2_450_000,
+      },
+      {
+        fileName: "Block 3 Personal Care Skills.pdf",
+        s3Key: "presentations/block3-personal-care.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 3_100_000,
+      },
+    ];
+    for (let i = 0; i < completedClasses.length; i++) {
+      const cls = completedClasses[i];
+      const pd = presData[i];
+      if (!cls || !pd) continue;
+      await prisma.classPresentation.create({
+        data: {
+          liveClassId: cls.id,
+          uploadedBy: tutor.id,
+          fileName: pd.fileName,
+          s3Key: pd.s3Key,
+          mimeType: pd.mimeType,
+          sizeBytes: pd.sizeBytes,
+          order: 0,
+        },
+      });
+    }
+    // Also seed a PPTX slide to the first completed class to demo PPT viewer
+    if (completedClasses[0]) {
+      await prisma.classPresentation.create({
+        data: {
+          liveClassId: completedClasses[0].id,
+          uploadedBy: tutor.id,
+          fileName: "Hand Hygiene Procedure (Demo).pptx",
+          s3Key: "presentations/block2-hand-hygiene.pptx",
+          mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          sizeBytes: 1_200_000,
+          order: 1,
+        },
+      });
+    }
+    console.log("  ✓ Class presentations (2 PDF + 1 PPTX on past live classes)");
+  }
+
+
   const existingGroups = await prisma.classGroup.count();
   if (existingGroups === 0) {
     // Use the first completed live class (Block 2 Q&A) for the group demo
@@ -2723,10 +2782,51 @@ async function main() {
         body: "Ronald Mugisha submitted Block 2 exam 5 days ago and has a short-answer question awaiting your marking.",
         readAt: null,
       },
+      {
+        userId: tutor.id,
+        channel: "IN_APP",
+        type: "TAB_SWITCH_ALERT",
+        subject: "Tab-switch alert: Block 1 Introduction Quiz",
+        body: "Harriet Namutebi (student) switched tabs 3 times during the Block 1 quiz. Review may be needed.",
+        readAt: null,
+      },
+      {
+        userId: tutor.id,
+        channel: "IN_APP",
+        type: "ASSIGNMENT_SUBMITTED",
+        subject: "New assignment submission",
+        body: "Ronald Mugisha submitted the Personal Care Reflection Journal assignment.",
+        readAt: null,
+      },
+      // Payment reminders for students with outstanding balances
+      {
+        userId: students["new"].id,
+        channel: "IN_APP",
+        type: "PAYMENT_REMINDER",
+        subject: "Action required: pay 50% to start your course",
+        body: "Your enrolment for Medical Home Caregiver is confirmed. Pay 50% of tuition to unlock course content and begin your studies. Use MTN MoMo or Airtel Money and submit your payment claim from the Payments page.",
+        readAt: null,
+      },
+      {
+        userId: students["25"].id,
+        channel: "IN_APP",
+        type: "PAYMENT_REMINDER",
+        subject: "Reminder: pay 75% to unlock Block 2 and practicals",
+        body: "You have paid 25% of your fees. Paying 75% will unlock Block 2, Block 3 and practical booking for Medical Home Caregiver. Submit your next payment when ready.",
+        readAt: null,
+      },
+      {
+        userId: students["50"].id,
+        channel: "IN_APP",
+        type: "PAYMENT_REMINDER",
+        subject: "Reminder: pay 75% to unlock the next block",
+        body: "You have paid 50% of your fees. Your current payment claim is under review. Once verified, paying up to 75% will unlock Block 2, Block 3 and practical booking.",
+        readAt: null,
+      },
     ];
 
     await prisma.notification.createMany({ data: notifData });
-    console.log("  ✓ Notifications (8)");
+    console.log("  ✓ Notifications (13)");
   }
 
   // ── Assignments ────────────────────────────────────────────────

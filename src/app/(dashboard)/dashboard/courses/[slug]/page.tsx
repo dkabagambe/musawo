@@ -134,8 +134,9 @@ export default async function CoursePlayerPage({ params, searchParams }: Props) 
       }}
       enrolment={{
         id: enrolment.id,
-        unlockedBlockOrder: enrolment.unlockedBlockOrder,
+        paidPercent: enrolment.paidPercent,
         status: enrolment.status,
+        accessLevel: level,
       }}
       activeLessonId={activeLesson?.id ?? null}
       viewerName={viewer?.name ?? session.user.name ?? "Student"}

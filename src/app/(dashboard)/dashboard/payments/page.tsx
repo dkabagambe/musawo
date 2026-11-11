@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { CreditCard, CheckCircle2, Clock, XCircle, ArrowRight } from "lucide-react";
+import { CreditCard, CheckCircle2, Clock, XCircle, ArrowRight, AlertCircle } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
@@ -27,12 +27,40 @@ export default async function PaymentsPage() {
     BANK_TRANSFER: "Bank Transfer",
   };
 
+  // Identify any outstanding balances for the reminder banner
+  const outstanding = enrolments.filter(
+    (e) => ["PENDING_PAYMENT", "PARTIALLY_PAID", "OVERDUE"].includes(e.status),
+  );
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Payments</h1>
         <p className="text-gray-500 text-sm mt-1">Your payment history and instalment plans</p>
       </div>
+
+      {/* Outstanding balance reminder */}
+      {outstanding.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-800">Outstanding balance</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              {outstanding.length === 1
+                ? `You have an outstanding balance for ${outstanding[0]!.course.title}. `
+                : `You have outstanding balances across ${outstanding.length} courses. `}
+              Fees are paid in three phases: 50% before reporting, then 25%, then the final 25%.
+              Your content access matches what you have paid.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/payments/claim"
+            className="btn-primary text-xs no-underline flex-shrink-0 self-center"
+          >
+            Submit payment
+          </Link>
+        </div>
+      )}
 
       {enrolments.length === 0 && (
         <div className="bg-white rounded-2xl border border-border p-12 text-center">
@@ -174,20 +202,20 @@ export default async function PaymentsPage() {
             {/* Pay CTA */}
             {remaining > 0 && enr.status !== "PENDING_PAYMENT" && (
               <div className="px-6 py-4 bg-surface border-t border-border">
-                <Link href={`/dashboard/payments`}
+                <Link href="/dashboard/payments/claim"
                   className="btn-primary no-underline inline-flex items-center gap-2 text-sm">
-                  Pay next instalment <ArrowRight className="w-4 h-4" />
+                  Submit next payment <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}
             {enr.status === "PENDING_PAYMENT" && remaining > 0 && (
               <div className="px-6 py-4 bg-warning/5 border-t border-border">
                 <p className="text-xs text-amber-700 mb-2">
-                  Your enrolment is awaiting payment. Pay to unlock course content.
+                  Your enrolment is awaiting payment. Submit proof of payment to unlock course content.
                 </p>
-                <Link href={`/dashboard/payments`}
+                <Link href="/dashboard/payments/claim"
                   className="btn-primary no-underline inline-flex items-center gap-2 text-sm">
-                  Make payment <ArrowRight className="w-4 h-4" />
+                  Submit payment claim <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}

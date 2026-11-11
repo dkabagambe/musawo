@@ -332,7 +332,18 @@ async function handleSubmit(req: NextRequest, userId: string) {
 async function handleTabSwitch(req: NextRequest, userId: string) {
   const { attemptId } = (await req.json()) as { attemptId: string };
 
-  const attempt = await db.examAttempt.findUnique({ where: { id: attemptId } });
+  const attempt = await db.examAttempt.findUnique({
+    where: { id: attemptId },
+    include: {
+      exam: {
+        select: {
+          title: true,
+          course: { select: { title: true, tutorId: true } },
+        },
+      },
+      user: { select: { name: true, studentNumber: true } },
+    },
+  });
   if (!attempt || attempt.userId !== userId || attempt.status !== "IN_PROGRESS") {
     return NextResponse.json({ error: "Invalid attempt" }, { status: 400 });
   }
@@ -344,8 +355,19 @@ async function handleTabSwitch(req: NextRequest, userId: string) {
 
   const threshold = await getTabSwitchThreshold();
   if (updated.tabSwitches >= threshold) {
-    // TODO: send notification to tutor
-    console.warn(`Tab switch threshold reached for attempt ${attemptId}`);
+    // Notify the course tutor about the tab-switch threshold being reached.
+    const tutorId = attempt.exam.course.tutorId;
+    if (tutorId) {
+      await db.notification.create({
+        data: {
+          userId: tutorId,
+          channel: "IN_APP",
+          type: "TAB_SWITCH_ALERT",
+          subject: `Tab-switch alert: ${attempt.exam.title}`,
+          body: `${attempt.user.name} (${attempt.user.studentNumber ?? "student"}) has switched tabs ${updated.tabSwitches} time${updated.tabSwitches !== 1 ? "s" : ""} during "${attempt.exam.title}" in ${attempt.exam.course.title}. Review may be needed.`,
+        },
+      });
+    }
   }
 
   return NextResponse.json({ tabSwitches: updated.tabSwitches });

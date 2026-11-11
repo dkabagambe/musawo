@@ -25,6 +25,10 @@ export default async function TutorNotificationsPage() {
     SYSTEM_ALERT:   "⚠️",
     ANNOUNCEMENT:   "📢",
     DIRECT_MESSAGE: "✉️",
+    EXAM_MARKED:    "✅",
+    EXAM_REVIEW:    "📋",
+    TAB_SWITCH_ALERT: "🚨",
+    ASSIGNMENT_SUBMITTED: "📩",
   };
 
   return (
