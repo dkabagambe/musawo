@@ -14,10 +14,19 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Widget preferences persistence", () => {
   test.beforeEach(async ({ page }) => {
-    // Login as student (use demo account)
+    // Login as student (use demo account) using the same pattern as redirects.spec.ts
+    await page.context().clearCookies();
     await page.goto("/dev/login");
-    await page.click('button:has-text("student.full@example.com")');
-    await page.waitForURL("/dashboard", { timeout: 10000 });
+    const emailPattern = /^student\.full@example\.com$/;
+    const row = page.locator("tr").filter({
+      has: page.locator("td").filter({ hasText: emailPattern }),
+    });
+    
+    // Click and wait for navigation simultaneously
+    await Promise.all([
+      page.waitForURL("/dashboard", { timeout: 30000 }),
+      row.getByRole("button", { name: /sign in/i }).click(),
+    ]);
   });
 
   test("hides and shows widgets persistently", async ({ page }) => {
@@ -157,9 +166,18 @@ test.describe("Widget preferences persistence", () => {
 
 test.describe("Widget preferences for different tabs", () => {
   test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies();
     await page.goto("/dev/login");
-    await page.click('button:has-text("student.full@example.com")');
-    await page.waitForURL("/dashboard");
+    const emailPattern = /^student\.full@example\.com$/;
+    const row = page.locator("tr").filter({
+      has: page.locator("td").filter({ hasText: emailPattern }),
+    });
+    
+    // Click and wait for navigation simultaneously
+    await Promise.all([
+      page.waitForURL("/dashboard", { timeout: 30000 }),
+      row.getByRole("button", { name: /sign in/i }).click(),
+    ]);
   });
 
   test("preferences are tab-specific", async ({ page }) => {

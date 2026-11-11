@@ -12,15 +12,25 @@ export default function DevLoginForm({ email, password }: { email: string; passw
 
   async function handleClick() {
     setLoading(true);
-    const result = await signIn("credentials", { identifier: email, password, redirect: false });
+    const result = await signIn("credentials", { 
+      identifier: email, 
+      password,
+      redirect: false,
+    });
+    
     if (result?.error) {
       alert(`Login failed: ${result.error}`);
       setLoading(false);
       return;
     }
-    const res  = await fetch("/api/auth/session");
-    const data = await res.json() as { user?: { role?: string } };
-    router.push(getPostLoginPath(data?.user?.role, undefined, window.location.origin));
+    
+    if (result?.ok) {
+      const res  = await fetch("/api/auth/session");
+      const data = await res.json() as { user?: { role?: string } };
+      const targetPath = getPostLoginPath(data?.user?.role, undefined, window.location.origin);
+      router.push(targetPath);
+      router.refresh();
+    }
   }
 
   return (
