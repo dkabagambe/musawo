@@ -72,6 +72,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/admin/notices", permissions: ["operational_notices.manage"] },
   { prefix: "/admin/students", permissions: ["students.lookup"] },
   { prefix: "/admin/partner-pages", permissions: ["settings.edit.operational"] },
+  { prefix: "/admin/email-queue", permissions: ["reports.view"] },
   { prefix: "/admin/messages", permissions: ["staff.view"] },
   { prefix: "/admin", permissions: ["staff.view", "settings.view", "settings.edit.operational", "support.manage", "students.lookup"] },
   { prefix: "/director/approvals", permissions: ["approvals.view", "approvals.decide"] },
@@ -91,6 +92,7 @@ const NAV_PERMISSIONS: Array<{ prefix: string; permissions: Permission[] }> = [
   { prefix: "/system/announcements", permissions: ["integrations.edit"] },
   { prefix: "/system/notifications", permissions: ["integrations.edit"] },
   { prefix: "/system/messages", permissions: ["integrations.edit"] },
+  { prefix: "/system/email-queue", permissions: ["integrations.edit"] },
   { prefix: "/system", permissions: ["integrations.edit"] },
 ];
 

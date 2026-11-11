@@ -13,10 +13,12 @@ import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 
+import type { UserRole } from "@prisma/client";
+
 const RETRY_BATCH = 50;
 const MAX_ATTEMPTS = 5;
 
-function allowed(role: string): boolean {
+function allowed(role: UserRole): boolean {
   // ADMIN and above, plus SYSTEM_IT, can view and retry the email queue.
   // reports.view is granted to ADMIN, PRINCIPAL, DIRECTOR, and SYSTEM_IT.
   return can(role, "reports.view");

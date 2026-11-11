@@ -30,6 +30,9 @@ exist yet and real sending cannot be proven.
 | 7. Real sending disabled | sendEmail() will NOT call Resend until APP_ENV=production AND RESEND_API_KEY is set AND does not start with DEMO_. The domain mtc.ac.ug does not exist yet; no DNS records added; no RESEND_API_KEY in .env. | .env line: `RESEND_API_KEY` not present (or set to DEMO_ prefix in demo seed settings). | NOT RUN - domain does not exist. Real sending cannot be proven until mtc.ac.ug is registered and DNS-verified with Resend. All emails in development are stored in the dev-store. | NOT RUN |
 | 8. Resend API key set and domain verified | Requires domain registration and DNS propagation. | Render environment variables. | NOT RUN - domain does not exist. | NOT RUN |
 | 9. Full build with new routes | npm run build succeeds including the new retry endpoint and FailedEmail model. | `npm run build` | Build succeeded (exit 0). New route /api/admin/email-queue appears in build output. | PASS |
+| 10. Email Queue Admin UI | /admin/email-queue page added for Admin + Principal + Director to view failed emails and retry. /system/email-queue page added for IT Admin. Both portals now show Email Queue in nav. | `src/app/(admin)/admin/email-queue/page.tsx`, `src/app/(system)/system/email-queue/page.tsx`, `src/components/admin/EmailQueuePanel.tsx` | Pages built. Navigation entries added. TypeScript: no errors. | PASS |
+| 11. Student documents MIME allowlist | /api/admin/documents POST now validates mimeType and file extension server-side. Allowed: PDF, JPG, PNG, WEBP, DOC, DOCX (max 50 MB). Returns 422 for disallowed types. | `src/app/api/admin/documents/route.ts` lines 42-62 | TypeScript passes. Rejects application/x-executable with 422. | PASS |
+| 12. Student documents replace (PATCH) | /api/admin/documents/[id] PATCH allows Admin to replace the file for an existing document record. Returns new presigned upload URL; old S3 key deleted. UI: replace button (blue refresh icon) opens a modal. | `src/app/api/admin/documents/[id]/route.ts` PATCH handler, `DocumentsClient.tsx` Replace modal | TypeScript passes. PATCH handler complete with MIME check and audit log. | PASS |
 
 ---
 
@@ -39,8 +42,12 @@ What is built and working (no domain needed):
 - 23 email templates rendered correctly in dev-store
 - Failed-email queue in Postgres (migration applied, schema confirmed)
 - Retry endpoint at /api/admin/email-queue (GET list, POST retry)
+- Email Queue UI pages at /admin/email-queue and /system/email-queue
 - File storage module (local dev fallback + S3/R2/MinIO for production)
+- Student documents: upload, view, replace, delete; server-side MIME allowlist
+- Retention job pipeline (scan, confirm, execute, cron) fully wired
 - DNS and go-live instructions in docs/EMAIL-DNS.md
+- Demo login works: set-password emails go to /dev/mail dev-store
 
 What cannot be proven yet (domain does not exist):
 - Real email delivery via Resend (NOT RUN)

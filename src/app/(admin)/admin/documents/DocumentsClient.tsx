@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Loader2, Upload, FileText, Trash2, Eye, X } from "lucide-react";
+import { Loader2, Upload, FileText, Trash2, Eye, X, RefreshCw } from "lucide-react";
 
 type StudentOption = { id: string; name: string; studentNumber: string | null };
 
@@ -57,6 +57,12 @@ export default function DocumentsClient({
   const [filterStudent, setFilterStudent] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Replace state
+  const [replacing, setReplacing] = useState<DocumentItem | null>(null);
+  const [replaceFile, setReplaceFile] = useState<File | null>(null);
+  const [replaceUploading, setReplaceUploading] = useState(false);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+
   async function handleUpload() {
     if (!selectedStudent || !title.trim() || !file) {
       setError("Select a student, enter a title, and choose a file.");
@@ -65,7 +71,6 @@ export default function DocumentsClient({
     setUploading(true);
     setError("");
     try {
-      // Step 1: request upload URL + create record
       const res = await fetch("/api/admin/documents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,12 +84,11 @@ export default function DocumentsClient({
         }),
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(data.error ?? "Could not create document record.");
       }
-      const { document: doc, uploadUrl } = await res.json();
+      const { document: doc, uploadUrl } = await res.json() as { document: DocumentItem; uploadUrl: string };
 
-      // Step 2: upload the file to the presigned URL
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: { "Content-Type": file.type || "application/octet-stream" },
@@ -92,7 +96,6 @@ export default function DocumentsClient({
       });
       if (!uploadRes.ok) throw new Error("File upload failed.");
 
-      // Step 3: add to the list
       const student = students.find((s) => s.id === selectedStudent);
       setDocuments((prev) => [
         {
@@ -103,7 +106,6 @@ export default function DocumentsClient({
         ...prev,
       ]);
 
-      // Reset form
       setTitle("");
       setFile(null);
       setDocType("OTHER");
@@ -113,6 +115,49 @@ export default function DocumentsClient({
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleReplace() {
+    if (!replacing || !replaceFile) return;
+    setReplaceUploading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/documents/${replacing.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: replaceFile.name,
+          mimeType: replaceFile.type || "application/octet-stream",
+          fileSize: replaceFile.size,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(data.error ?? "Could not replace document.");
+      }
+      const { uploadUrl } = await res.json() as { uploadUrl: string };
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": replaceFile.type || "application/octet-stream" },
+        body: replaceFile,
+      });
+      if (!uploadRes.ok) throw new Error("File upload to storage failed.");
+
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.id === replacing.id
+            ? { ...d, fileName: replaceFile.name, fileSize: replaceFile.size, mimeType: replaceFile.type }
+            : d,
+        ),
+      );
+      setReplacing(null);
+      setReplaceFile(null);
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Replace failed.");
+    } finally {
+      setReplaceUploading(false);
     }
   }
 
@@ -128,7 +173,7 @@ export default function DocumentsClient({
   }
 
   const filteredDocs = filterStudent
-    ? documents.filter((d) => d.user && (d.user as { name?: string }).name === filterStudent)
+    ? documents.filter((d) => d.user.name === filterStudent)
     : documents;
 
   return (
@@ -151,9 +196,7 @@ export default function DocumentsClient({
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Student
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Student</label>
             <select
               value={selectedStudent}
               onChange={(e) => setSelectedStudent(e.target.value)}
@@ -168,25 +211,19 @@ export default function DocumentsClient({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Document Type
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
             <select
               value={docType}
               onChange={(e) => setDocType(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input
               type="text"
               value={title}
@@ -197,12 +234,12 @@ export default function DocumentsClient({
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              File (PDF, image, or document, max 50 MB)
+              File (PDF, JPG, PNG, WEBP, DOC, DOCX - max 50 MB)
             </label>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white file:cursor-pointer hover:file:bg-primary-dark"
             />
@@ -210,28 +247,80 @@ export default function DocumentsClient({
         </div>
         <button
           type="button"
-          onClick={handleUpload}
+          onClick={() => void handleUpload()}
           disabled={uploading || !selectedStudent || !title.trim() || !file}
           className="btn-primary mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
-            </>
+            <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
           ) : (
-            <>
-              <Upload className="w-4 h-4" /> Upload Document
-            </>
+            <><Upload className="w-4 h-4" /> Upload Document</>
           )}
         </button>
       </div>
 
+      {/* Replace file modal */}
+      {replacing && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Replace file</h3>
+              <button
+                type="button"
+                onClick={() => { setReplacing(null); setReplaceFile(null); setError(""); }}
+                className="text-gray-400 hover:text-gray-700"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">
+              Replacing file for: <strong>{replacing.title}</strong> ({replacing.user.name})
+            </p>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                New file (PDF, JPG, PNG, WEBP, DOC, DOCX - max 50 MB)
+              </label>
+              <input
+                ref={replaceInputRef}
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+                onChange={(e) => setReplaceFile(e.target.files?.[0] ?? null)}
+                className="w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white file:cursor-pointer"
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => { setReplacing(null); setReplaceFile(null); setError(""); }}
+                className="btn-outline text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleReplace()}
+                disabled={replaceUploading || !replaceFile}
+                className="btn-primary text-sm disabled:opacity-50"
+              >
+                {replaceUploading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                ) : (
+                  <><Upload className="w-4 h-4" /> Replace</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Document list */}
       <div className="card p-0 overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
-          <h2 className="text-lg font-semibold">
-            Documents ({filteredDocs.length})
-          </h2>
+          <h2 className="text-lg font-semibold">Documents ({filteredDocs.length})</h2>
           <select
             value={filterStudent}
             onChange={(e) => setFilterStudent(e.target.value)}
@@ -239,9 +328,7 @@ export default function DocumentsClient({
           >
             <option value="">All students</option>
             {students.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
-              </option>
+              <option key={s.id} value={s.name}>{s.name}</option>
             ))}
           </select>
         </div>
@@ -270,9 +357,7 @@ export default function DocumentsClient({
                     <td className="font-medium">
                       {doc.user.name}
                       {doc.user.studentNumber && (
-                        <span className="block text-xs text-gray-400">
-                          {doc.user.studentNumber}
-                        </span>
+                        <span className="block text-xs text-gray-400">{doc.user.studentNumber}</span>
                       )}
                     </td>
                     <td>{doc.title}</td>
@@ -304,7 +389,16 @@ export default function DocumentsClient({
                         </a>
                         <button
                           type="button"
-                          onClick={() => handleDelete(doc.id)}
+                          onClick={() => { setReplacing(doc); setError(""); }}
+                          className="portal-icon-button text-blue-500 hover:text-blue-700"
+                          aria-label={`Replace file for ${doc.title}`}
+                          title="Replace file"
+                        >
+                          <RefreshCw size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(doc.id)}
                           className="portal-icon-button text-red-500 hover:text-red-700"
                           aria-label={`Delete ${doc.title}`}
                           title="Delete"

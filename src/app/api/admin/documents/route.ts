@@ -39,6 +39,26 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ documents });
 }
 
+// Allowed MIME types for student documents
+const ALLOWED_MIME_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+const ALLOWED_EXTENSIONS = new Set([
+  ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".doc", ".docx",
+]);
+
+function isAllowedFile(mimeType: string, fileName: string): boolean {
+  const ext = "." + (fileName.split(".").pop() ?? "").toLowerCase();
+  return ALLOWED_MIME_TYPES.has(mimeType.toLowerCase()) || ALLOWED_EXTENSIONS.has(ext);
+}
+
 const CreateSchema = z.object({
   studentId: z.string().min(1),
   title: z.string().min(2).max(300),
@@ -66,6 +86,14 @@ export async function POST(req: NextRequest) {
   }
 
   const { studentId, title, type, fileName, mimeType, fileSize } = parsed.data;
+
+  // Server-side MIME/extension allowlist
+  if (!isAllowedFile(mimeType, fileName)) {
+    return NextResponse.json(
+      { error: "File type not allowed. Accepted: PDF, JPG, PNG, WEBP, DOC, DOCX (max 50 MB)." },
+      { status: 422 },
+    );
+  }
 
   // Verify the student exists
   const student = await db.user.findFirst({

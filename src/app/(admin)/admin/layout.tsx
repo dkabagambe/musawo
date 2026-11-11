@@ -29,6 +29,7 @@ import {
   LifeBuoy,
   Mail,
   Globe,
+  InboxIcon,
 } from "lucide-react";
 
 const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
@@ -201,6 +202,14 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       icon: <FileText className="w-4 h-4" />,
     },
     permission: "student.documents.manage",
+  },
+  {
+    item: {
+      href: "/admin/email-queue",
+      label: "Email Queue",
+      icon: <InboxIcon className="w-4 h-4" />,
+    },
+    permission: "reports.view",
   },
   // ── Extra tabs (operations, not in spec but useful) ────────────────
   {
