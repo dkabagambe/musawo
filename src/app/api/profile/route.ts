@@ -5,9 +5,7 @@ import { z } from "zod";
 
 // Fields open to every authenticated user
 const BaseSchema = z.object({
-  // name is excluded for STUDENT — set by Admin only (remarks.md section 2).
-  // Non-student roles (INSTRUCTOR, ADMIN, etc.) may update their own name.
-  name: z.string().min(2).max(120).optional(),
+  // name is locked for ALL users - only Admin can change it
   phone: z.string().min(9).max(20).optional(),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   gender: z.string().max(30).optional(),
@@ -30,7 +28,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
   const {
-    name,
     phone,
     dateOfBirth,
     gender,
@@ -42,15 +39,6 @@ export async function PATCH(req: NextRequest) {
     bio,
     themePreference,
   } = parsed.data;
-
-  // Students cannot change their own name — it is set by the Admin.
-  const isStudent = session.user.role === "STUDENT";
-  if (name && isStudent) {
-    return NextResponse.json(
-      { error: "Students cannot change their name. Contact the Registrar." },
-      { status: 403 },
-    );
-  }
 
   if (phone) {
     const existing = await db.user.findFirst({
@@ -66,7 +54,6 @@ export async function PATCH(req: NextRequest) {
   const user = await db.user.update({
     where: { id: session.user.id },
     data: {
-      ...(name && !isStudent ? { name: name.trim() } : {}),
       ...(phone !== undefined ? { phone: phone || null } : {}),
       ...(dateOfBirth ? { dateOfBirth: new Date(dateOfBirth) } : {}),
       ...(gender !== undefined ? { gender: gender || null } : {}),

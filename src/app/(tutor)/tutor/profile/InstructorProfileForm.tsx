@@ -72,7 +72,6 @@ export default function InstructorProfileForm({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
           phone: phone.trim() || undefined,
           bio: bio.trim() || undefined,
           themePreference: theme,
@@ -147,12 +146,14 @@ export default function InstructorProfileForm({
           Basic Information
         </h2>
         <div>
-          <label className="label">Full name</label>
+          <label className="label">
+            Full name <span className="font-normal text-gray-400">(read-only, contact Admin to change)</span>
+          </label>
           <input
-            className="input"
+            className="input opacity-60"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
+            disabled
+            readOnly
           />
         </div>
         <div>

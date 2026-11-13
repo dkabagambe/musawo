@@ -13,7 +13,7 @@
  * @returns Two uppercase initials (first + last, or first two letters if single word)
  */
 export function getInitials(name: string): string {
-  if (!name) return "?";
+  if (!name || !name.trim()) return "?";
 
   // Strip common titles (case-insensitive)
   const withoutTitle = name.replace(
@@ -21,15 +21,18 @@ export function getInitials(name: string): string {
     ""
   ).trim();
 
+  if (!withoutTitle) return "?";
+
   const parts = withoutTitle.split(/\s+/).filter(Boolean);
 
   if (parts.length === 0) {
-    return name.trim().slice(0, 2).toUpperCase() || "?";
+    return "?";
   }
 
   if (parts.length === 1) {
     // Single name: take first two letters
-    return parts[0].slice(0, 2).toUpperCase();
+    const firstWord = parts[0];
+    return firstWord.length >= 2 ? firstWord.slice(0, 2).toUpperCase() : "?";
   }
 
   // Multiple names: first + last
