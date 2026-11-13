@@ -123,6 +123,24 @@ export default function AvatarUpload({
   const sz      = SIZES[size];
   const initial = name.trim().charAt(0).toUpperCase() || "?";
 
+  // ── Remove photo ───────────────────────────────────────────────────────────
+  async function handleRemove() {
+    if (!confirm("Remove your profile photo?")) return;
+    setUploading(true);
+    try {
+      const res = await fetch("/api/profile/avatar", { method: "DELETE" });
+      if (res.ok) {
+        setPreview(null);
+      } else {
+        setError("Failed to remove photo.");
+      }
+    } catch {
+      setError("Network error.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   // ── Open file picker ───────────────────────────────────────────────────────
   function openPicker() {
     if (!uploading) inputRef.current?.click();
@@ -259,6 +277,17 @@ export default function AvatarUpload({
         </div>
 
         <p className="text-xs text-gray-400">Click to upload photo</p>
+
+        {preview && (
+          <button
+            type="button"
+            onClick={handleRemove}
+            disabled={uploading}
+            className="text-xs text-danger hover:text-danger/80 transition-colors disabled:opacity-50"
+          >
+            Remove photo
+          </button>
+        )}
 
         {/* Error shown outside the modal (post-close fallback) */}
         {error && !modalOpen && (

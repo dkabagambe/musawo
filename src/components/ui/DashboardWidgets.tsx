@@ -315,6 +315,9 @@ export function UsersMeta({ children }: { children: React.ReactNode }) {
   );
 }
 
+import Image from "next/image";
+import { getInitials } from "@/lib/utils/initials";
+
 export function ProfileCard({
   name,
   id,
@@ -322,6 +325,7 @@ export function ProfileCard({
   email,
   href,
   status = "Active",
+  avatarUrl,
 }: {
   name: string;
   id?: string;
@@ -329,12 +333,9 @@ export function ProfileCard({
   email?: string;
   href: string;
   status?: "Active" | "Completed" | "On hold";
+  avatarUrl?: string | null;
 }) {
-  const nameParts = name.trim().split(/\s+/).filter(Boolean);
-  const initials =
-    nameParts.length > 1
-      ? `${nameParts[0][0]}${nameParts.at(-1)?.[0]}`.toUpperCase()
-      : (nameParts[0]?.slice(0, 2) ?? "?").toUpperCase();
+  const initials = getInitials(name);
   const avatarTone =
     Array.from(name.toLowerCase()).reduce(
       (total, character) => total + character.charCodeAt(0),
@@ -346,7 +347,18 @@ export function ProfileCard({
         className={`dashboard-profile-avatar avatar-tone-${avatarTone}`}
         aria-hidden="true"
       >
-        {initials}
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={name}
+            width={48}
+            height={48}
+            className="w-full h-full object-cover rounded-full"
+            unoptimized
+          />
+        ) : (
+          initials
+        )}
       </span>
       <span
         className={`dashboard-status-pill status-${status.toLowerCase().replace(" ", "-")}`}

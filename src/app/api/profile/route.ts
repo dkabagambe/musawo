@@ -16,6 +16,8 @@ const BaseSchema = z.object({
   highestQualification: z.string().max(100).optional(),
   professionalTitle: z.string().max(100).optional(),
   emergencyContact: z.string().max(200).optional(),
+  bio: z.string().max(500).optional(),
+  themePreference: z.enum(["light", "dark", "system"]).optional(),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -37,6 +39,8 @@ export async function PATCH(req: NextRequest) {
     highestQualification,
     professionalTitle,
     emergencyContact,
+    bio,
+    themePreference,
   } = parsed.data;
 
   // Students cannot change their own name — it is set by the Admin.
@@ -77,8 +81,10 @@ export async function PATCH(req: NextRequest) {
       ...(emergencyContact !== undefined
         ? { emergencyContact: emergencyContact || null }
         : {}),
+      ...(bio !== undefined ? { bio: bio || null } : {}),
+      ...(themePreference ? { themePreference } : {}),
     },
-    select: { id: true, name: true, phone: true },
+    select: { id: true, name: true, phone: true, bio: true, themePreference: true },
   });
 
   return NextResponse.json({ user });

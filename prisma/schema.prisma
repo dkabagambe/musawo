@@ -253,6 +253,8 @@ model User {
   role                 UserRole   @default(STUDENT)
   status               UserStatus @default(PENDING_VERIFICATION)
   avatarUrl            String?
+  bio                  String?    @db.Text
+  themePreference      String?    @default("system") // "light" | "dark" | "system"
   dataConsentAt        DateTime?
   // Institution Secretary flag: legacy field, kept for data integrity.
   // No longer used after role consolidation in remarks.md batch 1A.
@@ -318,6 +320,9 @@ model User {
   settingsUpdated SiteSetting[]
   resources       Resource[]
 
+  // Avatar (database-stored processed image)
+  userAvatar UserAvatar?
+
   // OTPs
   otpCodes OtpCode[]
 
@@ -369,6 +374,23 @@ model DashboardWidgetPreference {
 
   @@unique([userId, tab, widgetId])
   @@index([userId, tab, column, position])
+}
+
+// ─────────────────────────────────────────────
+// AVATAR STORAGE (database, not disk)
+// ─────────────────────────────────────────────
+
+model UserAvatar {
+  userId      String   @id
+  contentType String   @default("image/webp")
+  bytes       Bytes    // 256x256 WebP
+  thumbBytes  Bytes    // 64x64 WebP
+  sizeBytes   Int
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_avatars")
 }
 
 // Auth.js required tables

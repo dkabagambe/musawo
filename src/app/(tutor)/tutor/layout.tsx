@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
+import { getInitials } from "@/lib/utils/initials";
 import {
   LayoutDashboard, BookOpen, Video, Calendar, CheckSquare, FileText,
   ClipboardList, BarChart, Megaphone, BarChart2, Bell, User, Users, MessageSquare, LifeBuoy,
@@ -42,7 +43,7 @@ export default async function TutorLayout({ children }: { children: React.ReactN
       role="Instructor"
       permissionRole={session.user.role}
       userName={name}
-      userInitial={name.charAt(0).toUpperCase()}
+      userInitial={getInitials(name)}
       userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >

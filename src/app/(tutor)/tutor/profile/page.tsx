@@ -21,7 +21,7 @@ export default async function TutorProfilePage() {
       select: {
         id: true, name: true, email: true, phone: true,
         totpEnabled: true, createdAt: true, status: true,
-        avatarUrl: true,
+        avatarUrl: true, bio: true, themePreference: true,
       },
     }),
     db.course.count({ where: teachingCourseWhere(session.user.id) }),
@@ -60,6 +60,8 @@ export default async function TutorProfilePage() {
           userId={user.id}
           initialName={user.name ?? ""}
           initialPhone={user.phone ?? ""}
+          initialBio={user.bio ?? ""}
+          initialTheme={user.themePreference ?? "system"}
           email={user.email ?? ""}
           totpEnabled={user.totpEnabled}
         />
