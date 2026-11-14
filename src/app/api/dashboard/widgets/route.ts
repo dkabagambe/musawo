@@ -46,19 +46,20 @@ export async function GET(request: Request) {
   });
   const preferences = saved.map((item) => [item.widgetId, item] as const);
   const savedById = new Map(preferences);
-  return NextResponse.json({
-    widgets: allowed.map((widget, position) => {
-      const preference = savedById.get(widget.id);
-      return {
-        ...widget,
-        visible: preference?.visible ?? widget.defaultVisible ?? true,
-        column: preference?.column ?? widget.defaultColumn,
-        // If the user has any saved preference, honour the column choice exactly
-        columnPinned: preference != null,
-        position: preference?.position ?? position,
-      };
-    }),
+  const widgetList = allowed.map((widget, position) => {
+    const preference = savedById.get(widget.id);
+    return {
+      ...widget,
+      visible: preference?.visible ?? widget.defaultVisible ?? true,
+      column: preference?.column ?? widget.defaultColumn,
+      // If the user has any saved preference, honour the column choice exactly
+      columnPinned: preference != null,
+      position: preference?.position ?? position,
+    };
   });
+  // Sort by saved position so the customizer and dashboard render in user-defined order
+  widgetList.sort((a, b) => a.position - b.position);
+  return NextResponse.json({ widgets: widgetList });
 }
 
 export async function PUT(request: Request) {
