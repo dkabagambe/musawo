@@ -528,8 +528,10 @@ async function StudentCardsBody({
     include: {
       user: {
         select: {
+          id: true,
           name: true,
           studentNumber: true,
+          avatarUrl: true,
           phone: canViewContacts,
           email: canViewContacts,
         },
@@ -555,6 +557,7 @@ async function StudentCardsBody({
             phone={canViewContacts ? (enr.user.phone ?? undefined) : undefined}
             email={canViewContacts ? (enr.user.email ?? undefined) : undefined}
             status={enr.status === "COMPLETED" ? "Completed" : "Active"}
+            avatarUrl={enr.user.avatarUrl}
             href={href}
           />
         ))}

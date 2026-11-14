@@ -895,8 +895,11 @@
   font-weight: 600;
 }
 .dashboard-class-status.status-today  { color: #0b6b5d; background: #e0f2ee; }
+.dark .dashboard-class-status.status-today  { color: #5eead4; background: #134e4a; }
 .dashboard-class-status.status-soon   { color: #92400e; background: #fef3c7; }
+.dark .dashboard-class-status.status-soon   { color: #fcd34d; background: #422006; }
 .dashboard-class-status.status-live   { color: #166534; background: #dcfce7; }
+.dark .dashboard-class-status.status-live   { color: #86efac; background: #14532d; }
 .dashboard-mini-card:has(.dashboard-class-status) h3 { margin-top: 20px; }
 
 /* Open/action button inside mini card */
@@ -985,8 +988,11 @@
   white-space: nowrap;
 }
 .dashboard-status-pill.status-active    { color: #0b6b5d; background: #e0f2ee; }
+.dark .dashboard-status-pill.status-active    { color: #5eead4; background: #134e4a; }
 .dashboard-status-pill.status-completed { color: #166534; background: #dcfce7; }
+.dark .dashboard-status-pill.status-completed { color: #86efac; background: #14532d; }
 .dashboard-status-pill.status-on-hold   { color: #92400e; background: #fef3c7; }
+.dark .dashboard-status-pill.status-on-hold   { color: #fcd34d; background: #422006; }
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-mini-card, .dashboard-profile-card { transition: none; }
@@ -1279,19 +1285,19 @@
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
   }
   .badge-success {
-    @apply badge bg-success/15 text-green-800;
+    @apply badge bg-success/15 text-green-800 dark:bg-success/25 dark:text-green-300;
   }
   .badge-warning {
-    @apply badge bg-warning/15 text-amber-800;
+    @apply badge bg-warning/15 text-amber-800 dark:bg-warning/25 dark:text-amber-300;
   }
   .badge-danger {
-    @apply badge bg-danger/10  text-red-700;
+    @apply badge bg-danger/10 text-red-700 dark:bg-danger/20 dark:text-red-300;
   }
   .badge-info {
-    @apply badge bg-primary/10 text-primary;
+    @apply badge bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-300;
   }
   .badge-neutral {
-    @apply badge bg-surface text-gray-600;
+    @apply badge bg-surface text-gray-600 dark:bg-gray-700 dark:text-gray-300;
   }
 
   /* ── Alerts ────────────────────────────────────────────────────── */
