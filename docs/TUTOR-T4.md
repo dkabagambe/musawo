@@ -17,7 +17,7 @@ One source of truth for classes: the existing `LiveClass` model (all T4 fields a
 - Works at 390px and 1440px, light and dark theme
 
 **Seed data updated** (`prisma/seed.ts`):
-- 22 classes across all 7 course names for 3 instructors (Joel Mirembe, Charles Muwanga, Jennifer Atim)
+- 22 classes across all 8 course names for 3 instructors (Joel Mirembe, Charles Muwanga, Jennifer Atim)
 - Statuses: 9 COMPLETED, 11 SCHEDULED, 1 CANCELLED (with reason), 1 RESCHEDULED (with reason and originalScheduledAt)
 - Overlapping times across courses to exercise conflict detection
 - Venues set (Skills Lab A/B/C or Online)

@@ -2098,7 +2098,7 @@ async function main() {
   // ── Live Classes ───────────────────────────────────────────────
   const existingClasses = await prisma.liveClass.count();
   if (existingClasses === 0) {
-    // Three instructors cover all 7 course names with varied times,
+    // Three instructors cover all 8 course names with varied times,
     // past/live/upcoming/cancelled/rescheduled entries and overlapping slots.
     type ClassDef = {
       title: string;
@@ -2451,7 +2451,7 @@ async function main() {
         }
       }
     }
-    console.log(`  ✓ Live classes (${classes.length}: past, upcoming, rescheduled, cancelled across all 7 courses)`);
+    console.log(`  ✓ Live classes (${classes.length}: past, upcoming, rescheduled, cancelled across all 8 courses)`);
   }
 
   // ── Class Presentations (Slides seeded to demo live classes) ──────────────
