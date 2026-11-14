@@ -38,3 +38,30 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ id: reply.id });
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const replyId = searchParams.get("replyId");
+  if (!replyId) return NextResponse.json({ error: "Missing replyId" }, { status: 400 });
+
+  const reply = await db.forumReply.findUnique({
+    where: { id: replyId },
+    select: { id: true, authorId: true, thread: { select: { courseId: true } } },
+  });
+  if (!reply) return NextResponse.json({ error: "Reply not found" }, { status: 404 });
+
+  const isAuthor = reply.authorId === session.user.id;
+  const isStaff = can(session.user.role, "classes.view");
+  if (!isAuthor && !isStaff) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  // Soft delete - set deletedAt
+  await db.forumReply.update({
+    where: { id: replyId },
+    data: { deletedAt: new Date() },
+  });
+
+  return NextResponse.json({ ok: true });
+}

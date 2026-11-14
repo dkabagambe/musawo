@@ -20,6 +20,9 @@ interface Course {
       isFree: boolean;
       isFreePreview: boolean;
       durationSec: number | null;
+      archivedAt: string | null;
+      releaseAt: string | null;
+      visibleScope: string;
     }>;
   }>;
 }
@@ -158,6 +161,22 @@ export default function MaterialsManager({ courses }: { courses: Course[] }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lessonId, isFreePreview: !current }),
+      });
+      if (res.ok) window.location.reload();
+    } catch {
+      // ignore
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
+  async function archiveLesson(lessonId: string, archive: boolean) {
+    setTogglingId(lessonId);
+    try {
+      const res = await fetch("/api/tutor/materials", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId, archivedAt: archive ? new Date().toISOString() : null }),
       });
       if (res.ok) window.location.reload();
     } catch {
@@ -331,15 +350,15 @@ export default function MaterialsManager({ courses }: { courses: Course[] }) {
                 </div>
                 <div className="divide-y divide-border">
                   {block.lessons.map((lesson) => (
-                    <div key={lesson.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface/30 transition-colors">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    <div key={lesson.id} className={`flex items-start gap-4 px-5 py-3.5 hover:bg-surface/30 transition-colors ${lesson.archivedAt ? "opacity-50" : ""}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
                         lesson.type === "VIDEO" ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
                       }`}>
                         {lesson.type === "VIDEO" ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-primary truncate">{lesson.title}</p>
-                        <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                        <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5 flex-wrap">
                           {lesson.type === "VIDEO" ? (
                             <span className="flex items-center gap-1"><Video className="w-3 h-3" /> Video</span>
                           ) : lesson.notesS3Key ? (
@@ -347,23 +366,52 @@ export default function MaterialsManager({ courses }: { courses: Course[] }) {
                           ) : (
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Pending upload</span>
                           )}
-                          {lesson.durationSec && (
-                            <span>{Math.floor(lesson.durationSec / 60)} min</span>
-                          )}
-                          {lesson.isFreePreview ? (
+                          {lesson.durationSec && <span>{Math.floor(lesson.durationSec / 60)} min</span>}
+                          {lesson.archivedAt ? (
+                            <span className="text-warning font-medium">Archived</span>
+                          ) : lesson.isFreePreview ? (
                             <span className="flex items-center gap-1 text-success"><Eye className="w-3 h-3" /> Free preview</span>
                           ) : (
                             <span className="flex items-center gap-1 text-gray-400"><Lock className="w-3 h-3" /> Enrolled only</span>
                           )}
+                          {lesson.releaseAt && new Date(lesson.releaseAt) > new Date() && (
+                            <span className="text-primary">Releases {new Date(lesson.releaseAt).toLocaleDateString("en-UG")}</span>
+                          )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => togglePreview(lesson.id, lesson.isFreePreview)}
-                        disabled={togglingId === lesson.id}
-                        className="text-xs text-gray-500 hover:text-primary px-3 py-1.5 rounded-lg border border-border hover:bg-surface transition-colors flex-shrink-0"
-                      >
-                        {togglingId === lesson.id ? "..." : lesson.isFreePreview ? "Hide preview" : "Make preview"}
-                      </button>
+                      {/* Actions */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {/* Preview as student */}
+                        {lesson.notesS3Key && (
+                          <a
+                            href={`/api/lesson/${lesson.id}/view`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-gray-500 hover:text-primary px-2 py-1.5 rounded-lg border border-border hover:bg-surface transition-colors no-underline"
+                            title="Preview as student (watermarked, no download)"
+                          >
+                            Preview
+                          </a>
+                        )}
+                        {/* Visibility toggle */}
+                        <button
+                          onClick={() => togglePreview(lesson.id, lesson.isFreePreview)}
+                          disabled={togglingId === lesson.id}
+                          className="text-xs text-gray-500 hover:text-primary px-2 py-1.5 rounded-lg border border-border hover:bg-surface transition-colors"
+                          title={lesson.isFreePreview ? "Make enrolled-only" : "Make free preview"}
+                        >
+                          {togglingId === lesson.id ? "..." : lesson.isFreePreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                        {/* Archive / unarchive */}
+                        <button
+                          onClick={() => archiveLesson(lesson.id, !lesson.archivedAt)}
+                          disabled={togglingId === lesson.id}
+                          className={`text-xs px-2 py-1.5 rounded-lg border transition-colors ${lesson.archivedAt ? "border-primary text-primary hover:bg-primary/10" : "border-border text-gray-400 hover:text-warning hover:border-warning"}`}
+                          title={lesson.archivedAt ? "Unarchive" : "Archive (hide from students)"}
+                        >
+                          {lesson.archivedAt ? "Unarchive" : "Archive"}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

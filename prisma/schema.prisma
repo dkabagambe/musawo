@@ -563,6 +563,10 @@ model Lesson {
   isFreePreview Boolean    @default(false) // free for registered-not-enrolled users
   durationSec   Int?
   transcript    String?    @db.Text
+  // T5 visibility fields
+  visibleScope  String     @default("ENROLLED") // ENROLLED | FREE_PREVIEW | FREE | CLASS | GROUP | HIDDEN
+  releaseAt     DateTime?  // publish to enrolled students at this date/time
+  archivedAt    DateTime?  // when set, hidden from students (soft archive)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
@@ -845,6 +849,7 @@ model LiveClass {
   presentations ClassPresentation[]
   groups        ClassGroup[]
   forumThreads  ForumThread[]
+  announcements Announcement[]
 
   @@index([courseId, scheduledAt])
   @@index([status, scheduledAt])
@@ -954,6 +959,7 @@ model Exam {
   passPercent      Int        @default(60)
   shuffleQuestions Boolean    @default(true)
   status           ExamStatus @default(DRAFT)
+  startWindowAt    DateTime?  // when set, exam goes live at this time
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
@@ -1298,17 +1304,19 @@ enum SubmissionStatus {
 // ─────────────────────────────────────────────
 
 model Announcement {
-  id        String   @id @default(cuid())
-  courseId  String? // null = site-wide
-  authorId  String
-  title     String
-  body      String   @db.Text
-  pinned    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  courseId    String? // null = site-wide
+  liveClassId String? // optional: scope to a specific class
+  authorId    String
+  title       String
+  body        String   @db.Text
+  pinned      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  course Course? @relation(fields: [courseId], references: [id])
-  author User    @relation(fields: [authorId], references: [id])
+  course    Course?    @relation(fields: [courseId], references: [id])
+  liveClass LiveClass? @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
+  author    User       @relation(fields: [authorId], references: [id])
 
   @@map("announcements")
 }
@@ -1403,12 +1411,13 @@ model ForumThread {
 }
 
 model ForumReply {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   threadId  String
   authorId  String
-  body      String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  body      String    @db.Text
+  deletedAt DateTime? // soft-delete for moderation
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   author User        @relation(fields: [authorId], references: [id])
@@ -1425,6 +1434,7 @@ model SupportTicket {
   userId     String
   subject    String
   body       String         @db.Text
+  fileS3Key  String? // optional file attachment (S3 key)
   category   String         @default("GENERAL")
   status     TicketStatus   @default(OPEN)
   priority   TicketPriority @default(NORMAL)

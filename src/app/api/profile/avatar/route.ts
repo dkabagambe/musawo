@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
-import sharp from "sharp";
+import type { Sharp } from "sharp";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const sharp = require("sharp") as (input: Buffer) => Sharp;
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const AVATAR_SIZE = 256; // px — square
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   // Validate file contents (not just extension) by attempting to parse with sharp
-  let sharpInstance: sharp.Sharp;
+  let sharpInstance: Sharp;
   try {
     sharpInstance = sharp(buffer);
     const metadata = await sharpInstance.metadata();

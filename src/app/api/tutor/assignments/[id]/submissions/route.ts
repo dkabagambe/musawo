@@ -60,7 +60,48 @@ export async function PATCH(
   if (!assignment)
     return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
 
-  const parsed = GradeSchema.safeParse(await req.json());
+  const body = await req.json() as Record<string, unknown>;
+
+  // Handle "return to student" action separately
+  if (body.returned === true) {
+    const sub = await db.assignmentSubmission.findFirst({
+      where: { id: body.submissionId as string, assignmentId: params.id },
+      select: { id: true, userId: true, grade: true },
+    });
+    if (!sub) return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+    if (sub.grade === null) return NextResponse.json({ error: "Grade the submission before returning it." }, { status: 400 });
+
+    await db.assignmentSubmission.update({
+      where: { id: sub.id },
+      data: { status: "RETURNED" },
+    });
+
+    // Notify student
+    await db.notification.create({
+      data: {
+        userId: sub.userId,
+        channel: "IN_APP",
+        type: "EXAM_RESULT",
+        subject: `Assignment returned: ${assignment.title}`,
+        body: `Your submission for "${assignment.title}" has been graded and returned. Score: ${sub.grade}/${assignment.maxPoints}.`,
+        metadata: { assignmentId: params.id, submissionId: sub.id, grade: sub.grade },
+      },
+    }).catch(() => {});
+
+    return NextResponse.json({ ok: true, status: "RETURNED" });
+  }
+
+  // Handle "close / reopen" action
+  if (body.action === "close" || body.action === "reopen") {
+    await db.assignment.update({
+      where: { id: params.id },
+      data: { status: body.action === "close" ? "CLOSED" : "PUBLISHED" },
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  // Standard grading
+  const parsed = GradeSchema.safeParse(body);
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
 

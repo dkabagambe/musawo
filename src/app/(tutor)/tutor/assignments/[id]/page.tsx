@@ -5,6 +5,7 @@ import { teachingCourseWhere } from "@/lib/teaching/scope";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import GradeSubmissionsClient from "./GradeSubmissionsClient";
+import AssignmentStatusButton from "./AssignmentStatusButton";
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Grade Assignment - Teaching Portal" };
@@ -54,9 +55,10 @@ export default async function TutorAssignmentDetailPage({
               {assignment.dueDate && ` &middot; Due ${new Date(assignment.dueDate).toLocaleDateString("en-UG")}`}
             </p>
           </div>
-          <span className={`badge text-sm flex-shrink-0 ${assignment.status === "PUBLISHED" ? "badge-success" : "badge-warning"}`}>
+          <span className={`badge text-sm flex-shrink-0 ${assignment.status === "PUBLISHED" ? "badge-success" : assignment.status === "CLOSED" ? "badge" : "badge-warning"}`}>
             {assignment.status}
           </span>
+          <AssignmentStatusButton assignmentId={params.id} currentStatus={assignment.status} />
         </div>
       </div>
 
@@ -86,11 +88,14 @@ export default async function TutorAssignmentDetailPage({
       <GradeSubmissionsClient
         assignmentId={params.id}
         maxPoints={assignment.maxPoints}
+        dueDate={assignment.dueDate ? assignment.dueDate.toISOString() : null}
         submissions={submissions.map((s) => ({
           id: s.id,
+          userId: s.user.id,
           studentName: s.user.name,
           studentNumber: s.user.studentNumber ?? null,
           textBody: s.textBody,
+          fileS3Key: s.fileS3Key ?? null,
           submittedAt: s.submittedAt ? s.submittedAt.toISOString() : null,
           grade: s.grade,
           feedback: s.feedback,

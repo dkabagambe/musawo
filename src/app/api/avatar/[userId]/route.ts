@@ -59,7 +59,7 @@ export async function GET(
       return new NextResponse(null, { status: 304 });
     }
 
-    return new NextResponse(imageBytes, {
+    return new Response(Buffer.from(imageBytes).buffer as ArrayBuffer, {
       headers: {
         "Content-Type": avatar.contentType,
         "Cache-Control": "private, max-age=3600, must-revalidate",

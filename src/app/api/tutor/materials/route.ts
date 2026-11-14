@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { requirePermission, ForbiddenError } from "@/lib/rbac";
-import { getPresignedUploadUrl, getPresignedDownloadUrl } from "@/lib/s3";
+import { getPresignedUploadUrl, getPresignedDownloadUrl } from "@/lib/s3/index";
 import { audit } from "@/lib/audit";
 import { z } from "zod";
 import { canAccessTeachingCourse, teachingCourseRelationWhere } from "@/lib/teaching/scope";
@@ -146,6 +146,9 @@ const UpdateLessonSchema = z.object({
   transcript: z.string().max(50000).optional(),
   isFreePreview: z.boolean().optional(),
   isFree: z.boolean().optional(),
+  visibleScope: z.enum(["ENROLLED", "FREE_PREVIEW", "FREE", "CLASS", "GROUP", "HIDDEN"]).optional(),
+  releaseAt: z.string().datetime().nullable().optional(),
+  archivedAt: z.string().datetime().nullable().optional(), // null = unarchive
 });
 
 /** PATCH /api/tutor/materials - update a lesson after upload or toggle visibility */
@@ -172,7 +175,11 @@ export async function PATCH(req: NextRequest) {
 
   const updated = await db.lesson.update({
     where: { id: lessonId },
-    data: updates,
+    data: {
+      ...updates,
+      releaseAt: updates.releaseAt === null ? null : updates.releaseAt ? new Date(updates.releaseAt) : undefined,
+      archivedAt: updates.archivedAt === null ? null : updates.archivedAt ? new Date(updates.archivedAt) : undefined,
+    },
   });
 
   await audit({

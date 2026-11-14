@@ -205,6 +205,9 @@ export async function POST(req: NextRequest) {
   if (!(await canAccessTeachingCourse(courseId, session.user.id)))
     return NextResponse.json({ error: "You are not assigned to this course." }, { status: 403 });
 
+  // Extract userId once so nested functions can use it without null narrowing issues
+  const tutorId = session.user.id;
+
   if (blockId) {
     const block = await db.block.findFirst({ where: { id: blockId, courseId }, select: { id: true } });
     if (!block)
@@ -214,7 +217,7 @@ export async function POST(req: NextRequest) {
   const startAt = new Date(scheduledAt);
 
   // Conflict detection
-  const conflicts = await detectConflicts(session.user.id, startAt, durationMin, venue);
+  const conflicts = await detectConflicts(tutorId, startAt, durationMin, venue);
   if (conflicts.length > 0) {
     return NextResponse.json(
       {
@@ -231,7 +234,7 @@ export async function POST(req: NextRequest) {
       data: {
         courseId,
         blockId: blockId ?? null,
-        tutorId: session.user.id,
+        tutorId,
         title,
         description: description ?? null,
         scheduledAt: at,
@@ -278,7 +281,7 @@ export async function POST(req: NextRequest) {
     const until = new Date(repeatWeeklyUntil);
     let next = new Date(startAt.getTime() + 7 * 24 * 60 * 60_000);
     while (next <= until) {
-      const weekConflicts = await detectConflicts(session.user.id, next, durationMin, venue);
+      const weekConflicts = await detectConflicts(tutorId, next, durationMin, venue);
       if (weekConflicts.length === 0) {
         created.push(await createOne(new Date(next)));
       }

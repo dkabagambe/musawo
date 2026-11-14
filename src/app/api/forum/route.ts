@@ -119,3 +119,53 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ id: thread.id }, { status: 201 });
 }
+
+// PATCH: pin/lock/unlock a thread (instructor/staff only)
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!can(session.user.role, "classes.view")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { searchParams } = new URL(req.url);
+  const threadId = searchParams.get("threadId");
+  if (!threadId) return NextResponse.json({ error: "Missing threadId" }, { status: 400 });
+
+  const body = await req.json() as { pinned?: boolean; locked?: boolean };
+
+  const thread = await db.forumThread.findUnique({ where: { id: threadId }, select: { id: true, courseId: true } });
+  if (!thread) return NextResponse.json({ error: "Thread not found" }, { status: 404 });
+
+  const updated = await db.forumThread.update({
+    where: { id: threadId },
+    data: {
+      ...(typeof body.pinned === "boolean" ? { pinned: body.pinned } : {}),
+      ...(typeof body.locked === "boolean" ? { locked: body.locked } : {}),
+    },
+  });
+
+  return NextResponse.json({ ok: true, pinned: updated.pinned, locked: updated.locked });
+}
+
+// DELETE: remove a thread (author or instructor/staff)
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const threadId = searchParams.get("threadId");
+  if (!threadId) return NextResponse.json({ error: "Missing threadId" }, { status: 400 });
+
+  const thread = await db.forumThread.findUnique({
+    where: { id: threadId },
+    select: { id: true, authorId: true },
+  });
+  if (!thread) return NextResponse.json({ error: "Thread not found" }, { status: 404 });
+
+  const isStaff = can(session.user.role, "classes.view");
+  if (thread.authorId !== session.user.id && !isStaff) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  await db.forumThread.delete({ where: { id: threadId } });
+  return NextResponse.json({ ok: true });
+}

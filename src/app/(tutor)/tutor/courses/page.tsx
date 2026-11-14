@@ -46,9 +46,14 @@ export default async function TutorCoursesPage() {
                   <span>📖 {totalLessons} lessons</span>
                   <span>👥 {c._count.enrolments} enrolled</span>
                 </div>
-                <Link href={`/courses/${c.slug}`} target="_blank" className="btn-outline text-sm no-underline">
-                  View course ↗
-                </Link>
+                <div className="flex gap-2 flex-wrap">
+                  <Link href={`/tutor/courses/${c.id}`} className="btn-primary text-sm no-underline">
+                    Open
+                  </Link>
+                  <Link href={`/courses/${c.slug}`} target="_blank" className="btn-outline text-sm no-underline">
+                    Public ↗
+                  </Link>
+                </div>
               </div>
             );
           })}

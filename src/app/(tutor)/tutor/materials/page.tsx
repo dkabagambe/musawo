@@ -37,6 +37,9 @@ export default async function TutorMaterialsPage() {
               isFree: true,
               isFreePreview: true,
               durationSec: true,
+              archivedAt: true,
+              releaseAt: true,
+              visibleScope: true,
             },
           },
         },
@@ -45,5 +48,15 @@ export default async function TutorMaterialsPage() {
     orderBy: { title: "asc" },
   });
 
-  return <MaterialsManager courses={courses} />;
+  return <MaterialsManager courses={courses.map((c) => ({
+    ...c,
+    blocks: c.blocks.map((b) => ({
+      ...b,
+      lessons: b.lessons.map((l) => ({
+        ...l,
+        archivedAt: l.archivedAt?.toISOString() ?? null,
+        releaseAt: l.releaseAt?.toISOString() ?? null,
+      })),
+    })),
+  }))} />;
 }

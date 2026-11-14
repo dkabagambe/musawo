@@ -6,9 +6,11 @@ import { ChevronDown, ChevronUp, Loader2, CheckCircle2, ClipboardList } from "lu
 
 interface Submission {
   id: string;
+  userId: string;
   studentName: string;
   studentNumber: string | null;
   textBody: string | null;
+  fileS3Key: string | null;
   submittedAt: string | null;
   grade: number | null;
   feedback: string | null;
@@ -18,16 +20,18 @@ interface Submission {
 interface Props {
   assignmentId: string;
   maxPoints: number;
+  dueDate: string | null;
   submissions: Submission[];
 }
 
-export default function GradeSubmissionsClient({ assignmentId, maxPoints, submissions: initial }: Props) {
+export default function GradeSubmissionsClient({ assignmentId, maxPoints, dueDate, submissions: initial }: Props) {
   const router = useRouter();
   const [submissions, setSubmissions] = useState<Submission[]>(initial);
   const [expanded, setExpanded]       = useState<string | null>(null);
   const [grades, setGrades]           = useState<Record<string, { grade: string; feedback: string }>>({});
   const [saving, setSaving]           = useState<string | null>(null);
-  const [errors, setErrors]           = useState<Record<string, string>>({});
+  const [returning, setReturning]     = useState<string | null>(null);
+  const [errors, setErrors]           = useState<Record<string, string>>({}); 
 
   function toggle(id: string) {
     setExpanded((e) => (e === id ? null : id));
@@ -69,6 +73,32 @@ export default function GradeSubmissionsClient({ assignmentId, maxPoints, submis
       setErrors((e) => ({ ...e, [subId]: "Network error." }));
     } finally {
       setSaving(null);
+    }
+  }
+
+  async function handleReturn(sub: Submission) {
+    if (sub.grade === null) {
+      setErrors((e) => ({ ...e, [sub.id]: "Grade the submission before returning it." }));
+      return;
+    }
+    setReturning(sub.id);
+    try {
+      const res = await fetch(`/api/tutor/assignments/${assignmentId}/submissions`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId: sub.id, returned: true }),
+      });
+      if (res.ok) {
+        setSubmissions((prev) => prev.map((s) => s.id === sub.id ? { ...s, status: "RETURNED" } : s));
+        router.refresh();
+      } else {
+        const d = await res.json() as { error?: string };
+        setErrors((e) => ({ ...e, [sub.id]: d.error ?? "Return failed." }));
+      }
+    } catch {
+      setErrors((e) => ({ ...e, [sub.id]: "Network error." }));
+    } finally {
+      setReturning(null);
     }
   }
 
@@ -124,6 +154,9 @@ export default function GradeSubmissionsClient({ assignmentId, maxPoints, submis
                     {new Date(sub.submittedAt).toLocaleDateString("en-UG")}
                   </span>
                 )}
+                {dueDate && sub.submittedAt && new Date(sub.submittedAt) > new Date(dueDate) && (
+                  <span className="badge badge-danger text-xs flex-shrink-0">Late</span>
+                )}
                 {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
               </div>
             </button>
@@ -134,11 +167,23 @@ export default function GradeSubmissionsClient({ assignmentId, maxPoints, submis
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Student answer</p>
                   {sub.textBody ? (
-                    <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto">
                       {sub.textBody}
                     </div>
                   ) : (
                     <p className="text-sm text-gray-400 italic">No text submitted.</p>
+                  )}
+                  {sub.fileS3Key && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <a
+                        href={`/api/files/download?key=${encodeURIComponent(sub.fileS3Key)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline flex items-center gap-1.5"
+                      >
+                        📎 View attached file
+                      </a>
+                    </div>
                   )}
                 </div>
 
@@ -180,20 +225,37 @@ export default function GradeSubmissionsClient({ assignmentId, maxPoints, submis
                   <p className="text-sm text-danger">{errors[sub.id]}</p>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => void handleGrade(sub.id)}
-                  disabled={saving === sub.id}
-                  className="btn-primary text-sm"
-                >
-                  {saving === sub.id ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
-                  ) : sub.status === "GRADED" ? (
-                    "Update grade"
-                  ) : (
-                    "Save grade"
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => void handleGrade(sub.id)}
+                    disabled={saving === sub.id}
+                    className="btn-primary text-sm"
+                  >
+                    {saving === sub.id ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                    ) : sub.status === "GRADED" || sub.status === "RETURNED" ? (
+                      "Update grade"
+                    ) : (
+                      "Save grade"
+                    )}
+                  </button>
+                  {sub.grade !== null && sub.status !== "RETURNED" && (
+                    <button
+                      type="button"
+                      onClick={() => void handleReturn(sub)}
+                      disabled={returning === sub.id}
+                      className="btn-secondary text-sm"
+                    >
+                      {returning === sub.id ? <><Loader2 className="w-4 h-4 animate-spin" /> Returning...</> : "Return to student"}
+                    </button>
                   )}
-                </button>
+                  {sub.status === "RETURNED" && (
+                    <span className="text-sm text-success font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> Returned to student
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 Read this whole file first. It covers ONLY the INSTRUCTOR role (called Tutor in conversation). Other roles come later, one at a time.
 
-## 0. Rules (apply to every section)-some sections may say edit courses but no need to change course names,those are the ones we should have
+## 0. Rules (apply to every section)-some sections may say edit courses but no need to change course names,those are the ones we should have 8 courses as it is not 7
 
 1. Work on ONE section at a time (T1, T2, ...). When a section is finished: write docs/TUTOR-T<n>.md (under 25 lines), commit, push, then STOP and wait for me to say "next".
 2. Fix ROOT CAUSES, not symptoms. For every defect: reproduce it, find the exact cause (file and line), fix it, and prove it with a test or command you actually ran.
@@ -56,7 +56,7 @@ Problem: the screen opens and switches work, but widgets do not move.
 
 Sidebar and tabs for the instructor: Dashboard, My Courses, My Classes, Students, Timetable, Attendance, Learning Materials, Assignments, Examinations, Marks and Results, Announcements, Reports, Notifications, Profile, Discussion Forum, Messages, Support. For each, the page must work as described, with an end-to-end test.
 
-- My Courses: assigned courses only (real course names), course unit list, student count, progress, materials and upcoming classes; open a course for details.
+- My Courses: assigned courses only (we have 8 courses real course names), course unit list, student count, progress, materials and upcoming classes; open a course for details.
 - My Classes: list live, upcoming and past classes; create; Start class; waiting room and admit students (one or all); grant and revoke speak rights; presentation panel upload (tutor only, students view-only); roll call at start, at end or both with Present, Late, Absent, Excused and "mark all present"; stop class; download attendance CSV and PDF at any time (name, registration number, course unit); add recording link or file; breakaway groups (default 5, random or by name, move students, group threads and one submission per group).
 - Students: list from assigned classes with search, filters (course, class, status), photo, registration number, attendance percentage, latest marks, last active, Message button, export list. A student detail page.
 - Attendance: history per class, edit with audit trail, download, attendance percentage per student.
@@ -75,12 +75,12 @@ Sidebar and tabs for the instructor: Dashboard, My Courses, My Classes, Students
 
 1. Greeting says "Hello Mirembe!". It must use the FIRST name: "Hello Joel!". Names are stored as title, first name, last name; the sidebar shows "Joel Mirembe" (First Last), never "Mirembe Joel". Check seed data and every parser.
 2. The staging banner contains an em dash. Reword: "Staging demo environment, not for real use. Data may be reset at any time." Dismiss button.
-3. Course names must be the 7 real ones (for example "Medical Home Caregiver Course"), not "Certificate in Medical Home Care Course". Fix seeds, widgets and labels.
-4. Avatar initials ignore titles (see T1).
-5. Sidebar: the "General" wrapper still exists and the nav is cut off at the bottom ("Students" section hidden, role label clipped). Use flat collapsible groups (Overview, Teaching, Students, Assessment, Communication), no horizontal scrollbar, the logo block fixed at the top, the user block fixed at the bottom with the full role label "Instructor" visible at 1280x720. The active section opens automatically.
-6. Dark theme: the "View 31 more" link and other muted text have poor contrast; status pills, chips and widget titles must meet AA contrast in dark and light themes. Remember the theme choice per user.
-7. "View 31 more" should show a count that matches the real number of students, and open the Students page.
-8. Verify the Students widget shows real photos, the registration number format (2026/MHC/005) and a working Message button.
+
+3. Avatar initials ignore titles (see T1).
+4. Sidebar: the "General" wrapper still exists and the nav is cut off at the bottom ("Students" section hidden, role label clipped). Use flat collapsible groups (Overview, Teaching, Students, Assessment, Communication), no horizontal scrollbar, the logo block fixed at the top, the user block fixed at the bottom with the full role label "Instructor" visible at 1280x720. The active section opens automatically.
+5. Dark theme: the "View 31 more" link and other muted text have poor contrast; status pills, chips and widget titles must meet AA contrast in dark and light themes. Remember the theme choice per user.
+6. "View 31 more" should show a count that matches the real number of students, and open the Students page.
+7. Verify the Students widget shows real photos, the registration number format (2026/MHC/005) and a working Message button.
 
 ## T7. PERFORMANCE AND FINAL PROOF FOR THE TUTOR
 

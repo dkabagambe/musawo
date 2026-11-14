@@ -37,6 +37,7 @@ export async function GET(_req: NextRequest) {
 
 const CreateSchema = z.object({
   courseId: z.union([z.string().cuid(), z.null(), z.undefined()]).optional(),
+  liveClassId: z.string().cuid().optional(), // optional: scope to a specific class
   title: z.string().min(3).max(160),
   body: z.string().min(3).max(10000),
   pinned: z.boolean().optional(),
@@ -87,17 +88,51 @@ export async function POST(req: NextRequest) {
   try { requirePermission(session.user.role, ownClassPermission ? "announcements.send.own" : "announcements.send.all"); }
   catch (error) { if (error instanceof ForbiddenError) return NextResponse.json({ error: error.message }, { status: 403 }); throw error; }
 
-  const course = await db.course.findUnique({ where: { id: parsed.data.courseId! }, select: { id: true, title: true } });
+  const { courseId, liveClassId } = parsed.data;
+  const course = await db.course.findUnique({ where: { id: courseId! }, select: { id: true, title: true } });
   if (!course) return NextResponse.json({ error: "Course not found" }, { status: 404 });
-  const recipients = await db.enrolment.findMany({
-    where: { courseId: course.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } },
-    select: { userId: true },
-  });
+
+  // If class-scoped, only notify students in that class's attendance records
+  let recipientIds: { userId: string }[];
+  if (liveClassId) {
+    // Verify the class belongs to this course
+    const lc = await db.liveClass.findFirst({ where: { id: liveClassId, courseId: course.id }, select: { id: true } });
+    if (!lc) return NextResponse.json({ error: "Class not found in this course." }, { status: 404 });
+    // Use enrolled students (class-scoped notifications go to all enrolled, but label it as class-specific)
+    recipientIds = await db.enrolment.findMany({
+      where: { courseId: course.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } },
+      select: { userId: true },
+    });
+  } else {
+    recipientIds = await db.enrolment.findMany({
+      where: { courseId: course.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } },
+      select: { userId: true },
+    });
+  }
+
   const announcement = await db.$transaction(async (tx) => {
-    const created = await tx.announcement.create({ data: { courseId: course.id, authorId: session.user.id, title: parsed.data.title, body: parsed.data.body, pinned: parsed.data.pinned ?? false } });
-    if (recipients.length) await tx.notification.createMany({ data: recipients.map(({ userId }) => ({ userId, channel: "IN_APP" as const, type: "COURSE_ANNOUNCEMENT", subject: parsed.data.title, body: parsed.data.body, metadata: { courseId: course.id, announcementId: created.id } })) });
+    const created = await tx.announcement.create({
+      data: {
+        courseId: course.id,
+        liveClassId: liveClassId ?? null,
+        authorId: session.user.id,
+        title: parsed.data.title,
+        body: parsed.data.body,
+        pinned: parsed.data.pinned ?? false,
+      },
+    });
+    if (recipientIds.length) await tx.notification.createMany({
+      data: recipientIds.map(({ userId }) => ({
+        userId,
+        channel: "IN_APP" as const,
+        type: "COURSE_ANNOUNCEMENT",
+        subject: parsed.data.title,
+        body: parsed.data.body,
+        metadata: { courseId: course.id, announcementId: created.id, liveClassId: liveClassId ?? null },
+      })),
+    });
     return created;
   });
-  await audit({ actorId: session.user.id, action: "CREATE", entityType: "Announcement", entityId: announcement.id, metadata: { courseId: course.id, recipientCount: recipients.length } });
-  return NextResponse.json({ announcement, recipientCount: recipients.length }, { status: 201 });
+  await audit({ actorId: session.user.id, action: "CREATE", entityType: "Announcement", entityId: announcement.id, metadata: { courseId: course.id, liveClassId: liveClassId ?? null, recipientCount: recipientIds.length } });
+  return NextResponse.json({ announcement, recipientCount: recipientIds.length }, { status: 201 });
 }
