@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 interface Props {
   user: {
@@ -8,6 +9,7 @@ interface Props {
     email: string;
     studentNumber: string | null;
     registrationNumber: string | null;
+    programme: string | null;
     phone: string;
     dateOfBirth: string | null;
     gender: string | null;
@@ -16,12 +18,21 @@ interface Props {
     highestQualification: string | null;
     professionalTitle: string | null;
     emergencyContact: string | null;
+    bio: string;
+    themePreference: string;
   };
   /**
    * When true the Full name field is editable (for staff roles).
-   * Students leave this false — their name is locked and set by the Admin.
+   * Students leave this false: their name is locked and set by the Admin.
    */
   allowNameEdit?: boolean;
+}
+
+interface NotificationPref {
+  id: string;
+  channel: string;
+  type: string;
+  enabled: boolean;
 }
 
 const UGANDAN_DISTRICTS = [
@@ -36,7 +47,11 @@ const QUALIFICATIONS = [
   "Doctorate (PhD)", "Professional Certificate", "Other",
 ];
 
+const LOCKED_HINT = "Contact the Admin to change.";
+
 export default function ProfileForm({ user, allowNameEdit = false }: Props) {
+  const { setTheme } = useTheme();
+
   const [form, setForm] = useState({
     name: user.name,
     phone: user.phone,
@@ -47,6 +62,8 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
     highestQualification: user.highestQualification ?? "",
     professionalTitle: user.professionalTitle ?? "",
     emergencyContact: user.emergencyContact ?? "",
+    bio: user.bio,
+    themePreference: user.themePreference,
   });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileError, setProfileError] = useState("");
@@ -57,8 +74,35 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
   const [pwError, setPwError] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
 
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [field]: e.target.value }));
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPref[]>([]);
+  const [notifLoading, setNotifLoading] = useState(true);
+
+  // Fetch notification preferences on mount
+  useEffect(() => {
+    fetch("/api/profile/notifications")
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data: { preferences: NotificationPref[] }) => {
+        setNotifPrefs(data.preferences);
+      })
+      .catch(() => {
+        setNotifPrefs([]);
+      })
+      .finally(() => {
+        setNotifLoading(false);
+      });
+  }, []);
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setForm((f) => {
+      const next = { ...f, [field]: value };
+      // Apply theme change immediately so the user sees it
+      if (field === "themePreference") {
+        setTheme(value || "system");
+      }
+      return next;
+    });
+  };
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -79,6 +123,8 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
           highestQualification: form.highestQualification || undefined,
           professionalTitle: form.professionalTitle || undefined,
           emergencyContact: form.emergencyContact || undefined,
+          bio: form.bio.trim() || undefined,
+          themePreference: form.themePreference,
         }),
       });
       if (!res.ok) {
@@ -130,6 +176,23 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
     }
   }
 
+  async function toggleNotificationPref(id: string, enabled: boolean) {
+    try {
+      const res = await fetch("/api/profile/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, enabled }),
+      });
+      if (res.ok) {
+        setNotifPrefs((prefs) =>
+          prefs.map((p) => (p.id === id ? { ...p, enabled } : p)),
+        );
+      }
+    } catch {
+      // Silent fail
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Personal details */}
@@ -166,7 +229,7 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
                 <input id="name" type="text" disabled value={user.name}
                   className="input opacity-60 cursor-not-allowed" aria-describedby="name-hint" />
                 <p id="name-hint" className="text-xs text-gray-400 mt-1">
-                  Contact the Registrar to correct your name.
+                  {LOCKED_HINT}
                 </p>
               </>
             )}
@@ -178,18 +241,34 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
             <input id="email" type="email" disabled value={user.email}
               className="input opacity-60 cursor-not-allowed" aria-describedby="email-hint" />
             <p id="email-hint" className="text-xs text-gray-400 mt-1">
-              Contact support to change your email.
+              {LOCKED_HINT}
             </p>
           </div>
 
-          {/* Student number - locked, read-only display */}
+          {/* Student number (registration number) - locked, set by Admin */}
           {user.studentNumber && (
             <div className="mb-4">
-              <label className="label">Student number</label>
+              <label className="label">Registration number</label>
               <input type="text" disabled value={user.studentNumber}
-                className="input opacity-60 cursor-not-allowed font-mono" />
+                className="input opacity-60 cursor-not-allowed font-mono"
+                aria-describedby="sn-hint" />
+              <p id="sn-hint" className="text-xs text-gray-400 mt-1">
+                {LOCKED_HINT}
+              </p>
             </div>
           )}
+
+          {/* Programme - locked, set by Admin via enrolment */}
+          <div className="mb-4">
+            <label className="label">Programme</label>
+            <input type="text" disabled
+              value={user.programme ?? "Not enrolled yet"}
+              className="input opacity-60 cursor-not-allowed"
+              aria-describedby="prog-hint" />
+            <p id="prog-hint" className="text-xs text-gray-400 mt-1">
+              {LOCKED_HINT}
+            </p>
+          </div>
 
           {/* Professional registration number - locked, set by Admin */}
           {user.registrationNumber && (
@@ -201,7 +280,7 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
                 className="input opacity-60 cursor-not-allowed font-mono"
                 aria-describedby="regnum-hint" />
               <p id="regnum-hint" className="text-xs text-gray-400 mt-1">
-                Contact the Registrar to update your registration number.
+                {LOCKED_HINT}
               </p>
             </div>
           )}
@@ -231,9 +310,9 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
             </select>
           </div>
 
-          {/* District - editable */}
+          {/* District / address - editable */}
           <div className="mb-4">
-            <label htmlFor="district" className="label">District (Uganda)</label>
+            <label htmlFor="district" className="label">District / Address</label>
             <select id="district" value={form.district} onChange={set("district")} className="input">
               <option value="">- Select district -</option>
               {UGANDAN_DISTRICTS.map((d) => (
@@ -266,20 +345,79 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
           </div>
 
           {/* Emergency contact - editable */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label htmlFor="emergency" className="label">
               Emergency contact{" "}
               <span className="text-xs text-gray-400">(name and phone number)</span>
             </label>
             <input id="emergency" type="text" value={form.emergencyContact}
               onChange={set("emergencyContact")} className="input"
-              placeholder="e.g. Jane Namutebi - +256 700 000000" />
+              placeholder="e.g. Jane Namutebi, +256 700 000000" />
+          </div>
+
+          {/* Bio - editable */}
+          <div className="mb-4">
+            <label htmlFor="bio" className="label">
+              Short bio{" "}
+              <span className="text-xs text-gray-400">(optional, max 500 characters)</span>
+            </label>
+            <textarea id="bio" value={form.bio}
+              onChange={set("bio")} className="input min-h-[80px]"
+              maxLength={500}
+              placeholder="Tell us a bit about yourself..." />
+            <p className="text-xs text-gray-400 mt-1">
+              {form.bio.length}/500 characters
+            </p>
+          </div>
+
+          {/* Theme preference - editable */}
+          <div className="mb-6">
+            <label htmlFor="theme" className="label">Theme preference</label>
+            <select id="theme" value={form.themePreference}
+              onChange={set("themePreference")} className="input">
+              <option value="system">System default</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
           </div>
 
           <button type="submit" disabled={profileLoading} className="btn-primary">
             {profileLoading ? "Saving..." : "Save changes"}
           </button>
         </form>
+      </section>
+
+      {/* Notification preferences */}
+      <section className="card">
+        <h2 className="text-lg font-semibold mb-4">Notification preferences</h2>
+        {notifLoading ? (
+          <p className="text-sm text-gray-400">Loading preferences...</p>
+        ) : notifPrefs.length === 0 ? (
+          <p className="text-sm text-gray-400">
+            No notification preferences configured yet.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {notifPrefs.map((pref) => (
+              <label
+                key={pref.id}
+                className="flex items-center gap-3 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={pref.enabled}
+                  onChange={(e) =>
+                    toggleNotificationPref(pref.id, e.target.checked)
+                  }
+                  className="w-4 h-4 accent-primary"
+                />
+                <span className="text-sm capitalize">
+                  {pref.type.replace(/_/g, " ")} ({pref.channel.replace(/_/g, " ").toLowerCase()})
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Change password */}

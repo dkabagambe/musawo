@@ -30,6 +30,8 @@ export default async function PrincipalProfilePage() {
       registrationNumber: true,
       emergencyContact: true,
       avatarUrl: true,
+      bio: true,
+      themePreference: true,
     },
   });
 
@@ -61,6 +63,7 @@ export default async function PrincipalProfilePage() {
             email: user.email ?? "",
             studentNumber: null,
             registrationNumber: user.registrationNumber,
+            programme: null,
             phone: user.phone ?? "",
             dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().slice(0, 10) : null,
             gender: user.gender,
@@ -69,6 +72,8 @@ export default async function PrincipalProfilePage() {
             highestQualification: user.highestQualification,
             professionalTitle: user.professionalTitle,
             emergencyContact: user.emergencyContact,
+            bio: user.bio ?? "",
+            themePreference: user.themePreference ?? "system",
           }}
         />
       </div>

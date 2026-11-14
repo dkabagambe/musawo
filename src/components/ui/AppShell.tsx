@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
+import { getInitials } from "@/lib/utils/initials";
 
 export interface NavItem {
   href: string;
@@ -260,6 +261,7 @@ export function Sidebar({
   onNavigate?: () => void;
 }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   
   const grouped = useMemo(() => {
     const map = new Map<string, NavItem[]>();
@@ -424,7 +426,7 @@ export function Sidebar({
           title={collapsed ? userName : undefined}
         >
           <span className="portal-avatar" aria-hidden="true">
-            {userAvatarUrl ? (
+            {userAvatarUrl && !avatarError ? (
               <Image
                 src={userAvatarUrl}
                 alt={userName}
@@ -432,9 +434,12 @@ export function Sidebar({
                 height={32}
                 className="w-full h-full object-cover rounded-full"
                 unoptimized
+                onError={() => setAvatarError(true)}
               />
             ) : (
-              userInitial
+              <span className="font-semibold leading-none select-none">
+                {getInitials(userName)}
+              </span>
             )}
           </span>
           <span className="portal-user-copy">

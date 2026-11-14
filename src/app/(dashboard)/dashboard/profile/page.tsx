@@ -14,29 +14,44 @@ export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const user = await db.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      studentNumber: true,
-      avatarUrl: true,
-      createdAt: true,
-      status: true,
-      dateOfBirth: true,
-      gender: true,
-      district: true,
-      countryCode: true,
-      highestQualification: true,
-      professionalTitle: true,
-      registrationNumber: true,
-      emergencyContact: true,
-    },
-  });
+  const [user, enrolment] = await Promise.all([
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        studentNumber: true,
+        avatarUrl: true,
+        createdAt: true,
+        status: true,
+        dateOfBirth: true,
+        gender: true,
+        district: true,
+        countryCode: true,
+        highestQualification: true,
+        professionalTitle: true,
+        registrationNumber: true,
+        emergencyContact: true,
+        bio: true,
+        themePreference: true,
+      },
+    }),
+    // Fetch the student's enrolled programme (first active enrolment's course title)
+    db.enrolment.findFirst({
+      where: {
+        userId: session.user.id,
+        status: { in: ["ACTIVE", "PARTIALLY_PAID", "PENDING_PAYMENT", "OVERDUE", "COMPLETED"] },
+      },
+      select: { course: { select: { title: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   if (!user) redirect("/login");
+
+  const programme = enrolment?.course?.title ?? null;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -70,7 +85,7 @@ export default async function ProfilePage() {
           </p>
           {user.status === "DETAILS_DISPUTED" && (
             <p className="text-xs text-danger mt-1 font-medium">
-              ⚠ Your details are being reviewed. Contact the Registrar if you have not yet done so.
+              Your details are being reviewed. Contact the Admin if you have not yet done so.
             </p>
           )}
         </div>
@@ -82,6 +97,7 @@ export default async function ProfilePage() {
           email: user.email ?? "",
           studentNumber: user.studentNumber ?? null,
           registrationNumber: user.registrationNumber ?? null,
+          programme,
           phone: user.phone ?? "",
           dateOfBirth: user.dateOfBirth
             ? user.dateOfBirth.toISOString().slice(0, 10)
@@ -92,6 +108,8 @@ export default async function ProfilePage() {
           highestQualification: user.highestQualification,
           professionalTitle: user.professionalTitle,
           emergencyContact: user.emergencyContact,
+          bio: user.bio ?? "",
+          themePreference: user.themePreference ?? "system",
         }}
       />
     </div>

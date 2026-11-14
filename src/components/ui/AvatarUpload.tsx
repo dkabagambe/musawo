@@ -14,10 +14,10 @@
  *   5. The server (sharp) re-normalises to 256×256 JPEG and stores it in S3.
  *
  * Props:
- *   userId    — current user's ID (used only for the initial img src)
- *   avatarUrl — initial value from the DB (can be null)
- *   size      — "sm" (40px) | "md" (56px, default) | "lg" (96px)
- *   name      — user's display name (fallback initial)
+ *   userId    - current user's ID (used only for the initial img src)
+ *   avatarUrl - initial value from the DB (can be null)
+ *   size      - "sm" (40px) | "md" (56px, default) | "lg" (96px)
+ *   name      - user's display name (fallback initial)
  */
 
 import { useRef, useState, useCallback } from "react";
@@ -30,6 +30,7 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Camera, Loader2, X, Check, ZoomIn, ZoomOut } from "lucide-react";
+import { getInitials } from "@/lib/utils/initials";
 
 // ── Sizes ────────────────────────────────────────────────────────────────────
 interface AvatarUploadProps {
@@ -121,7 +122,7 @@ export default function AvatarUpload({
   const imageRef  = useRef<HTMLImageElement>(null);
 
   const sz      = SIZES[size];
-  const initial = name.trim().charAt(0).toUpperCase() || "?";
+  const initial = getInitials(name);
 
   // ── Remove photo ───────────────────────────────────────────────────────────
   async function handleRemove() {

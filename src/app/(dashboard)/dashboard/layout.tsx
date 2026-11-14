@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
+import { ThemeSync } from "@/components/ui/ThemeSync";
 import {
   LayoutDashboard, User, BookMarked, BookOpen, Calendar, FileText,
   ClipboardList, CheckSquare, ClipboardCheck, BarChart2, CreditCard,
@@ -37,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect("/login");
   const name = session.user.name ?? "Student";
   const dbUser = await import("@/lib/db").then(m => m.db.user.findUnique({
-    where: { id: session.user.id }, select: { avatarUrl: true },
+    where: { id: session.user.id }, select: { avatarUrl: true, themePreference: true },
   }));
   return (
     <AppShell
@@ -49,6 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
+      <ThemeSync initialTheme={dbUser?.themePreference ?? "system"} />
       {children}
     </AppShell>
   );

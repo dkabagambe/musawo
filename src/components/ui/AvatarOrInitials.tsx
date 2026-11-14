@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { getInitials } from "@/lib/utils/initials";
 
 interface AvatarOrInitialsProps {
@@ -34,22 +35,26 @@ export default function AvatarOrInitials({
   const initials = getInitials(name);
   const tone = toneFor(name);
   const fontSize = Math.max(10, Math.round(size * 0.35));
+  const [imgError, setImgError] = useState(false);
+
+  const showAvatar = avatarUrl && !imgError;
 
   return (
     <span
       className={`inline-flex items-center justify-center rounded-full overflow-hidden flex-shrink-0 ${
-        avatarUrl ? "" : tone
+        showAvatar ? "" : tone
       } ${className}`}
       style={{ width: size, height: size, fontSize }}
       aria-hidden="true"
     >
-      {avatarUrl ? (
+      {showAvatar ? (
         <Image
           src={avatarUrl}
           alt={name}
           width={size}
           height={size}
           className="object-cover w-full h-full"
+          onError={() => setImgError(true)}
         />
       ) : (
         <span className="font-semibold leading-none select-none">{initials}</span>

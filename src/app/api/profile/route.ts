@@ -23,7 +23,28 @@ export async function PATCH(req: NextRequest) {
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const parsed = BaseSchema.safeParse(await req.json());
+  const body = await req.json();
+
+  // Explicitly reject attempts to change locked fields for students and instructors.
+  // These can only be changed by the Admin.
+  const isStudentOrInstructor =
+    session.user.role === "STUDENT" || session.user.role === "INSTRUCTOR";
+  if (isStudentOrInstructor) {
+    const LOCKED_FIELDS = ["name", "email", "studentNumber", "registrationNumber"];
+    const attemptedLocked = LOCKED_FIELDS.filter(
+      (f) => f in body && body[f] !== undefined,
+    );
+    if (attemptedLocked.length > 0) {
+      return NextResponse.json(
+        {
+          error: `${attemptedLocked.join(", ")} can only be changed by the Admin.`,
+        },
+        { status: 403 },
+      );
+    }
+  }
+
+  const parsed = BaseSchema.safeParse(body);
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
