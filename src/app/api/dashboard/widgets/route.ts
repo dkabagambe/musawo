@@ -53,9 +53,8 @@ export async function GET(request: Request) {
         ...widget,
         visible: preference?.visible ?? widget.defaultVisible ?? true,
         column: preference?.column ?? widget.defaultColumn,
-        columnPinned: Boolean(
-          preference && preference.column !== widget.defaultColumn,
-        ),
+        // If the user has any saved preference, honour the column choice exactly
+        columnPinned: preference != null,
         position: preference?.position ?? position,
       };
     }),

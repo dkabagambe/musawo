@@ -15,6 +15,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -33,6 +34,8 @@ import {
   CalendarDays,
   Check,
   ChevronRight,
+  ChevronsDown,
+  ChevronsUp,
   ExternalLink,
   GripVertical,
   Mail,
@@ -581,15 +584,21 @@ export function DashboardWidgetVisibility({
 function SortableWidgetRow({
   item,
   index,
+  total,
   saving,
   onMove,
+  onMoveToTop,
+  onMoveToBottom,
   onMoveColumn,
   onToggle,
 }: {
   item: EditableWidget;
   index: number;
+  total: number;
   saving: boolean;
   onMove: (index: number, direction: -1 | 1) => void;
+  onMoveToTop: (index: number) => void;
+  onMoveToBottom: (index: number) => void;
   onMoveColumn: (index: number) => void;
   onToggle: (index: number) => void;
 }) {
@@ -629,9 +638,20 @@ function SortableWidgetRow({
       <button
         type="button"
         className="portal-icon-button"
+        disabled={saving || index === 0}
+        onClick={() => onMoveToTop(index)}
+        aria-label={`Move ${item.title} to top`}
+        title="Move to top"
+      >
+        <ChevronsUp size={16} />
+      </button>
+      <button
+        type="button"
+        className="portal-icon-button"
         disabled={saving}
         onClick={() => onMove(index, -1)}
         aria-label={`Move ${item.title} up`}
+        title="Move up"
       >
         <ArrowUp size={16} />
       </button>
@@ -641,8 +661,19 @@ function SortableWidgetRow({
         disabled={saving}
         onClick={() => onMove(index, 1)}
         aria-label={`Move ${item.title} down`}
+        title="Move down"
       >
         <ArrowDown size={16} />
+      </button>
+      <button
+        type="button"
+        className="portal-icon-button"
+        disabled={saving || index === total - 1}
+        onClick={() => onMoveToBottom(index)}
+        aria-label={`Move ${item.title} to bottom`}
+        title="Move to bottom"
+      >
+        <ChevronsDown size={16} />
       </button>
       <button
         type="button"
@@ -676,13 +707,16 @@ export function WidgetCustomizer({
   onSave?: (widgets: EditableWidget[]) => void;
 }) {
   const preferenceContext = useContext(DashboardPreferenceContext);
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<EditableWidget[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [savedToast, setSavedToast] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -735,6 +769,10 @@ export function WidgetCustomizer({
       setItems(next);
       preferenceContext.update(next);
       onSave?.(next);
+      // Re-run the server component so the widget grid reflects the new order/visibility
+      router.refresh();
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 2500);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -752,6 +790,22 @@ export function WidgetCustomizer({
     if (target < 0 || target >= next.length) return;
     [next[index], next[target]] = [next[target], next[index]];
     void save(next.map((item, position) => ({ ...item, position })));
+  };
+
+  const moveToTop = (index: number) => {
+    if (index === 0) return;
+    const next = [...items];
+    const [item] = next.splice(index, 1);
+    next.unshift(item);
+    void save(next.map((w, position) => ({ ...w, position })));
+  };
+
+  const moveToBottom = (index: number) => {
+    if (index === items.length - 1) return;
+    const next = [...items];
+    const [item] = next.splice(index, 1);
+    next.push(item);
+    void save(next.map((w, position) => ({ ...w, position })));
   };
 
   const moveColumn = (index: number) => {
@@ -837,8 +891,11 @@ export function WidgetCustomizer({
                       key={item.id}
                       item={item}
                       index={index}
+                      total={items.length}
                       saving={saving}
                       onMove={move}
+                      onMoveToTop={moveToTop}
+                      onMoveToBottom={moveToBottom}
                       onMoveColumn={moveColumn}
                       onToggle={toggle}
                     />
@@ -854,6 +911,11 @@ export function WidgetCustomizer({
             {error && (
               <p role="status" className="dashboard-customizer-error">
                 {error}
+              </p>
+            )}
+            {savedToast && (
+              <p role="status" className="dashboard-customizer-saved">
+                <Check size={14} /> Layout saved
               </p>
             )}
             <footer>

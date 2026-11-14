@@ -1060,6 +1060,7 @@
 .dashboard-switch.is-on { background: var(--portal-sidebar); }
 .dashboard-switch.is-on span { transform: translateX(16px); }
 .dashboard-customizer-error { padding: 10px 12px; border-radius: 8px; background: #fef2f2; color: #991b1b !important; font-size: 13px; }
+.dashboard-customizer-saved { padding: 8px 12px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 13px; display: flex; align-items: center; gap: 6px; }
 .dashboard-customizer-empty { padding: 24px 8px; text-align: center; color: var(--portal-muted); font-size: 13px; }
 .dashboard-reset-button,
 .dashboard-save-button {

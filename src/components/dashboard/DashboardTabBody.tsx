@@ -85,8 +85,9 @@ export async function DashboardTabBody({
     return {
       ...w,
       visible: pref?.visible ?? w.defaultVisible ?? true,
+      // If the user has an explicit saved column preference, always honour it
       column: pref?.column ?? w.defaultColumn,
-      columnPinned: Boolean(pref && pref.column !== w.defaultColumn),
+      columnPinned: pref != null,
       position: pref?.position ?? position,
     };
   });
