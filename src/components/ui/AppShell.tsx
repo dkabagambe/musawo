@@ -12,6 +12,7 @@ import {
   WidgetCustomizer,
 } from "@/components/ui/DashboardWidgets";
 import type { UserRole } from "@prisma/client";
+import { getFirstName } from "@/lib/utils/initials";
 import {
   ArrowLeftRight,
   BookOpen,
@@ -165,13 +166,15 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 }
 
 const TAB_LABELS: Record<DashboardTab, string> = {
-  general: "General",
+  general: "Overview",
+  overview: "Overview",
   studies: "Studies",
   finance: "Finance",
   classes: "Classes",
   teaching: "Teaching",
   students: "Students",
   assessment: "Assessment",
+  communication: "Communication",
   support: "Support",
   timetable: "Timetable",
   leave: "Leave",
@@ -195,11 +198,14 @@ function groupIcon(group: string) {
   const props = { size: 18, "aria-hidden": true as const };
   switch (group) {
     case "general":
+    case "overview":
       return <LayoutDashboardIcon {...props} />;
     case "teaching":
       return <GraduationCap {...props} />;
     case "assessment":
       return <ClipboardCheck {...props} />;
+    case "communication":
+      return <Mail {...props} />;
     case "support":
       return <LifeBuoy {...props} />;
     case "students":
@@ -254,7 +260,7 @@ export function Sidebar({
   onNavigate?: () => void;
 }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
+  
   const grouped = useMemo(() => {
     const map = new Map<string, NavItem[]>();
     nav.forEach((item) => {
@@ -267,6 +273,21 @@ export function Sidebar({
   const active = (href: string) =>
     href === pathname ||
     (href !== nav[0]?.href && pathname.startsWith(`${href}/`));
+
+  // Find active group to keep it open
+  const activeGroup = useMemo(() => {
+    for (const [group, items] of grouped) {
+      if (items.some((item) => active(item.href))) {
+        return group;
+      }
+    }
+    return null;
+  }, [grouped, pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => {
+    // Initially collapse all groups except the active one
+    return grouped.map(([group]) => group).filter((group) => group !== activeGroup);
+  });
 
   return (
     <aside
@@ -693,7 +714,7 @@ export default function AppShell({
             {isPortalDashboard ? (
               <DashboardPreferenceProvider tab={currentTab}>
                 <DashboardPageHeader
-                  firstName={userName.split(" ")[0] || "there"}
+                  firstName={getFirstName(userName) || "there"}
                   tabs={dashboardTabs}
                   customizer={<WidgetCustomizer tab={currentTab} />}
                 />

@@ -3,12 +3,14 @@ import type { UserRole } from "@prisma/client";
 
 export type DashboardTab =
   | "general"
+  | "overview"
   | "studies"
   | "finance"
   | "classes"
   | "teaching"
   | "students"
   | "assessment"
+  | "communication"
   | "support"
   | "timetable"
   | "materials"

@@ -1,4 +1,33 @@
 /**
+ * Extract the first name from a full name, ignoring titles.
+ * 
+ * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., etc.
+ * 
+ * Examples:
+ *   "Dr. Esther Achen" → "Esther"
+ *   "Prof. John Smith" → "John"
+ *   "Joel Mirembe" → "Joel"
+ *   "Alice" → "Alice"
+ * 
+ * @param name - Full name including potential titles
+ * @returns First name without title
+ */
+export function getFirstName(name: string): string {
+  if (!name || !name.trim()) return "";
+
+  // Strip common titles (case-insensitive)
+  const withoutTitle = name.replace(
+    /^(Dr\.?|Prof\.?|Professor|Eng\.?|Engineer|Mr\.?|Mrs\.?|Ms\.?|Miss|Rev\.?|Reverend|Hon\.?|Honorable|Sir|Dame|Lord|Lady)\s+/i,
+    ""
+  ).trim();
+
+  if (!withoutTitle) return "";
+
+  const parts = withoutTitle.split(/\s+/).filter(Boolean);
+  return parts[0] || "";
+}
+
+/**
  * Extract initials from a person's name, ignoring titles.
  * 
  * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., etc.
