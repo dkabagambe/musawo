@@ -30,6 +30,7 @@ import {
   LifeBuoy,
   LayoutDashboard as LayoutDashboardIcon,
   LogOut,
+  Mail,
   Menu,
   Settings2,
   SlidersHorizontal,
@@ -40,6 +41,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
 export interface NavItem {
   href: string;
@@ -438,6 +440,7 @@ export function Topbar({
 }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const unreadMessages = useUnreadMessageCount();
   useEffect(() => {
     if (!settingsOpen) return;
     const dismiss = (event: MouseEvent) => {
@@ -473,6 +476,24 @@ export function Topbar({
       </div>
       <div className="portal-topbar-actions">
         <ThemeToggle className="portal-topbar-theme-toggle" />
+        {/* Unread messages badge in topbar */}
+        {(() => {
+          const messagesHref = nav.find((item) => /messages/i.test(item.label))?.href;
+          return messagesHref ? (
+            <Link
+              href={messagesHref}
+              className="portal-icon-button relative"
+              aria-label={unreadMessages > 0 ? `Messages (${unreadMessages} unread)` : "Messages"}
+            >
+              <Mail size={19} />
+              {unreadMessages > 0 && (
+                <span className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none" aria-hidden="true">
+                  {unreadMessages > 99 ? "99+" : unreadMessages}
+                </span>
+              )}
+            </Link>
+          ) : null;
+        })()}
         <div className="portal-settings-wrap" ref={menuRef}>
           <button
             type="button"

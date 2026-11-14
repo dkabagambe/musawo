@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { ROLE_LABELS } from "@/lib/dashboard/widgets";
 import DirectMessageComposer from "@/components/dashboard/DirectMessageComposer";
 import MessageInbox from "@/components/dashboard/MessageInbox";
+import ModerationView from "@/components/messaging/ModerationView";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function PrincipalMessagesPage() {
     .filter((m) => m.subject);
 
   return (
-    <main className="max-w-4xl mx-auto space-y-6">
+    <main className="max-w-5xl mx-auto space-y-6">
       <div className="portal-page-header">
         <h1 className="portal-page-title">Messages</h1>
         <p className="portal-page-subtitle">
@@ -67,6 +68,16 @@ export default async function PrincipalMessagesPage() {
       </section>
 
       <DirectMessageComposer recipients={recipients} sentMessages={sentMessages} />
+
+      {/* Safeguarding: moderation view of all direct conversations */}
+      <section className="space-y-3 border-t border-border pt-6">
+        <h2 className="text-lg font-semibold">Safeguarding - Conversation Moderation</h2>
+        <p className="text-sm text-gray-500">
+          As Principal, you may view all direct conversations between tutors and students for safeguarding purposes.
+          Every view is recorded in the audit log.
+        </p>
+        <ModerationView />
+      </section>
     </main>
   );
 }
