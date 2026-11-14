@@ -2098,10 +2098,29 @@ async function main() {
   // ── Live Classes ───────────────────────────────────────────────
   const existingClasses = await prisma.liveClass.count();
   if (existingClasses === 0) {
-    const classes = [
+    // Three instructors cover all 7 course names with varied times,
+    // past/live/upcoming/cancelled/rescheduled entries and overlapping slots.
+    type ClassDef = {
+      title: string;
+      daysOffset: number;
+      startHour: number; // EAT (UTC+3)
+      startMinute: number;
+      durationMin: number;
+      status: LiveClassStatus;
+      recordingUrl?: string;
+      courseKey: string;
+      tutorId: string;
+      venue?: string;
+      cancelReason?: string;
+      rescheduleReason?: string;
+      originalDaysOffset?: number;
+    };
+
+    const classes: ClassDef[] = [
+      // ── Joel Mirembe (tutor) - Medical Home Caregiver ───────────────────
       {
-        title: "Block 2 Live Q&A: Infection Control",
-        daysOffset: -14,
+        title: "Block 1 Live: Patient Assessment at Home",
+        daysOffset: -21,
         startHour: 9,
         startMinute: 0,
         durationMin: 60,
@@ -2109,6 +2128,19 @@ async function main() {
         recordingUrl: "https://youtu.be/demo-recording-1",
         courseKey: "medical-home-caregiver",
         tutorId: tutor.id,
+        venue: "Online (Google Meet)",
+      },
+      {
+        title: "Block 2 Live Q&A: Infection Control",
+        daysOffset: -14,
+        startHour: 9,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-2",
+        courseKey: "medical-home-caregiver",
+        tutorId: tutor.id,
+        venue: "Online (Google Meet)",
       },
       {
         title: "Block 3 Live Tutorial: Personal Care Skills",
@@ -2117,9 +2149,10 @@ async function main() {
         startMinute: 0,
         durationMin: 90,
         status: LiveClassStatus.COMPLETED,
-        recordingUrl: "https://youtu.be/demo-recording-2",
+        recordingUrl: "https://youtu.be/demo-recording-3",
         courseKey: "medical-home-caregiver",
         tutorId: tutor.id,
+        venue: "Skills Lab A",
       },
       {
         title: "Block 4 Live: Vital Signs Workshop",
@@ -2128,31 +2161,144 @@ async function main() {
         startMinute: 0,
         durationMin: 90,
         status: LiveClassStatus.SCHEDULED,
-        recordingUrl: undefined,
         courseKey: "medical-home-caregiver",
         tutorId: tutor.id,
+        venue: "Skills Lab A",
       },
       {
-        title: "Block 5 Live: Elderly Care Q&A",
+        title: "Block 5 Live: Medication Management",
         daysOffset: 10,
         startHour: 14,
         startMinute: 0,
         durationMin: 120,
         status: LiveClassStatus.SCHEDULED,
-        recordingUrl: undefined,
         courseKey: "medical-home-caregiver",
         tutorId: tutor.id,
+        venue: "Online (Google Meet)",
       },
       {
-        title: "Final Exam Revision Session",
+        title: "Final Exam Revision: Medical Home Care",
         daysOffset: 17,
         startHour: 18,
         startMinute: 30,
         durationMin: 90,
         status: LiveClassStatus.SCHEDULED,
-        recordingUrl: undefined,
         courseKey: "medical-home-caregiver",
         tutorId: tutor.id,
+        venue: "Online (Google Meet)",
+      },
+      // ── Joel Mirembe - Basic Home Care ───────────────────────────────────
+      {
+        title: "Module 1: Introduction to Patient Care",
+        daysOffset: -10,
+        startHour: 11,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-4",
+        courseKey: "basic-home-caregiver",
+        tutorId: tutor.id,
+        venue: "Online (Google Meet)",
+      },
+      {
+        title: "Module 3 Live: Infection Prevention",
+        daysOffset: 5,
+        startHour: 11,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "basic-home-caregiver",
+        tutorId: tutor.id,
+        venue: "Online (Google Meet)",
+      },
+      // ── Joel Mirembe - Mental Health (rescheduled example) ───────────────
+      {
+        title: "Module 2: Listening and First Response Skills",
+        daysOffset: 7,
+        startHour: 16,
+        startMinute: 0,
+        durationMin: 75,
+        status: LiveClassStatus.RESCHEDULED,
+        courseKey: "mental-health-support-advocacy",
+        tutorId: tutor.id,
+        venue: "Online (Google Meet)",
+        rescheduleReason: "Instructor travel - rescheduled to avoid conflict with Block 5 session.",
+        originalDaysOffset: 3,
+      },
+      // ── Joel Mirembe - Basic Life Support ────────────────────────────────
+      {
+        title: "BLS Skills Lab: CPR and AED Practical",
+        daysOffset: -3,
+        startHour: 8,
+        startMinute: 0,
+        durationMin: 120,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-5",
+        courseKey: "basic-life-support-first-aid",
+        tutorId: tutor.id,
+        venue: "Skills Lab B",
+      },
+      {
+        title: "BLS Module 3: Choking and Bleeding Management",
+        daysOffset: 12,
+        startHour: 8,
+        startMinute: 0,
+        durationMin: 90,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "basic-life-support-first-aid",
+        tutorId: tutor.id,
+        venue: "Skills Lab B",
+      },
+      // ── Joel Mirembe - Advanced Life Support ─────────────────────────────
+      {
+        title: "ALS Module 2: ACLS Algorithms",
+        daysOffset: 14,
+        startHour: 9,
+        startMinute: 0,
+        durationMin: 120,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "advanced-life-support",
+        tutorId: tutor.id,
+        venue: "Skills Lab A",
+      },
+      // Cancelled example for Joel
+      {
+        title: "ALS Practical: Megacode Scenario (cancelled)",
+        daysOffset: 6,
+        startHour: 14,
+        startMinute: 0,
+        durationMin: 90,
+        status: LiveClassStatus.CANCELLED,
+        courseKey: "advanced-life-support",
+        tutorId: tutor.id,
+        venue: "Skills Lab A",
+        cancelReason: "Skills Lab A unavailable due to renovation. Session rescheduled to Week 3.",
+      },
+
+      // ── Charles Muwanga (tutor2) - Babysitting ────────────────────────────
+      {
+        title: "Module 1: Child Development and Age-appropriate Care",
+        daysOffset: -18,
+        startHour: 10,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-6",
+        courseKey: "babysitting-childcare-safety",
+        tutorId: tutor2.id,
+        venue: "Online (Google Meet)",
+      },
+      {
+        title: "Module 3 Live: First Aid for Children",
+        daysOffset: -5,
+        startHour: 10,
+        startMinute: 0,
+        durationMin: 75,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-7",
+        courseKey: "babysitting-childcare-safety",
+        tutorId: tutor2.id,
+        venue: "Skills Lab C",
       },
       {
         title: "Childcare and Safety Live Tutorial",
@@ -2161,15 +2307,98 @@ async function main() {
         startMinute: 30,
         durationMin: 60,
         status: LiveClassStatus.SCHEDULED,
-        recordingUrl: undefined,
-        courseKey: "basic-home-caregiver",
+        courseKey: "babysitting-childcare-safety",
         tutorId: tutor2.id,
+        venue: "Online (Google Meet)",
+      },
+      {
+        title: "Module 5: Home and Environment Safety",
+        daysOffset: 11,
+        startHour: 10,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "babysitting-childcare-safety",
+        tutorId: tutor2.id,
+        venue: "Online (Google Meet)",
+      },
+      // ── Charles Muwanga - Care of Older Persons ───────────────────────────
+      {
+        title: "COP Module 2: Mobility and Fall Prevention",
+        daysOffset: -12,
+        startHour: 14,
+        startMinute: 0,
+        durationMin: 90,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-8",
+        courseKey: "care-older-persons-disability",
+        tutorId: tutor2.id,
+        venue: "Skills Lab C",
+      },
+      {
+        title: "COP Module 4: Nutrition for Older Persons",
+        daysOffset: 8,
+        startHour: 14,
+        startMinute: 0,
+        durationMin: 75,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "care-older-persons-disability",
+        tutorId: tutor2.id,
+        venue: "Online (Google Meet)",
+      },
+      // Overlap with Joel's BLS on day 12 (different instructor, different course - no conflict)
+      {
+        title: "COP Practical: Assistive Devices Workshop",
+        daysOffset: 12,
+        startHour: 10,
+        startMinute: 0,
+        durationMin: 90,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "care-older-persons-disability",
+        tutorId: tutor2.id,
+        venue: "Skills Lab C",
+      },
+      // ── Charles Muwanga - Advanced First Aid ──────────────────────────────
+      {
+        title: "AFA Module 2: Bleeding and Burns",
+        daysOffset: 3,
+        startHour: 16,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.SCHEDULED,
+        courseKey: "advanced-first-aid",
+        tutorId: tutor2.id,
+        venue: "Online (Google Meet)",
+      },
+
+      // ── Jennifer Atim (tutor3) - Medical Home Care (co-teaches) ─────────
+      // tutor3 has no primary course in seed yet; we assign her as co-tutor later
+      // so we use courses where tutor3 would be instructor via co-teaching - for now
+      // Jennifer teaches Basic Life Support as a co-instructor demo
+      {
+        title: "BLS Orientation: Who, What, When",
+        daysOffset: -8,
+        startHour: 9,
+        startMinute: 0,
+        durationMin: 60,
+        status: LiveClassStatus.COMPLETED,
+        recordingUrl: "https://youtu.be/demo-recording-9",
+        courseKey: "basic-life-support-first-aid",
+        tutorId: tutor.id, // main tutor is Joel; Jennifer is co-tutor
+        venue: "Online (Google Meet)",
       },
     ];
 
     for (const cls of classes) {
       const scheduledAt = daysFrom(cls.daysOffset);
       scheduledAt.setUTCHours(cls.startHour - 3, cls.startMinute, 0, 0);
+      const originalScheduledAt = cls.originalDaysOffset !== undefined
+        ? (() => {
+            const d = daysFrom(cls.originalDaysOffset);
+            d.setUTCHours(cls.startHour - 3, cls.startMinute, 0, 0);
+            return d;
+          })()
+        : null;
       const lc = await prisma.liveClass.create({
         data: {
           courseId: courses[cls.courseKey].id,
@@ -2182,7 +2411,11 @@ async function main() {
             randomBytes(3).toString("hex"),
           platform: "link",
           status: cls.status,
-          recordingUrl: cls.recordingUrl,
+          recordingUrl: cls.recordingUrl ?? null,
+          venue: cls.venue ?? null,
+          cancelReason: cls.cancelReason ?? null,
+          rescheduleReason: cls.rescheduleReason ?? null,
+          originalScheduledAt,
         },
       });
       await prisma.$executeRaw`UPDATE live_classes SET "recordingStatus" = ${cls.recordingUrl ? "AVAILABLE" : "PENDING"}, "recordingEnabled" = true WHERE id = ${lc.id}`;
@@ -2218,7 +2451,7 @@ async function main() {
         }
       }
     }
-    console.log("  ✓ Live classes (6: 2 past with replays, 4 upcoming)");
+    console.log(`  ✓ Live classes (${classes.length}: past, upcoming, rescheduled, cancelled across all 7 courses)`);
   }
 
   // ── Class Presentations (Slides seeded to demo live classes) ──────────────

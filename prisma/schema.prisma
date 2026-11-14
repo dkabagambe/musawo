@@ -98,6 +98,7 @@ enum LiveClassStatus {
   LIVE
   COMPLETED
   CANCELLED
+  RESCHEDULED
 }
 
 enum AttendanceMark {
@@ -827,6 +828,12 @@ model LiveClass {
   selfCheckInClosesAt      DateTime?
   minimumAttendancePercent Int             @default(75)
   status                   LiveClassStatus @default(SCHEDULED)
+  // T4: scheduling metadata
+  venue                    String?         // room name or "Online" (free-text, not FK)
+  cancelReason             String?
+  rescheduleReason         String?
+  originalScheduledAt      DateTime?       // set when first rescheduled
+  repeatWeeklyUntil        DateTime?       // create weekly copies up to this date
   createdAt                DateTime        @default(now())
   updatedAt                DateTime        @updatedAt
 
@@ -843,6 +850,7 @@ model LiveClass {
   @@index([status, scheduledAt])
   @@index([courseId, status])
   @@index([tutorId, status])
+  @@index([tutorId, scheduledAt])
   @@map("live_classes")
 }
 
