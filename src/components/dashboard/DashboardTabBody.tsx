@@ -6,7 +6,7 @@ import {
   type DashboardTab,
   type DashboardWidgetDefinition,
 } from "@/lib/dashboard/widgets";
-import { Widget, WidgetSkeleton } from "@/components/ui/DashboardWidgets";
+import { Widget, WidgetSkeleton, ClientWidgetGrid } from "@/components/ui/DashboardWidgets";
 import { balanceDashboardColumns } from "@/lib/dashboard/format";
 import {
   WIDGET_COMPONENTS,
@@ -14,7 +14,7 @@ import {
 } from "@/components/dashboard/widget-bodies";
 import type { UserRole } from "@prisma/client";
 
-interface MergedWidget extends DashboardWidgetDefinition {
+export interface MergedWidget extends DashboardWidgetDefinition {
   visible: boolean;
   column: number;
   columnPinned: boolean;
@@ -52,10 +52,13 @@ function WidgetWithSuspense({
   bodyProps: WidgetBodyProps;
 }) {
   return (
-    <Suspense fallback={<WidgetSkeleton rows={3} />}>
-      {/* @ts-ignore async server component */}
-      <WidgetBodyAsync widget={widget} bodyProps={bodyProps} />
-    </Suspense>
+    // data-widget-id lets ClientWidgetGrid find and reorder this node
+    <div data-widget-id={widget.id}>
+      <Suspense fallback={<WidgetSkeleton rows={3} />}>
+        {/* @ts-ignore async server component */}
+        <WidgetBodyAsync widget={widget} bodyProps={bodyProps} />
+      </Suspense>
+    </div>
   );
 }
 
@@ -85,7 +88,6 @@ export async function DashboardTabBody({
     return {
       ...w,
       visible: pref?.visible ?? w.defaultVisible ?? true,
-      // If the user has an explicit saved column preference, always honour it
       column: pref?.column ?? w.defaultColumn,
       columnPinned: pref != null,
       position: pref?.position ?? position,
@@ -108,7 +110,6 @@ export async function DashboardTabBody({
   const wideWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) === 2);
   const halfWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) !== 2);
 
-  // Build placeholder entries for column balancing (no content needed — Suspense handles it)
   const halfEntries = halfWidgets.map((w) => ({
     widget: w,
     column: w.column,
@@ -121,14 +122,14 @@ export async function DashboardTabBody({
 
   const bodyProps: WidgetBodyProps = { userId, role };
 
-  const renderCol = (entries: typeof halfEntries) =>
-    entries.map((entry) => (
-      <WidgetWithSuspense
-        key={entry.widget.id}
-        widget={entry.widget}
-        bodyProps={{ ...bodyProps, fullPageHref: entry.widget.fullPageHref }}
-      />
-    ));
+  // Serializable metadata for the client grid so it can reorder without a
+  // server round-trip as soon as the preference context updates.
+  const widgetMeta = halfWidgets.map((w) => ({
+    id: w.id,
+    position: w.position,
+    column: w.column,
+    visible: w.visible,
+  }));
 
   return (
     <div className="dashboard-widget-grid">
@@ -141,12 +142,17 @@ export async function DashboardTabBody({
           />
         </div>
       ))}
-      {/* Half-width widgets in balanced two-column layout */}
+      {/* Half-width widgets — ClientWidgetGrid handles client-side reordering */}
       {halfWidgets.length > 0 && (
-        <>
-          <div className="dashboard-widget-column">{renderCol(left)}</div>
-          <div className="dashboard-widget-column">{renderCol(right)}</div>
-        </>
+        <ClientWidgetGrid widgetMeta={widgetMeta} initialLeft={left.map(e => e.widget.id)} initialRight={right.map(e => e.widget.id)}>
+          {halfWidgets.map((w) => (
+            <WidgetWithSuspense
+              key={w.id}
+              widget={w}
+              bodyProps={{ ...bodyProps, fullPageHref: w.fullPageHref }}
+            />
+          ))}
+        </ClientWidgetGrid>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
@@ -143,5 +144,14 @@ export async function PUT(request: Request) {
       }),
     ),
   );
+  // Invalidate the cached page render for every dashboard route so
+  // router.refresh() gets fresh widget order from the database.
+  revalidatePath("/dashboard", "page");
+  revalidatePath("/tutor", "page");
+  revalidatePath("/admin", "page");
+  revalidatePath("/director", "page");
+  revalidatePath("/principal", "page");
+  revalidatePath("/registrar", "page");
+  revalidatePath("/system", "page");
   return NextResponse.json({ ok: true });
 }

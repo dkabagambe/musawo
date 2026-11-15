@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -559,6 +560,94 @@ export function DashboardPreferenceProvider({
     <DashboardPreferenceContext.Provider value={value}>
       {children}
     </DashboardPreferenceContext.Provider>
+  );
+}
+
+/**
+ * Client-side widget grid that holds two columns and immediately reorders
+ * widgets when the DashboardPreferenceContext updates (after a save), without
+ * waiting for the server round-trip from router.refresh().
+ *
+ * Children must be rendered by the server as siblings; each child is wrapped
+ * in a `data-widget-id` div by DashboardTabBody so we can look them up here.
+ */
+export function ClientWidgetGrid({
+  widgetMeta,
+  initialLeft,
+  initialRight,
+  children,
+}: {
+  widgetMeta: Array<{ id: string; position: number; column: number; visible: boolean }>;
+  initialLeft: string[];
+  initialRight: string[];
+  children: React.ReactNode;
+}) {
+  const { preferences, loaded } = useContext(DashboardPreferenceContext);
+
+  // Build a lookup from widget id -> React child node using the data-widget-id
+  // attribute the server placed on each wrapper div.
+  const childMap = useMemo(() => {
+    const map = new Map<string, React.ReactNode>();
+    React.Children.forEach(children, (child) => {
+      if (!React.isValidElement(child)) return;
+      // Each child is a WidgetWithSuspense that renders a <div data-widget-id=…>
+      // We use the key prop which DashboardTabBody sets to the widget id.
+      const key = child.key;
+      if (key) map.set(String(key).replace(/^\.\$/, ""), child);
+    });
+    return map;
+  }, [children]);
+
+  // Determine the current left/right split.
+  // Before the context loads, use the server-provided initial split.
+  // After it loads, use context data so changes appear immediately.
+  const [leftIds, rightIds] = useMemo(() => {
+    if (!loaded) return [initialLeft, initialRight];
+
+    // Merge server widgetMeta with context overrides
+    const merged = widgetMeta.map((meta) => {
+      const pref = preferences.get(meta.id);
+      return {
+        id: meta.id,
+        position: pref?.position ?? meta.position,
+        column: pref?.column ?? meta.column,
+        columnPinned: pref != null,
+        visible: pref ? pref.visible : meta.visible,
+      };
+    });
+
+    const visible = merged
+      .filter((w) => w.visible)
+      .sort((a, b) => a.position - b.position);
+
+    const heights = [0, 0];
+    const left: string[] = [];
+    const right: string[] = [];
+
+    for (const w of visible) {
+      const preferred = Math.max(0, Math.min(1, w.column));
+      const col = w.columnPinned
+        ? preferred
+        : heights[0] <= heights[1]
+        ? 0
+        : 1;
+      if (col === 0) left.push(w.id);
+      else right.push(w.id);
+      heights[col] += 148;
+    }
+
+    return [left, right];
+  }, [loaded, preferences, widgetMeta, initialLeft, initialRight]);
+
+  return (
+    <>
+      <div className="dashboard-widget-column">
+        {leftIds.map((id) => childMap.get(id) ?? null)}
+      </div>
+      <div className="dashboard-widget-column">
+        {rightIds.map((id) => childMap.get(id) ?? null)}
+      </div>
+    </>
   );
 }
 

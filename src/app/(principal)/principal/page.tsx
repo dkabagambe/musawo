@@ -5,6 +5,7 @@ import { DashboardTabBody } from "@/components/dashboard/DashboardTabBody";
 import type { DashboardTab } from "@/lib/dashboard/widgets";
 
 export const metadata = { title: "Principal Overview" };
+export const dynamic = "force-dynamic";
 
 const VALID_TABS = new Set<string>([
   "general", "academics", "approvals", "reports",
