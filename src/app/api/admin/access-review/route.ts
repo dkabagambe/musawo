@@ -15,7 +15,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(session.user.role, "staff.access_review"))
+  if (!can(session.user.role, "staff.view"))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const [users, reviews] = await Promise.all([
     db.user.findMany({
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(session.user.role, "staff.access_review"))
+  if (!can(session.user.role, "staff.view"))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const parsed = CompleteSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     metadata: {
       quarter: review.quarter,
       accountsReviewed: reviewable.length,
-      via: canVia(session.user.role, "staff.access_review"),
+      via: canVia(session.user.role, "staff.view"),
     },
     ip: req.headers.get("x-forwarded-for") ?? undefined,
     userAgent: req.headers.get("user-agent") ?? undefined,

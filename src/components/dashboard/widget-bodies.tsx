@@ -134,7 +134,7 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
         {exams.map((exam) => (
           <ListRow
             key={exam.id}
-            href="/dashboard/exams"
+            href={`/dashboard/exams/${exam.id}`}
             icon={<ClipboardList size={16} />}
             date={exam.startWindowAt ? fmtDay(exam.startWindowAt) : undefined}
           >
@@ -144,7 +144,7 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
         {assignments.map((a) => (
           <ListRow
             key={a.id}
-            href="/dashboard/assignments"
+            href={`/dashboard/assignments/${a.id}`}
             icon={<FileText size={16} />}
             date={a.dueDate ? fmtDay(a.dueDate) : undefined}
           >

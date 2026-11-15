@@ -226,7 +226,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Leave",
       icon: <Calendar className="w-4 h-4" />,
     },
-    permission: "staff.leave.manage",
+    permission: "staff.view",
   },
   {
     item: {
@@ -234,7 +234,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       label: "Access Review",
       icon: <Search className="w-4 h-4" />,
     },
-    permission: "staff.access_review",
+    permission: "staff.view",
   },
   {
     item: {
@@ -281,7 +281,7 @@ export default async function AdminLayout({
     !(
       [
         "staff.view",
-        "support.manage",
+        "support.submit",
         "settings.edit.operational",
         "students.lookup",
       ] as const
@@ -295,11 +295,10 @@ export default async function AdminLayout({
   });
   const tabs: DashboardTab[] = [
     "general",
-    ...(can(session.user.role, "staff.view") ? (["staff"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "staff.leave.manage") ? (["leave"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "support.manage") &&
-    !can(session.user.role, "staff.leave.manage")
-      ? (["support", "timetable"] as DashboardTab[])
+    ...(can(session.user.role, "staff.view") ? (["staff", "leave"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "support.submit") ? (["support"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "bookings.manage") || can(session.user.role, "equipment.manage")
+      ? (["timetable"] as DashboardTab[])
       : []),
     ...(can(session.user.role, "reports.operational") ? (["operations"] as DashboardTab[]) : []),
   ];

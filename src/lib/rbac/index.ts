@@ -615,42 +615,30 @@ export const ROLE_PERMISSION_DENIES: Partial<Record<UserRole, Permission[]>> = {
     "backups.manage",
   ],
   ACADEMIC_REGISTRAR: [
-    // Dummy role; block everything operational
-    "students.view",
-    "students.create",
-    "students.edit",
+    // Registrar does not perform student suspensions, financial ops, or join classes.
+    // The active-permission set (ROLE_PERMISSIONS) is gated by the
+    // feature.ACADEMIC_REGISTRAR_ACTIVE setting; while inactive the holding
+    // page prevents access. These denies block only things the registrar
+    // should never do regardless of the active flag.
     "students.suspend",
     "students.export",
-    "enrolments.view",
-    "enrolments.create",
     "enrolments.edit",
-    "applications.view",
-    "applications.process",
     "payments.view",
     "payments.collect",
-    "courses.view",
     "courses.create",
     "courses.edit",
     "content.upload",
     "lessons.edit",
     "exams.create",
     "exams.mark",
-    "grades.view",
     "grades.edit",
     "attendance.take",
     "attendance.view",
     "classes.manage",
-    "classes.view",
     "classes.join",        // Academic Registrar cannot join as a student
-    "certificates.view",
-    "graduands.prepare",
-    "reports.view",
-    "reports.academic",
-    "audit.view",
     "approvals.view",
     "announcements.send.all",
     "announcements.send.own",
-    "announcements.manage",
     "staff.view",
     "equipment.manage",
     "venues.manage",

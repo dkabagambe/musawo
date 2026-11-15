@@ -25,7 +25,7 @@ export default async function AdminDashboardPage({
   if (!session?.user) redirect("/login");
   if (
     !can(session.user.role, "staff.view") &&
-    !can(session.user.role, "support.manage") &&
+    !can(session.user.role, "support.submit") &&
     !can(session.user.role, "settings.edit.operational") &&
     !can(session.user.role, "students.lookup")
   )

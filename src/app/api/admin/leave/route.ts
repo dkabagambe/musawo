@@ -15,7 +15,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(session.user.role, "staff.leave.manage"))
+  if (!can(session.user.role, "staff.view"))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const requests = await db.leaveRequest.findMany({
     include: {
@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session?.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(session.user.role, "staff.leave.manage"))
+  if (!can(session.user.role, "staff.view"))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const parsed = DecisionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success)
@@ -88,7 +88,7 @@ export async function PATCH(req: NextRequest) {
     metadata: {
       decision: parsed.data.decision,
       requesterId: request.userId,
-      via: canVia(session.user.role, "staff.leave.manage"),
+      via: canVia(session.user.role, "staff.view"),
     },
     ip: req.headers.get("x-forwarded-for") ?? undefined,
     userAgent: req.headers.get("user-agent") ?? undefined,

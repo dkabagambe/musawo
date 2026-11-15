@@ -117,6 +117,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "inbox-list",
+    fullPageHref: "/dashboard/notifications",
     roles: ["STUDENT"],
   },
   // Studies tab
@@ -164,7 +165,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "fees-summary",
     title: "Fees Progress",
-    requiredPermission: "payments.view",
+    requiredPermission: "payments.initiate",
     defaultTab: "finance",
     defaultColumn: 0,
     component: "fee-summary",
@@ -205,7 +206,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "timetable",
     title: "Timetable This Week",
-    requiredPermission: "classes.view",
+    requiredPermission: "classes.join",
     defaultTab: "classes",
     defaultColumn: 0,
     component: "timetable",
@@ -594,7 +595,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "principal-recent-exams",
     title: "Exam Submissions",
-    requiredPermission: "exams.release",
+    requiredPermission: "exams.mark",
     defaultTab: "general",
     defaultColumn: 1,
     component: "exam-submissions-list",
@@ -648,7 +649,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "principal-results",
     title: "Results",
-    requiredPermission: "exams.release",
+    requiredPermission: "exams.mark",
     defaultTab: "academics",
     defaultColumn: 1,
     component: "exam-submissions-list",
@@ -938,7 +939,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "hr-leave",
     title: "Leave Requests",
-    requiredPermission: "staff.leave.manage",
+    requiredPermission: "staff.view",
     defaultTab: "leave",
     defaultColumn: 0,
     component: "leave-list",
@@ -948,7 +949,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "hr-access-review",
     title: "Staff Access Review",
-    requiredPermission: "staff.access_review",
+    requiredPermission: "staff.view",
     defaultTab: "leave",
     defaultColumn: 1,
     component: "access-review-summary",
@@ -959,7 +960,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "hr-support",
     title: "Support Tickets",
-    requiredPermission: "support.manage",
+    requiredPermission: "support.submit",
     defaultTab: "support",
     defaultColumn: 0,
     component: "support-list",
@@ -1013,7 +1014,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "admin-support-tickets",
     title: "Support Tickets",
-    requiredPermission: "support.manage",
+    requiredPermission: "support.submit",
     defaultTab: "support",
     defaultColumn: 0,
     component: "support-list",

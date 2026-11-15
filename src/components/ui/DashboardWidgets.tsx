@@ -564,16 +564,16 @@ export function DashboardPreferenceProvider({
 }
 
 /**
- * Watches the DashboardPreferenceContext and immediately applies CSS `order`
- * and `display` styles to each `[data-widget-id]` wrapper in the DOM.
+ * Watches the DashboardPreferenceContext and immediately reorders the widget
+ * DOM nodes when preferences change — no server round-trip needed.
  *
- * This gives instant visual reordering after a save without waiting for the
- * server round-trip from router.refresh(). It renders nothing itself — it is
- * purely a side-effect component.
+ * Approach: physically moves each [data-widget-id] node into the correct
+ * column div in the correct order using DOM insertBefore/appendChild.
+ * This works across columns because we move actual DOM nodes, not just
+ * CSS order properties (which are scoped to a single flex container).
  *
- * The two-column layout uses CSS flexbox `order` within each column.
- * Widgets that move to the other column are hidden (the server re-render via
- * router.refresh() will then place them in the correct column).
+ * router.refresh() re-renders the server HTML with the same order, so after
+ * the refresh the DOM reflects the server state and this effect is a no-op.
  */
 export function WidgetOrderSyncer({
   widgetMeta,
@@ -585,7 +585,7 @@ export function WidgetOrderSyncer({
   useEffect(() => {
     if (!loaded) return;
 
-    // Build merged state from server meta + context overrides
+    // Merge server metadata with context overrides
     const merged = widgetMeta.map((meta) => {
       const pref = preferences.get(meta.id);
       return {
@@ -597,39 +597,47 @@ export function WidgetOrderSyncer({
       };
     });
 
+    // Sort by position, then assign to columns using same height-balancing as server
     const visible = merged
       .filter((w) => w.visible)
       .sort((a, b) => a.position - b.position);
 
-    // Assign order within each column using height-balancing (same as server)
     const heights = [0, 0];
-    const colOrder = new Map<string, { col: number; order: number }>();
-    const colCounts = [0, 0];
+    const assignments: Array<{ id: string; col: number }> = [];
 
     for (const w of visible) {
       const preferred = Math.max(0, Math.min(1, w.column));
       const col = w.columnPinned
         ? preferred
-        : heights[0] <= heights[1]
-        ? 0
-        : 1;
-      colOrder.set(w.id, { col, order: colCounts[col] });
-      colCounts[col]++;
+        : heights[0] <= heights[1] ? 0 : 1;
+      assignments.push({ id: w.id, col });
       heights[col] += 148;
     }
 
-    // Apply styles to each data-widget-id node
-    for (const meta of widgetMeta) {
-      const el = document.querySelector<HTMLElement>(`[data-widget-id="${meta.id}"]`);
+    // Find the two column containers — they are the two .dashboard-widget-column
+    // divs inside .dashboard-widget-grid. Use the first [data-widget-id] node's
+    // parent to locate them reliably.
+    const firstNode = document.querySelector<HTMLElement>(`[data-widget-id]`);
+    if (!firstNode) return;
+    const grid = firstNode.closest(".dashboard-widget-grid");
+    if (!grid) return;
+    const cols = Array.from(grid.querySelectorAll<HTMLElement>(":scope > .dashboard-widget-column"));
+    if (cols.length < 2) return;
+
+    // Handle hidden widgets first — set display:none so they don't occupy space
+    const hiddenIds = merged.filter((w) => !w.visible).map((w) => w.id);
+    for (const id of hiddenIds) {
+      const el = document.querySelector<HTMLElement>(`[data-widget-id="${id}"]`);
+      if (el) el.style.display = "none";
+    }
+
+    // Move each visible widget node into its target column in position order
+    for (const { id, col } of assignments) {
+      const el = document.querySelector<HTMLElement>(`[data-widget-id="${id}"]`);
       if (!el) continue;
-      const info = colOrder.get(meta.id);
-      if (!info) {
-        // Hidden widget
-        el.style.display = "none";
-      } else {
-        el.style.display = "";
-        el.style.order = String(info.order);
-      }
+      el.style.display = "";
+      el.style.order = "";           // clear any stale order style
+      cols[col].appendChild(el);     // moves to end of target column in order
     }
   }, [loaded, preferences, widgetMeta]);
 

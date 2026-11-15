@@ -8,7 +8,7 @@ export const metadata = { title: "Staff Access Review" };
 
 export default async function AccessReviewPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "staff.access_review"))
+  if (!session?.user || !can(session.user.role, "staff.view"))
     redirect("/403");
   return (
     <div className="space-y-6">

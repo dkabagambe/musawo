@@ -8,7 +8,7 @@ export const metadata = { title: "Staff Leave" };
 
 export default async function LeavePage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "staff.leave.manage"))
+  if (!session?.user || !can(session.user.role, "staff.view"))
     redirect("/403");
   return (
     <div className="space-y-6">
