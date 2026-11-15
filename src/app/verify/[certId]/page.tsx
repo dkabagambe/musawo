@@ -3,6 +3,7 @@ import { notFound as _notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getSetting } from "@/lib/settings";
+import QRCode from "qrcode";
 import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,21 @@ export default async function VerifyCertificatePage({ params }: Props) {
     await db.certVerification.create({
       data: { certificateId: cert.id },
     });
+  }
+
+  // Generate QR code pointing back to this page
+  const siteUrl = await getSetting("site.url", "https://app.musawo.ug");
+  let qrDataUrl: string | null = null;
+  if (cert && !cert.revokedAt) {
+    try {
+      qrDataUrl = await QRCode.toDataURL(`${siteUrl}/verify/${cert.uniqueId}`, {
+        width: 160,
+        margin: 1,
+        color: { dark: "#111A3F", light: "#ffffff" },
+      });
+    } catch {
+      // skip
+    }
   }
 
   if (!cert) {
@@ -131,9 +147,24 @@ export default async function VerifyCertificatePage({ params }: Props) {
           </p>
         </div>
 
+        {/* QR code */}
+        {qrDataUrl && (
+          <div className="mt-4 flex flex-col items-center gap-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={qrDataUrl}
+              alt="QR code for this certificate verification"
+              width={80}
+              height={80}
+              className="rounded"
+            />
+            <span className="text-[10px] text-gray-400">Scan to verify</span>
+          </div>
+        )}
+
         <div className="mt-4 text-center">
           <Link href="/" className="text-xs text-gray-400 hover:text-primary no-underline">
-            ← Back to Musawo Training Center
+            - Back to Musawo Training Center
           </Link>
         </div>
       </div>

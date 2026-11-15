@@ -63,5 +63,26 @@ export async function POST(req: NextRequest) {
     ip:         req.headers.get("x-forwarded-for") ?? undefined,
   });
 
+  // Notify students whose results were just released
+  if (count > 0) {
+    const releasedEntries = await db.gradeEntry.findMany({
+      where: { courseId, itemType, itemId, releasedAt: { not: null } },
+      select: { userId: true, itemTitle: true },
+    });
+    const itemTitle = releasedEntries[0]?.itemTitle ?? itemId;
+    for (const entry of releasedEntries) {
+      await db.notification.create({
+        data: {
+          userId: entry.userId,
+          channel: "IN_APP",
+          type: "RESULTS_PUBLISHED",
+          subject: `Results published: ${itemTitle}`,
+          body: `Your results for "${itemTitle}" have been published. Visit My Results to see your score.`,
+          metadata: { courseId, itemType, itemId },
+        },
+      });
+    }
+  }
+
   return NextResponse.json({ released: count, releasedAt: now.toISOString() });
 }

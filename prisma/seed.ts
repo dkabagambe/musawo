@@ -2068,6 +2068,121 @@ async function main() {
     console.log("  ✓ Exams (2) with questions and attempts");
   }
 
+  // ── Grade Entries (published results) ────────────────────────────
+  const existingGradeEntries = await prisma.gradeEntry.count({
+    where: { userId: students["completed"].id },
+  });
+  if (existingGradeEntries === 0 && examCna && examFinal) {
+    const mhcCourseId = courses["medical-home-caregiver"].id;
+
+    // student.completed: both exams passed and published
+    await prisma.gradeEntry.upsert({
+      where: {
+        userId_courseId_itemType_itemId: {
+          userId: students["completed"].id,
+          courseId: mhcCourseId,
+          itemType: "EXAM",
+          itemId: examCna.id,
+        },
+      },
+      create: {
+        userId: students["completed"].id,
+        courseId: mhcCourseId,
+        itemType: "EXAM",
+        itemId: examCna.id,
+        itemTitle: examCna.title,
+        score: 25,
+        maxScore: 30,
+        percentage: 83.3,
+        passed: true,
+        comments: "Strong performance. Review wound care module for full marks.",
+        gradedAt: daysAgo(60),
+        releasedAt: daysAgo(55), // published
+      },
+      update: { comments: "Strong performance. Review wound care module for full marks." },
+    });
+    await prisma.gradeEntry.upsert({
+      where: {
+        userId_courseId_itemType_itemId: {
+          userId: students["completed"].id,
+          courseId: mhcCourseId,
+          itemType: "EXAM",
+          itemId: examFinal.id,
+        },
+      },
+      create: {
+        userId: students["completed"].id,
+        courseId: mhcCourseId,
+        itemType: "EXAM",
+        itemId: examFinal.id,
+        itemTitle: examFinal.title,
+        score: 52,
+        maxScore: 65,
+        percentage: 80.0,
+        passed: true,
+        comments: "Well done. Practical skills demonstrated to a high standard.",
+        gradedAt: daysAgo(30),
+        releasedAt: daysAgo(25), // published
+      },
+      update: { comments: "Well done. Practical skills demonstrated to a high standard." },
+    });
+
+    // student.75: block 2 exam failed - published (so they can see the fail)
+    await prisma.gradeEntry.upsert({
+      where: {
+        userId_courseId_itemType_itemId: {
+          userId: students["75"].id,
+          courseId: mhcCourseId,
+          itemType: "EXAM",
+          itemId: examCna.id,
+        },
+      },
+      create: {
+        userId: students["75"].id,
+        courseId: mhcCourseId,
+        itemType: "EXAM",
+        itemId: examCna.id,
+        itemTitle: examCna.title,
+        score: 12,
+        maxScore: 30,
+        percentage: 40.0,
+        passed: false,
+        comments: "Below pass mark. Please revise chapters 1 to 5 and retry.",
+        gradedAt: daysAgo(20),
+        releasedAt: daysAgo(15), // published
+      },
+      update: { comments: "Below pass mark. Please revise chapters 1 to 5 and retry." },
+    });
+
+    // student.full: submitted but NOT yet published (pending review/publication)
+    await prisma.gradeEntry.upsert({
+      where: {
+        userId_courseId_itemType_itemId: {
+          userId: students["full"].id,
+          courseId: mhcCourseId,
+          itemType: "EXAM",
+          itemId: examCna.id,
+        },
+      },
+      create: {
+        userId: students["full"].id,
+        courseId: mhcCourseId,
+        itemType: "EXAM",
+        itemId: examCna.id,
+        itemTitle: examCna.title,
+        score: null,
+        maxScore: 30,
+        percentage: null,
+        passed: null,
+        gradedAt: null,
+        releasedAt: null, // NOT yet published - awaiting review
+      },
+      update: {},
+    });
+
+    console.log("  ✓ Grade entries (3 students: 2 published, 1 pending)");
+  }
+
   // ── Certificates ───────────────────────────────────────────────
   const existingCerts = await prisma.certificate.count();
   if (existingCerts === 0) {

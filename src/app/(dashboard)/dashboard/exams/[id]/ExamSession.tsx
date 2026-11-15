@@ -87,7 +87,7 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLimitEndsAt, state]);
 
-  // Per-question timer — auto-advances when it hits zero
+  // Per-question timer - auto-advances when it hits zero
   useEffect(() => {
     if (!questionDeadlineAt || state !== "active") return;
     if (qTimerRef.current) clearInterval(qTimerRef.current);
@@ -308,6 +308,19 @@ export default function ExamSession({ examId, examTitle, courseTitle, passPercen
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* Warning banners */}
+      {timeLeft !== null && timeLeft <= 60 && timeLeft > 0 && (
+        <div className="mb-4 bg-danger/10 border border-danger/30 rounded-xl px-4 py-3 text-sm font-semibold text-danger flex items-center gap-2" role="alert">
+          <span aria-hidden="true">⚠️</span>
+          Less than 1 minute remaining. Submit now.
+        </div>
+      )}
+      {timeLeft !== null && timeLeft > 60 && timeLeft <= 300 && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm font-semibold text-amber-700 flex items-center gap-2" role="alert">
+          <span aria-hidden="true">⏰</span>
+          5 minutes remaining. Answer any outstanding questions and submit soon.
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

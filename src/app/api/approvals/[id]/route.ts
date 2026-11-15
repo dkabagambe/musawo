@@ -297,7 +297,7 @@ export async function PATCH(
       }
     }
 
-    // RESULTS_PUBLICATION: mark the exam as published so students can see results
+    // RESULTS_PUBLICATION: publish the GradeEntry rows so students can see results
     if (request.type === "RESULTS_PUBLICATION" && request.courseId) {
       // courseId on this type stores the examId (see ResultsPublicationForm)
       const exam = await db.exam.findUnique({ where: { id: request.courseId } });
@@ -313,6 +313,31 @@ export async function PATCH(
           ip: req.headers.get("x-forwarded-for") ?? undefined,
         });
       }
+      // Also release GradeEntry rows for this exam so the student results page shows them
+      const { count: gradeCount } = await db.gradeEntry.updateMany({
+        where: { courseId: exam?.courseId ?? request.courseId, itemType: "EXAM", itemId: request.courseId, releasedAt: null },
+        data: { releasedAt: new Date() },
+      });
+      // Notify affected students
+      if (exam) {
+        const affectedAttempts = await db.examAttempt.findMany({
+          where: { examId: request.courseId, status: "MARKED" },
+          select: { userId: true },
+        });
+        const uniqueStudentIds = Array.from(new Set(affectedAttempts.map((a) => a.userId)));
+        for (const studentId of uniqueStudentIds) {
+          await db.notification.create({
+            data: {
+              userId: studentId,
+              channel: "IN_APP",
+              type: "RESULTS_PUBLISHED",
+              subject: `Results published: ${exam.title}`,
+              body: `Your results for "${exam.title}" have been published. Visit My Results to see your score.`,
+              metadata: { examId: request.courseId, approvalId: request.id },
+            },
+          });
+        }
+      }
     }
 
     // CERTIFICATE_ISSUANCE: create the Certificate record
@@ -321,10 +346,9 @@ export async function PATCH(
         where: { userId: request.studentId, courseId: request.courseId, revokedAt: null },
       });
       if (!existing) {
-        // Generate a unique certificate ID: MTC-YYYY-XXXX
-        const year = new Date().getFullYear();
-        const count = await db.certificate.count();
-        const uniqueId = `MTC-${year}-${String(count + 1).padStart(5, "0")}`;
+        const { generateCertificateId } = await import("@/lib/cert");
+        const course = await db.course.findUnique({ where: { id: request.courseId }, select: { slug: true, title: true } });
+        const uniqueId = course ? await generateCertificateId(course.slug) : `MTC-${new Date().getFullYear()}-${String(await db.certificate.count() + 1).padStart(5, "0")}`;
         const cert = await db.certificate.create({
           data: {
             userId:    request.studentId,
@@ -338,6 +362,17 @@ export async function PATCH(
           entityType: "Certificate", entityId: cert.id,
           metadata: { approvalId: request.id, studentId: request.studentId, courseId: request.courseId },
           ip: req.headers.get("x-forwarded-for") ?? undefined,
+        });
+        // Notify the student
+        await db.notification.create({
+          data: {
+            userId: request.studentId,
+            channel: "IN_APP",
+            type: "CERTIFICATE_READY",
+            subject: `Your certificate is ready: ${course?.title ?? ""}`,
+            body: `Congratulations! Your certificate for "${course?.title ?? "your course"}" has been approved and is ready to download. Visit My Certificates to get it.`,
+            metadata: { certificateId: cert.id, uniqueId, courseId: request.courseId },
+          },
         });
       }
     }

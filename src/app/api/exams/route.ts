@@ -290,7 +290,7 @@ async function handleSubmit(req: NextRequest, userId: string) {
   if (attempt.status !== "IN_PROGRESS") {
     return NextResponse.json({ error: "Attempt already submitted" }, { status: 409 });
   }
-  // Allow submit after time expires — the student is submitting what they have.
+  // Allow submit after time expires - the student is submitting what they have.
   // The auto-submit cron covers the case where they closed the browser.
 
   // Mark from the answers committed server-side during the forward-only flow.

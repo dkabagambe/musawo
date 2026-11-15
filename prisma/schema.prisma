@@ -1233,6 +1233,7 @@ model GradeEntry {
   // Change audit: populated when a released grade is altered via an approved MARKS_CHANGE approval.
   changeReason     String?   @db.Text
   changeApprovalId String? // ApprovalRequest.id that authorised the change
+  comments         String?  @db.Text // tutor or Principal feedback shown to the student
   updatedAt        DateTime  @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

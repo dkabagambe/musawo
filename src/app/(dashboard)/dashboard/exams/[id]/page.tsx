@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/server";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import ExamSession from "./ExamSession";
+import ExamWaitingRoom from "./ExamWaitingRoom";
 export const dynamic = "force-dynamic";
 
 
@@ -25,6 +26,7 @@ export default async function ExamPage({ params }: Props) {
     where: { id: params.id, status: "PUBLISHED" },
     include: {
       course: { select: { title: true, slug: true } },
+      block: { select: { order: true } },
     },
   });
 
@@ -48,8 +50,7 @@ export default async function ExamPage({ params }: Props) {
 
   if (!enrolment) redirect(`/courses/${exam.course.slug}`);
 
-  // Import access utilities
-  const { getAccessLevel, canAccessLesson } = await import("@/lib/enrolment/access");
+  const { getAccessLevel } = await import("@/lib/enrolment/access");
   const accessLevel = getAccessLevel({
     status: enrolment.status,
     paidPercent: enrolment.paidPercent,
@@ -58,24 +59,45 @@ export default async function ExamPage({ params }: Props) {
     overdueSince: enrolment.overdueSince,
   });
 
-  // Exams require full payment (100%) or ACTIVE status
-  if (accessLevel !== "FULL" && accessLevel !== "COMPLETED") {
+  // Determine required payment threshold based on block order
+  const blockOrder = exam.block?.order ?? 1;
+  const requiredPct = blockOrder >= 3 ? 100 : 75;
+  const pct = enrolment.paidPercent;
+  const isLocked =
+    accessLevel !== "FULL" &&
+    accessLevel !== "COMPLETED" &&
+    pct < requiredPct;
+
+  if (isLocked) {
+    const lockedReason =
+      pct < 50
+        ? "Pay 50% to start your course and access exams"
+        : pct < 75
+        ? `Pay 25% more to unlock this exam. You have paid ${pct}%.`
+        : `Pay in full to unlock this exam and earn your certificate. You have paid ${pct}%.`;
     return (
       <div className="max-w-2xl mx-auto">
         <div className="card text-center py-10">
           <p className="text-4xl mb-4" aria-hidden="true">🔒</p>
           <h1 className="text-xl font-bold mb-2">Exam locked</h1>
-          <p className="text-sm text-gray-500 mb-4">
-            {enrolment.paidPercent < 100
-              ? `Pay 100% of your fees to unlock this exam. You have paid ${enrolment.paidPercent}%.`
-              : "Complete your payment to unlock this exam."
-            }
-          </p>
-          <a href="/dashboard/payments/claim" className="btn-primary no-underline">
-            Pay now
+          <p className="text-sm text-gray-500 mb-4">{lockedReason}</p>
+          <a href="/dashboard/payments" className="btn-primary no-underline">
+            Go to My Fees
           </a>
         </div>
       </div>
+    );
+  }
+
+  // Waiting room: startWindowAt is in the future
+  const now = new Date();
+  if (exam.startWindowAt && exam.startWindowAt > now) {
+    return (
+      <ExamWaitingRoom
+        examTitle={exam.title}
+        courseTitle={exam.course.title}
+        startWindowAt={exam.startWindowAt.toISOString()}
+      />
     );
   }
 
