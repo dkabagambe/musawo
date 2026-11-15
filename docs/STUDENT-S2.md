@@ -57,5 +57,12 @@
 
 ## Test evidence
 - tsc --noEmit: PASS
-- npm run build: PASS (compiled successfully)
-- Playwright tests: NOT RUN (production server must be restarted with new build to reflect tab label changes; run `npm run build && npm start` then `npx playwright test e2e/student-s2-dashboard.spec.ts e2e/portal-shell.spec.ts`)
+- npm run build: PASS
+- Playwright: 29/29 PASS (e2e/student-s2-dashboard.spec.ts + e2e/portal-shell.spec.ts)
+  - Banner no em dash, dismiss button, stays dismissed after reload
+  - Sidebar: all 6 groups visible at 1280x720, no horizontal scroll at 360px, active group opens automatically, role label "Student" not "STUDENT PORTAL"
+  - Widget move-to-top persists to position 0 after reload
+  - All 4 tabs (General/Studies/Finance/Classes) each have at least one widget
+  - To Dos links -> /dashboard/exams or /dashboard/assignments
+  - Upcoming Classes links -> /dashboard/timetable
+  - All 15 per-role shell RBAC checks pass with no regression
