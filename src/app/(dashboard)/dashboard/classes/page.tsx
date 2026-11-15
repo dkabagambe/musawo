@@ -6,7 +6,7 @@ import StudentJoinClass from "@/app/(dashboard)/dashboard/timetable/StudentJoinC
 import PresentationViewer from "@/components/live/PresentationViewer";
 import MyGroupCard from "@/components/live/MyGroupCard";
 import GroupWorkSubmitCard from "@/components/live/GroupWorkSubmitCard";
-import { Video, Calendar } from "lucide-react";
+import { Video, Calendar, PlayCircle } from "lucide-react";
 import React from "react";
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function StudentClassesPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const [liveNow, upcoming] = await Promise.all([
+  const [liveNow, upcoming, past] = await Promise.all([
     db.liveClass.findMany({
       where: {
         status: "LIVE",
@@ -35,12 +35,22 @@ export default async function StudentClassesPage() {
       take: 10,
       include: { course: { select: { id: true, title: true } }, tutor: { select: { name: true } } },
     }),
+    db.liveClass.findMany({
+      where: {
+        status: "COMPLETED",
+        scheduledAt: { lte: new Date() },
+        course: { enrolments: { some: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] } } } },
+      },
+      orderBy: { scheduledAt: "desc" },
+      take: 10,
+      include: { course: { select: { id: true, title: true } }, tutor: { select: { name: true } } },
+    }),
   ]);
 
   const attendance = await db.attendance.findMany({
     where: {
       userId: session.user.id,
-      liveClassId: { in: [...liveNow, ...upcoming].map((c) => c.id) },
+      liveClassId: { in: [...liveNow, ...upcoming, ...past].map((c) => c.id) },
     },
     select: { liveClassId: true, speakStatus: true, canSpeak: true, handRaisedAt: true },
   });
@@ -126,6 +136,36 @@ export default async function StudentClassesPage() {
         <Link href="/dashboard/timetable" className="btn-outline text-sm no-underline">Full timetable</Link>
         <Link href="/dashboard/recordings" className="btn-ghost text-sm no-underline">Missed a class? Replay</Link>
       </div>
+
+      {past.length > 0 && (
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Past Classes</h2>
+          <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+            <div className="divide-y divide-border">
+              {past.map((cls) => (
+                <div key={cls.id} className="flex items-center gap-4 px-5 py-4">
+                  <div className="w-9 h-9 bg-surface rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Video className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-primary truncate">{cls.title}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {cls.course.title} &middot; {new Date(cls.scheduledAt).toLocaleDateString("en-UG", { day: "numeric", month: "short", year: "numeric" })} &middot; {cls.tutor.name}
+                    </p>
+                  </div>
+                  {cls.recordingUrl ? (
+                    <Link href="/dashboard/recordings" className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent border border-accent/30 px-3 py-1.5 rounded-xl no-underline hover:bg-accent hover:text-white transition-colors flex-shrink-0">
+                      <PlayCircle className="w-3.5 h-3.5" /> Replay
+                    </Link>
+                  ) : (
+                    <span className="text-xs text-gray-400 flex-shrink-0">Recording pending</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
