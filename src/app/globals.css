@@ -739,6 +739,10 @@
   background-size: 200% 100%;
   animation: dashboard-shimmer 1.4s ease-in-out infinite;
 }
+.dark .dashboard-widget-skeleton i {
+  background: linear-gradient(90deg, #1e3a35 20%, #163028 45%, #1e3a35 70%);
+  background-size: 200% 100%;
+}
 @keyframes dashboard-shimmer { to { background-position-x: -200%; } }
 
 /* Error boundary */
@@ -746,8 +750,12 @@
   padding: 16px; border: 1px solid #fecaca;
   border-radius: var(--portal-inner-radius); background: #fef9f9; color: #991b1b;
 }
+.dark .dashboard-widget-error {
+  border-color: #7f1d1d; background: #1c0a0a; color: #fca5a5;
+}
 .dashboard-widget-error p { margin: 0 0 10px; font-size: 13px; }
 .dashboard-widget-error button { color: var(--portal-sidebar); text-decoration: underline; font-weight: 600; }
+.dark .dashboard-widget-error button { color: #5eead4; }
 
 .dashboard-tab-empty {
   padding: 48px 0; text-align: center; color: var(--portal-muted); font-size: 14px;

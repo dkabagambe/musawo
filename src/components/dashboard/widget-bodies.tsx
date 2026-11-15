@@ -825,7 +825,7 @@ async function FeeSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
         ],
       },
     },
-    include: { course: { select: { title: true } } },
+    include: { course: { select: { title: true, instalmentCount: true } } },
     take: 6,
   });
   if (!enrolments.length) return <Empty>No fee records yet.</Empty>;
@@ -834,12 +834,26 @@ async function FeeSummaryBody({ userId, fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {visible.map((enr) => {
+        const pct = enr.paidPercent;
+        const instalments = enr.course.instalmentCount ?? 3;
+        // Determine which phase the student is on
+        let phaseLabel: string;
+        if (pct >= 100) {
+          phaseLabel = "Fully paid";
+        } else if (pct >= 75) {
+          phaseLabel = `Phase ${instalments} of ${instalments} due`;
+        } else if (pct >= 50) {
+          phaseLabel = `Phase 2 of ${instalments} due`;
+        } else if (pct > 0) {
+          phaseLabel = `Phase 1 of ${instalments}, ${pct}% paid`;
+        } else {
+          phaseLabel = `Phase 1 of ${instalments} due`;
+        }
         const balance = enr.totalAmountUgx - enr.paidAmountUgx;
         return (
           <ListRow key={enr.id} href={href} icon={<Wallet size={16} />}>
-            {enr.course.title}: {fmtUGX(enr.paidAmountUgx)} of{" "}
-            {fmtUGX(enr.totalAmountUgx)}
-            {balance > 0 ? ` (balance ${fmtUGX(balance)})` : " (cleared)"}
+            {enr.course.title}: {phaseLabel}
+            {balance > 0 ? ` - balance ${fmtUGX(balance)}` : " (cleared)"}
           </ListRow>
         );
       })}

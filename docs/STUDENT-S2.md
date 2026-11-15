@@ -42,6 +42,12 @@
 ### S2.6 Dark mode
 - globals.css: --portal-muted lightened to #94a3b8 for AA contrast in dark.
 - Added dark-mode overrides for list leading icons, meta svg, class time, widget-open hover.
+- Added .dark .dashboard-widget-skeleton i override (teal-dark gradient #1e3a35 / #163028).
+- Added .dark .dashboard-widget-error override (border #7f1d1d, bg #1c0a0a, text #fca5a5, button teal).
+
+### S2 Finance widget: Fees Progress phase labels
+- FeeSummaryBody (fee-summary) now shows "Phase 1 of 3, 50% paid", "Phase 2 of 3 due", etc.
+  Uses enrolment.paidPercent and course.instalmentCount (now selected in the query).
 
 ## Files changed
 - src/components/ui/DemoBanner.tsx
@@ -49,8 +55,8 @@
 - src/app/(dashboard)/dashboard/layout.tsx
 - src/components/ui/AppShell.tsx
 - src/lib/dashboard/widgets.ts
-- src/components/dashboard/widget-bodies.tsx
-- src/app/globals.css
+- src/components/dashboard/widget-bodies.tsx (also: FeeSummaryBody phase labels)
+- src/app/globals.css (also: dark skeleton shimmer + widget-error overrides)
 - prisma/seed.ts (CNA -> MHC renaming throughout)
 - e2e/portal-shell.spec.ts (tab label fix: Overview -> General for student)
 - e2e/student-s2-dashboard.spec.ts (new)
