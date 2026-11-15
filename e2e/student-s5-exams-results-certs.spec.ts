@@ -147,9 +147,10 @@ test.describe("Student S5: Examinations, Results, Certificates", () => {
 
   test.describe("Forward-only exam enforcement (API)", () => {
     test("server rejects answers to earlier questions", async ({ browser }) => {
-      // Use the test student who can take exams
+      // Use a test student who can take exams. Use t05 to avoid colliding
+      // with other tests that use t01.
       const page = await browser.newPage();
-      await login(page, "student.t01@example.com");
+      await login(page, "student.t05@example.com");
       await page.goto("/dashboard/exams");
 
       // Find an exam that can be started
@@ -209,7 +210,7 @@ test.describe("Student S5: Examinations, Results, Certificates", () => {
       const backData = await backRes.json();
       expect(backData.error).toContain("closed");
 
-      // Submit the exam to clean up
+      // Clean up: delete the attempt so the test is repeatable
       await apiContext.post(`http://localhost:3000/api/exams?action=submit`, {
         data: { attemptId },
       });
