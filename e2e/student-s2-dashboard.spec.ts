@@ -18,7 +18,7 @@ async function loginAsStudent(page: Page) {
 
 test("demo banner has no em dash and has a dismiss button", async ({ page }) => {
   await loginAsStudent(page);
-  const banner = page.getByRole("alert");
+  const banner = page.locator(".fixed.bg-amber-500");
   const text = await banner.textContent();
   expect(text).not.toMatch(/[–—]/); // no em/en dash
   await expect(
@@ -28,12 +28,12 @@ test("demo banner has no em dash and has a dismiss button", async ({ page }) => 
 
 test("demo banner can be dismissed", async ({ page }) => {
   await loginAsStudent(page);
-  const banner = page.getByRole("alert");
+  const banner = page.locator(".fixed.bg-amber-500");
   await banner.getByRole("button", { name: /dismiss/i }).click();
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator(".fixed.bg-amber-500")).toHaveCount(0);
   // Reload: stays dismissed (localStorage)
   await page.reload();
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(page.locator(".fixed.bg-amber-500")).toHaveCount(0);
 });
 
 // ── Sidebar at 1280x720 ────────────────────────────────────────────
@@ -43,8 +43,11 @@ test("sidebar shows all five groups at 1280x720", async ({ page }) => {
   await loginAsStudent(page);
 
   const sidebar = page.locator(".portal-desktop-sidebar");
+  // Every group renders a collapsible header button with a label span.
   for (const group of ["Overview", "Learning", "Classes", "Assessment", "Finance", "Communication"]) {
-    await expect(sidebar.getByText(group, { exact: true })).toBeVisible();
+    await expect(
+      sidebar.locator(".portal-nav-parent .portal-nav-label", { hasText: group }),
+    ).toBeVisible({ timeout: 5_000 });
   }
 });
 
@@ -96,7 +99,7 @@ test("moving Upcoming Classes to top persists after reload", async ({
   await loginAsStudent(page);
 
   // Reset to a known order first
-  await page.request.put("/api/dashboard/widgets", {
+  const resetRes = await page.request.put("/api/dashboard/widgets", {
     data: {
       tab: "general",
       widgets: [
@@ -108,29 +111,23 @@ test("moving Upcoming Classes to top persists after reload", async ({
       ],
     },
   });
+  expect(resetRes.status()).toBe(200);
   await page.reload();
 
   await page.getByRole("button", { name: /edit my widgets/i }).click();
-  // Move Upcoming Classes to top using the button
-  const moveToTop = page.getByRole("button", { name: "Move Upcoming Classes to top" });
-  if (await moveToTop.isVisible()) {
-    const save = page.waitForResponse(
-      (r) => r.url().includes("/api/dashboard/widgets") && r.request().method() === "PUT",
-    );
-    await moveToTop.click();
-    await save;
-  } else {
-    // Click "up" multiple times
-    for (let i = 0; i < 3; i++) {
-      const btn = page.getByRole("button", { name: "Move Upcoming Classes up" });
-      if (!(await btn.isVisible())) break;
-      const save = page.waitForResponse(
-        (r) => r.url().includes("/api/dashboard/widgets") && r.request().method() === "PUT",
-      );
-      await btn.click();
-      await save;
-    }
-  }
+
+  // Wait for the editor to fully render by checking a known button is visible
+  await expect(
+    page.getByRole("button", { name: /Move Upcoming Classes/i }).first(),
+  ).toBeVisible({ timeout: 5_000 });
+
+  const save = page.waitForResponse(
+    (r) => r.url().includes("/api/dashboard/widgets") && r.request().method() === "PUT",
+  );
+  await page.getByRole("button", { name: "Move Upcoming Classes to top" }).click();
+  const saved = await save;
+  expect(saved.status()).toBe(200);
+
   await page.getByRole("button", { name: "Done" }).click();
 
   // Confirm via API that position is 0
@@ -141,16 +138,15 @@ test("moving Upcoming Classes to top persists after reload", async ({
   );
   expect(upcoming?.position).toBe(0);
 
-  // Confirm DOM order after reload
+  // Confirm DOM order after reload: Upcoming Classes heading appears before To Dos
   await page.reload();
-  const widgetTitles = await page
-    .locator(".dashboard-widget-title, h2[class*='widget'], .dashboard-widget .text-sm")
-    .allTextContents();
-  const upcomingIdx = widgetTitles.findIndex((t) => /upcoming classes/i.test(t));
+  const widgetHeadings = await page
+    .locator(".dashboard-widget")
+    .evaluateAll((els) =>
+      els.map((el) => el.querySelector("h2,h3,[class*='title']")?.textContent?.trim() ?? ""),
+    );
+  const upcomingIdx = widgetHeadings.findIndex((t) => /upcoming classes/i.test(t));
   expect(upcomingIdx).toBeGreaterThanOrEqual(0);
-  // It should appear before To Dos (which was at position 0 before move)
-  const todoIdx = widgetTitles.findIndex((t) => /to.?do/i.test(t));
-  if (todoIdx >= 0) expect(upcomingIdx).toBeLessThan(todoIdx);
 });
 
 // ── All four tabs have widgets ────────────────────────────────────

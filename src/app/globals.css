@@ -433,7 +433,6 @@
   white-space: nowrap;
   font-size: 10px;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .portal-user-chevron { flex: 0 0 auto; color: rgb(255 255 255 / 0.5); }
 .portal-user-menu,

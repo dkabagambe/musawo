@@ -166,6 +166,11 @@ function dashboardGroup(href: string, root: string): DashboardTab {
   return groupsByRoot[root]?.[section] ?? "general";
 }
 
+/** Override display names for sidebar group headers (separate from tab labels). */
+const SIDEBAR_GROUP_NAMES: Record<string, string> = {
+  general: "Overview",
+};
+
 const TAB_LABELS: Record<DashboardTab, string> = {
   general: "General",
   overview: "Overview",
@@ -329,7 +334,7 @@ export function Sidebar({
       <nav className="portal-nav">
         {grouped.map(([group, items]) => (
           <section key={group} className="portal-nav-group" aria-label={group}>
-            {items.length > 1 && (
+            {items.length >= 1 && (
               <button
                 type="button"
                 className="portal-nav-link portal-nav-parent"
@@ -349,7 +354,7 @@ export function Sidebar({
                   {groupIcon(group)}
                 </span>
                 <span className="portal-nav-label">
-                  {TAB_LABELS[group as DashboardTab] ?? group}
+                  {SIDEBAR_GROUP_NAMES[group] ?? TAB_LABELS[group as DashboardTab] ?? group}
                 </span>
                 <ChevronRight
                   className={`portal-nav-parent-chevron ${collapsedGroups.includes(group) ? "" : "is-expanded"}`}
@@ -359,9 +364,7 @@ export function Sidebar({
               </button>
             )}
             {!collapsedGroups.includes(group) && (
-              <ul
-                className={items.length > 1 ? "portal-nav-subitems" : undefined}
-              >
+              <ul className="portal-nav-subitems">
                 {items.map((item) => {
                   const selected = active(item.href);
                   return (

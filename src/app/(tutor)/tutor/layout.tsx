@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 const NAV: NavItem[] = [
-  { href: "/tutor",               label: "Dashboard",      icon: <LayoutDashboard className="w-4 h-4" />, group: "overview" },
+  { href: "/tutor",               label: "Dashboard",      icon: <LayoutDashboard className="w-4 h-4" />, group: "general" },
   { href: "/tutor/courses",       label: "My Courses",     icon: <BookOpen className="w-4 h-4" />, group: "teaching" },
   { href: "/tutor/classes",       label: "My Classes",     icon: <Video className="w-4 h-4" />, group: "teaching" },
   { href: "/tutor/timetable",     label: "Timetable",      icon: <Calendar className="w-4 h-4" />, group: "teaching" },
@@ -25,7 +25,7 @@ const NAV: NavItem[] = [
   { href: "/tutor/messages",     label: "Messages",      icon: <Mail className="w-4 h-4" />, group: "communication" },
   { href: "/tutor/forum",         label: "Discussion Forum", icon: <MessageSquare className="w-4 h-4" />, group: "communication" },
   { href: "/tutor/notifications", label: "Notifications",  icon: <Bell className="w-4 h-4" />, group: "communication" },
-  { href: "/tutor/profile",       label: "Profile",        icon: <User className="w-4 h-4" />, group: "overview" },
+  { href: "/tutor/profile",       label: "Profile",        icon: <User className="w-4 h-4" />, group: "general" },
   { href: "/tutor/support",       label: "Support",        icon: <LifeBuoy className="w-4 h-4" />, group: "communication" },
 ];
 

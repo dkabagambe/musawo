@@ -95,7 +95,7 @@ test.describe("authenticated portal shell", () => {
     await expect(
       page.getByRole("heading", { name: "My Students" }),
     ).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Overview" })).toHaveAttribute(
+    await expect(page.getByRole("tab", { name: "General" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
