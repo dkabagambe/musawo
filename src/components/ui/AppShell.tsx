@@ -167,7 +167,7 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 }
 
 const TAB_LABELS: Record<DashboardTab, string> = {
-  general: "Overview",
+  general: "General",
   overview: "Overview",
   studies: "Studies",
   finance: "Finance",
@@ -180,6 +180,7 @@ const TAB_LABELS: Record<DashboardTab, string> = {
   timetable: "Timetable",
   leave: "Leave",
   materials: "Materials",
+  learning: "Learning",
   admissions: "Admissions",
   academics: "Academics",
   operations: "Operations",
@@ -212,6 +213,8 @@ function groupIcon(group: string) {
     case "students":
       return <UserRound {...props} />;
     case "studies":
+      return <BookOpen {...props} />;
+    case "learning":
       return <BookOpen {...props} />;
     case "classes":
       return <CalendarDays {...props} />;

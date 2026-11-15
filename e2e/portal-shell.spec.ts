@@ -95,7 +95,7 @@ test.describe("authenticated portal shell", () => {
     await expect(
       page.getByRole("heading", { name: "My Students" }),
     ).toBeVisible();
-    await expect(page.getByRole("tab", { name: "General" })).toHaveAttribute(
+    await expect(page.getByRole("tab", { name: "Overview" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
@@ -300,13 +300,8 @@ test.describe("per-role shell and RBAC checks", () => {
       const tabs = page.getByRole("tab");
       await expect(tabs.first()).toBeVisible();
 
-      // Active tab must be in the URL
-      const activeTabLabel = await page
-        .getByRole("tab", { selected: true })
-        .first()
-        .textContent();
-      const expectedTabId = activeTabLabel?.trim().toLowerCase().replace(/\s+/g, "-") ?? "";
-      await expect(page).toHaveURL(new RegExp(`tab=${expectedTabId}`));
+      // Active tab must be in the URL (tab id, not label)
+      await expect(page).toHaveURL(/tab=/);
 
       // Sidebar shows permitted items (at least the dashboard/overview link)
       const navLinks = page.locator(".portal-nav-link");

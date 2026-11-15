@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Settings,
   FileSearch,
+  MessageSquare,
 } from "lucide-react";
 import type { UserRole, Prisma } from "@prisma/client";
 
@@ -114,7 +115,7 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
       db.exam.findMany({
         where: { courseId: { in: courseIds }, status: "PUBLISHED" },
         take: 3,
-        select: { id: true, title: true },
+        select: { id: true, title: true, startWindowAt: true },
       }),
       db.assignment.findMany({
         where: {
@@ -123,7 +124,7 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
           dueDate: { gte: new Date() },
         },
         take: 3,
-        select: { id: true, title: true, dueDate: true },
+        select: { id: true, title: true, dueDate: true, courseId: true },
       }),
     ]);
     if (!exams.length && !assignments.length)
@@ -133,8 +134,9 @@ async function TaskListBody({ userId, role, fullPageHref }: WidgetBodyProps) {
         {exams.map((exam) => (
           <ListRow
             key={exam.id}
-            href="/dashboard/gradebook"
+            href="/dashboard/exams"
             icon={<ClipboardList size={16} />}
+            date={exam.startWindowAt ? fmtDay(exam.startWindowAt) : undefined}
           >
             Upcoming exam: {exam.title}
           </ListRow>
@@ -270,24 +272,70 @@ async function MetricsBody({ userId }: WidgetBodyProps) {
   );
 }
 
-/* status-list  (student general - Holds) */
+/* status-list  (student general - Payment and Fees) */
 async function HoldsBody({ userId, fullPageHref }: WidgetBodyProps) {
-  const enrolments = await db.enrolment.findMany({
-    where: { userId, status: { in: ["PENDING_PAYMENT", "OVERDUE"] } },
+  const allEnrolments = await db.enrolment.findMany({
+    where: {
+      userId,
+      status: {
+        in: ["PENDING_PAYMENT", "OVERDUE", "ACTIVE", "PARTIALLY_PAID", "COMPLETED"],
+      },
+    },
     include: { course: { select: { title: true } } },
-    take: 5,
+    take: 6,
   });
-  if (!enrolments.length) return <Empty>No holds on your account.</Empty>;
+  if (!allEnrolments.length) return <Empty>No fee records yet.</Empty>;
+
+  const holds = allEnrolments.filter(
+    (e) => e.status === "PENDING_PAYMENT" || e.status === "OVERDUE",
+  );
+  const active = allEnrolments.filter(
+    (e) => e.status !== "PENDING_PAYMENT" && e.status !== "OVERDUE",
+  );
   const href = fullPageHref ?? "/dashboard/payments";
+
+  // Show holds first
+  if (holds.length) {
+    const visible = holds.slice(0, 4);
+    return (
+      <>
+        {visible.map((enr) => (
+          <ListRow key={enr.id} href={href} icon={<AlertCircle size={16} />}>
+            {enr.status === "OVERDUE"
+              ? `Overdue payment: ${enr.course.title}`
+              : `Complete payment for ${enr.course.title}`}
+          </ListRow>
+        ))}
+        {holds.length > visible.length && (
+          <ViewMoreLink href={href}>
+            View {holds.length - visible.length} more
+          </ViewMoreLink>
+        )}
+      </>
+    );
+  }
+
+  // No holds: show fee phase progress for active enrolments
+  const visible = active.slice(0, 4);
   return (
     <>
-      {enrolments.map((enr) => (
-        <ListRow key={enr.id} href={href} icon={<AlertCircle size={16} />}>
-          {enr.status === "OVERDUE"
-            ? `Overdue payment: ${enr.course.title}`
-            : `Complete payment for ${enr.course.title}`}
-        </ListRow>
-      ))}
+      {visible.map((enr) => {
+        const pct = enr.paidPercent;
+        let phase = "Fully paid";
+        if (pct < 50) phase = "First 50% due";
+        else if (pct < 75) phase = "Next 25% due";
+        else if (pct < 100) phase = "Final 25% due";
+        return (
+          <ListRow key={enr.id} href={href} icon={<Wallet size={16} />}>
+            {enr.course.title}: {pct}% paid ({phase})
+          </ListRow>
+        );
+      })}
+      {active.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {active.length - visible.length} more
+        </ViewMoreLink>
+      )}
     </>
   );
 }
@@ -1001,7 +1049,7 @@ async function RecordingsBody({ userId, fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/* attendance  (student classes - Attendance) */
+/* attendance  (student classes - Attendance Summary) */
 async function AttendanceBody({ userId, fullPageHref }: WidgetBodyProps) {
   const records = await db.attendance.findMany({
     where: { userId, startMark: { not: null } },
@@ -1010,10 +1058,17 @@ async function AttendanceBody({ userId, fullPageHref }: WidgetBodyProps) {
     include: { liveClass: { select: { title: true } } },
   });
   if (!records.length) return <Empty>No attendance records yet.</Empty>;
-  const visible = records.slice(0, 5);
-  const href = fullPageHref ?? "/dashboard/courses";
+  // Show a percentage summary
+  const total = records.length;
+  const present = records.filter((r) => r.startMark === "PRESENT").length;
+  const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+  const visible = records.slice(0, 4);
+  const href = fullPageHref ?? "/dashboard/attendance";
   return (
     <>
+      <ListRow href={href} icon={<CheckCircle2 size={16} />}>
+        {pct}% attendance ({present}/{total} present)
+      </ListRow>
       {visible.map((att) => (
         <ListRow
           key={att.id}
@@ -1028,6 +1083,135 @@ async function AttendanceBody({ userId, fullPageHref }: WidgetBodyProps) {
           View {records.length - visible.length} more
         </ViewMoreLink>
       )}
+    </>
+  );
+}
+
+/* assignments-due  (student studies - Assignments Due) */
+async function AssignmentsDueBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const enrolments = await db.enrolment.findMany({
+    where: {
+      userId,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+    },
+    select: { courseId: true },
+  });
+  const courseIds = enrolments.map((e) => e.courseId);
+  if (!courseIds.length) return <Empty>No assignments yet.</Empty>;
+  const assignments = await db.assignment.findMany({
+    where: {
+      courseId: { in: courseIds },
+      status: "PUBLISHED",
+      dueDate: { gte: new Date() },
+    },
+    orderBy: { dueDate: "asc" },
+    take: 6,
+    include: { course: { select: { title: true } } },
+  });
+  if (!assignments.length) return <Empty>No assignments due.</Empty>;
+  const visible = assignments.slice(0, 5);
+  const href = fullPageHref ?? "/dashboard/assignments";
+  return (
+    <>
+      {visible.map((a) => (
+        <ListRow
+          key={a.id}
+          href={href}
+          icon={<FileText size={16} />}
+          date={a.dueDate ? fmtDay(a.dueDate) : undefined}
+        >
+          {a.title}
+        </ListRow>
+      ))}
+      {assignments.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {assignments.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* forum-activity  (student studies - Forum Activity) */
+async function ForumActivityBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const enrolments = await db.enrolment.findMany({
+    where: {
+      userId,
+      status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] },
+    },
+    select: { courseId: true },
+  });
+  const courseIds = enrolments.map((e) => e.courseId);
+  if (!courseIds.length) return <Empty>No forum activity yet.</Empty>;
+  const threads = await db.forumThread.findMany({
+    where: { courseId: { in: courseIds } },
+    orderBy: { updatedAt: "desc" },
+    take: 6,
+    select: {
+      id: true,
+      title: true,
+      updatedAt: true,
+      authorId: true,
+      author: { select: { name: true } },
+    },
+  });
+  if (!threads.length) return <Empty>No forum threads yet.</Empty>;
+  // Fetch reply counts in a separate query
+  const replyCounts = await db.forumReply.groupBy({
+    by: ["threadId"],
+    where: { threadId: { in: threads.map((t) => t.id) }, deletedAt: null },
+    _count: { threadId: true },
+  });
+  const countMap = new Map(replyCounts.map((r) => [r.threadId, r._count.threadId]));
+  const visible = threads.slice(0, 5);
+  const href = fullPageHref ?? "/dashboard/forum";
+  return (
+    <>
+      {visible.map((t) => (
+        <ListRow
+          key={t.id}
+          href={href}
+          icon={<MessageSquare size={16} />}
+          date={fmtDay(t.updatedAt)}
+        >
+          {t.title} ({countMap.get(t.id) ?? 0} replies)
+        </ListRow>
+      ))}
+      {threads.length > visible.length && (
+        <ViewMoreLink href={href}>
+          View {threads.length - visible.length} more
+        </ViewMoreLink>
+      )}
+    </>
+  );
+}
+
+/* live-now  (student classes - Live Now) */
+async function LiveNowBody({ userId, fullPageHref }: WidgetBodyProps) {
+  const live = await db.liveClass.findMany({
+    where: {
+      status: "LIVE",
+      course: {
+        enrolments: {
+          some: {
+            userId,
+            status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED"] },
+          },
+        },
+      },
+    },
+    include: { course: { select: { title: true } } },
+    take: 5,
+  });
+  if (!live.length) return <Empty>No classes live right now.</Empty>;
+  const href = fullPageHref ?? "/dashboard/classes";
+  return (
+    <>
+      {live.map((cls) => (
+        <ListRow key={cls.id} href={href} icon={<Video size={16} />}>
+          {cls.title} ({cls.course.title})
+        </ListRow>
+      ))}
     </>
   );
 }
@@ -2194,6 +2378,9 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   timetable: TimetableBody,
   recordings: RecordingsBody,
   attendance: AttendanceBody,
+  "assignments-due": AssignmentsDueBody,
+  "forum-activity": ForumActivityBody,
+  "live-now": LiveNowBody,
   "teacher-classes": TeacherClassesBody,
   "marking-queue": MarkingQueueBody,
   "application-list": ApplicationListBody,

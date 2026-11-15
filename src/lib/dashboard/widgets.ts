@@ -14,6 +14,7 @@ export type DashboardTab =
   | "support"
   | "timetable"
   | "materials"
+  | "learning"
   | "admissions"
   | "academics"
   | "operations"
@@ -76,12 +77,12 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultTab: "general",
     defaultColumn: 0,
     component: "task-list",
-    fullPageHref: "/dashboard/gradebook",
+    fullPageHref: "/dashboard/exams",
     roles: ["STUDENT"],
   },
   {
     id: "holds",
-    title: "Payment Holds",
+    title: "Payment and Fees",
     requiredPermission: "payments.initiate",
     defaultTab: "general",
     defaultColumn: 0,
@@ -130,18 +131,18 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     roles: ["STUDENT"],
   },
   {
-    id: "exams",
-    title: "Exams",
-    requiredPermission: "grades.view",
+    id: "assignments-due",
+    title: "Assignments Due",
+    requiredPermission: "courses.view",
     defaultTab: "studies",
     defaultColumn: 1,
-    component: "exam-list",
-    fullPageHref: "/dashboard/gradebook",
+    component: "assignments-due",
+    fullPageHref: "/dashboard/assignments",
     roles: ["STUDENT"],
   },
   {
     id: "results",
-    title: "My Results",
+    title: "Recent Results",
     requiredPermission: "grades.view",
     defaultTab: "studies",
     defaultColumn: 0,
@@ -150,27 +151,19 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     roles: ["STUDENT"],
   },
   {
-    id: "log-book",
-    title: "Log Book",
-    requiredPermission: "attendance.view",
-    defaultTab: "studies",
-    defaultColumn: 1,
-    component: "log-book",
-    roles: ["STUDENT"],
-  },
-  {
-    id: "simulations",
-    title: "Simulations",
+    id: "forum-activity",
+    title: "Forum Activity",
     requiredPermission: "courses.view",
     defaultTab: "studies",
-    defaultColumn: 0,
-    component: "simulations",
+    defaultColumn: 1,
+    component: "forum-activity",
+    fullPageHref: "/dashboard/forum",
     roles: ["STUDENT"],
   },
   // Finance tab
   {
     id: "fees-summary",
-    title: "Fees Summary",
+    title: "Fees Progress",
     requiredPermission: "payments.view",
     defaultTab: "finance",
     defaultColumn: 0,
@@ -211,7 +204,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   // Classes tab
   {
     id: "timetable",
-    title: "Timetable",
+    title: "Timetable This Week",
     requiredPermission: "classes.view",
     defaultTab: "classes",
     defaultColumn: 0,
@@ -220,8 +213,18 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     roles: ["STUDENT"],
   },
   {
+    id: "live-now",
+    title: "Live Now",
+    requiredPermission: "classes.join",
+    defaultTab: "classes",
+    defaultColumn: 1,
+    component: "live-now",
+    fullPageHref: "/dashboard/classes",
+    roles: ["STUDENT"],
+  },
+  {
     id: "recordings",
-    title: "Recordings",
+    title: "Class Replays",
     requiredPermission: "classes.join",
     defaultTab: "classes",
     defaultColumn: 1,
@@ -231,11 +234,12 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
   {
     id: "attendance",
-    title: "My Attendance",
+    title: "Attendance Summary",
     requiredPermission: "attendance.view",
     defaultTab: "classes",
     defaultColumn: 0,
     component: "attendance",
+    fullPageHref: "/dashboard/attendance",
     roles: ["STUDENT"],
   },
 

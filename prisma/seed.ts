@@ -868,7 +868,7 @@ async function main() {
             isFreePreview: true,
             durationSec: 420,
             notesContent:
-              "Welcome to the CNA course. This module introduces you to the world of nursing care in Uganda.",
+              "Welcome to the Medical Home Care course. This module introduces you to the world of nursing care in Uganda.",
           },
           {
             order: 2,
@@ -1806,7 +1806,7 @@ async function main() {
     examFinal = await prisma.exam.create({
       data: {
         courseId: courses["medical-home-caregiver"].id,
-        title: "CNA Final Certification Exam",
+        title: "Medical Home Care Final Examination",
         timeLimitMin: 60,
         attemptLimit: 2,
         passPercent: 70,
@@ -2076,7 +2076,7 @@ async function main() {
         userId: students["completed"].id,
         courseId: courses["medical-home-caregiver"].id,
         uniqueId: "MTC-2026-CERT-00001",
-        fileS3Key: "certificates/MTC-2026-CNA-00001.pdf",
+        fileS3Key: "certificates/MTC-2026-MHC-00001.pdf",
         issuedAt: daysAgo(25),
       },
     });
@@ -2085,8 +2085,8 @@ async function main() {
       data: {
         userId: students["75"].id,
         courseId: courses["medical-home-caregiver"].id,
-        uniqueId: "MTC-2026-CNA-00002-REVOKED",
-        fileS3Key: "certificates/MTC-2026-CNA-00002.pdf",
+        uniqueId: "MTC-2026-MHC-00002-REVOKED",
+        fileS3Key: "certificates/MTC-2026-MHC-00002.pdf",
         issuedAt: daysAgo(90),
         revokedAt: daysAgo(10),
         revokedReason: "Fraudulent exam submission detected",
@@ -2777,7 +2777,7 @@ async function main() {
       data: {
         userId: students["completed"].id,
         subject: "Request for employer reference letter",
-        body: "I have completed my CNA course. Could you please provide a reference letter for my employer at Mulago Hospital?",
+        body: "I have completed my Medical Home Care course. Could you please provide a reference letter for my employer at Mulago Hospital?",
         status: TicketStatus.CLOSED,
         priority: TicketPriority.LOW,
         createdAt: daysAgo(30),
@@ -2816,9 +2816,9 @@ async function main() {
         isPublic: false,
       },
       {
-        title: "CNA Course Syllabus 2026",
+        title: "Medical Home Care Course Syllabus 2026",
         description:
-          "Full syllabus and learning outcomes for the Certified Nursing Care Assistant course.",
+          "Full syllabus and learning outcomes for the Certificate in Medical Home Care Course.",
         s3Key: "resources/cna-syllabus-2026.pdf",
         category: "Syllabi",
         isPublic: true,
@@ -2931,7 +2931,7 @@ async function main() {
           initiatorId: principal.id,
           amount: 920000,
           reason:
-            "Proposed CNA fee increase from UGX 850,000 to UGX 920,000 effective Intake 8 (February 2027) to cover increased instructor costs.",
+            "Proposed MHC fee increase from UGX 850,000 to UGX 920,000 effective Intake 8 (February 2027) to cover increased instructor costs.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(4),
         },
@@ -2988,7 +2988,7 @@ async function main() {
         channel: "IN_APP",
         type: "CERTIFICATE_READY",
         subject: "Your certificate is ready",
-        body: "Congratulations! Your CNA certificate (MTC-2026-CNA-00001) is ready to download.",
+        body: "Congratulations! Your Medical Home Care certificate (MTC-2026-MHC-00001) is ready to download.",
         readAt: daysAgo(20),
       },
       {
@@ -3162,7 +3162,7 @@ async function main() {
         entityId: enrolments["new"]?.id ?? "x",
         metadata: JSON.stringify({
           student: "Harriet Namutebi",
-          course: "CNA",
+          course: "MHC",
         }),
         createdAt: daysAgo(14),
       },
@@ -3301,7 +3301,7 @@ async function main() {
         courseId: courses["medical-home-caregiver"].id,
         itemType: "EXAM",
         itemId: "exam-final",
-        itemTitle: "CNA Final Certification Exam",
+        itemTitle: "Medical Home Care Final Examination",
         score: 52,
         maxScore: 65,
         percentage: 80,
@@ -3628,7 +3628,7 @@ async function main() {
           status: ApprovalRequestStatus.SUBMITTED,
           initiatorId: registrar.id,
           reason:
-            "CNA Final Exam - Student James Ssemwogerere: final exam score entered as 52/65 but invigilator sheet shows 58/65.",
+            "MHC Final Exam - Student James Ssemwogerere: final exam score entered as 52/65 but invigilator sheet shows 58/65.",
           approvalToken: approvalToken(),
           createdAt: daysAgo(5),
         },
