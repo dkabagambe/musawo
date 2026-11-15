@@ -6,7 +6,7 @@ import {
   type DashboardTab,
   type DashboardWidgetDefinition,
 } from "@/lib/dashboard/widgets";
-import { Widget, WidgetSkeleton, ClientWidgetGrid } from "@/components/ui/DashboardWidgets";
+import { Widget, WidgetSkeleton, WidgetOrderSyncer } from "@/components/ui/DashboardWidgets";
 import { balanceDashboardColumns } from "@/lib/dashboard/format";
 import {
   WIDGET_COMPONENTS,
@@ -21,7 +21,6 @@ export interface MergedWidget extends DashboardWidgetDefinition {
   position: number;
 }
 
-// Async wrapper that renders one widget body, used inside Suspense
 async function WidgetBodyAsync({
   widget,
   bodyProps,
@@ -34,11 +33,7 @@ async function WidgetBodyAsync({
     ? await Body(bodyProps)
     : <p className="dashboard-widget-empty">No content available.</p>;
   return (
-    <Widget
-      key={widget.id}
-      title={widget.title}
-      href={widget.fullPageHref}
-    >
+    <Widget title={widget.title} href={widget.fullPageHref}>
       {content}
     </Widget>
   );
@@ -47,13 +42,21 @@ async function WidgetBodyAsync({
 function WidgetWithSuspense({
   widget,
   bodyProps,
+  order,
 }: {
   widget: MergedWidget;
   bodyProps: WidgetBodyProps;
+  order: number;
 }) {
   return (
-    // data-widget-id lets ClientWidgetGrid find and reorder this node
-    <div data-widget-id={widget.id}>
+    <div
+      data-widget-id={widget.id}
+      data-widget-col={widget.column}
+      // Initial server-side order within the column so the page looks right
+      // before JavaScript loads. The WidgetOrderSyncer overrides this on the
+      // client as soon as preferences are known.
+      style={{ order }}
+    >
       <Suspense fallback={<WidgetSkeleton rows={3} />}>
         {/* @ts-ignore async server component */}
         <WidgetBodyAsync widget={widget} bodyProps={bodyProps} />
@@ -106,7 +109,6 @@ export async function DashboardTabBody({
     );
   }
 
-  // Separate full-width (span 2) from half-width (span 1)
   const wideWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) === 2);
   const halfWidgets = visibleWidgets.filter((w) => (w.defaultSpan ?? 1) !== 2);
 
@@ -122,8 +124,7 @@ export async function DashboardTabBody({
 
   const bodyProps: WidgetBodyProps = { userId, role };
 
-  // Serializable metadata for the client grid so it can reorder without a
-  // server round-trip as soon as the preference context updates.
+  // Metadata passed to the client syncer — serializable, no React nodes.
   const widgetMeta = halfWidgets.map((w) => ({
     id: w.id,
     position: w.position,
@@ -131,28 +132,57 @@ export async function DashboardTabBody({
     visible: w.visible,
   }));
 
+  // Build a column → widget-ids map so the syncer knows which column each
+  // widget was assigned to server-side (for the initial order attribute).
+  const leftIds = left.map((e) => e.widget.id);
+  const rightIds = right.map((e) => e.widget.id);
+
+  const colOf = (id: string) => (leftIds.includes(id) ? 0 : 1);
+  const orderIn = (id: string, col: number) => {
+    const list = col === 0 ? leftIds : rightIds;
+    return list.indexOf(id);
+  };
+
   return (
     <div className="dashboard-widget-grid">
-      {/* Full-width widgets span both columns */}
       {wideWidgets.map((w) => (
         <div key={w.id} className="dashboard-widget-full">
           <WidgetWithSuspense
             widget={w}
             bodyProps={{ ...bodyProps, fullPageHref: w.fullPageHref }}
+            order={0}
           />
         </div>
       ))}
-      {/* Half-width widgets — ClientWidgetGrid handles client-side reordering */}
+
       {halfWidgets.length > 0 && (
-        <ClientWidgetGrid widgetMeta={widgetMeta} initialLeft={left.map(e => e.widget.id)} initialRight={right.map(e => e.widget.id)}>
-          {halfWidgets.map((w) => (
-            <WidgetWithSuspense
-              key={w.id}
-              widget={w}
-              bodyProps={{ ...bodyProps, fullPageHref: w.fullPageHref }}
-            />
-          ))}
-        </ClientWidgetGrid>
+        <>
+          {/* WidgetOrderSyncer watches the preference context and applies
+              `style.order` / `style.display` to each [data-widget-id] node
+              immediately when preferences change — no server round-trip needed. */}
+          <WidgetOrderSyncer widgetMeta={widgetMeta} />
+
+          <div className="dashboard-widget-column">
+            {left.map((entry) => (
+              <WidgetWithSuspense
+                key={entry.widget.id}
+                widget={entry.widget}
+                bodyProps={{ ...bodyProps, fullPageHref: entry.widget.fullPageHref }}
+                order={orderIn(entry.widget.id, 0)}
+              />
+            ))}
+          </div>
+          <div className="dashboard-widget-column">
+            {right.map((entry) => (
+              <WidgetWithSuspense
+                key={entry.widget.id}
+                widget={entry.widget}
+                bodyProps={{ ...bodyProps, fullPageHref: entry.widget.fullPageHref }}
+                order={orderIn(entry.widget.id, 1)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

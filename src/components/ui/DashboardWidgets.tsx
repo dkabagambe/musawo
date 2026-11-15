@@ -564,47 +564,28 @@ export function DashboardPreferenceProvider({
 }
 
 /**
- * Client-side widget grid that holds two columns and immediately reorders
- * widgets when the DashboardPreferenceContext updates (after a save), without
- * waiting for the server round-trip from router.refresh().
+ * Watches the DashboardPreferenceContext and immediately applies CSS `order`
+ * and `display` styles to each `[data-widget-id]` wrapper in the DOM.
  *
- * Children must be rendered by the server as siblings; each child is wrapped
- * in a `data-widget-id` div by DashboardTabBody so we can look them up here.
+ * This gives instant visual reordering after a save without waiting for the
+ * server round-trip from router.refresh(). It renders nothing itself — it is
+ * purely a side-effect component.
+ *
+ * The two-column layout uses CSS flexbox `order` within each column.
+ * Widgets that move to the other column are hidden (the server re-render via
+ * router.refresh() will then place them in the correct column).
  */
-export function ClientWidgetGrid({
+export function WidgetOrderSyncer({
   widgetMeta,
-  initialLeft,
-  initialRight,
-  children,
 }: {
   widgetMeta: Array<{ id: string; position: number; column: number; visible: boolean }>;
-  initialLeft: string[];
-  initialRight: string[];
-  children: React.ReactNode;
 }) {
   const { preferences, loaded } = useContext(DashboardPreferenceContext);
 
-  // Build a lookup from widget id -> React child node using the data-widget-id
-  // attribute the server placed on each wrapper div.
-  const childMap = useMemo(() => {
-    const map = new Map<string, React.ReactNode>();
-    React.Children.forEach(children, (child) => {
-      if (!React.isValidElement(child)) return;
-      // Each child is a WidgetWithSuspense that renders a <div data-widget-id=…>
-      // We use the key prop which DashboardTabBody sets to the widget id.
-      const key = child.key;
-      if (key) map.set(String(key).replace(/^\.\$/, ""), child);
-    });
-    return map;
-  }, [children]);
+  useEffect(() => {
+    if (!loaded) return;
 
-  // Determine the current left/right split.
-  // Before the context loads, use the server-provided initial split.
-  // After it loads, use context data so changes appear immediately.
-  const [leftIds, rightIds] = useMemo(() => {
-    if (!loaded) return [initialLeft, initialRight];
-
-    // Merge server widgetMeta with context overrides
+    // Build merged state from server meta + context overrides
     const merged = widgetMeta.map((meta) => {
       const pref = preferences.get(meta.id);
       return {
@@ -620,9 +601,10 @@ export function ClientWidgetGrid({
       .filter((w) => w.visible)
       .sort((a, b) => a.position - b.position);
 
+    // Assign order within each column using height-balancing (same as server)
     const heights = [0, 0];
-    const left: string[] = [];
-    const right: string[] = [];
+    const colOrder = new Map<string, { col: number; order: number }>();
+    const colCounts = [0, 0];
 
     for (const w of visible) {
       const preferred = Math.max(0, Math.min(1, w.column));
@@ -631,24 +613,27 @@ export function ClientWidgetGrid({
         : heights[0] <= heights[1]
         ? 0
         : 1;
-      if (col === 0) left.push(w.id);
-      else right.push(w.id);
+      colOrder.set(w.id, { col, order: colCounts[col] });
+      colCounts[col]++;
       heights[col] += 148;
     }
 
-    return [left, right];
-  }, [loaded, preferences, widgetMeta, initialLeft, initialRight]);
+    // Apply styles to each data-widget-id node
+    for (const meta of widgetMeta) {
+      const el = document.querySelector<HTMLElement>(`[data-widget-id="${meta.id}"]`);
+      if (!el) continue;
+      const info = colOrder.get(meta.id);
+      if (!info) {
+        // Hidden widget
+        el.style.display = "none";
+      } else {
+        el.style.display = "";
+        el.style.order = String(info.order);
+      }
+    }
+  }, [loaded, preferences, widgetMeta]);
 
-  return (
-    <>
-      <div className="dashboard-widget-column">
-        {leftIds.map((id) => childMap.get(id) ?? null)}
-      </div>
-      <div className="dashboard-widget-column">
-        {rightIds.map((id) => childMap.get(id) ?? null)}
-      </div>
-    </>
-  );
+  return null;
 }
 
 export function DashboardWidgetVisibility({
