@@ -64,6 +64,12 @@ interface AppShellProps {
   userName: string;
   userInitial: string;
   userAvatarUrl?: string | null;
+  /**
+   * Optional full display name to show in the sidebar user block (e.g. "Dr. Mathias Senyondo").
+   * When provided, this is shown in the sidebar while `userName` feeds the greeting ("Hello Mathias!").
+   * When absent, `userName` is used for both.
+   */
+  userDisplayName?: string;
   accentClass?: string;
   tabs?: DashboardTab[];
 }
@@ -437,7 +443,7 @@ export function Sidebar({
             {userAvatarUrl && !avatarError ? (
               <Image
                 src={userAvatarUrl}
-                alt={userName}
+                alt=""
                 width={32}
                 height={32}
                 className="w-full h-full object-cover rounded-full"
@@ -661,6 +667,7 @@ export default function AppShell({
   userName,
   userInitial,
   userAvatarUrl,
+  userDisplayName,
   tabs: tabsProp,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -788,7 +795,7 @@ export default function AppShell({
         <Sidebar
           nav={visibleNav}
           pathname={pathname}
-          userName={userName}
+          userName={userDisplayName ?? userName}
           userInitial={userInitial}
           userAvatarUrl={userAvatarUrl}
           role={role}
@@ -839,7 +846,7 @@ export default function AppShell({
         <Sidebar
           nav={visibleNav}
           pathname={pathname}
-          userName={userName}
+          userName={userDisplayName ?? userName}
           userInitial={userInitial}
           userAvatarUrl={userAvatarUrl}
           role={role}

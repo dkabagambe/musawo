@@ -16,6 +16,7 @@ import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
 import { can } from "@/lib/rbac";
+import { requireRecentTotp } from "@/lib/auth/require-recent-totp";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,12 @@ export async function POST(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!can(session.user.role, "staff.create.approve")) {
     return NextResponse.json({ error: "Forbidden: Director access required" }, { status: 403 });
+  }
+
+  // High-risk action: require TOTP re-authentication within the last 15 minutes
+  const reauth = await requireRecentTotp(session.user.id);
+  if (!reauth.ok) {
+    return NextResponse.json({ error: reauth.error, code: "REAUTH_REQUIRED" }, { status: 403 });
   }
 
   let userId: string;
@@ -90,6 +97,24 @@ export async function POST(req: NextRequest) {
     });
   } catch {
     // Non-fatal: notification failure should not block the reset
+  }
+
+  // Notify the Director (audit trail for Director's own awareness if someone else initiated,
+  // and for confirmation of the action)
+  try {
+    if (target.id !== session.user.id) {
+      await db.notification.create({
+        data: {
+          userId:  session.user.id,
+          subject: `2FA reset completed for ${target.role.charAt(0) + target.role.slice(1).toLowerCase()} account`,
+          body:    `You reset 2FA for ${target.name ?? target.email} (${target.role}). They will be prompted to set it up again on next login.`,
+          type:    "SYSTEM",
+          readAt:  null,
+        },
+      });
+    }
+  } catch {
+    // Non-fatal
   }
 
   return NextResponse.json({

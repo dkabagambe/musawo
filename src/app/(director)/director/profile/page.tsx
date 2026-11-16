@@ -19,6 +19,7 @@ export default async function DirectorProfilePage() {
     select: {
       id: true,
       name: true,
+      professionalTitle: true,
       email: true,
       phone: true,
       totpEnabled: true,
@@ -26,9 +27,15 @@ export default async function DirectorProfilePage() {
       role: true,
       status: true,
       avatarUrl: true,
+      themePreference: true,
     },
   });
   if (!user) redirect("/login");
+
+  // Build the full name for display: "Dr. Mathias Senyondo"
+  const displayName = user.professionalTitle
+    ? `${user.professionalTitle} ${user.name}`
+    : user.name;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -37,7 +44,7 @@ export default async function DirectorProfilePage() {
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           Back to dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Profile & Settings</h1>
+        <h1 className="text-2xl font-bold text-primary">Profile &amp; Settings</h1>
         <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
       </div>
 
@@ -47,22 +54,24 @@ export default async function DirectorProfilePage() {
             <AvatarUpload
               userId={user.id}
               avatarUrl={user.avatarUrl}
-              name={user.name}
+              name={displayName}
               size="md"
             />
           </div>
           <div className="pt-1">
-            <p className="font-semibold text-lg text-primary">{user.name}</p>
+            <p className="font-semibold text-lg text-primary">{displayName}</p>
             <p className="text-xs text-gray-400 uppercase tracking-wide">Director</p>
           </div>
         </div>
 
         <ProfileEditForm
           userId={user.id}
-          initialName={user.name ?? ""}
+          currentName={user.name}
+          initialProfessionalTitle={user.professionalTitle ?? ""}
           initialPhone={user.phone ?? ""}
           email={user.email ?? ""}
           totpEnabled={user.totpEnabled}
+          initialTheme={user.themePreference ?? "system"}
         />
       </div>
 

@@ -471,8 +471,9 @@ async function main() {
 
   const director = await mkStaff(
     "director@mtc.ac.ug",
-    "Dr. Mathias Senyondo",
+    "Mathias Senyondo",
     UserRole.DIRECTOR,
+    { professionalTitle: "Dr." },
   );
   const principal = await mkStaff(
     "principal@mtc.ac.ug",

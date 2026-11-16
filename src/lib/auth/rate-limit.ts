@@ -184,6 +184,8 @@ export async function checkLoginAllowed(
 
 /**
  * Record a failed login for both the per-account and per-IP counters.
+ * When the failure count crosses NOTIFY_THRESHOLD for a DIRECTOR or PRINCIPAL account,
+ * sends an in-app security notification to the Director.
  */
 export async function recordLoginFailure(
   email: string,
@@ -194,6 +196,61 @@ export async function recordLoginFailure(
     recordFailure({ key: `account:${email.toLowerCase()}`, windowSeconds: cfg.accountWindowSecs }),
     recordFailure({ key: `ip:${ip}`,                       windowSeconds: cfg.ipWindowSecs }),
   ]);
+
+  // After N failures on a Director/Principal account, notify the Director
+  const NOTIFY_THRESHOLD = 3;
+  try {
+    const { db: prisma } = await import("@/lib/db");
+    const targetUser = await prisma.user.findFirst({
+      where: { OR: [{ email: email.toLowerCase() }] },
+      select: { id: true, role: true, name: true },
+    });
+    if (
+      targetUser &&
+      (targetUser.role === "DIRECTOR" || targetUser.role === "PRINCIPAL")
+    ) {
+      const rlResult = await checkRateLimit({
+        key: `account:${email.toLowerCase()}`,
+        maxRequests: cfg.accountMaxFailures,
+        windowSeconds: cfg.accountWindowSecs,
+      });
+      const failCount = cfg.accountMaxFailures - rlResult.remaining;
+      if (failCount >= NOTIFY_THRESHOLD) {
+        // Find the Director to notify (or self if the Director is the target)
+        const directorId =
+          targetUser.role === "DIRECTOR"
+            ? targetUser.id
+            : (
+                await prisma.user.findFirst({
+                  where: { role: "DIRECTOR", status: "ACTIVE" },
+                  select: { id: true },
+                })
+              )?.id;
+        if (directorId) {
+          // Avoid duplicate notifications: only create if no similar one in the last hour
+          const recent = await prisma.notification.findFirst({
+            where: {
+              userId:    directorId,
+              subject:   { contains: "failed login" },
+              createdAt: { gt: new Date(Date.now() - 60 * 60 * 1000) },
+            },
+          });
+          if (!recent) {
+            await prisma.notification.create({
+              data: {
+                userId:  directorId,
+                subject: `Repeated failed login attempts on ${targetUser.role === "DIRECTOR" ? "your" : "Principal"} account`,
+                body:    `${failCount} failed login attempt${failCount !== 1 ? "s" : ""} have been recorded for ${targetUser.name ?? email} in the past 15 minutes (IP: ${ip}). If this is unexpected, review active sessions and consider changing the password.`,
+                type:    "SYSTEM",
+              },
+            });
+          }
+        }
+      }
+    }
+  } catch {
+    /* non-fatal */
+  }
 }
 
 /**

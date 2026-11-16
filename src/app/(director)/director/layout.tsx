@@ -39,15 +39,24 @@ const TABS = ["general", "academics", "finance", "staff", "approvals", "reports"
 export default async function DirectorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user || !can(session.user.role, "approvals.decide")) redirect("/login");
-  const name = session.user.name ?? "Director";
   const { db } = await import("@/lib/db");
-  const dbUser = await db.user.findUnique({ where: { id: session.user.id }, select: { avatarUrl: true } });
+  const dbUser = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { name: true, professionalTitle: true, avatarUrl: true },
+  });
+  // name: first + last name only (no title), e.g. "Mathias Senyondo"
+  // professionalTitle stored separately, e.g. "Dr."
+  const name = dbUser?.name ?? session.user.name ?? "Director";
+  const title = dbUser?.professionalTitle ?? "";
+  // Sidebar shows "Dr. Mathias Senyondo" (title + name); greeting uses first name only
+  const displayName = title ? `${title} ${name}` : name;
   return (
     <AppShell
       nav={NAV}
       role="Director"
       permissionRole={session.user.role}
       userName={name}
+      userDisplayName={displayName}
       userInitial={name.charAt(0).toUpperCase()}
       userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}

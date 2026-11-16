@@ -133,6 +133,69 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // ── Successful login: clear the per-account failure counter ────
         await recordLoginSuccess(identifier);
 
+        // Write totpVerifiedAt so the re-auth guard knows when TOTP was last used.
+        // Also write the login audit log and fire security event notifications.
+        try {
+          const prisma = (await import("@/lib/db")).db;
+
+          // Update totpVerifiedAt only when TOTP was actually verified this login
+          if (user.totpEnabled && user.totpSecret) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data:  { totpVerifiedAt: new Date() },
+            });
+          }
+
+          // Audit log for every successful login
+          const { audit } = await import("@/lib/audit");
+          await audit({
+            actorId:    user.id,
+            action:     "LOGIN",
+            entityType: "User",
+            entityId:   user.id,
+            ip,
+            metadata: { role: user.role, identifier },
+          });
+
+          // ── Security event: new device / IP detection for Director and Principal ──
+          if (user.role === "DIRECTOR" || user.role === "PRINCIPAL") {
+            const LOOKBACK_DAYS = 30;
+            const since = new Date(Date.now() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+            const knownIpEntry = await prisma.auditLog.findFirst({
+              where: {
+                actorId:  user.id,
+                action:   "LOGIN",
+                ip,
+                createdAt: { gt: since },
+                // Exclude the entry we just created above
+                NOT: { createdAt: { gt: new Date(Date.now() - 5000) } },
+              },
+              select: { id: true },
+            });
+
+            if (!knownIpEntry) {
+              // This IP has not been seen in the last 30 days -- notify Director
+              const directorUser = user.role === "DIRECTOR"
+                ? user
+                : await prisma.user.findFirst({
+                    where: { role: "DIRECTOR", status: "ACTIVE" },
+                    select: { id: true },
+                  });
+
+              if (directorUser) {
+                await prisma.notification.create({
+                  data: {
+                    userId:  directorUser.id,
+                    subject: `Login from new location on ${user.role === "DIRECTOR" ? "your" : "Principal"} account`,
+                    body:    `A login to the ${user.role.charAt(0) + user.role.slice(1).toLowerCase()} account was detected from a new IP address (${ip}). If this was not you, sign in and review active sessions immediately.`,
+                    type:    "SYSTEM",
+                  },
+                });
+              }
+            }
+          }
+        } catch { /* non-fatal: never block a login due to logging errors */ }
+
         return {
           id:          user.id,
           name:        user.name,
