@@ -30,9 +30,9 @@ const STATIC_COURSE_ITEMS: CourseItem[] = [
   {
     id: "static-mhc", title: "Certificate in Medical Home Care Course",
     slug: "medical-home-caregiver", category: "PROFESSIONAL",
-    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
+    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care. Open to international students.",
     thumbnailUrl: null, img: "/assets/images/cna-course.webp",
-    fullFeeUgx: 2300000, internationalFeeUgx: null, feeContactOnly: false,
+    fullFeeUgx: 2300000, internationalFeeUgx: 2300400, feeContactOnly: false,
     durationMonths: 3, durationWeeks: null, instalmentCount: 3,
     tutorName: "Dr. Mathias Senyondo", lessonCount: 6, enrolmentCount: 0,
   },

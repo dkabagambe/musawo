@@ -49,10 +49,10 @@ const STATIC_COURSES: PublicCourse[] = [
     id: "static-mhc",
     title: "Certificate in Medical Home Care Course",
     slug: "medical-home-caregiver",
-    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.",
+    shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care. Open to international students.",
     thumbnailUrl: "/assets/images/cna-course.webp",
     fullFeeUgx: 2300000,
-    internationalFeeUgx: null,
+    internationalFeeUgx: 2300400, // USD 639 at rate of 3600
     feeContactOnly: false,
     durationMonths: 3,
     instalmentCount: 3,
