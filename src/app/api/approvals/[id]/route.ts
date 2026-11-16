@@ -4,13 +4,30 @@ import { db } from "@/lib/db";
 import { requirePermission, assertNotSelfApproval, ForbiddenError, can } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
+import { requireRecentTotp } from "@/lib/auth/require-recent-totp";
 import { z } from "zod";
 
 // Requests are "actionable" when in these states
 const ACTIONABLE = new Set(["SUBMITTED", "IN_REVIEW"]);
 
+// High-risk types that require re-authentication before decision
+const HIGH_RISK_TYPES = new Set([
+  "PAYMENT_PROOF",
+  "FEE_CHANGE",
+  "WAIVER",
+  "REFUND",
+  "ROLE_ASSIGNMENT",
+  "RESULTS_PUBLICATION",
+  "CERTIFICATE_ISSUANCE",
+]);
+
 const DecideSchema = z.object({
   decision:     z.enum(["APPROVED", "REJECTED"]),
+  decisionNote: z.string().min(5).max(2000),
+});
+
+const SendBackSchema = z.object({
+  action:     z.literal("SEND_BACK"),
   decisionNote: z.string().min(5).max(2000),
 });
 
@@ -130,6 +147,70 @@ export async function PATCH(
     return NextResponse.json({ request: updated });
   }
 
+  // ── SEND_BACK action (Director returns to initiator for changes) ──────────
+  if (body.action === "SEND_BACK") {
+    const parsed = SendBackSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "A comment is required (minimum 5 characters)." }, { status: 400 });
+
+    // Only someone with decide or forward permissions can send back
+    if (!can(role, "approvals.decide") && !can(role, "marks.change.approve") && !can(role, "refunds.initiate")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const updated = await db.approvalRequest.update({
+      where: { id: params.id },
+      data: {
+        status:       "REJECTED",
+        decidedById:  session.user.id,
+        decidedAt:    new Date(),
+        decisionNote: `[Sent back for changes] ${parsed.data.decisionNote}`,
+      },
+    });
+
+    await audit({
+      actorId:    session.user.id,
+      action:     "APPROVAL_REJECTED",
+      entityType: "ApprovalRequest",
+      entityId:   params.id,
+      metadata:   { type: request.type, sentBack: true, note: parsed.data.decisionNote },
+      ip:         req.headers.get("x-forwarded-for") ?? undefined,
+    });
+
+    // Notify initiator
+    const initiator = await db.user.findUnique({
+      where: { id: request.initiatorId },
+      select: { email: true, name: true },
+    });
+    if (initiator?.email) {
+      void sendEmail({
+        to:      initiator.email,
+        subject: `Your request has been sent back for changes: ${request.type.replace(/_/g, " ")}`,
+        template: "approval-decision",
+        variables: {
+          name:         initiator.name,
+          type:         request.type.replace(/_/g, " "),
+          decision:     "SENT_BACK",
+          decisionNote: parsed.data.decisionNote,
+          decidedBy:    session.user.name ?? "Director",
+        },
+      });
+    }
+
+    // In-app notification to initiator
+    await db.notification.create({
+      data: {
+        userId:  request.initiatorId,
+        channel: "IN_APP",
+        type:    "APPROVAL_SENT_BACK",
+        subject: `Request sent back for changes: ${request.type.replace(/_/g, " ")}`,
+        body:    `Your ${request.type.replace(/_/g, " ")} request was sent back. Reason: ${parsed.data.decisionNote}`,
+        metadata: { approvalId: params.id },
+      },
+    });
+
+    return NextResponse.json({ request: updated });
+  }
+
   // ── DECIDE action (APPROVED / REJECTED) ───────────────────────────────────
   const parsed = DecideSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -168,6 +249,17 @@ export async function PATCH(
   catch (e) {
     if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 });
     throw e;
+  }
+
+  // Re-authentication required for high-risk types when decided by the Director
+  if (can(role, "approvals.decide") && HIGH_RISK_TYPES.has(request.type)) {
+    const reauthCheck = await requireRecentTotp(session.user.id);
+    if (!reauthCheck.ok) {
+      return NextResponse.json(
+        { error: reauthCheck.error, code: "REAUTH_REQUIRED" },
+        { status: 403 }
+      );
+    }
   }
 
   const updated = await db.approvalRequest.update({
