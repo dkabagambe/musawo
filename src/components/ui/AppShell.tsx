@@ -178,6 +178,10 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 const SIDEBAR_GROUP_NAMES: Record<string, string> = {
   general:       "Overview",
   overview:      "Overview",
+  people:        "People",
+  academics:     "Academics",
+  assessment:    "Teaching and Assessment",
+  operations:    "Operations",
   governance:    "Governance",
   communication: "Communication",
   account:       "Account",
@@ -219,10 +223,14 @@ function groupIcon(group: string) {
     case "general":
     case "overview":
       return <LayoutDashboardIcon {...props} />;
+    case "people":
+      return <Users {...props} />;
     case "teaching":
       return <GraduationCap {...props} />;
     case "assessment":
       return <ClipboardCheck {...props} />;
+    case "operations":
+      return <Settings2 {...props} />;
     case "communication":
       return <Mail {...props} />;
     case "support":
@@ -254,6 +262,8 @@ function groupIcon(group: string) {
       return <SlidersHorizontal {...props} />;
     case "system":
       return <Settings2 {...props} />;
+    case "account":
+      return <UserRound {...props} />;
     default:
       return <Layers {...props} />;
   }

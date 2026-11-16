@@ -2983,4 +2983,445 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "director-finance-phase": DirectorFinanceByPhaseBody,
   "director-fee-changes": DirectorFeeChangesBody,
   "director-academic-reports": DirectorAcademicReportsBody,
+  // Principal-specific widgets added for P2
+  "principal-approvals-inbox": PrincipalApprovalsInboxBody,
+  "principal-live-classes": PrincipalLiveClassesBody,
+  "principal-admissions-awaiting": PrincipalAdmissionsAwaitingBody,
+  "principal-results-awaiting": PrincipalResultsAwaitingBody,
+  "principal-alerts": PrincipalAlertsBody,
+  "principal-recent-admissions": PrincipalRecentAdmissionsBody,
+  "principal-enrolment-chart": PrincipalEnrolmentChartBody,
+  "principal-class-monitor": PrincipalClassMonitorBody,
+  "principal-attendance-alerts": PrincipalAttendanceAlertsBody,
+  "principal-upcoming-exams": PrincipalUpcomingExamsBody,
+  "principal-draft-courses": PrincipalDraftCoursesBody,
+  "principal-approval-tracking": PrincipalApprovalTrackingBody,
+  "principal-quick-exports": PrincipalQuickExportsBody,
+  "principal-saved-reports": PrincipalSavedReportsBody,
 };
+
+/* ═══════════════════════════════════════════════
+   PRINCIPAL WIDGETS (P2)
+   ═══════════════════════════════════════════════ */
+
+/* principal-approvals-inbox (General tab) */
+async function PrincipalApprovalsInboxBody({ userId, fullPageHref }: WidgetBodyProps) {
+  // Query approvals awaiting the Principal (status AWAITING_PRINCIPAL)
+  const items = await db.approvalRequest.findMany({
+    where: {
+      status: "AWAITING_PRINCIPAL",
+    },
+    include: { initiator: { select: { name: true } } },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/approvals-inbox";
+  if (!items.length) {
+    return <p className="dashboard-widget-empty">No items awaiting your decision</p>;
+  }
+  
+  const ageStr = (date: Date) => {
+    const days = Math.floor((Date.now() - date.getTime()) / 86400000);
+    return days === 0 ? "today" : days === 1 ? "1 day ago" : `${days} days ago`;
+  };
+  
+  return (
+    <>
+      {items.map((item) => (
+        <ListRow
+          key={item.id}
+          href={`${href}/${item.id}`}
+          icon={<ClipboardList size={16} />}
+          date={ageStr(item.createdAt)}
+        >
+          {item.type.replace(/_/g, " ")} from {item.initiator?.name ?? "Admin"}
+        </ListRow>
+      ))}
+      {items.length >= 5 && <ViewMoreLink href={href}>View all approvals</ViewMoreLink>}
+    </>
+  );
+}
+
+/* principal-live-classes (General tab) */
+async function PrincipalLiveClassesBody({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  
+  const classes = await db.class.findMany({
+    where: {
+      scheduledAt: { gte: todayStart, lte: todayEnd },
+      status: { in: ["SCHEDULED", "IN_PROGRESS"] },
+    },
+    include: {
+      instructor: { select: { name: true } },
+      course: { select: { title: true } },
+    },
+    orderBy: { scheduledAt: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/timetable";
+  if (!classes.length) {
+    return <p className="dashboard-widget-empty">No classes scheduled today</p>;
+  }
+  
+  return (
+    <>
+      {classes.map((cls) => (
+        <ListRow
+          key={cls.id}
+          href={`${href}/${cls.id}`}
+          icon={<Calendar size={16} />}
+          date={fmtTime(cls.scheduledAt)}
+        >
+          {cls.course?.title ?? "Untitled"} - {cls.instructor?.name ?? "No instructor"}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View timetable</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-admissions-awaiting (General tab) */
+async function PrincipalAdmissionsAwaitingBody({ fullPageHref }: WidgetBodyProps) {
+  const admissions = await db.approvalRequest.findMany({
+    where: {
+      type: "ADMISSION",
+      status: "AWAITING_PRINCIPAL",
+    },
+    include: { initiator: { select: { name: true } }, student: { select: { name: true } } },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/admissions";
+  if (!admissions.length) {
+    return <p className="dashboard-widget-empty">No admissions awaiting approval</p>;
+  }
+  
+  return (
+    <>
+      {admissions.map((adm) => (
+        <ListRow
+          key={adm.id}
+          href={`${href}/${adm.id}`}
+          icon={<Users size={16} />}
+        >
+          {adm.student?.name ?? "Student application"}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all admissions</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-results-awaiting (General tab) */
+async function PrincipalResultsAwaitingBody({ fullPageHref }: WidgetBodyProps) {
+  const results = await db.approvalRequest.findMany({
+    where: {
+      type: "RESULTS_SUBMISSION",
+      status: "AWAITING_PRINCIPAL",
+    },
+    include: { initiator: { select: { name: true } }, course: { select: { title: true } } },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/results";
+  if (!results.length) {
+    return <p className="dashboard-widget-empty">No results awaiting review</p>;
+  }
+  
+  return (
+    <>
+      {results.map((result) => (
+        <ListRow
+          key={result.id}
+          href={`${href}/${result.id}`}
+          icon={<ClipboardCheck size={16} />}
+        >
+          {result.course?.title ?? "Results"} from {result.initiator?.name ?? "Instructor"}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all results</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-alerts (General tab) */
+async function PrincipalAlertsBody({ fullPageHref }: WidgetBodyProps) {
+  // Example alerts: low attendance, storage over 80%, exams starting soon
+  const [lowAttendance, storagePercent, upcomingExams] = await Promise.all([
+    db.enrolment.count({
+      where: {
+        // placeholder: would need attendance calculation
+        status: "ACTIVE",
+      },
+    }),
+    // Placeholder storage check
+    Promise.resolve(65),
+    db.exam.count({
+      where: {
+        startTime: { gte: new Date(), lte: new Date(Date.now() + 7 * 86400000) },
+      },
+    }),
+  ]);
+  
+  const href = fullPageHref ?? "/principal/reports";
+  const alerts = [];
+  
+  if (storagePercent > 80) {
+    alerts.push({ icon: <AlertCircle size={16} />, text: `Storage at ${storagePercent}%`, href: "/principal/storage" });
+  }
+  if (upcomingExams > 0) {
+    alerts.push({ icon: <Clock size={16} />, text: `${upcomingExams} exams starting soon`, href: "/principal/examinations" });
+  }
+  
+  if (!alerts.length) {
+    return <p className="dashboard-widget-empty">No alerts</p>;
+  }
+  
+  return (
+    <>
+      {alerts.map((alert, i) => (
+        <ListRow key={i} href={alert.href} icon={alert.icon}>
+          {alert.text}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* principal-recent-admissions (General tab) */
+async function PrincipalRecentAdmissionsBody({ fullPageHref }: WidgetBodyProps) {
+  const recentAdmissions = await db.user.findMany({
+    where: {
+      role: "STUDENT",
+      createdAt: { gte: new Date(Date.now() - 14 * 86400000) },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { id: true, name: true, studentNumber: true, createdAt: true, status: true },
+  });
+  
+  const href = fullPageHref ?? "/principal/admissions";
+  if (!recentAdmissions.length) {
+    return <p className="dashboard-widget-empty">No recent admissions</p>;
+  }
+  
+  return (
+    <>
+      {recentAdmissions.map((student) => (
+        <ListRow
+          key={student.id}
+          href={`${href}/${student.id}`}
+          icon={<Users size={16} />}
+          date={fmtDate(student.createdAt)}
+        >
+          {student.name} ({student.studentNumber}) - {student.status}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all admissions</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-enrolment-chart (Academics tab) */
+async function PrincipalEnrolmentChartBody({ fullPageHref }: WidgetBodyProps) {
+  const enrolments = await db.enrolment.groupBy({
+    by: ["courseId"],
+    where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } },
+    _count: { id: true },
+  });
+  
+  const courses = await db.course.findMany({
+    where: { id: { in: enrolments.map((e) => e.courseId).filter((id): id is string => id !== null) } },
+    select: { id: true, title: true, courseCode: true },
+  });
+  
+  const courseMap = new Map(courses.map((c) => [c.id, c]));
+  
+  const href = fullPageHref ?? "/principal/students";
+  if (!enrolments.length) {
+    return <p className="dashboard-widget-empty">No enrolments</p>;
+  }
+  
+  return (
+    <>
+      {enrolments.slice(0, 5).map((enrol) => {
+        const course = enrol.courseId ? courseMap.get(enrol.courseId) : null;
+        return (
+          <ListRow key={enrol.courseId ?? "null"} href={href} icon={<GraduationCap size={16} />}>
+            {course?.courseCode ?? "Unknown"}: {enrol._count.id} students
+          </ListRow>
+        );
+      })}
+      <ViewMoreLink href={href}>View all students</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-class-monitor (Academics tab) */
+async function PrincipalClassMonitorBody({ fullPageHref }: WidgetBodyProps) {
+  const liveClasses = await db.class.findMany({
+    where: { status: "IN_PROGRESS" },
+    include: {
+      instructor: { select: { name: true } },
+      course: { select: { title: true } },
+    },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/timetable";
+  if (!liveClasses.length) {
+    return <p className="dashboard-widget-empty">No live classes</p>;
+  }
+  
+  return (
+    <>
+      {liveClasses.map((cls) => (
+        <ListRow key={cls.id} href={`${href}/${cls.id}`} icon={<Video size={16} />}>
+          {cls.course?.title ?? "Class"} - {cls.instructor?.name ?? "No instructor"}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* principal-attendance-alerts (Academics tab) */
+async function PrincipalAttendanceAlertsBody({ fullPageHref }: WidgetBodyProps) {
+  // Placeholder: would need actual attendance calculation
+  const href = fullPageHref ?? "/principal/attendance";
+  return <p className="dashboard-widget-empty">No attendance alerts</p>;
+}
+
+/* principal-upcoming-exams (Academics tab) */
+async function PrincipalUpcomingExamsBody({ fullPageHref }: WidgetBodyProps) {
+  const upcomingExams = await db.exam.findMany({
+    where: {
+      startTime: { gte: new Date(), lte: new Date(Date.now() + 14 * 86400000) },
+    },
+    include: { course: { select: { title: true } } },
+    orderBy: { startTime: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/examinations";
+  if (!upcomingExams.length) {
+    return <p className="dashboard-widget-empty">No upcoming exams</p>;
+  }
+  
+  return (
+    <>
+      {upcomingExams.map((exam) => (
+        <ListRow
+          key={exam.id}
+          href={`${href}/${exam.id}`}
+          icon={<ClipboardCheck size={16} />}
+          date={fmtDate(exam.startTime)}
+        >
+          {exam.course?.title ?? "Exam"} - {exam.title}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all exams</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-draft-courses (Academics tab) */
+async function PrincipalDraftCoursesBody({ fullPageHref }: WidgetBodyProps) {
+  const draftCourses = await db.course.findMany({
+    where: { status: "DRAFT" },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { id: true, title: true, courseCode: true, createdAt: true },
+  });
+  
+  const href = fullPageHref ?? "/principal/programmes";
+  if (!draftCourses.length) {
+    return <p className="dashboard-widget-empty">No draft courses</p>;
+  }
+  
+  return (
+    <>
+      {draftCourses.map((course) => (
+        <ListRow
+          key={course.id}
+          href={`${href}/${course.id}`}
+          icon={<FileText size={16} />}
+        >
+          {course.courseCode ?? "N/A"} - {course.title}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all programmes</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-approval-tracking (Approvals tab) */
+async function PrincipalApprovalTrackingBody({ userId, fullPageHref }: WidgetBodyProps) {
+  // Items the Principal submitted to the Director
+  const tracking = await db.approvalRequest.findMany({
+    where: {
+      initiatorId: userId,
+      status: { in: ["AWAITING_DIRECTOR", "IN_REVIEW"] },
+    },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+  });
+  
+  const href = fullPageHref ?? "/principal/approval-tracking";
+  if (!tracking.length) {
+    return <p className="dashboard-widget-empty">Nothing awaiting Director approval</p>;
+  }
+  
+  const ageStr = (date: Date) => {
+    const days = Math.floor((Date.now() - date.getTime()) / 86400000);
+    return days === 0 ? "today" : days === 1 ? "1 day" : `${days} days`;
+  };
+  
+  return (
+    <>
+      {tracking.map((item) => (
+        <ListRow
+          key={item.id}
+          href={`${href}/${item.id}`}
+          icon={<ClipboardList size={16} />}
+          date={ageStr(item.createdAt)}
+        >
+          {item.type.replace(/_/g, " ")} - {item.status}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={href}>View all tracking</ViewMoreLink>
+    </>
+  );
+}
+
+/* principal-quick-exports (Reports tab) */
+async function PrincipalQuickExportsBody({ fullPageHref }: WidgetBodyProps) {
+  const href = fullPageHref ?? "/principal/reports";
+  return (
+    <>
+      <ListRow href={`${href}?export=students`} icon={<FileSearch size={16} />}>
+        Export students (CSV)
+      </ListRow>
+      <ListRow href={`${href}?export=attendance`} icon={<FileSearch size={16} />}>
+        Export attendance (CSV)
+      </ListRow>
+      <ListRow href={`${href}?export=results`} icon={<FileSearch size={16} />}>
+        Export results (CSV)
+      </ListRow>
+      <ListRow href={`${href}?export=finance`} icon={<FileSearch size={16} />}>
+        Export finance (CSV)
+      </ListRow>
+    </>
+  );
+}
+
+/* principal-saved-reports (Reports tab) */
+async function PrincipalSavedReportsBody({ fullPageHref }: WidgetBodyProps) {
+  const href = fullPageHref ?? "/principal/reports";
+  return <p className="dashboard-widget-empty">No saved reports</p>;
+}
