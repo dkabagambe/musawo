@@ -1639,7 +1639,35 @@ async function main() {
       }
     }
 
-    const allPayments = [...PAYMENT_SCENARIOS, ...extraPayments];
+    // Recent payments (last 7 days) so the revenue summary shows real data
+    const recentPayments: typeof PAYMENT_SCENARIOS = [
+      {
+        studentKey: "full",
+        method: PaymentMethod.MTN_MOMO,
+        gateway: PaymentGateway.MANUAL,
+        amount: 350000,
+        daysBack: 2,
+        status: PaymentStatus.COMPLETED,
+      },
+      {
+        studentKey: "75",
+        method: PaymentMethod.AIRTEL_MONEY,
+        gateway: PaymentGateway.MANUAL,
+        amount: 250000,
+        daysBack: 5,
+        status: PaymentStatus.COMPLETED,
+      },
+      {
+        studentKey: "overdue",
+        method: PaymentMethod.BANK_TRANSFER,
+        gateway: PaymentGateway.MANUAL,
+        amount: 200000,
+        daysBack: 7,
+        status: PaymentStatus.COMPLETED,
+      },
+    ];
+
+    const allPayments = [...PAYMENT_SCENARIOS, ...extraPayments, ...recentPayments];
 
     for (const ps of allPayments) {
       const enr = enrolments[ps.studentKey];
@@ -1785,6 +1813,35 @@ async function main() {
     }
     console.log("  ℹ  Enrolments already seeded - skipping payments/progress");
   }
+
+  // ── Recent payments (always-run, idempotent via gatewayRef) ───────────────
+  // These ensure the revenue summary widget always shows non-zero data.
+  // We use stable gatewayRef values to avoid duplicates on re-seed.
+  const recentPaymentDefs = [
+    { email: "student.full@example.com",    amount: 350000, method: PaymentMethod.MTN_MOMO,     gateway: PaymentGateway.MANUAL, daysBack: 2,  ref: "RECENT-SEED-001" },
+    { email: "student.75@example.com",      amount: 250000, method: PaymentMethod.AIRTEL_MONEY, gateway: PaymentGateway.MANUAL, daysBack: 5,  ref: "RECENT-SEED-002" },
+    { email: "student.overdue@example.com", amount: 200000, method: PaymentMethod.BANK_TRANSFER, gateway: PaymentGateway.MANUAL, daysBack: 7, ref: "RECENT-SEED-003" },
+  ];
+  for (const rp of recentPaymentDefs) {
+    const existing = await prisma.payment.findFirst({ where: { gatewayRef: rp.ref } });
+    if (existing) continue;
+    const student = await prisma.user.findUnique({ where: { email: rp.email }, select: { id: true } });
+    if (!student) continue;
+    const enr = await prisma.enrolment.findFirst({ where: { userId: student.id }, select: { id: true } });
+    if (!enr) continue;
+    await prisma.payment.create({
+      data: {
+        enrolmentId: enr.id,
+        amount: rp.amount,
+        method: rp.method,
+        gateway: rp.gateway,
+        gatewayRef: rp.ref,
+        status: PaymentStatus.COMPLETED,
+        paidAt: daysAgo(rp.daysBack),
+      },
+    });
+  }
+  console.log("  ✓ Recent payments (revenue seed)");
 
   // ── Exams ──────────────────────────────────────────────────────
   const existingExams = await prisma.exam.count();

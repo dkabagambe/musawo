@@ -44,11 +44,11 @@ export default function DemoBannerClient({ label }: { label: string }) {
         style={{ zIndex: 60, height: BANNER_H }}
       >
         <span className="sm:hidden flex-1 text-left">
-          {label} - demo only.{" "}
+          Staging demo, not for real use.{" "}
           <a href="/dev/login" className="underline">Accounts</a>
         </span>
         <span className="hidden sm:inline flex-1">
-          {label} environment, not for real use. Data may be reset at any time.{" "}
+          Staging demo environment, not for real use. Data may be reset at any time.{" "}
           <a href="/dev/login" className="underline ml-1">Demo accounts</a>
         </span>
         <button

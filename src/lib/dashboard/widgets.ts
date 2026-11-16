@@ -703,8 +703,15 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
 
   // ════════════════════════════════════════════════════════════════
-  // SUPER_ADMIN / DIRECTOR — tabs: General, Academics, Finance, Staff, Approvals, Reports
+  // DIRECTOR — tabs: General, Academics, Finance, Staff, Approvals, Reports
+  // General tab: To Dos, Pending Approvals, Key Numbers, Alerts, Today, Recent Decisions, Revenue
+  // Academics tab: Enrolment by Programme, Students, Exam Results, Certificates, Instructor Activity
+  // Finance tab: Payments, Revenue, Payment Proofs, Finance by Phase, Fee Changes
+  // Staff tab: Staff, Audit Log
+  // Approvals tab: Pending Approvals, Audit Log
+  // Reports tab: Financial Reports, Academic Reports
   // ════════════════════════════════════════════════════════════════
+  // ── General tab ──────────────────────────────────────────────────
   {
     id: "director-todos",
     title: "To Dos",
@@ -727,14 +734,43 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     roles: ["DIRECTOR"],
   },
   {
-    id: "director-recent-payments",
-    title: "Recent Payments",
-    requiredPermission: "payments.view",
+    id: "director-key-numbers",
+    title: "Key Numbers",
+    requiredPermission: "reports.financial",
+    defaultTab: "general",
+    defaultColumn: 0,
+    component: "director-key-numbers",
+    fullPageHref: "/director/reports",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-alerts",
+    title: "Alerts",
+    requiredPermission: "audit.view",
     defaultTab: "general",
     defaultColumn: 1,
-    component: "recent-payments-list",
-    defaultSpan: 2,
-    fullPageHref: "/director/finance",
+    component: "director-alerts",
+    fullPageHref: "/director/audit",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-today",
+    title: "Today",
+    requiredPermission: "reports.academic",
+    defaultTab: "general",
+    defaultColumn: 1,
+    component: "director-today",
+    fullPageHref: "/director/examinations",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-recent-decisions",
+    title: "Recent Decisions",
+    requiredPermission: "approvals.decide",
+    defaultTab: "general",
+    defaultColumn: 1,
+    component: "director-recent-decisions",
+    fullPageHref: "/director/approvals",
     roles: ["DIRECTOR"],
   },
   {
@@ -747,15 +783,15 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     fullPageHref: "/director/reports",
     roles: ["DIRECTOR"],
   },
-  // Academics tab
+  // ── Academics tab ─────────────────────────────────────────────────
   {
-    id: "director-courses",
-    title: "Courses",
-    requiredPermission: "courses.view",
+    id: "director-enrolment-by-programme",
+    title: "Enrolment by Programme",
+    requiredPermission: "students.view",
     defaultTab: "academics",
     defaultColumn: 0,
-    component: "course-cards",
-    fullPageHref: "/director/courses",
+    component: "director-enrolment-by-programme",
+    fullPageHref: "/director/students",
     roles: ["DIRECTOR"],
   },
   {
@@ -770,30 +806,50 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     roles: ["DIRECTOR"],
   },
   {
+    id: "director-exam-results",
+    title: "Results Awaiting Approval",
+    requiredPermission: "exams.release",
+    defaultTab: "academics",
+    defaultColumn: 0,
+    component: "exam-submissions-list",
+    fullPageHref: "/director/examinations",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-certificates-awaiting",
+    title: "Certificates",
+    requiredPermission: "approvals.decide",
+    defaultTab: "academics",
+    defaultColumn: 1,
+    component: "director-certificates-awaiting",
+    fullPageHref: "/director/certificates",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-instructor-activity",
+    title: "Instructor Activity",
+    requiredPermission: "staff.view",
+    defaultTab: "academics",
+    defaultColumn: 0,
+    component: "director-instructor-activity",
+    fullPageHref: "/director/instructors",
+    roles: ["DIRECTOR"],
+  },
+  {
     id: "director-graduands",
     title: "Graduands",
     requiredPermission: "graduands.prepare",
     defaultTab: "academics",
-    defaultColumn: 0,
+    defaultColumn: 1,
     component: "graduand-list",
     defaultSpan: 2,
     fullPageHref: "/director/graduates",
     roles: ["DIRECTOR"],
   },
-  {
-    id: "director-exam-results",
-    title: "Exam Results",
-    requiredPermission: "exams.release",
-    defaultTab: "academics",
-    defaultColumn: 1,
-    component: "exam-submissions-list",
-    fullPageHref: "/director/examinations",
-    roles: ["DIRECTOR"],
-  },
-  // Finance tab
+  // ── Finance tab ───────────────────────────────────────────────────
   {
     id: "director-finance-payments",
-    title: "Payments",
+    title: "Recent Payments",
     requiredPermission: "payments.view",
     defaultTab: "finance",
     defaultColumn: 0,
@@ -804,25 +860,55 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
   {
     id: "director-finance-revenue",
-    title: "Revenue",
+    title: "Revenue (30 days)",
     requiredPermission: "reports.financial",
     defaultTab: "finance",
     defaultColumn: 1,
     component: "revenue-summary",
-    fullPageHref: "/director/finance/ledger",
+    fullPageHref: "/director/finance",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-payment-proofs",
+    title: "Payment Proofs Awaiting Review",
+    requiredPermission: "approvals.decide",
+    defaultTab: "finance",
+    defaultColumn: 0,
+    component: "director-payment-proofs",
+    fullPageHref: "/director/approvals",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-finance-phase",
+    title: "Collections by Phase",
+    requiredPermission: "reports.financial",
+    defaultTab: "finance",
+    defaultColumn: 1,
+    component: "director-finance-phase",
+    fullPageHref: "/director/finance",
+    roles: ["DIRECTOR"],
+  },
+  {
+    id: "director-fee-changes",
+    title: "Fee Changes and Waivers",
+    requiredPermission: "approvals.decide",
+    defaultTab: "finance",
+    defaultColumn: 0,
+    component: "director-fee-changes",
+    fullPageHref: "/director/approvals",
     roles: ["DIRECTOR"],
   },
   {
     id: "director-finance-reports",
-    title: "Financial Reports",
+    title: "Financial Summary",
     requiredPermission: "reports.financial",
     defaultTab: "finance",
-    defaultColumn: 0,
+    defaultColumn: 1,
     component: "financial-reports",
     fullPageHref: "/director/finance",
     roles: ["DIRECTOR"],
   },
-  // Staff tab
+  // ── Staff tab ─────────────────────────────────────────────────────
   {
     id: "director-staff",
     title: "Staff",
@@ -845,7 +931,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     fullPageHref: "/director/audit",
     roles: ["DIRECTOR"],
   },
-  // Approvals tab
+  // ── Approvals tab ─────────────────────────────────────────────────
   {
     id: "director-approvals-tab",
     title: "Pending Approvals",
@@ -859,16 +945,15 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   },
   {
     id: "director-approvals-audit",
-    title: "Audit Log",
+    title: "Recent Decisions",
     requiredPermission: "audit.view",
     defaultTab: "approvals",
     defaultColumn: 1,
-    component: "audit-list",
-    defaultSpan: 2,
-    fullPageHref: "/director/audit",
+    component: "director-recent-decisions",
+    fullPageHref: "/director/approvals",
     roles: ["DIRECTOR"],
   },
-  // Reports tab
+  // ── Reports tab ───────────────────────────────────────────────────
   {
     id: "director-all-reports",
     title: "Financial Reports",
@@ -885,7 +970,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     requiredPermission: "reports.academic",
     defaultTab: "reports",
     defaultColumn: 1,
-    component: "financial-reports",
+    component: "director-academic-reports",
     fullPageHref: "/director/reports",
     roles: ["DIRECTOR"],
   },

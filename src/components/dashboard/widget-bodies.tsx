@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/DashboardWidgets";
 import {
   AlertCircle,
+  Award,
   Calendar,
   Clock,
   CheckCircle2,
@@ -28,7 +29,7 @@ import {
   FileSearch,
   MessageSquare,
 } from "lucide-react";
-import type { UserRole, Prisma } from "@prisma/client";
+import type { UserRole, Prisma, ApprovalRequestType } from "@prisma/client";
 
 export interface WidgetBodyProps {
   userId: string;
@@ -1431,34 +1432,74 @@ async function GraduandListBody({ fullPageHref }: WidgetBodyProps) {
    ═══════════════════════════════════════════════ */
 
 /* approval-list  (director/admin/finance approvals - Approvals) */
-async function ApprovalListBody({ fullPageHref }: WidgetBodyProps) {
+async function ApprovalListBody({ fullPageHref, role }: WidgetBodyProps) {
+  // For the Director, only show types the Director is authorised to decide.
+  const isDirector = role === "DIRECTOR";
+  const DIRECTOR_TYPES: ApprovalRequestType[] = [
+    "ACADEMIC_PROGRAMME_CHANGE", "COURSE_CHANGE", "RESULTS_PUBLICATION",
+    "CERTIFICATE_ISSUANCE", "PAYMENT_PROOF", "EQUIPMENT_REQUEST",
+    "ROLE_ASSIGNMENT", "FEE_CHANGE", "WAIVER", "REFUND",
+  ];
+  const typeFilter = isDirector ? { type: { in: DIRECTOR_TYPES } } : {};
+
   const approvals = await db.approvalRequest.findMany({
-    where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } },
-    orderBy: { createdAt: "desc" },
+    where: {
+      status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] },
+      ...typeFilter,
+    },
+    orderBy: { createdAt: "asc" }, // oldest first
     take: 6,
-    include: { initiator: { select: { name: true } } },
+    include: {
+      initiator: { select: { name: true, role: true } },
+    },
   });
   if (!approvals.length) return <Empty>No pending approvals.</Empty>;
-  const visible = approvals.slice(0, 5);
+
+  // Human-readable approval type labels
+  const TYPE_LABELS: Record<string, string> = {
+    ACADEMIC_PROGRAMME_CHANGE: "Programme change",
+    COURSE_CHANGE:             "Course change",
+    RESULTS_PUBLICATION:       "Results publication",
+    CERTIFICATE_ISSUANCE:      "Certificate issuance",
+    PAYMENT_PROOF:             "Payment proof",
+    EQUIPMENT_REQUEST:         "Equipment request",
+    ROLE_ASSIGNMENT:           "Role assignment",
+    FEE_CHANGE:                "Fee change",
+    WAIVER:                    "Fee waiver",
+    REFUND:                    "Refund",
+    ADMISSION:                 "Admission",
+    MARKS_CHANGE:              "Marks change",
+    STORAGE_CLEARING:          "Storage clearing",
+    STAFF_ACCOUNT_CREATE:      "Staff account",
+    STAFF_ACCOUNT_SUSPEND:     "Account suspension",
+    STAFF_ACCOUNT_ROLE_CHANGE: "Role change",
+    BULK_EXPORT:               "Bulk export",
+  };
+
+  function ageDays(date: Date) {
+    return Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  }
+
   const href = fullPageHref ?? "/director/approvals";
   return (
     <>
-      {visible.map((apr) => (
-        <ListRow
-          key={apr.id}
-          href={href}
-          icon={<ShieldCheck size={16} />}
-          date={fmtDay(apr.createdAt)}
-        >
-          {apr.type.toLowerCase().replace(/_/g, " ")}
-          {apr.amount ? ` (${fmtUGX(apr.amount)})` : ""}
-        </ListRow>
-      ))}
-      {approvals.length > visible.length && (
-        <ViewMoreLink href={href}>
-          View {approvals.length - visible.length} more
-        </ViewMoreLink>
-      )}
+      {approvals.map((apr) => {
+        const age = ageDays(apr.createdAt);
+        const ageStr = age === 0 ? "today" : age === 1 ? "1 day ago" : `${age} days ago`;
+        const label = TYPE_LABELS[apr.type] ?? apr.type.replace(/_/g, " ").toLowerCase();
+        const requester = apr.initiator?.name ?? "unknown";
+        return (
+          <ListRow
+            key={apr.id}
+            href={`${href}/${apr.id}`}
+            icon={<ShieldCheck size={16} />}
+            date={ageStr}
+          >
+            {label} from {requester}
+            {apr.amount ? ` (${fmtUGX(apr.amount)})` : ""}
+          </ListRow>
+        );
+      })}
     </>
   );
 }
@@ -1473,7 +1514,7 @@ async function FinancialReportsBody({ fullPageHref }: WidgetBodyProps) {
     db.payment.count({ where: { status: "PENDING" } }),
     db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
   ]);
-  const href = fullPageHref ?? "/finance/payments";
+  const href = fullPageHref ?? "/director/finance";
   return (
     <>
       <ListRow href={href} icon={<Wallet size={16} />}>
@@ -1843,15 +1884,26 @@ async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
 
 /* director-todos  (Director) */
 async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
-  const [pendingApprovals, pendingClaims, draftCourses] = await Promise.all([
-    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
+  // Director decides: programme/course changes, results publication, certificate
+  // issuance, payment proof, equipment requests, role assignments, fee/waiver/refund.
+  // Does NOT decide: admissions, marks changes, storage clearing.
+  const DIRECTOR_TYPES: ApprovalRequestType[] = [
+    "ACADEMIC_PROGRAMME_CHANGE", "COURSE_CHANGE", "RESULTS_PUBLICATION",
+    "CERTIFICATE_ISSUANCE", "PAYMENT_PROOF", "EQUIPMENT_REQUEST",
+    "ROLE_ASSIGNMENT", "FEE_CHANGE", "WAIVER", "REFUND",
+  ];
+  const [pendingApprovals, pendingClaims] = await Promise.all([
+    db.approvalRequest.count({
+      where: {
+        status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] },
+        type:   { in: DIRECTOR_TYPES },
+      },
+    }),
     db.manualPaymentClaim.count({
       where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
     }),
-    db.course.count({ where: { status: "DRAFT" } }),
   ]);
-  const allClear =
-    pendingApprovals === 0 && pendingClaims === 0 && draftCourses === 0;
+  const allClear = pendingApprovals === 0 && pendingClaims === 0;
   const href = fullPageHref ?? "/director/approvals";
   if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
   return (
@@ -1862,13 +1914,8 @@ async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
         </ListRow>
       )}
       {pendingClaims > 0 && (
-        <ListRow href="/finance/payments" icon={<Receipt size={16} />}>
+        <ListRow href="/director/finance" icon={<Receipt size={16} />}>
           {formatCount(pendingClaims, "payment claim")} awaiting verification
-        </ListRow>
-      )}
-      {draftCourses > 0 && (
-        <ListRow href="/principal/courses" icon={<FileText size={16} />}>
-          {formatCount(draftCourses, "course")} in draft
         </ListRow>
       )}
     </>
@@ -2188,7 +2235,7 @@ async function RecentPaymentsListBody({ fullPageHref }: WidgetBodyProps) {
   });
   if (!payments.length) return <Empty>No payments recorded yet.</Empty>;
   const visible = payments.slice(0, 5);
-  const href = fullPageHref ?? "/finance/payments";
+  const href = fullPageHref ?? "/director/finance";
   return (
     <>
       {visible.map((p) => (
@@ -2212,22 +2259,22 @@ async function RecentPaymentsListBody({ fullPageHref }: WidgetBodyProps) {
 
 /* revenue-summary  (finance/director general) */
 async function RevenueSummaryBody({ fullPageHref }: WidgetBodyProps) {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Use last-30-days window so the widget always shows meaningful data
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const [monthRev, outstanding, pendingClaims] = await Promise.all([
     db.payment.aggregate({
-      where: { status: "COMPLETED", paidAt: { gte: startOfMonth } },
+      where: { status: "COMPLETED", paidAt: { gte: since30d } },
       _sum: { amount: true },
     }),
     db.enrolment.aggregate({
-      where: { status: "ACTIVE" },
+      where: { status: { in: ["ACTIVE", "PARTIALLY_PAID", "OVERDUE"] } },
       _sum: { totalAmountUgx: true, paidAmountUgx: true },
     }),
     db.manualPaymentClaim.count({
       where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
     }),
   ]);
-  const href = fullPageHref ?? "/finance/ledger";
+  const href = fullPageHref ?? "/director/finance";
   const outstandingUgx = Math.max(
     0,
     (outstanding._sum.totalAmountUgx ?? 0) -
@@ -2236,13 +2283,13 @@ async function RevenueSummaryBody({ fullPageHref }: WidgetBodyProps) {
   return (
     <>
       <ListRow href={href} icon={<Wallet size={16} />}>
-        Revenue this month: {fmtUGX(monthRev._sum.amount ?? 0)}
+        Last 30 days: {fmtUGX(monthRev._sum.amount ?? 0)}
       </ListRow>
       <ListRow href={href} icon={<AlertCircle size={16} />}>
         Outstanding: {fmtUGX(outstandingUgx)}
       </ListRow>
       {pendingClaims > 0 && (
-        <ListRow href="/finance/payments" icon={<Receipt size={16} />}>
+        <ListRow href={href} icon={<Receipt size={16} />}>
           {formatCount(pendingClaims, "payment claim")} to review
         </ListRow>
       )}
@@ -2366,6 +2413,501 @@ async function AuditorOverviewBody({ fullPageHref }: WidgetBodyProps) {
 }
 
 /* ═══════════════════════════════════════════════
+   DIRECTOR D2 WIDGETS
+   ═══════════════════════════════════════════════ */
+
+/* director-key-numbers  (Director general tab) */
+async function DirectorKeyNumbersBody({ fullPageHref }: WidgetBodyProps) {
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const [
+    activeStudents,
+    thisIntake,
+    passCount,
+    totalAttempts,
+    presentCount,
+    totalAttendance,
+    revCollected,
+    outstanding,
+  ] = await Promise.all([
+    db.enrolment.count({
+      where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } },
+    }),
+    db.enrolment.count({
+      where: { createdAt: { gte: since30d } },
+    }),
+    db.examAttempt.count({
+      where: { passed: true },
+    }),
+    db.examAttempt.count(),
+    db.attendance.count({ where: { markedPresent: true } }),
+    db.attendance.count(),
+    db.payment.aggregate({
+      where: { status: "COMPLETED" },
+      _sum: { amount: true },
+    }),
+    db.enrolment.aggregate({
+      where: { status: { in: ["ACTIVE", "PARTIALLY_PAID", "OVERDUE"] } },
+      _sum: { totalAmountUgx: true, paidAmountUgx: true },
+    }),
+  ]);
+  const passRate = totalAttempts > 0 ? Math.round((passCount / totalAttempts) * 100) : null;
+  const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : null;
+  const outstandingUgx = Math.max(
+    0,
+    (outstanding._sum.totalAmountUgx ?? 0) - (outstanding._sum.paidAmountUgx ?? 0),
+  );
+  const href = fullPageHref ?? "/director/reports";
+  return (
+    <>
+      <ListRow href="/director/students" icon={<Users size={16} />}>
+        {activeStudents.toLocaleString()} active students
+      </ListRow>
+      <ListRow href="/director/students" icon={<GraduationCap size={16} />}>
+        {thisIntake.toLocaleString()} enrolments this month
+      </ListRow>
+      {passRate !== null && (
+        <ListRow href="/director/examinations" icon={<CheckCircle2 size={16} />}>
+          Pass rate: {passRate}%
+        </ListRow>
+      )}
+      {attendanceRate !== null && (
+        <ListRow href="/director/reports" icon={<Calendar size={16} />}>
+          Attendance rate: {attendanceRate}%
+        </ListRow>
+      )}
+      <ListRow href="/director/finance" icon={<Wallet size={16} />}>
+        Collected: {fmtUGX(revCollected._sum.amount ?? 0)}
+      </ListRow>
+      <ListRow href="/director/finance" icon={<AlertCircle size={16} />}>
+        Outstanding: {fmtUGX(outstandingUgx)}
+      </ListRow>
+    </>
+  );
+}
+
+/* director-alerts  (Director general tab - security events, failed checks, system health) */
+async function DirectorAlertsBody({ fullPageHref }: WidgetBodyProps) {
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [securityLogins, failedPaymentChecks, pendingProofs] = await Promise.all([
+    // Recent login events as a proxy for security events
+    db.auditLog.count({
+      where: {
+        action: "LOGIN" as const,
+        createdAt: { gte: since24h },
+      },
+    }).catch(() => 0),
+    db.manualPaymentClaim.count({
+      where: { status: "REJECTED" },
+    }).catch(() => 0),
+    db.approvalRequest.count({
+      where: {
+        type: "PAYMENT_PROOF",
+        status: { in: ["SUBMITTED", "IN_REVIEW"] },
+      },
+    }).catch(() => 0),
+  ]);
+  const allClear = failedPaymentChecks === 0 && pendingProofs === 0;
+  const href = fullPageHref ?? "/director/audit";
+  if (allClear && securityLogins === 0) return <Empty>No alerts. Everything looks normal.</Empty>;
+  return (
+    <>
+      {securityLogins > 0 && (
+        <ListRow href={href} icon={<AlertCircle size={16} />}>
+          {formatCount(securityLogins, "login event")} in the last 24 hours
+        </ListRow>
+      )}
+      {failedPaymentChecks > 0 && (
+        <ListRow href="/director/finance" icon={<AlertCircle size={16} />}>
+          {formatCount(failedPaymentChecks, "rejected payment claim")}
+        </ListRow>
+      )}
+      {pendingProofs > 0 && (
+        <ListRow href="/director/approvals" icon={<Receipt size={16} />}>
+          {formatCount(pendingProofs, "payment proof")} awaiting your review
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* director-today  (Director general tab - live classes and exams today) */
+async function DirectorTodayBody({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const startOfDay = new Date(now);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(now);
+  endOfDay.setHours(23, 59, 59, 999);
+  const [liveClasses, examsToday] = await Promise.all([
+    db.liveClass.findMany({
+      where: {
+        OR: [
+          { status: "LIVE" },
+          {
+            status: "SCHEDULED",
+            scheduledAt: { gte: now, lte: endOfDay },
+          },
+        ],
+      },
+      take: 4,
+      orderBy: { scheduledAt: "asc" },
+      include: { course: { select: { title: true } } },
+    }).catch(() => []),
+    db.exam.findMany({
+      where: {
+        startWindowAt: { gte: startOfDay, lte: endOfDay },
+        status: "PUBLISHED",
+      },
+      take: 4,
+      orderBy: { startWindowAt: "asc" },
+      include: { course: { select: { title: true } } },
+    }).catch(() => []),
+  ]);
+  const href = fullPageHref ?? "/director/examinations";
+  if (!liveClasses.length && !examsToday.length)
+    return <Empty>No live classes or exams scheduled today.</Empty>;
+  return (
+    <>
+      {liveClasses.map((cls) => (
+        <ListRow
+          key={cls.id}
+          href="/director/reports"
+          icon={<Video size={16} />}
+          date={cls.status === "LIVE" ? "Live now" : fmtTime(cls.scheduledAt)}
+        >
+          {cls.title} ({cls.course.title})
+        </ListRow>
+      ))}
+      {examsToday.map((exam) => (
+        <ListRow
+          key={exam.id}
+          href={href}
+          icon={<ClipboardList size={16} />}
+          date={exam.startWindowAt ? fmtTime(exam.startWindowAt) : "Today"}
+        >
+          Exam: {exam.title} ({exam.course.title})
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* director-recent-decisions  (Director general tab - last 5 approvals decided) */
+async function DirectorRecentDecisionsBody({ fullPageHref }: WidgetBodyProps) {
+  const DIRECTOR_TYPES: ApprovalRequestType[] = [
+    "ACADEMIC_PROGRAMME_CHANGE", "COURSE_CHANGE", "RESULTS_PUBLICATION",
+    "CERTIFICATE_ISSUANCE", "PAYMENT_PROOF", "EQUIPMENT_REQUEST",
+    "ROLE_ASSIGNMENT", "FEE_CHANGE", "WAIVER", "REFUND",
+  ];
+  const TYPE_LABELS: Record<string, string> = {
+    ACADEMIC_PROGRAMME_CHANGE: "Programme change",
+    COURSE_CHANGE:             "Course change",
+    RESULTS_PUBLICATION:       "Results publication",
+    CERTIFICATE_ISSUANCE:      "Certificate issuance",
+    PAYMENT_PROOF:             "Payment proof",
+    EQUIPMENT_REQUEST:         "Equipment request",
+    ROLE_ASSIGNMENT:           "Role assignment",
+    FEE_CHANGE:                "Fee change",
+    WAIVER:                    "Fee waiver",
+    REFUND:                    "Refund",
+  };
+  const decisions = await db.approvalRequest.findMany({
+    where: {
+      type: { in: DIRECTOR_TYPES },
+      status: { in: ["APPROVED", "REJECTED", "APPLIED"] },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+    include: { initiator: { select: { name: true } } },
+  });
+  if (!decisions.length) return <Empty>No decisions recorded yet.</Empty>;
+  const href = fullPageHref ?? "/director/approvals";
+  return (
+    <>
+      {decisions.map((d) => {
+        const label = TYPE_LABELS[d.type] ?? d.type.toLowerCase().replace(/_/g, " ");
+        const outcome = d.status === "REJECTED" ? "Rejected" : "Approved";
+        return (
+          <ListRow
+            key={d.id}
+            href={`${href}/${d.id}`}
+            icon={<ShieldCheck size={16} />}
+            date={fmtDate(d.updatedAt)}
+          >
+            {outcome}: {label} from {d.initiator?.name ?? "unknown"}
+          </ListRow>
+        );
+      })}
+    </>
+  );
+}
+
+/* director-enrolment-by-programme  (Director academics tab) */
+async function DirectorEnrolmentByProgrammeBody({ fullPageHref }: WidgetBodyProps) {
+  const courses = await db.course.findMany({
+    where: { status: "PUBLISHED" },
+    select: {
+      id: true,
+      title: true,
+      courseCode: true,
+      _count: {
+        select: {
+          enrolments: {
+            where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } },
+          },
+        },
+      },
+    },
+    orderBy: { title: "asc" },
+  });
+  const withEnrolments = courses.filter((c) => c._count.enrolments > 0);
+  if (!withEnrolments.length) return <Empty>No active enrolments yet.</Empty>;
+  const href = fullPageHref ?? "/director/students";
+  return (
+    <>
+      {withEnrolments.map((c) => (
+        <ListRow
+          key={c.id}
+          href={href}
+          icon={<GraduationCap size={16} />}
+          date={c._count.enrolments.toString()}
+        >
+          {c.courseCode ?? c.title.slice(0, 30)}
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* director-instructor-activity  (Director academics tab) */
+async function DirectorInstructorActivityBody({ fullPageHref }: WidgetBodyProps) {
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const instructors = await db.user.findMany({
+    where: { role: "INSTRUCTOR" },
+    select: {
+      id: true,
+      name: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          liveClasses: {
+            where: { scheduledAt: { gte: since30d } },
+          },
+        },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 6,
+  }).catch(() => []);
+  if (!instructors.length) return <Empty>No instructors found.</Empty>;
+  const href = fullPageHref ?? "/director/instructors";
+  return (
+    <>
+      {instructors.map((inst) => (
+        <ListRow
+          key={inst.id}
+          href={href}
+          icon={<Users size={16} />}
+          date={fmtDate(inst.updatedAt)}
+        >
+          {inst.name} ({inst._count.liveClasses} classes)
+        </ListRow>
+      ))}
+    </>
+  );
+}
+
+/* director-certificates-awaiting  (Director academics tab) */
+async function DirectorCertificatesAwaitingBody({ fullPageHref }: WidgetBodyProps) {
+  const pending = await db.approvalRequest.count({
+    where: {
+      type: "CERTIFICATE_ISSUANCE",
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+    },
+  });
+  const recentlyIssued = await db.certificate.count({
+    where: { issuedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+  }).catch(() => 0);
+  const href = fullPageHref ?? "/director/certificates";
+  if (pending === 0 && recentlyIssued === 0)
+    return <Empty>No certificates pending or recently issued.</Empty>;
+  return (
+    <>
+      {pending > 0 && (
+        <ListRow href="/director/approvals" icon={<ShieldCheck size={16} />}>
+          {formatCount(pending, "certificate batch")} awaiting your approval
+        </ListRow>
+      )}
+      {recentlyIssued > 0 && (
+        <ListRow href={href} icon={<Award size={16} />}>
+          {formatCount(recentlyIssued, "certificate")} issued in the last 30 days
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+/* director-payment-proofs  (Director finance tab) */
+async function DirectorPaymentProofsBody({ fullPageHref }: WidgetBodyProps) {
+  const proofs = await db.approvalRequest.findMany({
+    where: {
+      type: "PAYMENT_PROOF",
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+    },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+    include: {
+      initiator: { select: { name: true } },
+    },
+  });
+  if (!proofs.length) return <Empty>No payment proofs awaiting review.</Empty>;
+  const href = fullPageHref ?? "/director/approvals";
+  function ageDays(date: Date) {
+    return Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  }
+  return (
+    <>
+      {proofs.map((p) => {
+        const age = ageDays(p.createdAt);
+        const ageStr = age === 0 ? "today" : age === 1 ? "1 day ago" : `${age} days ago`;
+        return (
+          <ListRow
+            key={p.id}
+            href={`${href}/${p.id}`}
+            icon={<Receipt size={16} />}
+            date={ageStr}
+          >
+            Proof from {p.initiator?.name ?? "unknown"}
+            {p.amount ? ` (${fmtUGX(p.amount)})` : ""}
+          </ListRow>
+        );
+      })}
+    </>
+  );
+}
+
+/* director-finance-phase  (Director finance tab - collected vs outstanding by phase) */
+async function DirectorFinanceByPhaseBody({ fullPageHref }: WidgetBodyProps) {
+  const [collected50, collected25a, collected25b, totalFees, totalPaid] = await Promise.all([
+    // Phase 1 (50%): enrolments with paidPercent >= 50
+    db.enrolment.count({
+      where: { paidPercent: { gte: 50 }, status: { not: "PENDING_PAYMENT" } },
+    }),
+    // Phase 2 (75%): paidPercent >= 75
+    db.enrolment.count({
+      where: { paidPercent: { gte: 75 }, status: { not: "PENDING_PAYMENT" } },
+    }),
+    // Phase 3 (100%): fully paid
+    db.enrolment.count({
+      where: { paidPercent: 100 },
+    }),
+    db.enrolment.aggregate({
+      where: { status: { not: "CANCELLED" } },
+      _sum: { totalAmountUgx: true },
+    }),
+    db.enrolment.aggregate({
+      where: { status: { not: "CANCELLED" } },
+      _sum: { paidAmountUgx: true },
+    }),
+  ]);
+  const totalFeesUgx = totalFees._sum.totalAmountUgx ?? 0;
+  const totalPaidUgx = totalPaid._sum.paidAmountUgx ?? 0;
+  const outstandingUgx = Math.max(0, totalFeesUgx - totalPaidUgx);
+  const href = fullPageHref ?? "/director/finance";
+  return (
+    <>
+      <ListRow href={href} icon={<Wallet size={16} />}>
+        Collected: {fmtUGX(totalPaidUgx)}
+      </ListRow>
+      <ListRow href={href} icon={<AlertCircle size={16} />}>
+        Outstanding: {fmtUGX(outstandingUgx)}
+      </ListRow>
+      <ListRow href={href} icon={<Users size={16} />}>
+        {collected50} at 50%, {collected25a} at 75%, {collected25b} complete
+      </ListRow>
+    </>
+  );
+}
+
+/* director-fee-changes  (Director finance tab - fee changes and waivers pending) */
+async function DirectorFeeChangesBody({ fullPageHref }: WidgetBodyProps) {
+  const pending = await db.approvalRequest.findMany({
+    where: {
+      type: { in: ["FEE_CHANGE", "WAIVER", "REFUND"] as ApprovalRequestType[] },
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+    },
+    orderBy: { createdAt: "asc" },
+    take: 5,
+    include: { initiator: { select: { name: true } } },
+  });
+  if (!pending.length) return <Empty>No fee changes or waivers pending.</Empty>;
+  const TYPE_LABELS: Record<string, string> = {
+    FEE_CHANGE: "Fee change",
+    WAIVER: "Fee waiver",
+    REFUND: "Refund",
+  };
+  const href = fullPageHref ?? "/director/approvals";
+  function ageDays(date: Date) {
+    return Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  }
+  return (
+    <>
+      {pending.map((item) => {
+        const age = ageDays(item.createdAt);
+        const ageStr = age === 0 ? "today" : age === 1 ? "1 day ago" : `${age} days ago`;
+        const label = TYPE_LABELS[item.type] ?? item.type.toLowerCase();
+        return (
+          <ListRow
+            key={item.id}
+            href={`${href}/${item.id}`}
+            icon={<Receipt size={16} />}
+            date={ageStr}
+          >
+            {label} from {item.initiator?.name ?? "unknown"}
+            {item.amount ? ` (${fmtUGX(item.amount)})` : ""}
+          </ListRow>
+        );
+      })}
+    </>
+  );
+}
+
+/* director-academic-reports  (Director reports tab - enrolment and pass rate summary) */
+async function DirectorAcademicReportsBody({ fullPageHref }: WidgetBodyProps) {
+  const [totalActive, totalGraduated, totalExamAttempts, passedAttempts, coursesPublished] = await Promise.all([
+    db.enrolment.count({
+      where: { status: { in: ["ACTIVE", "PARTIALLY_PAID"] } },
+    }),
+    db.enrolment.count({ where: { status: "COMPLETED" } }),
+    db.examAttempt.count(),
+    db.examAttempt.count({ where: { passed: true } }),
+    db.course.count({ where: { status: "PUBLISHED" } }),
+  ]);
+  const overallPass = totalExamAttempts > 0
+    ? Math.round((passedAttempts / totalExamAttempts) * 100)
+    : null;
+  const href = fullPageHref ?? "/director/reports";
+  return (
+    <>
+      <ListRow href="/director/students" icon={<Users size={16} />}>
+        {totalActive.toLocaleString()} active enrolments
+      </ListRow>
+      <ListRow href="/director/graduates" icon={<GraduationCap size={16} />}>
+        {totalGraduated.toLocaleString()} completed
+      </ListRow>
+      {overallPass !== null && (
+        <ListRow href="/director/examinations" icon={<CheckCircle2 size={16} />}>
+          Overall pass rate: {overallPass}%
+        </ListRow>
+      )}
+      <ListRow href="/director/courses" icon={<FileText size={16} />}>
+        {formatCount(coursesPublished, "course")} published
+      </ListRow>
+      <ViewMoreLink href={href}>Full reports</ViewMoreLink>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    WIDGET COMPONENT REGISTRY
    Maps the `component` string from DASHBOARD_WIDGETS to a server component.
    ═══════════════════════════════════════════════ */
@@ -2429,4 +2971,16 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "auditor-overview": AuditorOverviewBody,
   "attendance-overview": AttendanceOverviewBody,
   "student-progress-overview": StudentProgressOverviewBody,
+  // Director-specific widgets added for D2
+  "director-key-numbers": DirectorKeyNumbersBody,
+  "director-alerts": DirectorAlertsBody,
+  "director-today": DirectorTodayBody,
+  "director-recent-decisions": DirectorRecentDecisionsBody,
+  "director-enrolment-by-programme": DirectorEnrolmentByProgrammeBody,
+  "director-instructor-activity": DirectorInstructorActivityBody,
+  "director-certificates-awaiting": DirectorCertificatesAwaitingBody,
+  "director-payment-proofs": DirectorPaymentProofsBody,
+  "director-finance-phase": DirectorFinanceByPhaseBody,
+  "director-fee-changes": DirectorFeeChangesBody,
+  "director-academic-reports": DirectorAcademicReportsBody,
 };

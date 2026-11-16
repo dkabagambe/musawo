@@ -176,7 +176,11 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 
 /** Override display names for sidebar group headers (separate from tab labels). */
 const SIDEBAR_GROUP_NAMES: Record<string, string> = {
-  general: "Overview",
+  general:       "Overview",
+  overview:      "Overview",
+  governance:    "Governance",
+  communication: "Communication",
+  account:       "Account",
 };
 
 const TAB_LABELS: Record<DashboardTab, string> = {
