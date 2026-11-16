@@ -1,14 +1,15 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import ProfileForm from "@/app/(dashboard)/dashboard/profile/ProfileForm";
+import { getInitials } from "@/lib/utils/initials";
+import ProfileEditForm from "./ProfileEditForm";
 import AvatarUpload from "@/components/ui/AvatarUpload";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 
-export const metadata = { title: "Profile - Principal" };
+export const metadata = { title: "Profile & Settings - Principal" };
 
 export default async function PrincipalProfilePage() {
   const session = await auth();
@@ -19,63 +20,72 @@ export default async function PrincipalProfilePage() {
     select: {
       id: true,
       name: true,
+      professionalTitle: true,
       email: true,
       phone: true,
-      dateOfBirth: true,
-      gender: true,
-      district: true,
-      countryCode: true,
-      highestQualification: true,
-      professionalTitle: true,
-      registrationNumber: true,
-      emergencyContact: true,
+      totpEnabled: true,
+      createdAt: true,
+      role: true,
+      status: true,
       avatarUrl: true,
-      bio: true,
       themePreference: true,
     },
   });
 
   if (!user) redirect("/login");
 
+  // Build the full name for display: "Dr. Nankya Shanita" or "Nankya Shanita"
+  const displayName = user.professionalTitle
+    ? `${user.professionalTitle} ${user.name}`
+    : user.name;
+
   return (
-    <div className="max-w-xl mx-auto">
-      <Link href="/principal" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-4 no-underline transition-colors">
-        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-        Back to dashboard
-      </Link>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">My Profile</h1>
-        <p className="text-sm text-gray-500 mt-1">Update your personal details</p>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <Link
+          href="/principal"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary mb-3 no-underline transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          Back to dashboard
+        </Link>
+        <h1 className="text-2xl font-bold text-primary">Profile & Settings</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
       </div>
-      <div className="card mb-6 flex justify-center">
-        <AvatarUpload
-          userId={user.id}
-          avatarUrl={user.avatarUrl}
-          name={user.name}
-          size="lg"
-        />
-      </div>
+
       <div className="card">
-        <ProfileForm
-          allowNameEdit
-          user={{
-            name: user.name,
-            email: user.email ?? "",
-            studentNumber: null,
-            registrationNumber: user.registrationNumber,
-            programme: null,
-            phone: user.phone ?? "",
-            dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().slice(0, 10) : null,
-            gender: user.gender,
-            district: user.district,
-            countryCode: user.countryCode,
-            highestQualification: user.highestQualification,
-            professionalTitle: user.professionalTitle,
-            emergencyContact: user.emergencyContact,
-            bio: user.bio ?? "",
-            themePreference: user.themePreference ?? "system",
-          }}
+        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-border">
+          <div className="flex-shrink-0">
+            <AvatarUpload userId={user.id} avatarUrl={user.avatarUrl} name={displayName} size="md" />
+          </div>
+          <div className="pt-1">
+            <p className="font-semibold text-lg text-primary">{displayName}</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Principal</p>
+            <p className="text-xs text-gray-500 mt-1">Initials: {getInitials(user.name)}</p>
+          </div>
+        </div>
+
+        <ProfileEditForm
+          userId={user.id}
+          currentName={user.name}
+          initialProfessionalTitle={user.professionalTitle ?? ""}
+          initialPhone={user.phone ?? ""}
+          email={user.email ?? ""}
+          totpEnabled={user.totpEnabled}
+          initialTheme={user.themePreference ?? "system"}
         />
+      </div>
+
+      <div className="card text-sm text-gray-500 space-y-1">
+        <p>
+          Account created: {new Date(user.createdAt).toLocaleDateString("en-UG")}
+        </p>
+        <p>
+          Status:{" "}
+          <span className={`font-semibold ${user.status === "ACTIVE" ? "text-success" : "text-danger"}`}>
+            {user.status}
+          </span>
+        </p>
       </div>
     </div>
   );
