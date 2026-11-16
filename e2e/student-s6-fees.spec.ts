@@ -20,13 +20,13 @@ test.describe("Student S6: My Fees and Access", () => {
       await login(page, "student.new@example.com");
       await page.goto("/dashboard/payments");
 
-      await expect(page.locator("#main-content h1")).toContainText("My Fees");
+      await expect(page.locator("h1.text-2xl")).toContainText("My Fees");
       // Should show fee phases section
       await expect(page.locator("text=Fee Phases")).toBeVisible();
-      // Should show the three phases
-      await expect(page.locator("text=50% before reporting")).toBeVisible();
-      await expect(page.locator("text=25% mid-course")).toBeVisible();
-      await expect(page.locator("text=25% final")).toBeVisible();
+      // Should show the three phases (match the phase label spans, not the banner)
+      await expect(page.locator("span:has-text('50% before reporting')").first()).toBeVisible();
+      await expect(page.locator("span:has-text('25% mid-course')").first()).toBeVisible();
+      await expect(page.locator("span:has-text('25% final')").first()).toBeVisible();
     });
 
     test("completed student sees approved phases and fully paid", async ({ page }) => {
@@ -55,9 +55,9 @@ test.describe("Student S6: My Fees and Access", () => {
       await login(page, "student.new@example.com");
       await page.goto("/dashboard/payments/claim");
 
-      // MTN and Airtel should be visible
-      await expect(page.locator("text=MTN Mobile Money")).toBeVisible();
-      await expect(page.locator("text=Airtel Money")).toBeVisible();
+      // MTN and Airtel should be visible (match the radio labels specifically)
+      await expect(page.locator("label:has-text('MTN Mobile Money')")).toBeVisible();
+      await expect(page.locator("label:has-text('Airtel Money')")).toBeVisible();
 
       // Bank Transfer and Cash should NOT be options
       const bankRadio = page.locator('input[value="BANK_TRANSFER"]');
@@ -74,8 +74,8 @@ test.describe("Student S6: My Fees and Access", () => {
       await login(page, "student.new@example.com");
       await page.goto("/dashboard/payments/claim");
 
-      // Should show screenshot upload option
-      await expect(page.locator("text=/screenshot/i")).toBeVisible();
+      // Should show screenshot upload option (match the label specifically)
+      await expect(page.locator("label:has-text('screenshot')")).toBeVisible();
     });
   });
 
@@ -127,6 +127,8 @@ test.describe("Student S6: My Fees and Access", () => {
 
       // Submit a claim with a unique transaction ID
       const txId = `TEST-S6-${Date.now()}`;
+      // Ensure no leftover claim with this prefix from a failed prior run
+      await PGPASSWORD_mtc12345_psql(enrolmentId, `TEST-S6-%`);
       const res1 = await apiContext.post("http://localhost:3000/api/payments/claim", {
         data: {
           enrolmentId,
@@ -206,13 +208,14 @@ test.describe("Student S6: My Fees and Access", () => {
   });
 });
 
-/** Helper: clean up test claim via psql. */
+/** Helper: clean up test claim(s) via psql. Pass exact txId or a LIKE pattern ending with %. */
 async function PGPASSWORD_mtc12345_psql(enrolmentId: string, txId: string) {
   // Best-effort cleanup: the claim is just test data
   try {
     const { execSync } = require("child_process");
+    const op = txId.endsWith("%") ? "LIKE" : "=";
     execSync(
-      `PGPASSWORD=mtc12345 psql -h 127.0.0.1 -U mtc -d mtc_db -c "DELETE FROM manual_payment_claims WHERE \"transactionId\" = '${txId}'"`,
+      `PGPASSWORD=mtc12345 psql -h 127.0.0.1 -U mtc -d mtc_db -c "DELETE FROM manual_payment_claims WHERE \\\"transactionId\\\" ${op} '${txId}'"`,
       { stdio: "ignore" }
     );
   } catch {

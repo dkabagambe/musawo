@@ -46,6 +46,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Check transactionId uniqueness first (before rate-limit, so duplicates are always rejected)
+  const existing = await db.manualPaymentClaim.findUnique({
+    where: { transactionId: body.transactionId },
+  });
+  if (existing) {
+    return NextResponse.json(
+      { error: "A claim with this transaction ID already exists." },
+      { status: 409 },
+    );
+  }
+
   // Rate limit: count claims submitted by this user today
   const dayStart = new Date();
   dayStart.setHours(0, 0, 0, 0);
@@ -60,17 +71,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Daily claim limit reached. Try again tomorrow." },
       { status: 429 },
-    );
-  }
-
-  // Check transactionId uniqueness
-  const existing = await db.manualPaymentClaim.findUnique({
-    where: { transactionId: body.transactionId },
-  });
-  if (existing) {
-    return NextResponse.json(
-      { error: "A claim with this transaction ID already exists." },
-      { status: 409 },
     );
   }
 
