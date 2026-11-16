@@ -1,11 +1,12 @@
 /**
  * Extract the first name from a full name, ignoring titles.
  * 
- * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., etc.
+ * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., Nurse, Sr., etc.
  * 
  * Examples:
  *   "Dr. Esther Achen" → "Esther"
  *   "Prof. John Smith" → "John"
+ *   "Nurse Sarah Arach" → "Sarah"
  *   "Joel Mirembe" → "Joel"
  *   "Alice" → "Alice"
  * 
@@ -17,7 +18,7 @@ export function getFirstName(name: string): string {
 
   // Strip common titles (case-insensitive)
   const withoutTitle = name.replace(
-    /^(Dr\.?|Prof\.?|Professor|Eng\.?|Engineer|Mr\.?|Mrs\.?|Ms\.?|Miss|Rev\.?|Reverend|Hon\.?|Honorable|Sir|Dame|Lord|Lady)\s+/i,
+    /^(Dr\.?|Prof\.?|Professor|Eng\.?|Engineer|Mr\.?|Mrs\.?|Ms\.?|Miss|Rev\.?|Reverend|Hon\.?|Honorable|Sir|Dame|Lord|Lady|Nurse|Sr\.?|Sister)\s+/i,
     ""
   ).trim();
 
@@ -30,11 +31,12 @@ export function getFirstName(name: string): string {
 /**
  * Extract initials from a person's name, ignoring titles.
  * 
- * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., etc.
+ * Titles to strip: Dr., Prof., Eng., Mr., Mrs., Ms., Miss, Rev., Hon., Nurse, Sr., etc.
  * 
  * Examples:
  *   "Dr. Esther Achen" → "EA"
  *   "Prof. John Smith" → "JS"
+ *   "Nurse Sarah Arach" → "SA"
  *   "Joel Mirembe" → "JM"
  *   "Alice" → "AL"
  * 
@@ -46,7 +48,7 @@ export function getInitials(name: string): string {
 
   // Strip common titles (case-insensitive)
   const withoutTitle = name.replace(
-    /^(Dr\.?|Prof\.?|Professor|Eng\.?|Engineer|Mr\.?|Mrs\.?|Ms\.?|Miss|Rev\.?|Reverend|Hon\.?|Honorable|Sir|Dame|Lord|Lady)\s+/i,
+    /^(Dr\.?|Prof\.?|Professor|Eng\.?|Engineer|Mr\.?|Mrs\.?|Ms\.?|Miss|Rev\.?|Reverend|Hon\.?|Honorable|Sir|Dame|Lord|Lady|Nurse|Sr\.?|Sister)\s+/i,
     ""
   ).trim();
 

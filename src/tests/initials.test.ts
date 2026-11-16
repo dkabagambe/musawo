@@ -29,6 +29,9 @@ describe("getInitials", () => {
     expect(getInitials("Miss Emily White")).toBe("EW");
     expect(getInitials("Rev. Thomas Gray")).toBe("TG");
     expect(getInitials("Reverend Mark King")).toBe("MK");
+    expect(getInitials("Nurse Sarah Arach")).toBe("SA");
+    expect(getInitials("Sr. Mary Joseph")).toBe("MJ");
+    expect(getInitials("Sister Anne Marie")).toBe("AM");
   });
 
   it("should handle names without titles", () => {

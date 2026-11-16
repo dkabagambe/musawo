@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
+import { getInitials } from "@/lib/utils/initials";
 import {
   LayoutDashboard, Users, ClipboardList, GraduationCap, Library, Building2,
   BookOpen, Layers, CalendarRange, Calendar, CheckSquare, ClipboardCheck,
@@ -52,7 +53,7 @@ export default async function PrincipalLayout({ children }: { children: React.Re
   const name = session.user.name ?? "Principal";
   const dbUser = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { avatarUrl: true },
+    select: { avatarUrl: true, professionalTitle: true },
   });
   return (
     <AppShell
@@ -60,7 +61,7 @@ export default async function PrincipalLayout({ children }: { children: React.Re
       role="Principal"
       permissionRole={session.user.role}
       userName={name}
-      userInitial={name.charAt(0).toUpperCase()}
+      userInitial={getInitials(name)}
       userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={[...TABS]}
     >
