@@ -1,124 +1,98 @@
-/**
- * POST /api/director/reset-2fa
- *
- * Director-only endpoint to reset another user's TOTP (2FA) setup.
- * The Director can reset any staff member's 2FA, including the Principal.
- * After reset, the target user must re-complete 2FA setup on next login
- * (if TOTP enforcement is on for their role).
- *
- * Body: { userId: string }
- *
- * Audit logged as TOTP_RESET. A notification is sent to the target user.
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
+import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import { audit } from "@/lib/audit";
-import { can } from "@/lib/rbac";
-import { requireRecentTotp } from "@/lib/auth/require-recent-totp";
 
-export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
+/**
+ * POST /api/director/reset-2fa
+ * Director resets a staff member's 2FA (Principal or other staff).
+ * The staff member must set up 2FA again on next login.
+ */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(session.user.role, "staff.create.approve")) {
-    return NextResponse.json({ error: "Forbidden: Director access required" }, { status: 403 });
+  if (!session?.user || !can(session.user.role, "staff.create.approve")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // High-risk action: require TOTP re-authentication within the last 15 minutes
-  const reauth = await requireRecentTotp(session.user.id);
-  if (!reauth.ok) {
-    return NextResponse.json({ error: reauth.error, code: "REAUTH_REQUIRED" }, { status: 403 });
+  const body = (await req.json().catch(() => ({}))) as { userId?: string };
+  const { userId } = body;
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "userId is required" },
+      { status: 400 }
+    );
   }
 
-  let userId: string;
-  try {
-    const body = await req.json() as { userId?: string };
-    userId = (body.userId ?? "").trim();
-    if (!userId) throw new Error("userId required");
-  } catch {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
-
-  // Director cannot reset their own 2FA via this endpoint (prevents lockout)
-  if (userId === session.user.id) {
-    return NextResponse.json({ error: "Use the profile settings to manage your own 2FA" }, { status: 400 });
-  }
-
-  const target = await db.user.findUnique({
+  // Find the user
+  const user = await db.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true, role: true, totpEnabled: true },
   });
-  if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  if (!target.totpEnabled) {
-    return NextResponse.json({ error: "This account does not have 2FA enabled" }, { status: 400 });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Clear TOTP fields
+  // Cannot reset own 2FA or another Director's
+  if (user.id === session.user.id) {
+    return NextResponse.json(
+      { error: "You cannot reset your own 2FA. Use profile settings." },
+      { status: 400 }
+    );
+  }
+
+  if (user.role === "DIRECTOR") {
+    return NextResponse.json(
+      { error: "Director accounts cannot have 2FA reset by another Director." },
+      { status: 403 }
+    );
+  }
+
+  if (!user.totpEnabled) {
+    return NextResponse.json(
+      { error: "This user does not have 2FA enabled." },
+      { status: 400 }
+    );
+  }
+
+  // Reset 2FA
   await db.user.update({
-    where: { id: target.id },
+    where: { id: userId },
     data: {
-      totpSecret:      null,
-      totpEnabled:     false,
-      totpVerifiedAt:  null,
+      totpSecret: null,
+      totpEnabled: false,
       totpBackupCodes: null,
     },
   });
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? undefined;
-
+  // Audit log
   await audit({
-    actorId:    session.user.id,
-    action:     "TOTP_RESET",
+    actorId: session.user.id,
+    action: "TOTP_RESET",
     entityType: "User",
-    entityId:   target.id,
-    metadata:   {
-      resetBy:    session.user.id,
-      targetRole: target.role,
-      targetEmail: target.email,
-      reason:     "Director-initiated 2FA reset",
+    entityId: userId,
+    metadata: {
+      targetUserName: user.name,
+      targetUserEmail: user.email,
+      targetUserRole: user.role,
+      reason: "Director initiated reset",
     },
-    ip,
+    ip: req.headers.get("x-forwarded-for") ?? undefined,
   });
 
-  // Notify the affected user
-  try {
-    await db.notification.create({
-      data: {
-        userId:  target.id,
-        subject: "Two-factor authentication reset",
-        body:    `Your 2FA (two-factor authentication) was reset by the Director. You will be required to set it up again on your next login.`,
-        type:    "SYSTEM",
-        readAt:  null,
-      },
-    });
-  } catch {
-    // Non-fatal: notification failure should not block the reset
-  }
-
-  // Notify the Director (audit trail for Director's own awareness if someone else initiated,
-  // and for confirmation of the action)
-  try {
-    if (target.id !== session.user.id) {
-      await db.notification.create({
-        data: {
-          userId:  session.user.id,
-          subject: `2FA reset completed for ${target.role.charAt(0) + target.role.slice(1).toLowerCase()} account`,
-          body:    `You reset 2FA for ${target.name ?? target.email} (${target.role}). They will be prompted to set it up again on next login.`,
-          type:    "SYSTEM",
-          readAt:  null,
-        },
-      });
-    }
-  } catch {
-    // Non-fatal
-  }
+  // TODO: Send notification email to the user
+  // await sendEmail({
+  //   to: user.email,
+  //   subject: "Your 2FA has been reset",
+  //   body: `Your two-factor authentication has been reset by the Director. You will need to set it up again on your next login.`,
+  // });
 
   return NextResponse.json({
-    ok:      true,
-    message: `2FA has been reset for ${target.name ?? target.email}. They will need to set it up again on next login.`,
+    ok: true,
+    message: `2FA reset for ${user.name}. They will need to set it up again on next login.`,
   });
 }
