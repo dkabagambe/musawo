@@ -33,6 +33,7 @@ import {
   LogOut,
   Mail,
   Menu,
+  MoreHorizontal,
   Settings2,
   SlidersHorizontal,
   ShieldCheck,
@@ -587,6 +588,71 @@ export function Topbar({
   );
 }
 
+// ── Bottom navigation (mobile only, ≤767px) ──────────────────────────────────
+// Groups the full nav into 5 primary tabs: Dashboard, Classes, Learn, Fees, More.
+// "More" opens the existing side drawer so all pages remain reachable.
+const BOTTOM_NAV_GROUPS: { label: string; groupKey: string; icon: React.ReactNode }[] = [
+  { label: "Dashboard", groupKey: "general",       icon: <LayoutDashboardIcon size={22} /> },
+  { label: "Classes",   groupKey: "classes",        icon: <CalendarDays size={22} /> },
+  { label: "Learn",     groupKey: "learning",       icon: <BookOpen size={22} /> },
+  { label: "Fees",      groupKey: "finance",        icon: <Wallet size={22} /> },
+  { label: "More",      groupKey: "__more__",       icon: <MoreHorizontal size={22} /> },
+];
+
+function BottomNav({
+  nav,
+  pathname,
+  onMore,
+}: {
+  nav: NavItem[];
+  pathname: string;
+  onMore: () => void;
+}) {
+  // Find the first href for each group
+  const hrefForGroup = (groupKey: string) => {
+    const item = nav.find((n) => n.group === groupKey);
+    return item?.href ?? null;
+  };
+
+  const isGroupActive = (groupKey: string) =>
+    nav.some((n) => n.group === groupKey && (n.href === pathname || (n.href !== nav[0]?.href && pathname.startsWith(`${n.href}/`))));
+
+  return (
+    <nav className="portal-bottom-nav" aria-label="Bottom navigation">
+      {BOTTOM_NAV_GROUPS.map(({ label, groupKey, icon }) => {
+        if (groupKey === "__more__") {
+          return (
+            <button
+              key="more"
+              type="button"
+              className="portal-bottom-nav-item"
+              onClick={onMore}
+              aria-label="More navigation options"
+            >
+              <span className="portal-bottom-nav-icon" aria-hidden="true">{icon}</span>
+              <span className="portal-bottom-nav-label">More</span>
+            </button>
+          );
+        }
+        const href = hrefForGroup(groupKey);
+        if (!href) return null;
+        const active = isGroupActive(groupKey);
+        return (
+          <Link
+            key={groupKey}
+            href={href}
+            className={`portal-bottom-nav-item${active ? " is-active" : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            <span className="portal-bottom-nav-icon" aria-hidden="true">{icon}</span>
+            <span className="portal-bottom-nav-label">{label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function AppShell({
   children,
   nav,
@@ -738,7 +804,7 @@ export default function AppShell({
           menuButtonRef={menuButtonRef}
         />
         <main className="portal-main" id="main-content">
-          <div className="portal-content">
+          <div className="portal-content portal-content-with-bottom-nav">
             {isPortalDashboard ? (
               <DashboardPreferenceProvider tab={currentTab}>
                 <DashboardPageHeader
@@ -782,6 +848,11 @@ export default function AppShell({
           onNavigate={closeDrawer}
         />
       </div>
+      <BottomNav
+        nav={visibleNav}
+        pathname={pathname}
+        onMore={() => setDrawerOpen(true)}
+      />
     </div>
   );
 }

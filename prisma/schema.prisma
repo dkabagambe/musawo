@@ -1240,6 +1240,8 @@ model GradeEntry {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId, itemType, itemId])
+  @@index([userId, courseId])
+  @@index([userId, releasedAt])
   @@map("grade_entries")
 }
 
@@ -1263,6 +1265,8 @@ model Assignment {
   block       Block?                 @relation(fields: [blockId], references: [id])
   submissions AssignmentSubmission[]
 
+  @@index([courseId, status])
+  @@index([dueDate])
   @@map("assignments")
 }
 
@@ -1290,6 +1294,8 @@ model AssignmentSubmission {
   grader     User?      @relation("GraderSubmissions", fields: [gradedBy], references: [id])
 
   @@unique([assignmentId, userId])
+  @@index([userId, submittedAt])
+  @@index([assignmentId, status])
   @@map("assignment_submissions")
 }
 
@@ -1319,6 +1325,8 @@ model Announcement {
   liveClass LiveClass? @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
   author    User       @relation(fields: [authorId], references: [id])
 
+  @@index([courseId, createdAt])
+  @@index([pinned, createdAt])
   @@map("announcements")
 }
 
@@ -1423,6 +1431,8 @@ model ForumReply {
   thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   author User        @relation(fields: [authorId], references: [id])
 
+  @@index([threadId, createdAt])
+  @@index([authorId])
   @@map("forum_replies")
 }
 

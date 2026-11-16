@@ -1099,6 +1099,82 @@
   to   { transform: translateX(0);    opacity: 1; }
 }
 
+/* ── Bottom navigation bar (phone only) ────────────────────────────────────── */
+/* All rules scoped to the phone breakpoint so the minifier cannot extract
+   them into conflicting global rules. The nav renders in the DOM on all screen
+   sizes but only becomes visible (and laid out) below 768px. */
+@media (max-width: 767px) {
+  .portal-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 45;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--portal-sidebar);
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    align-items: stretch;
+    justify-content: space-around;
+    box-shadow: 0 -2px 12px rgb(0 0 0 / 0.14);
+  }
+  .portal-bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px 4px;
+    color: rgb(255 255 255 / 0.72);
+    text-decoration: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 120ms, background 120ms;
+    border-radius: 0;
+  }
+  .portal-bottom-nav-item:hover,
+  .portal-bottom-nav-item:focus-visible {
+    color: white;
+    background: rgb(255 255 255 / 0.08);
+    outline: none;
+  }
+  .portal-bottom-nav-item:focus-visible {
+    outline: 2px solid var(--portal-accent);
+    outline-offset: -2px;
+  }
+  .portal-bottom-nav-item.is-active { color: white; }
+  .portal-bottom-nav-item.is-active .portal-bottom-nav-icon {
+    background: rgb(255 255 255 / 0.18);
+    border-radius: 8px;
+  }
+  .portal-bottom-nav-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 120ms;
+  }
+  .portal-bottom-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+}
+/* Nav is invisible (not just hidden) above phone breakpoint */
+@media (min-width: 768px) {
+  .portal-bottom-nav { visibility: hidden; height: 0; overflow: hidden; pointer-events: none; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════════════════════════════════════ */
@@ -1140,6 +1216,8 @@
   .portal-topbar { padding: 0 16px; }
   .portal-mobile-menu { display: inline-flex; }
   .portal-content { padding: 16px; }
+  /* Extra bottom padding so last widget is not hidden behind the bottom nav bar */
+  .portal-content-with-bottom-nav { padding-bottom: calc(16px + 64px + env(safe-area-inset-bottom, 0px)); }
   .portal-scrim {
     position: fixed; top: var(--banner-h, 0px); bottom: 0; left: 0; right: 0; z-index: 40; display: block; border: 0;
     background: rgb(17 24 39 / 0.48);
