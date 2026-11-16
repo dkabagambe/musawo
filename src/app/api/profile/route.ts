@@ -12,7 +12,7 @@ const BaseSchema = z.object({
   district: z.string().max(100).optional(),
   countryCode: z.string().length(2).optional(),
   highestQualification: z.string().max(100).optional(),
-  professionalTitle: z.string().max(100).optional(),
+  professionalTitle: z.string().max(100).nullable().optional(),
   emergencyContact: z.string().max(200).optional(),
   bio: z.string().max(500).optional(),
   themePreference: z.enum(["light", "dark", "system"]).optional(),

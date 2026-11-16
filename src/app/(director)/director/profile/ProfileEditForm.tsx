@@ -45,7 +45,7 @@ export default function ProfileEditForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           professionalTitle: title.trim() || null,
-          phone: phone.trim() || null,
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
         }),
       });
       const data = await res.json() as { error?: string };
@@ -236,77 +236,59 @@ export default function ProfileEditForm({
 
 // ── Active sessions sub-component ────────────────────────────────────────────
 
-interface SessionRow {
+interface RecentLogin {
   id: string;
-  expires: string;
-  isCurrent: boolean;
+  ip: string | null;
+  createdAt: string;
 }
 
 function ActiveSessions() {
-  const [sessions, setSessions] = useState<SessionRow[] | null>(null);
-  const [loading, setLoading]   = useState(false);
-  const [loaded, setLoaded]     = useState(false);
-  const [revoking, setRevoking] = useState<string | null>(null);
+  const [data, setData]   = useState<{ recentLogins: RecentLogin[]; note: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded]   = useState(false);
 
   async function load() {
     setLoading(true);
     try {
       const res  = await fetch("/api/profile/sessions");
-      const data = await res.json() as { sessions?: SessionRow[] };
-      setSessions(data.sessions ?? []);
+      const json = await res.json() as { recentLogins?: RecentLogin[]; note?: string };
+      setData({ recentLogins: json.recentLogins ?? [], note: json.note ?? "" });
       setLoaded(true);
     } catch {
-      setSessions([]);
+      setData({ recentLogins: [], note: "" });
       setLoaded(true);
     } finally {
       setLoading(false);
     }
   }
 
-  async function revoke(id: string) {
-    setRevoking(id);
-    try {
-      await fetch(`/api/profile/sessions/${id}`, { method: "DELETE" });
-      setSessions((prev) => (prev ?? []).filter((s) => s.id !== id));
-    } catch {
-      /* ignore */
-    } finally {
-      setRevoking(null);
-    }
-  }
-
   if (!loaded) {
     return (
       <button type="button" onClick={load} disabled={loading} className="btn-secondary text-sm">
-        {loading ? "Loading..." : "Show active sessions"}
+        {loading ? "Loading..." : "Show recent login activity"}
       </button>
     );
   }
 
-  if (!sessions || sessions.length === 0) {
-    return <p className="text-sm text-gray-500">No other active sessions found.</p>;
-  }
-
   return (
-    <ul className="space-y-2">
-      {sessions.map((s) => (
-        <li key={s.id} className="flex items-center justify-between gap-3 text-sm border border-border rounded-lg px-3 py-2">
-          <span className="text-gray-600">
-            {s.isCurrent ? <strong>This session</strong> : "Other session"}
-            {" "}&mdash; expires {new Date(s.expires).toLocaleDateString("en-UG")}
-          </span>
-          {!s.isCurrent && (
-            <button
-              type="button"
-              onClick={() => revoke(s.id)}
-              disabled={revoking === s.id}
-              className="text-danger text-xs font-medium hover:underline"
-            >
-              {revoking === s.id ? "Signing out..." : "Sign out"}
-            </button>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="space-y-3">
+      <p className="text-xs text-gray-400">{data?.note}</p>
+      {(!data?.recentLogins || data.recentLogins.length === 0) ? (
+        <p className="text-sm text-gray-500">No recent login records found.</p>
+      ) : (
+        <ul className="space-y-2">
+          {data.recentLogins.map((l) => (
+            <li key={l.id} className="text-sm border border-border rounded-lg px-3 py-2 text-gray-600">
+              {new Date(l.createdAt).toLocaleString("en-UG")}
+              {l.ip ? ` from ${l.ip}` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-gray-500">
+        To end all sessions on other devices, change your password. To end this session, use the{" "}
+        <a href="/signout" className="text-primary hover:underline">sign out</a> button.
+      </p>
+    </div>
   );
 }
