@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import TicketReplyForm from "./TicketReplyForm";
+import CloseTicketButton from "./CloseTicketButton";
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Support Ticket" };
@@ -137,6 +138,10 @@ export default async function SupportTicketDetailPage({
       {/* Reply form - only the owner can reply, and only if not closed */}
       {isOwner && ticket.status !== "CLOSED" && ticket.status !== "RESOLVED" && (
         <TicketReplyForm ticketId={ticket.id} />
+      )}
+
+      {isOwner && ticket.status !== "CLOSED" && (
+        <CloseTicketButton ticketId={ticket.id} backHref={backHref} />
       )}
 
       {(ticket.status === "CLOSED" || ticket.status === "RESOLVED") && (

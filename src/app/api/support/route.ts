@@ -5,6 +5,7 @@ import { sendEmail } from "@/lib/email";
 import { can, canVia } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { getSetting } from "@/lib/settings";
+import { getPresignedUploadUrl } from "@/lib/s3";
 import { z } from "zod";
 
 const CreateTicketSchema = z.object({
@@ -137,7 +138,21 @@ export async function POST(req: NextRequest) {
     userAgent: req.headers.get("user-agent") ?? undefined,
   });
 
-  return NextResponse.json({ id: ticket.id }, { status: 201 });
+  // Generate presigned S3 URL so the client can upload an optional attachment
+  let uploadUrl: string | null = null;
+  let s3Key: string | null = null;
+  try {
+    s3Key = `support-tickets/${session.user.id}/${ticket.id}/attachment`;
+    uploadUrl = await getPresignedUploadUrl(s3Key, "application/octet-stream", 900);
+    // Store the s3Key on the ticket so IT Admin can retrieve the file
+    await db.supportTicket.update({ where: { id: ticket.id }, data: { fileS3Key: s3Key } });
+  } catch {
+    // S3 not configured — non-fatal, ticket was created
+    uploadUrl = null;
+    s3Key = null;
+  }
+
+  return NextResponse.json({ id: ticket.id, uploadUrl, s3Key }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest) {

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
+import { can } from "@/lib/rbac";
 import { z } from "zod";
 
 const ReplySchema = z.object({
@@ -52,6 +53,25 @@ export async function POST(
     where: { id: ticket.id },
     data: { status: "OPEN", updatedAt: new Date() },
   });
+
+  // Notify IT Admin / support managers so they know the student replied
+  const managers = await db.user.findMany({
+    where: { status: "ACTIVE" },
+    select: { id: true, role: true },
+  });
+  const supportManagers = managers.filter((u) => can(u.role as import("@prisma/client").UserRole, "support.manage"));
+  if (supportManagers.length > 0) {
+    await db.notification.createMany({
+      data: supportManagers.map((m) => ({
+        userId: m.id,
+        channel: "IN_APP" as const,
+        type: "SUPPORT_TICKET_CREATED",
+        subject: `Student replied on ticket`,
+        body: parsed.data.body.slice(0, 200),
+        metadata: { ticketId: ticket.id },
+      })),
+    });
+  }
 
   return NextResponse.json({ reply }, { status: 201 });
 }

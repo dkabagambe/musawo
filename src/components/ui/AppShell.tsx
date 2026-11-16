@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
+import { useUnreadNotificationCount } from "@/hooks/useUnreadNotificationCount";
 import { getInitials } from "@/lib/utils/initials";
 
 export interface NavItem {
@@ -473,6 +474,7 @@ export function Topbar({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const unreadMessages = useUnreadMessageCount();
+  const unreadNotifications = useUnreadNotificationCount();
   useEffect(() => {
     if (!settingsOpen) return;
     const dismiss = (event: MouseEvent) => {
@@ -526,6 +528,21 @@ export function Topbar({
             </Link>
           ) : null;
         })()}
+        {/* Unread notification bell badge in topbar */}
+        {notifications && (
+          <Link
+            href={notifications}
+            className="portal-icon-button relative"
+            aria-label={unreadNotifications > 0 ? `Notifications (${unreadNotifications} unread)` : "Notifications"}
+          >
+            <Bell size={19} />
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none" aria-hidden="true">
+                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+              </span>
+            )}
+          </Link>
+        )}
         <div className="portal-settings-wrap" ref={menuRef}>
           <button
             type="button"
