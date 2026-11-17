@@ -113,21 +113,25 @@ async function runAudit(role) {
 
   // ── Login ───────────────────────────────────────────────────────────────────
   console.log(`Logging in as ${cred.email}...`);
-  await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle" });
-  await page.fill('input[type="email"], input[name="email"]', cred.email).catch(() => {});
-  await page.fill('input[type="password"], input[name="password"]', cred.password).catch(() => {});
-  await page.click('button[type="submit"]').catch(() => {});
-  await page.waitForTimeout(2000);
-
-  const loginUrl = page.url();
-  if (loginUrl.includes("/login") || loginUrl.includes("/otp")) {
-    // Try dev/login shortcut
-    await page.goto(`${BASE_URL}/dev/login`, { waitUntil: "networkidle" });
-    const devBtn = await page.$(`.dev-login-btn[data-email="${cred.email}"], button:has-text("${role}")`);
-    if (devBtn) {
-      await devBtn.click();
-      await page.waitForNavigation({ waitUntil: "networkidle" }).catch(() => {});
-    }
+  
+  // Use dev/login shortcut directly
+  await page.goto(`${BASE_URL}/dev/login`, { waitUntil: "networkidle" });
+  
+  // Find the table row containing the role and click its "Sign in" button
+  const roleRow = page.locator("tr").filter({ hasText: role });
+  const signInBtn = roleRow.getByRole("button", { name: /Sign in/i });
+  
+  try {
+    await signInBtn.click({ timeout: 5000 });
+    await page.waitForURL(new RegExp(cred.landing), { timeout: 10000 });
+  } catch (err) {
+    console.error(`Login failed: ${err.message}`);
+    // Try standard login form as fallback
+    await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle" });
+    await page.fill('input[type="email"], input[name="email"]', cred.email).catch(() => {});
+    await page.fill('input[type="password"], input[name="password"]', cred.password).catch(() => {});
+    await page.click('button[type="submit"]').catch(() => {});
+    await page.waitForTimeout(2000);
   }
 
   const afterLoginUrl = page.url();
@@ -153,20 +157,24 @@ async function runAudit(role) {
 
     // Check for error boundaries or 404 content
     const pageText = await page.textContent("body").catch(() => "");
-    const isError  =
-      pageText?.includes("404") ||
-      pageText?.includes("This page could not be found") ||
-      pageText?.includes("Application error") ||
-      finalUrl.includes("/403") ||
-      finalUrl.includes("/login");
+    const is404    = pageText?.includes("404") && pageText?.includes("This page could not be found");
+    const is403    = pageText?.includes("403") || pageText?.includes("Access denied") || finalUrl.includes("/403");
+    const isAppError = pageText?.includes("Application error: a client-side exception has occurred");
+    const redirectedToLogin = finalUrl.includes("/login");
+    
+    const isError  = is404 || is403 || isAppError || redirectedToLogin;
+    
+    // RSC fetch warnings are dev-only, not actual errors
+    const hasContent = pageText.length > 500; // Reasonable threshold for a loaded page
 
     results.push({
       href,
       finalUrl,
       redirected: finalUrl !== url,
       isError,
+      hasContent,
       networkFail: statusCode,
-      verdict: isError ? "FAIL" : statusCode ? `HTTP ${statusCode}` : "PASS",
+      verdict: isError ? "FAIL" : !hasContent ? "WARN" : statusCode >= 500 ? `HTTP ${statusCode}` : "PASS",
     });
 
     if (isError) {

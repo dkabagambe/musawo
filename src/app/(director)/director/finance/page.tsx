@@ -53,17 +53,28 @@ export default async function DirectorFinancePage({ searchParams }: Props) {
       _count:{ _all: true },
     }),
     // Monthly revenue — last 12 months via raw query
-    db.$queryRaw<{ yr: number; mo: number; total: bigint }[]>`
-      SELECT
-        EXTRACT(YEAR  FROM "createdAt")::int AS yr,
-        EXTRACT(MONTH FROM "createdAt")::int AS mo,
-        SUM(amount)::bigint                  AS total
-      FROM payments
-      WHERE status = 'COMPLETED'
-        ${since ? db.$queryRaw`AND "createdAt" >= ${since}` : db.$queryRaw``}
-      GROUP BY yr, mo
-      ORDER BY yr, mo
-    `,
+    since
+      ? db.$queryRaw<{ yr: number; mo: number; total: bigint }[]>`
+          SELECT
+            EXTRACT(YEAR  FROM "createdAt")::int AS yr,
+            EXTRACT(MONTH FROM "createdAt")::int AS mo,
+            SUM(amount)::bigint                  AS total
+          FROM payments
+          WHERE status = 'COMPLETED'
+            AND "createdAt" >= ${since}
+          GROUP BY yr, mo
+          ORDER BY yr, mo
+        `
+      : db.$queryRaw<{ yr: number; mo: number; total: bigint }[]>`
+          SELECT
+            EXTRACT(YEAR  FROM "createdAt")::int AS yr,
+            EXTRACT(MONTH FROM "createdAt")::int AS mo,
+            SUM(amount)::bigint                  AS total
+          FROM payments
+          WHERE status = 'COMPLETED'
+          GROUP BY yr, mo
+          ORDER BY yr, mo
+        `,
     // Collected vs outstanding per enrolment status
     db.enrolment.groupBy({
       by:   ["status"],
