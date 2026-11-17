@@ -74,7 +74,7 @@ export default async function PrincipalProgrammesPage() {
               {c.fullFeeUgx && (
                 <p className="text-xs text-primary font-medium mt-2">
                   UGX {c.fullFeeUgx.toLocaleString()}
-                  {c.internationalFeeUgx ? ` / USD ${Math.round(c.internationalFeeUgx / 3600).toLocaleString()}` : ""}
+                  {c.internationalFeeUgx ? ` / USD ${c.internationalFeeUgx.toLocaleString()}` : ""}
                 </p>
               )}
             </div>

@@ -47,12 +47,12 @@ type PublicCourse = {
 const STATIC_COURSES: PublicCourse[] = [
   {
     id: "static-mhc",
-    title: "Certificate in Medical Home Care Course",
+    title: "Certificate in Medical Home Care",
     slug: "medical-home-caregiver",
     shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care. Open to international students.",
     thumbnailUrl: "/assets/images/cna-course.webp",
-    fullFeeUgx: 2300000,
-    internationalFeeUgx: 2300400, // USD 639 at rate of 3600
+    fullFeeUgx: 1800000,
+    internationalFeeUgx: 638,
     feeContactOnly: false,
     durationMonths: 3,
     instalmentCount: 3,
@@ -65,7 +65,7 @@ const STATIC_COURSES: PublicCourse[] = [
     shortDescription: "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care to patients in their homes and communities.",
     thumbnailUrl: "/assets/images/basic-nursing.webp",
     fullFeeUgx: 1800000,
-    internationalFeeUgx: null,
+    internationalFeeUgx: 638,
     feeContactOnly: false,
     durationMonths: 3,
     instalmentCount: 3,
@@ -73,12 +73,12 @@ const STATIC_COURSES: PublicCourse[] = [
   },
   {
     id: "static-bcs",
-    title: "Basic Certificate in Babysitting, Child Care and Safety Management",
+    title: "Basic Certificate in Babysitting, childcare, and Safety management",
     slug: "babysitting-childcare-safety",
     shortDescription: "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters. Promotes responsible caregiving, child protection and safety awareness.",
     thumbnailUrl: "/assets/images/first-aid-child-safety.jpg",
-    fullFeeUgx: 1200000,
-    internationalFeeUgx: null,
+    fullFeeUgx: 500000,
+    internationalFeeUgx: 166,
     feeContactOnly: false,
     durationMonths: 2,
     instalmentCount: 2,
@@ -91,7 +91,7 @@ const STATIC_COURSES: PublicCourse[] = [
     shortDescription: "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health, recognise psychological distress, and advocate for people living with mental health conditions in Uganda.",
     thumbnailUrl: "/assets/community-outreach.webp",
     fullFeeUgx: 1800000,
-    internationalFeeUgx: null,
+    internationalFeeUgx: 638,
     feeContactOnly: false,
     durationMonths: 3,
     instalmentCount: 3,
@@ -99,12 +99,12 @@ const STATIC_COURSES: PublicCourse[] = [
   },
   {
     id: "static-cop",
-    title: "Basic Certificate in Care of Older Persons and Persons with Disability",
+    title: "Basic Certificate in care of Older persons and persons with Disability (Geriatric)",
     slug: "care-older-persons-disability",
     shortDescription: "Equips participants with the basic knowledge and practical skills to provide safe, dignified and skilled care to older persons and adults with disabilities in homes, care homes, day centres and communities.",
     thumbnailUrl: "/assets/clinical-training.webp",
     fullFeeUgx: 1800000,
-    internationalFeeUgx: null,
+    internationalFeeUgx: 638,
     feeContactOnly: false,
     durationMonths: 3,
     instalmentCount: 3,
@@ -116,8 +116,8 @@ const STATIC_COURSES: PublicCourse[] = [
     slug: "basic-life-support-first-aid",
     shortDescription: "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies and provide high-quality care.",
     thumbnailUrl: "/assets/training-session.webp",
-    fullFeeUgx: 600000,
-    internationalFeeUgx: null,
+    fullFeeUgx: 350000,
+    internationalFeeUgx: 138,
     feeContactOnly: false,
     durationMonths: 1,
     instalmentCount: 1,
@@ -129,8 +129,8 @@ const STATIC_COURSES: PublicCourse[] = [
     slug: "advanced-life-support",
     shortDescription: "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies. Builds on BLS competence with ACLS and post-resuscitation care.",
     thumbnailUrl: "/assets/healthcare-services.webp",
-    fullFeeUgx: 900000,
-    internationalFeeUgx: null,
+    fullFeeUgx: 600000,
+    internationalFeeUgx: 138,
     feeContactOnly: false,
     durationMonths: 1,
     instalmentCount: 1,
@@ -138,13 +138,13 @@ const STATIC_COURSES: PublicCourse[] = [
   },
   {
     id: "static-afa",
-    title: "Certificate in Advanced First Aid",
+    title: "Certificate in First Aid",
     slug: "advanced-first-aid",
     shortDescription: "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies, provide immediate assistance, and respond appropriately before professional medical help arrives.",
     thumbnailUrl: "/assets/training-session.webp",
-    fullFeeUgx: null,
-    internationalFeeUgx: null,
-    feeContactOnly: true,
+    fullFeeUgx: 350000,
+    internationalFeeUgx: 138,
+    feeContactOnly: false,
     durationMonths: 1,
     instalmentCount: 1,
     category: "OPEN",
@@ -365,7 +365,7 @@ export default async function HomePage() {
                             </p>
                             {c.internationalFeeUgx && (
                               <p className="text-xs text-gray-400 mt-1">
-                                International: USD {Math.round(c.internationalFeeUgx / 3600).toLocaleString()}
+                                International: USD {c.internationalFeeUgx.toLocaleString()}
                               </p>
                             )}
                           </>

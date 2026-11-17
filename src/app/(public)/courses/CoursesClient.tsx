@@ -152,7 +152,7 @@ export default function CoursesClient({ courses }: Props) {
                             </p>
                             {course.internationalFeeUgx ? (
                               <p className="text-xs text-gray-400 mt-0.5">
-                                Intl: USD {Math.round(course.internationalFeeUgx / 3600).toLocaleString()}
+                                Intl: USD {course.internationalFeeUgx.toLocaleString()}
                               </p>
                             ) : course.instalmentCount > 1 ? (
                               <p className="text-xs text-gray-400 mt-0.5">or {course.instalmentCount} instalments</p>
