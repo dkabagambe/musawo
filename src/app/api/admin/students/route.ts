@@ -1,224 +1,167 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
+import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
-import { requirePermission, ForbiddenError } from "@/lib/rbac";
+import { hash } from "bcryptjs";
 import { z } from "zod";
 
-/** GET /api/admin/students - list students with search/filter/pagination */
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  try { requirePermission(session.user.role, "students.view"); }
-  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
-
-  const { searchParams } = new URL(req.url);
-  const q      = searchParams.get("q") ?? "";
-  const status = searchParams.get("status") as "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION" | null;
-  const page   = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-  const take   = 50;
-  const skip   = (page - 1) * take;
-
-  const where = {
-    role: "STUDENT" as const,
-    ...(status ? { status } : {}),
-    ...(q ? {
-      OR: [
-        { name:          { contains: q, mode: "insensitive" as const } },
-        { email:         { contains: q, mode: "insensitive" as const } },
-        { phone:         { contains: q, mode: "insensitive" as const } },
-        { studentNumber: { contains: q, mode: "insensitive" as const } },
-      ],
-    } : {}),
-  };
-
-  const [students, total] = await Promise.all([
-    db.user.findMany({
-      where,
-      select: {
-        id: true, name: true, email: true, phone: true,
-        studentNumber: true, status: true, createdAt: true,
-        _count: { select: { enrolments: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take,
-      skip,
-    }),
-    db.user.count({ where }),
-  ]);
-
-  return NextResponse.json({ students, total, page, pages: Math.ceil(total / take) });
-}
-
-const CreateSchema = z.object({
-  name:                z.string().min(2).max(200),
-  email:               z.string().trim().email().toLowerCase().optional(),
-  phone:               z.string().min(7).max(20).optional(),
-  courseId:            z.string().cuid().optional(),
-  intakeId:            z.string().cuid().optional(),
-  category:            z.enum(["OPEN", "PROFESSIONAL"]).default("OPEN"),
-  professionalTitle:   z.string().max(120).optional(),
-  registrationNumber:  z.string().max(80).optional(),
-  dateOfBirth:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  gender:              z.string().max(20).optional(),
-  district:            z.string().max(80).optional(),
-  highestQualification:z.string().max(100).optional(),
-  emergencyContact:    z.string().max(200).optional(),
-  idNumber:            z.string().max(80).optional(),
-  // sourceApplicationId: link to the Application record if created from one
-  sourceApplicationId: z.string().cuid().optional(),
+const CreateStudentSchema = z.object({
+  fullName: z.string().min(3).max(200),
+  email: z.string().email().max(200),
+  phone: z.string().min(9).max(20),
+  courseId: z.string(),
+  intakeId: z.string(),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  gender: z.enum(["Male", "Female", "Other"]),
+  district: z.string().max(100).optional(),
+  highestQualification: z.string().max(100).optional(),
+  professionalTitle: z.string().max(100).optional(),
+  professionalRegistrationNumber: z.string().max(100).optional(),
+  emergencyContact: z.string().max(200).optional(),
+  idNumber: z.string().max(50).optional(),
+  category: z.enum(["REGULAR", "PROFESSIONAL", "INTERNATIONAL"]),
+  applicationId: z.string().optional(),
 });
 
-/** POST /api/admin/students - create a student account (Registrar flow) */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  try { requirePermission(session.user.role, "students.create"); }
-  catch (e) { if (e instanceof ForbiddenError) return NextResponse.json({ error: e.message }, { status: 403 }); throw e; }
+  if (!session?.user || !can(session.user.role, "students.create")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
 
-  const parsed = CreateSchema.safeParse(await req.json());
-  if (!parsed.success)
-    return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+  try {
+    const body = await req.json();
+    const parsed = CreateStudentSchema.safeParse(body);
 
-  const d = parsed.data;
-
-  if (!d.email && !d.phone)
-    return NextResponse.json({ error: "Provide at least an email or phone number." }, { status: 400 });
-
-  // Professional courses require professional fields
-  if (d.category === "PROFESSIONAL" && !d.professionalTitle)
-    return NextResponse.json({ error: "Professional title is required for professional category." }, { status: 400 });
-  if (d.category === "PROFESSIONAL" && !d.registrationNumber)
-    return NextResponse.json({ error: "Professional registration number is required for professional category." }, { status: 400 });
-
-  let courseDetails: { id: string; title: string; category: string; fullFeeUgx: number | null; courseCode: string | null } | null = null;
-  if (d.courseId) {
-    courseDetails = await db.course.findUnique({ where: { id: d.courseId }, select: { id: true, title: true, category: true, fullFeeUgx: true, courseCode: true } });
-    if (!courseDetails) return NextResponse.json({ error: "Selected course was not found." }, { status: 400 });
-    if (courseDetails.category === "PROFESSIONAL" && d.category !== "PROFESSIONAL") {
-      return NextResponse.json({ error: "This course requires a professional category." }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.errors },
+        { status: 400 }
+      );
     }
-  }
-  if (d.intakeId) {
-    const intake = await db.intake.findUnique({ where: { id: d.intakeId }, select: { courseId: true } });
-    if (!intake || (d.courseId && intake.courseId !== d.courseId)) {
-      return NextResponse.json({ error: "Selected intake does not match the course." }, { status: 400 });
+
+    const data = parsed.data;
+
+    // Check for duplicate email or phone
+    const existing = await db.user.findFirst({
+      where: {
+        OR: [{ email: data.email }, { phone: data.phone }],
+      },
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        {
+          error:
+            existing.email === data.email
+              ? "Email already in use"
+              : "Phone number already in use",
+        },
+        { status: 409 }
+      );
     }
-  }
 
-  // Uniqueness checks
-  if (d.email) {
-    const ex = await db.user.findUnique({ where: { email: d.email } });
-    if (ex) return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
-  }
-  if (d.phone) {
-    const ex = await db.user.findUnique({ where: { phone: d.phone } });
-    if (ex) return NextResponse.json({ error: "An account with this phone already exists." }, { status: 409 });
-  }
+    // Get course code for registration number generation
+    const course = await db.course.findUnique({
+      where: { id: data.courseId },
+      select: { courseCode: true },
+    });
 
-  const { createStudentWithNumber } = await import("@/lib/students");
-  const { encryptPersonalData } = await import("@/lib/crypto/personal-data");
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
 
-  // Determine course code for registration number (default to "GEN" if no course)
-  const courseCode = courseDetails?.courseCode ?? "GEN";
+    // Generate registration number: YYYY/COURSE_CODE/NNN
+    const year = new Date().getFullYear();
+    const existingCount = await db.user.count({
+      where: {
+        studentNumber: {
+          startsWith: `${year}/${course.courseCode}/`,
+        },
+      },
+    });
+    const nextNumber = existingCount + 1;
+    const registrationNumber = `${year}/${course.courseCode}/${nextNumber.toString().padStart(3, "0")}`;
 
-  // Create user in PENDING_ACCEPTANCE status - they must accept the invite before login
-  const { user: createdStudent, studentNumber } = await createStudentWithNumber({
-      name:          d.name,
-      email:         d.email ?? null,
-      phone:         d.phone ?? null,
-      role:          "STUDENT",
-      status:        "PENDING_ACCEPTANCE",
-  }, courseCode);
-  const student = {
-    id: createdStudent.id,
-    name: createdStudent.name,
-    email: createdStudent.email,
-    phone: createdStudent.phone,
-    studentNumber,
-    status: createdStudent.status,
-  };
+    // Create student record (no password yet, will be set after approval)
+    const student = await db.user.create({
+      data: {
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        role: "STUDENT",
+        status: "PENDING", // Will become ACTIVE after Principal approval and password set
+        studentNumber: registrationNumber,
+        dateOfBirth: new Date(data.dateOfBirth),
+        gender: data.gender,
+        district: data.district || null,
+        highestQualification: data.highestQualification || null,
+        professionalTitle: data.professionalTitle || null,
+        professionalRegistrationNumber: data.professionalRegistrationNumber || null,
+        emergencyContact: data.emergencyContact || null,
+        countryCode: "UG",
+        emailVerified: null, // Will be set when they set their password
+        dataConsentAt: new Date(), // Admin creating on behalf
+        // Placeholder password hash (will be replaced when student sets password)
+        passwordHash: await hash(Math.random().toString(36), 10),
+      },
+    });
 
-  const { saveStudentProfile } = await import("@/lib/students/profile");
-  await saveStudentProfile(student.id, {
-    professionalTitle: d.professionalTitle,
-    registrationNumber: d.registrationNumber,
-    dateOfBirth: d.dateOfBirth ? new Date(`${d.dateOfBirth}T00:00:00.000Z`) : null,
-    gender: d.gender,
-    district: d.district,
-    highestQualification: d.highestQualification,
-    idNumberEncrypted: d.idNumber ? encryptPersonalData(d.idNumber) : null,
-    emergencyContact: d.emergencyContact,
-  });
-
-  if (courseDetails && courseDetails.fullFeeUgx !== null) {
+    // Create enrolment record
     await db.enrolment.create({
       data: {
         userId: student.id,
-        courseId: courseDetails.id,
-        intakeId: d.intakeId ?? null,
-        totalAmountUgx: courseDetails.fullFeeUgx,
-        status: "PENDING_PAYMENT",
+        courseId: data.courseId,
+        intakeId: data.intakeId,
+        status: "PENDING", // Will become ACTIVE after approval
+        enrolmentDate: new Date(),
       },
     });
-  }
 
-  // If created from an application, mark it accepted and link the user
-  if (d.sourceApplicationId) {
-    await db.application.update({
-      where: { id: d.sourceApplicationId },
+    // If created from application, link it
+    if (data.applicationId) {
+      await db.application.update({
+        where: { id: data.applicationId },
+        data: { status: "UNDER_REVIEW" },
+      });
+    }
+
+    // Create approval request for Principal
+    await db.approvalRequest.create({
       data: {
-        status: "ACCEPTED",
-        createdUserId: student.id,
-        reviewedById: session.user.id,
-        reviewedAt: new Date(),
+        type: "ADMISSION",
+        requestedBy: session.user.id,
+        reason: `Student admission: ${data.fullName} for ${course.courseCode}${data.applicationId ? " (from application)" : " (walk-in registration)"}`,
+        applicationId: data.applicationId || null,
+        status: "PENDING",
+        submittedAt: new Date(),
       },
-    }).catch(() => { /* application may not exist - non-fatal */ });
-  }
+    });
 
-  // Send invite email so student can set password and confirm details
-  const crypto = await import("crypto");
-  const token     = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-  const studentInvite = await db.staffInvite.create({
-    data: {
-      email:       d.email ?? `${student.id}@placeholder.mtc`,
-      role:        "STUDENT",
-      token,
-      expiresAt,
-      createdById: session.user.id,
-      userId:      student.id,   // link to the pre-created student record
-    },
-  });
-  if (d.courseId || d.intakeId) await db.$executeRaw`UPDATE staff_invites SET "courseId" = ${d.courseId ?? null}, "intakeId" = ${d.intakeId ?? null} WHERE id = ${studentInvite.id}`;
-
-  const siteUrl   = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-  const inviteUrl = `${siteUrl}/invite/${token}`;
-
-  const { sendEmail } = await import("@/lib/email");
-  if (d.email) {
-    void sendEmail({
-      to:      d.email,
-      subject: "Your Musawo Training Center student account is ready",
-      template: "student-invite",
-      variables: {
-        name:          d.name,
-        studentNumber,
-        courseName:    courseDetails?.title ?? "",
-        inviteUrl,
+    // Audit log
+    await db.auditLog.create({
+      data: {
+        action: "STUDENT_CREATE",
+        performedBy: session.user.id,
+        targetUser: student.id,
+        details: {
+          registrationNumber,
+          course: course.courseCode,
+          fromApplication: !!data.applicationId,
+        },
       },
-    }).catch(() => { /* non-fatal */ });
+    });
+
+    return NextResponse.json({
+      studentId: student.id,
+      registrationNumber,
+      message: "Student account created. Awaiting Principal approval.",
+    });
+  } catch (error) {
+    console.error("[POST /api/admin/students]", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
-
-  const { audit } = await import("@/lib/audit");
-  await audit({
-    actorId:    session.user.id,
-    action:     "CREATE",
-    entityType: "User",
-    entityId:   student.id,
-    metadata:   { role: "STUDENT", studentNumber, email: d.email },
-    ip:         req.headers.get("x-forwarded-for") ?? undefined,
-  });
-
-  return NextResponse.json({ student, inviteUrl }, { status: 201 });
 }

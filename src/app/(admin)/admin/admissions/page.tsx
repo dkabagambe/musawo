@@ -85,6 +85,12 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
             Review applications and register admitted students
           </p>
         </div>
+        <Link
+          href="/admin/students/create"
+          className="btn-primary text-sm px-4 py-2 no-underline"
+        >
+          Register Walk-in Student
+        </Link>
       </div>
 
       {/* Status tabs */}
@@ -141,13 +147,21 @@ export default async function AdminAdmissionsPage({ searchParams }: Props) {
                 </div>
                 {/* Action buttons - only for pending/reviewing */}
                 {(app.status === "SUBMITTED" || app.status === "UNDER_REVIEW") && (
-                  <AdminAdmissionActions
-                    applicationId={app.id}
-                    applicantName={app.fullName}
-                    courseName={app.course?.title}
-                    currentStatus={app.status}
-                    requireApproval={requireApproval}
-                  />
+                  <div className="flex flex-col gap-2 flex-shrink-0">
+                    <Link
+                      href={`/admin/students/create?applicationId=${app.id}`}
+                      className="btn-primary text-xs px-3 py-1.5 no-underline text-center"
+                    >
+                      Create Student
+                    </Link>
+                    <AdminAdmissionActions
+                      applicationId={app.id}
+                      applicantName={app.fullName}
+                      courseName={app.course?.title}
+                      currentStatus={app.status}
+                      requireApproval={requireApproval}
+                    />
+                  </div>
                 )}
                 {app.status === "ACCEPTED" && (
                   <span className="text-xs text-green-600 font-medium flex-shrink-0">
