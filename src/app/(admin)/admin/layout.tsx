@@ -4,6 +4,7 @@ import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
 import type { DashboardTab } from "@/lib/dashboard/widgets";
+import { getInitials } from "@/lib/utils/initials";
 import {
   LayoutDashboard,
   Users,
@@ -307,10 +308,10 @@ export default async function AdminLayout({
       nav={NAV.filter(({ permission }) =>
         can(session.user.role, permission),
       ).map(({ item }) => item)}
-      role="Administration"
+      role="Admin"
       permissionRole={session.user.role}
       userName={name}
-      userInitial={name.charAt(0).toUpperCase()}
+      userInitial={getInitials(name)}
       userAvatarUrl={dbUser?.avatarUrl ?? null}
       tabs={tabs}
     >
