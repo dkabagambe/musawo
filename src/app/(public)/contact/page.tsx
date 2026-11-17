@@ -46,8 +46,8 @@ export default async function ContactPage() {
                   <Mail className="w-5 h-5 text-accent" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-semibold text-primary text-sm">Email us</p>
-                  <p className="text-gray-500 text-sm mt-0.5">{contact.email}</p>
+                  <p className="font-semibold text-primary text-base">Email us</p>
+                  <p className="text-gray-500 text-base mt-0.5">{contact.email}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-accent ml-auto transition-colors" aria-hidden="true" />
               </a>
@@ -60,8 +60,8 @@ export default async function ContactPage() {
                   <Phone className="w-5 h-5 text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-semibold text-primary text-sm">Call us</p>
-                  <p className="text-gray-500 text-sm mt-0.5">{contact.phone}</p>
+                  <p className="font-semibold text-primary text-base">Call us</p>
+                  <p className="text-gray-500 text-base mt-0.5">{contact.phone}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-accent ml-auto transition-colors" aria-hidden="true" />
               </a>
@@ -76,8 +76,8 @@ export default async function ContactPage() {
                   <MessageCircle className="w-5 h-5 text-green-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-semibold text-primary text-sm">WhatsApp</p>
-                  <p className="text-gray-500 text-sm mt-0.5">Fastest response</p>
+                  <p className="font-semibold text-primary text-base">WhatsApp</p>
+                  <p className="text-gray-500 text-base mt-0.5">Fastest response</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-green-500 ml-auto transition-colors" aria-hidden="true" />
               </a>
@@ -87,8 +87,8 @@ export default async function ContactPage() {
                   <MapPin className="w-5 h-5 text-gray-400" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-semibold text-primary text-sm">Visit us</p>
-                  <p className="text-gray-500 text-sm mt-0.5 leading-relaxed">{contact.address}</p>
+                  <p className="font-semibold text-primary text-base">Visit us</p>
+                  <p className="text-gray-500 text-base mt-0.5 leading-relaxed">{contact.address}</p>
                 </div>
               </div>
             </div>

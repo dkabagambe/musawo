@@ -73,9 +73,7 @@ export default async function PublicFooter() {
                 <p className="font-extrabold text-white text-sm leading-tight">
                   {siteName}
                 </p>
-                <p className="text-white/50 text-[11px] mt-0.5">
-                  Allied Doctors and Friends of Uganda
-                </p>
+
               </div>
             </Link>
 
@@ -132,7 +130,6 @@ export default async function PublicFooter() {
                 { label: "About MTC",     href: "/about" },
                 { label: "How to Enrol",  href: "/admissions/how-to-enrol" },
                 { label: "Impact",        href: "/impact" },
-                { label: "Courses",       href: "/courses" },
                 { label: "Apply now",     href: "/apply" },
                 { label: "Fees",          href: "/admissions/fees" },
                 { label: "Payment options", href: "/admissions/payment-options" },
@@ -314,8 +311,7 @@ export default async function PublicFooter() {
       <div className="bg-[#0A5A4E]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-5 pb-[88px] sm:pb-6 text-center">
           <p className="text-[15px] text-white/88 font-normal">
-            &copy; {new Date().getFullYear()} MUSAWO / Allied Doctors and
-            Friends of Uganda (ADFA). All rights reserved.
+            &copy; {new Date().getFullYear()} MUSAWO Training Center. All rights reserved.
           </p>
         </div>
       </div>

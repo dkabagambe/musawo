@@ -1,9 +1,8 @@
-import Link from "next/link";
 import PageHero from "@/components/public/PageHero";
 import SideNav from "@/components/public/SideNav";
-import { CheckCircle, ArrowRight } from "lucide-react";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
+import { CheckCircle } from "lucide-react";
 import { getSetting } from "@/lib/settings";
 import type { Metadata } from "next";
 
@@ -13,7 +12,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about Musawo Training Center - hybrid and online healthcare training with 70% hands-on practicals. Serving Ugandan communities since 2018.",
+    "Musawo Training Center is a non-profit academic institution in Lugala, Kampala offering practical short healthcare courses. Learn about our vision, mission and values.",
 };
 
 const ABOUT_NAV = [
@@ -22,11 +21,11 @@ const ABOUT_NAV = [
 ];
 
 const TIMELINE = [
-  { year: "2018", title: "Founded", body: "ADFA, Allied Doctors and Friends of Uganda, established Musawo Training Center in Kampala to train community health workers." },
-  { year: "2021", title: "Skills lab", body: "Opened the dedicated skills lab for hands-on practical training, enabling the hybrid delivery model." },
-  { year: "2023", title: "Growth", body: "Expanded training programmes and grew the network of community health workers across Kampala and surrounding districts." },
-  { year: "2025", title: "Online platform", body: "Launched the online learning platform, extending training to students across Uganda with hybrid classes." },
-  { year: "2026", title: "Eight programmes", body: "Expanded to eight healthcare programmes covering nursing care, childcare, mental health, geriatric care and life support." },
+  { year: "2018", title: "Founded",          body: "Musawo Training Center was established in Kampala to train community health workers across Uganda." },
+  { year: "2021", title: "Skills lab",        body: "Opened a dedicated skills lab for hands-on practical training, enabling the hybrid delivery model." },
+  { year: "2023", title: "Growth",            body: "Expanded training programmes and grew the network of community health workers across Kampala and surrounding districts." },
+  { year: "2025", title: "Online platform",   body: "Launched the online learning platform, extending training to students across Uganda with hybrid classes." },
+  { year: "2026", title: "Eight programmes",  body: "Expanded to eight healthcare programmes covering home care, childcare, mental health, geriatric care and life support." },
 ];
 
 const VALUES = [
@@ -45,7 +44,6 @@ export default async function AboutPage() {
         image="/assets/images/hero-about.webp"
         imageAlt="Musawo Training Center staff and skills lab"
         title="About Musawo Training Center"
-        description="Hybrid and online healthcare training with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Serving Ugandan communities since 2018."
         breadcrumbs={[{ label: "About" }]}
         boxSide="right"
         objectPosition="left center"
@@ -55,54 +53,93 @@ export default async function AboutPage() {
         <div className="sidenav-layout">
           <SideNav title="About" items={ABOUT_NAV} />
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 space-y-16">
 
-            {/* Mission */}
-            <section className="mb-16" aria-label="Who we are">
+            {/* ── Who we are ──────────────────────────────────────── */}
+            <section aria-label="Who we are">
               <AnimateIn>
                 <p className="section-eyebrow">Who we are</p>
-                <h2 className="mt-2 mb-6" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
-                  Training Uganda&apos;s community health workforce
+                <h2 className="mt-2 mb-5 font-bold text-primary text-balance"
+                    style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
+                  About Musawo Training Center
                 </h2>
-                <p className="text-gray-600 leading-relaxed mb-4">
-                  Musawo Training Center (MTC) is a division of Allied Doctors and Friends of Uganda (ADFA), a community health organisation based in Kampala. We provide affordable hybrid and online healthcare training to Ugandans who want to serve their communities.
+                <p className="text-gray-600 leading-relaxed max-w-2xl text-balance">
+                  Musawo Training Center (MTC) is a non-profit academic institution in Lugala,
+                  Rubaga Division, Kampala, Uganda. We offer practical short courses in allied
+                  healthcare, including home-based care, childcare, care of elderly and persons
+                  with disabilities, First Aid, Basic &amp; Advanced life support and mental
+                  health support. Our training combines flexible online and classroom theory with
+                  hands-on practice. It prepares compassionate, skilled caregivers for families,
+                  health facilities and communities.
                 </p>
-                <p className="text-gray-600 leading-relaxed mb-4 font-medium text-primary/90">
-                  Our mission: to equip women and youth with practical, high-quality healthcare skills through innovative training, mentorship, and values-based education, producing competent caregivers who bring safe, compassionate, and affordable care directly to patients, families and communities.
-                </p>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  Our eight programmes cover home caregiving, childcare and safety, mental health support, geriatric care, and life support. All courses combine online classes with 70% hands-on practicals in our skills lab, taught by licensed doctors, nurses, midwives and other healthcare professionals.
-                </p>
-                <ul className="space-y-3 list-none mb-8">
-                  {[
-                    "Hybrid and online classes with 70% hands-on practicals",
-                    "Taught by licensed doctors, nurses, midwives and other healthcare professionals",
-                    "Pay with MTN MoMo or Airtel Money",
-                    "Flexible instalment payment plans",
-                    "Job placement support in Uganda",
-                    "Job opportunities abroad through licensed recruitment agencies",
-                    "We do not provide accommodation",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm text-gray-600">
-                      <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-bold px-7 py-3 rounded-xl no-underline transition-colors shadow-cta"
-                >
-                  Browse our courses <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
               </AnimateIn>
             </section>
 
-            {/* Accreditation block - only shown when the setting is filled */}
+            {/* ── Vision & Mission ────────────────────────────────── */}
+            <section aria-label="Vision and mission">
+              <AnimateIn>
+                <p className="section-eyebrow">Our purpose</p>
+                <h2 className="mt-2 mb-8 font-bold text-primary text-balance"
+                    style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
+                  Vision &amp; Mission
+                </h2>
+              </AnimateIn>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                {/* Vision */}
+                <AnimateIn delay={0.05}>
+                  <div className="relative bg-white rounded-2xl border border-border shadow-card overflow-hidden h-full flex flex-col">
+                    {/* Accent top bar */}
+                    <div className="h-1.5 bg-accent w-full flex-shrink-0" aria-hidden="true" />
+                    <div className="p-7 flex flex-col flex-1">
+                      <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center text-xl mb-5 flex-shrink-0"
+                           role="img" aria-label="Vision">
+                        🔭
+                      </div>
+                      <h3 className="font-extrabold text-base text-primary uppercase tracking-wide mb-3">
+                        Our Vision
+                      </h3>
+                      <div className="w-8 h-0.5 bg-accent rounded-full mb-4" aria-hidden="true" />
+                      <p className="text-gray-600 text-sm leading-relaxed flex-1">
+                        To be the leading community healthcare training centre in Uganda,
+                        producing competent, compassionate and values-driven health workers
+                        who transform the wellbeing of families and communities.
+                      </p>
+                    </div>
+                  </div>
+                </AnimateIn>
+
+                {/* Mission */}
+                <AnimateIn delay={0.1}>
+                  <div className="relative bg-white rounded-2xl border border-border shadow-card overflow-hidden h-full flex flex-col">
+                    {/* Primary top bar */}
+                    <div className="h-1.5 bg-primary w-full flex-shrink-0" aria-hidden="true" />
+                    <div className="p-7 flex flex-col flex-1">
+                      <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-xl mb-5 flex-shrink-0"
+                           role="img" aria-label="Mission">
+                        🎯
+                      </div>
+                      <h3 className="font-extrabold text-base text-primary uppercase tracking-wide mb-3">
+                        Our Mission
+                      </h3>
+                      <div className="w-8 h-0.5 bg-primary rounded-full mb-4" aria-hidden="true" />
+                      <p className="text-gray-600 text-sm leading-relaxed flex-1">
+                        To equip women and youth with practical, high-quality healthcare skills
+                        through innovative training, mentorship, and values-based education —
+                        producing competent caregivers who bring safe, compassionate, and
+                        affordable care directly to patients, families and communities.
+                      </p>
+                    </div>
+                  </div>
+                </AnimateIn>
+              </div>
+            </section>
+
+            {/* ── Accreditation (conditional) ─────────────────────── */}
             {accreditationText && (
-              <section className="mb-16" aria-label="Accreditation">
+              <section aria-label="Accreditation">
                 <AnimateIn>
-                  <div className="bg-white border border-border rounded-2xl px-6 py-5">
+                  <div className="bg-white border border-border rounded-2xl px-6 py-5 shadow-card">
                     <div className="flex items-center gap-3 text-sm font-bold text-primary">
                       <CheckCircle className="w-5 h-5 text-success flex-shrink-0" aria-hidden="true" />
                       {accreditationText}
@@ -112,42 +149,79 @@ export default async function AboutPage() {
               </section>
             )}
 
-            {/* Values */}
-            <section className="mb-16" aria-label="Our values">
+            {/* ── Values ──────────────────────────────────────────── */}
+            <section aria-label="Our values">
               <AnimateIn className="mb-8">
                 <p className="section-eyebrow">What drives us</p>
-                <h2 className="mt-2" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>Our values</h2>
+                <h2 className="mt-2 font-bold text-primary"
+                    style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
+                  Our values
+                </h2>
               </AnimateIn>
+
               <StaggerGrid className="grid sm:grid-cols-2 gap-5">
                 {VALUES.map((v) => (
-                  <div key={v.title} className="bg-white rounded-2xl border border-border p-6 text-center hover:shadow-card-hover transition-shadow duration-200">
-                    <div className="text-4xl mb-4" role="img" aria-label={v.title}>{v.emoji}</div>
-                    <h3 className="font-bold text-primary mb-2">{v.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">{v.body}</p>
+                  <div
+                    key={v.title}
+                    className="bg-white rounded-2xl border border-border shadow-card
+                               hover:shadow-card-hover hover:-translate-y-0.5
+                               transition-all duration-200 p-6 flex gap-5 items-start"
+                  >
+                    {/* Icon */}
+                    <div
+                      className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center
+                                 text-2xl flex-shrink-0"
+                      role="img"
+                      aria-label={v.title}
+                    >
+                      {v.emoji}
+                    </div>
+                    {/* Text */}
+                    <div>
+                      <h3 className="font-bold text-primary mb-1.5">{v.title}</h3>
+                      <p className="text-sm text-gray-500 leading-relaxed">{v.body}</p>
+                    </div>
                   </div>
                 ))}
               </StaggerGrid>
             </section>
 
-            {/* Timeline */}
-            <section className="mb-16" aria-label="Our history">
+            {/* ── Timeline ────────────────────────────────────────── */}
+            <section aria-label="Our history">
               <AnimateIn className="mb-8">
                 <p className="section-eyebrow">Our story</p>
-                <h2 className="mt-2" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>A growing training centre</h2>
+                <h2 className="mt-2 font-bold text-primary"
+                    style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
+                  A growing training centre
+                </h2>
               </AnimateIn>
+
               <div className="relative">
-                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border hidden sm:block" aria-hidden="true" />
-                <div className="space-y-8">
+                {/* Vertical rule — only visible at sm+ */}
+                <div
+                  className="absolute left-[31px] top-0 bottom-0 w-0.5 bg-border hidden sm:block"
+                  aria-hidden="true"
+                />
+
+                <div className="space-y-6">
                   {TIMELINE.map((item, i) => (
-                    <AnimateIn key={item.year} delay={i * 0.1}>
-                      <div className="sm:flex gap-8 items-start">
-                        <div className="flex-shrink-0 flex items-center gap-4 mb-3 sm:mb-0">
-                          <div className="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center font-extrabold text-sm z-10 relative shadow-primary-glow">
-                            {item.year}
-                          </div>
+                    <AnimateIn key={item.year} delay={i * 0.08}>
+                      <div className="flex gap-5 items-start">
+                        {/* Year badge */}
+                        <div
+                          className="w-16 h-16 flex-shrink-0 bg-primary text-white rounded-2xl
+                                     flex items-center justify-center font-extrabold text-xs
+                                     leading-tight text-center z-10 relative shadow-card"
+                        >
+                          {item.year}
                         </div>
-                        <div className="bg-white rounded-2xl border border-border p-6 flex-1 hover:shadow-card-hover transition-shadow">
-                          <h3 className="font-bold text-primary mb-2">{item.title}</h3>
+                        {/* Card */}
+                        <div
+                          className="bg-white rounded-2xl border border-border shadow-card
+                                     hover:shadow-card-hover hover:-translate-y-0.5
+                                     transition-all duration-200 p-5 flex-1 min-w-0"
+                        >
+                          <h3 className="font-bold text-primary mb-1">{item.title}</h3>
                           <p className="text-sm text-gray-500 leading-relaxed">{item.body}</p>
                         </div>
                       </div>

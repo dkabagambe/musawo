@@ -137,7 +137,7 @@ export default async function PaymentOptionsPage() {
                   </ol>
                   <div className="mt-4 flex items-start gap-2 bg-white/70 rounded-xl p-3">
                     <AlertCircle className="w-3.5 h-3.5 text-primary/60 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    <p className="text-xs text-gray-600 leading-relaxed">{note}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{note}</p>
                   </div>
                 </div>
               ))}
@@ -175,8 +175,8 @@ export default async function PaymentOptionsPage() {
                     "Receipts are sent to your registered email address. Check your spam folder if you do not receive one.",
                     "Refund requests are handled under our Refund Policy. See the link in the footer.",
                   ].map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
-                      <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    <li key={item} className="flex items-start gap-3 text-base text-gray-600 leading-relaxed">
+                      <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
                       {item}
                     </li>
                   ))}

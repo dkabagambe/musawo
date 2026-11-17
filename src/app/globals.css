@@ -1525,6 +1525,23 @@
      Old .hero-overlay and .hero-overlay-center are no longer used.
      Photos render at full brightness; text sits in a solid panel.
   ────────────────────────────────────────────────────────────────── */
+
+  /* ── Public site font scaling ─────────────────────────────────────
+   * The dashboard uses compact 13-14px type intentionally.
+   * Public marketing pages target 20px minimum for body copy.
+   * We override Tailwind's default scale here, scoped to .public-site
+   * (applied on the public layout wrapper), so the dashboard is
+   * completely unaffected.
+   *
+   *   text-xs   → 14px   (was 12px) — labels, captions, eyebrows
+   *   text-sm   → 18px   (was 14px) — body copy, list items, card text
+   *   text-base → 20px   (was 16px) — lead paragraphs
+   *   text-lg   → 22px   (was 18px) — intro / highlight text
+   * ────────────────────────────────────────────────────────────────── */
+  .public-site .text-xs   { font-size: 0.875rem; line-height: 1.4rem; }  /* 14px */
+  .public-site .text-sm   { font-size: 1.125rem; line-height: 1.75rem; } /* 18px */
+  .public-site .text-base { font-size: 1.25rem;  line-height: 1.875rem; }/* 20px */
+  .public-site .text-lg   { font-size: 1.375rem; line-height: 2rem; }    /* 22px */
 }
 
 @layer utilities {

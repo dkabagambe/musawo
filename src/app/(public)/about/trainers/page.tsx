@@ -75,7 +75,7 @@ export default async function TrainersPage() {
                     <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                   </div>
                   <h3 className="font-bold text-primary text-sm mb-2">{heading}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{body}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{body}</p>
                 </div>
               ))}
             </StaggerGrid>
@@ -91,8 +91,8 @@ export default async function TrainersPage() {
               <div className="bg-[#F1F7F5] rounded-2xl border border-border p-6 sm:p-8">
                 <ul className="space-y-3 list-none">
                   {TUTOR_COMMITMENT.map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
-                      <span className="w-1.5 h-1.5 bg-accent rounded-full flex-shrink-0 mt-1.5" aria-hidden="true" />
+                    <li key={item} className="flex items-start gap-3 text-base text-gray-600 leading-relaxed">
+                      <span className="w-1.5 h-1.5 bg-accent rounded-full flex-shrink-0 mt-2.5" aria-hidden="true" />
                       {item}
                     </li>
                   ))}
@@ -104,7 +104,7 @@ export default async function TrainersPage() {
             <AnimateIn className="mt-10">
               <div className="bg-primary text-white rounded-2xl p-6 sm:p-8">
                 <h3 className="font-bold text-white mb-3">Part of the ADFA clinical team</h3>
-                <p className="text-white/80 text-sm leading-relaxed mb-4">
+                <p className="text-white/80 text-base leading-relaxed mb-4">
                   Our tutors are part of the broader Allied Doctors and Friends of Uganda (ADFA) clinical network. They participate in outreach events, community health drives, and the skills lab, giving them continuous exposure to the healthcare challenges your future patients face.
                 </p>
                 <a

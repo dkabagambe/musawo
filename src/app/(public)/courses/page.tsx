@@ -129,17 +129,21 @@ const COMPARE_ROWS = [
     ],
   },
   {
-    feature: "Fee",
+    feature: "Fee (UGX)",
     values: [
-      "USD 639 (≈ UGX 2,300,000)",
-      "UGX 1,800,000",
-      "UGX 1,200,000",
-      "UGX 1,800,000",
-      "UGX 1,800,000",
-      "UGX 600,000",
-      "UGX 900,000",
-      "Contact admissions",
+      "1,800,000",
+      "1,800,000",
+      "500,000",
+      "1,800,000",
+      "1,800,000",
+      "350,000",
+      "600,000",
+      "350,000",
     ],
+  },
+  {
+    feature: "Intl. fee (USD)",
+    values: ["638", "638", "166", "638", "638", "138", "138", "138"],
   },
   { feature: "Instalments", values: ["3", "3", "2", "3", "3", "1", "1", "1"] },
   {
@@ -153,14 +157,14 @@ const COMPARE_ROWS = [
 ];
 
 const COMPARE_COURSES = [
-  "Medical Home Caregiver",
+  "Medical Home Care",
   "Basic Home Care",
-  "Babysitting and Childcare",
+  "Babysitting & Childcare",
   "Mental Health Support",
   "Care of Older Persons",
   "Basic Life Support",
   "Advanced Life Support",
-  "Advanced First Aid",
+  "First Aid",
 ];
 
 const COMPARE_SLUGS = [
@@ -174,16 +178,16 @@ const COMPARE_SLUGS = [
   "advanced-first-aid",
 ];
 
-// Per-instalment amount (fee / instalments), or "-" for single payment / contact admissions
+// Per-instalment amount (fee / instalments), or single payment amount
 const COMPARE_INSTALMENTS = [
-  "767,000 x 3",   // 2,300,000 / 3
-  "600,000 x 3",   // 1,800,000 / 3
-  "600,000 x 2",   // 1,200,000 / 2
   "600,000 x 3",   // 1,800,000 / 3
   "600,000 x 3",   // 1,800,000 / 3
+  "250,000 x 2",   // 500,000 / 2
+  "600,000 x 3",   // 1,800,000 / 3
+  "600,000 x 3",   // 1,800,000 / 3
+  "350,000",       // 1 payment
   "600,000",       // 1 payment
-  "900,000",       // 1 payment
-  "-",             // contact admissions
+  "350,000",       // 1 payment
 ];
 
 export default async function CoursesPage() {
@@ -281,12 +285,9 @@ export default async function CoursesPage() {
         className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 overflow-x-auto"
         aria-label="Course comparison"
       >
-          <h2 className="text-2xl font-bold text-primary mb-2">
+          <h2 className="text-2xl font-bold text-primary mb-6">
             Compare courses at a glance
           </h2>
-          <p className="text-sm text-gray-500 mb-6">
-            Fees shown are demo/indicative amounts. Contact admissions for confirmed pricing.
-          </p>
           <div className="table-container min-w-[720px]">
             <table className="table text-xs">
               <thead>

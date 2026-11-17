@@ -122,7 +122,7 @@ export default async function HowToEnrolPage() {
                       <h3 className="font-bold text-primary text-base mb-2">
                         {title}
                       </h3>
-                      <p className="text-sm text-gray-500 leading-relaxed mb-3">
+                      <p className="text-base text-gray-500 leading-relaxed mb-3">
                         {body}
                       </p>
                       {cta && (
@@ -155,7 +155,7 @@ export default async function HowToEnrolPage() {
                   {REQUIREMENTS.map((req) => (
                     <li
                       key={req}
-                      className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed"
+                      className="flex items-start gap-3 text-base text-gray-600 leading-relaxed"
                     >
                       <CheckCircle
                         className="w-4 h-4 text-success flex-shrink-0 mt-0.5"
@@ -173,7 +173,7 @@ export default async function HowToEnrolPage() {
                 <h3 className="font-bold text-primary mb-2">
                   November 2026 intake
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-base text-gray-600 leading-relaxed">
                   Applications are now open for the{" "}
                   <strong>November 2026</strong> intake. Places are limited.
                   Apply early to avoid missing out.

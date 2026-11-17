@@ -48,8 +48,8 @@ export default async function ImpactPage() {
           <h2 className="mt-2 mb-4 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.25rem)" }}>
             Our purpose
           </h2>
-          <p className="text-gray-500 text-base leading-relaxed max-w-2xl">
-            Uganda has a critical shortage of trained community health workers. Musawo Training Center was founded to close that gap, one graduate at a time. We provide affordable hybrid and online healthcare training so that more Ugandans can serve their communities with confidence and skill.
+          <p className="text-gray-500 text-lg leading-relaxed max-w-2xl text-balance">
+            Too few Ugandans are trained to provide skilled care in homes and communities. Musawo Training Center (MTC) exists to close that gap. We offer affordable hybrid short courses in home-based care, child care, and first aid and emergency response. Our graduates go on to serve families and communities with skill, compassion and confidence.
           </p>
         </AnimateIn>
 
@@ -61,8 +61,8 @@ export default async function ImpactPage() {
           </h2>
           <ul className="space-y-3 list-none max-w-2xl">
             {BENEFITS.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-2" aria-hidden="true" />
+              <li key={item} className="flex items-start gap-3 text-base text-gray-600 leading-relaxed">
+                <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0 mt-2.5" aria-hidden="true" />
                 {item}
               </li>
             ))}
@@ -76,13 +76,13 @@ export default async function ImpactPage() {
             <h2 className="mt-2 mb-4 font-bold text-balance" style={{ fontSize: "clamp(1.5rem, 2.4vw, 2rem)" }}>
               We stay in touch after graduation
             </h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+            <p className="text-gray-500 text-base leading-relaxed mb-6">
               Graduation is not the end. We follow up with every graduate to track employment outcomes and continue supporting their career.
             </p>
             <ul className="space-y-3 list-none">
               {FOLLOW_UP.map((point) => (
-                <li key={point} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-2" aria-hidden="true" />
+                <li key={point} className="flex items-start gap-3 text-base text-gray-600 leading-relaxed">
+                  <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0 mt-2.5" aria-hidden="true" />
                   {point}
                 </li>
               ))}
@@ -94,7 +94,7 @@ export default async function ImpactPage() {
               <div>
                 <MessageSquare className="w-8 h-8 text-accent mb-4" aria-hidden="true" />
                 <h3 className="font-bold text-xl mb-3">Are you a graduate?</h3>
-                <p className="text-white/70 text-sm leading-relaxed mb-6">
+                <p className="text-white/70 text-base leading-relaxed mb-6">
                   Tell us where you are working. Your story shows others what is possible and helps us improve our programmes.
                 </p>
               </div>

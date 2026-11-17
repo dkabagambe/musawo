@@ -18,7 +18,7 @@ export const dynamic = "auto";
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <LazyMotion features={domAnimation} strict>
-      <div className="min-h-screen flex flex-col">
+      <div className="public-site min-h-screen flex flex-col">
         <PublicHeader />
         <main id="main" style={{ paddingTop: "calc(var(--banner-h, 0px) + 72px)" }} className="flex-1">
           {children}

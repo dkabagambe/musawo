@@ -24,18 +24,18 @@ function AccordionItem({ q, a }: { q: string; a: string }) {
     <div className="bg-white rounded-2xl border border-border overflow-hidden">
       <button
         type="button"
-        className="flex items-center justify-between w-full gap-4 px-6 py-4 text-left font-semibold text-primary text-sm"
+        className="flex items-center justify-between w-full gap-4 px-6 py-5 text-left font-semibold text-primary text-base"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
         <span>{q}</span>
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
       {open && (
-        <p className="px-6 pb-5 text-sm text-gray-500 leading-relaxed border-t border-border pt-4">
+        <p className="px-6 pb-6 text-base text-gray-500 leading-relaxed border-t border-border pt-4">
           {a}
         </p>
       )}
@@ -54,7 +54,7 @@ export default function FaqContent({ whatsappUrl }: { whatsappUrl: string }) {
 
       <div className="bg-primary rounded-2xl p-8 text-center text-white mt-8">
         <p className="font-bold text-lg mb-2">Still have questions?</p>
-        <p className="text-white/70 text-sm mb-5">Our admissions team is on WhatsApp every day, 8 am to 5 pm.</p>
+        <p className="text-white/70 text-base mb-5">Our admissions team is on WhatsApp every day, 8 am to 5 pm.</p>
         <a
           href={whatsappUrl}
           target="_blank"

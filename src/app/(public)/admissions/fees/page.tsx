@@ -98,7 +98,6 @@ export default async function FeesPage() {
               <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-8">
                 The same plan applies to all courses. Fees are paid in three phases. No other payment arrangement is accepted.
               </p>
-
               <div className="grid sm:grid-cols-3 gap-5">
                 {INSTALMENT_PLAN.map(({ pct, phase, label, desc }) => (
                   <div
@@ -110,12 +109,12 @@ export default async function FeesPage() {
                     </div>
                     <p className="font-bold text-primary text-sm mb-1">{phase}</p>
                     <p className="text-sm font-semibold text-gray-700 mb-2">{label}</p>
-                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                    <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-6 bg-[#F1F7F5] rounded-2xl border border-border p-5 text-sm text-gray-600">
+              <div className="mt-6 bg-[#F1F7F5] rounded-2xl border border-border p-5 text-base text-gray-600">
                 <p className="font-semibold text-primary mb-1">How content access works</p>
                 <p>
                   Paying 50% unlocks the first phase of content and confirms your place. Reaching 75% unlocks the next phase and practical booking. Paying in full opens the final exam and your certificate.
@@ -128,8 +127,8 @@ export default async function FeesPage() {
               <h3 className="font-bold text-primary text-base mb-4">What is included in every course</h3>
               <ul className="space-y-2.5 list-none">
                 {INCLUDED_ALL.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600 leading-relaxed">
-                    <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                  <li key={item} className="flex items-start gap-2.5 text-base text-gray-600 leading-relaxed">
+                    <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
@@ -138,7 +137,7 @@ export default async function FeesPage() {
 
             {/* ── Fee enquiries ─────────────────────────────────── */}
             <AnimateIn>
-              <div className="bg-surface border border-border rounded-2xl p-5 text-sm text-gray-600">
+              <div className="bg-surface border border-border rounded-2xl p-5 text-base text-gray-600">
                 <p className="font-semibold text-primary mb-1">Fee enquiries</p>
                 <p className="mb-3">
                   For current fees and payment arrangements, contact admissions at{" "}
