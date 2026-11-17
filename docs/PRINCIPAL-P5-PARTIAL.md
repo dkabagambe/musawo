@@ -1,6 +1,6 @@
 # PRINCIPAL P5 (PARTIAL): ACADEMIC STRUCTURE
 
-## Completed (P5.1-5.3)
+## Completed (P5.1-5.3, P5.6)
 
 ### P5.1: Academic Programmes CRUD ✅
 - Transformed programmes page from read-only to full CRUD
@@ -36,6 +36,8 @@
 - User model: added departmentHeadOf relation
 - Course model: added departments relation
 - Migration: 20261117110000_add_department_model
+- CalendarEvent model: id, title, description, eventDate, endDate, eventType, isAllDay, createdById, timestamps
+- Migration: 20261117120000_add_calendar_events
 
 ## API Routes Created
 - POST /api/principal/departments (create department)
@@ -43,8 +45,26 @@
 - POST /api/principal/blocks (create block)
 - PATCH /api/principal/blocks (update block)
 - DELETE /api/principal/blocks (delete block with cascade to lessons)
+- GET /api/principal/calendar (list calendar events with date range filtering)
+- POST /api/principal/calendar (create calendar event)
+- PATCH /api/principal/calendar (update calendar event)
+- DELETE /api/principal/calendar (delete calendar event)
+- GET /api/principal/calendar/export (export calendar as .ics file)
 
-## Remaining (P5.4-5.7)
+### P5.6: Academic Calendar ✅
+- CalendarEvent model in Prisma schema (title, description, eventDate, endDate, eventType, isAllDay)
+- Migration applied: 20261117120000_add_calendar_events
+- Unified calendar view showing intakes, exams, classes, and custom calendar events
+- Create/edit/delete calendar events (INTAKE, EXAM_PERIOD, HOLIDAY, OTHER)
+- .ics export at /api/principal/calendar/export for calendar subscription (Outlook, Google Calendar, Apple Calendar)
+- All-day and timed event support
+- Event type filtering with visual indicators (icons and border colors)
+- Date range filtering (shows last 30 days + all future events)
+- API routes: GET/POST/PATCH/DELETE /api/principal/calendar
+- Audit logging for all calendar operations
+- Visible to students in their dashboard (read-only, future enhancement)
+
+## Remaining (P5.4-5.5, P5.7)
 
 ### P5.4: Classes and Groups
 - Student assignment (individual and bulk) to classes
@@ -57,12 +77,6 @@
 - Intake CRUD (create/edit/close)
 - Storage clearing preview when closing intake
 - Current: /principal/semesters shows Intake list with status, needs CRUD forms
-
-### P5.6: Academic Calendar
-- Event CRUD (intake dates, exam periods, holidays)
-- .ics export for calendar subscriptions
-- Visible to all roles (students see events in their dashboard)
-- Current: /principal/calendar derives from Intake/Exam/LiveClass, needs standalone events
 
 ### P5.7: Timetable CRUD
 - Create/move/cancel classes (LiveClass instances)
@@ -78,9 +92,10 @@ Per principal.md rules:
 - Assign students to class, appears in instructor roster
 - Timetable change reaches instructor and student
 - Calendar event visible to student
+- **P5.6: Create calendar event (holiday, exam period), export .ics, verify format**
 - Build passes: npm run build
 - Works at 390px and 1440px in light/dark theme
-- Playwright tests for P5.1-5.3 flows
+- Playwright tests for P5.1-5.3, P5.6 flows
 
 ## Notes
 - All CRUD operations properly audit logged (CREATE, UPDATE, DELETE, ARCHIVE actions)

@@ -366,6 +366,9 @@ model User {
   // Department head assignment
   departmentHeadOf Department[] @relation("DepartmentHead")
 
+  // Calendar events created
+  calendarEvents CalendarEvent[] @relation("CalendarEventCreator")
+
   @@index([role, status])
   @@map("users")
 }
@@ -509,6 +512,7 @@ model Course {
   applications      Application[]
   approvalRequests  ApprovalRequest[] @relation("ApprovalCourse")
   departments       CourseDepartment[]
+  gradingSettings   GradingSystemSetting?
 
   @@map("courses")
 }
@@ -665,6 +669,24 @@ model Intake {
   applications Application[]
 
   @@map("intakes")
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  eventDate   DateTime
+  endDate     DateTime?
+  eventType   String // "INTAKE" | "EXAM_PERIOD" | "HOLIDAY" | "OTHER"
+  isAllDay    Boolean  @default(true)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User @relation("CalendarEventCreator", fields: [createdById], references: [id])
+
+  @@index([eventDate])
+  @@map("calendar_events")
 }
 
 // ─────────────────────────────────────────────
@@ -1939,4 +1961,26 @@ model FailedEmail {
 
   @@index([status, createdAt])
   @@map("failed_emails")
+}
+
+// ─────────────────────────────────────────────
+// GRADING SYSTEM SETTINGS
+// Per-course grading boundaries and pass marks
+// ─────────────────────────────────────────────
+
+model GradingSystemSetting {
+  id                String   @id @default(cuid())
+  courseId          String   @unique
+  passMarkPercent   Int      @default(60) // Minimum percentage to pass
+  gradeAMin         Int      @default(80) // A: 80-100
+  gradeBMin         Int      @default(70) // B: 70-79
+  gradeCMin         Int      @default(60) // C: 60-69
+  gradeDMin         Int      @default(50) // D: 50-59
+  // Below gradeD is F (fail)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@map("grading_system_settings")
 }
