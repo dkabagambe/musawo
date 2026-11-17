@@ -669,7 +669,7 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
   {
     id: "principal-upcoming-exams",
     title: "Upcoming exams",
-    requiredPermission: "exams.view",
+    requiredPermission: "grades.view",
     defaultTab: "academics",
     defaultColumn: 1,
     component: "principal-upcoming-exams",
@@ -726,14 +726,6 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     defaultColumn: 1,
     component: "principal-saved-reports",
     fullPageHref: "/principal/reports",
-    roles: ["PRINCIPAL"],
-  },
-    requiredPermission: "audit.view",
-    defaultTab: "approvals",
-    defaultColumn: 1,
-    component: "audit-list",
-    defaultSpan: 2,
-    fullPageHref: "/principal/audit",
     roles: ["PRINCIPAL"],
   },
   // Reports tab

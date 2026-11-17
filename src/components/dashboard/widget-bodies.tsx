@@ -3006,10 +3006,11 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
 
 /* principal-approvals-inbox (General tab) */
 async function PrincipalApprovalsInboxBody({ userId, fullPageHref }: WidgetBodyProps) {
-  // Query approvals awaiting the Principal (status AWAITING_PRINCIPAL)
+  // Query approvals awaiting the Principal (SUBMITTED or IN_REVIEW, not yet forwarded to Director)
   const items = await db.approvalRequest.findMany({
     where: {
-      status: "AWAITING_PRINCIPAL",
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+      decidedById: null,
     },
     include: { initiator: { select: { name: true } } },
     orderBy: { createdAt: "asc" },
@@ -3049,13 +3050,13 @@ async function PrincipalLiveClassesBody({ fullPageHref }: WidgetBodyProps) {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
   
-  const classes = await db.class.findMany({
+  const classes = await db.liveClass.findMany({
     where: {
       scheduledAt: { gte: todayStart, lte: todayEnd },
-      status: { in: ["SCHEDULED", "IN_PROGRESS"] },
+      status: { in: ["SCHEDULED", "LIVE"] },
     },
     include: {
-      instructor: { select: { name: true } },
+      tutor:  { select: { name: true } },
       course: { select: { title: true } },
     },
     orderBy: { scheduledAt: "asc" },
@@ -3072,11 +3073,11 @@ async function PrincipalLiveClassesBody({ fullPageHref }: WidgetBodyProps) {
       {classes.map((cls) => (
         <ListRow
           key={cls.id}
-          href={`${href}/${cls.id}`}
+          href={`${href}`}
           icon={<Calendar size={16} />}
           date={fmtTime(cls.scheduledAt)}
         >
-          {cls.course?.title ?? "Untitled"} - {cls.instructor?.name ?? "No instructor"}
+          {cls.course?.title ?? "Untitled"} - {cls.tutor?.name ?? "No instructor"}
         </ListRow>
       ))}
       <ViewMoreLink href={href}>View timetable</ViewMoreLink>
@@ -3089,9 +3090,13 @@ async function PrincipalAdmissionsAwaitingBody({ fullPageHref }: WidgetBodyProps
   const admissions = await db.approvalRequest.findMany({
     where: {
       type: "ADMISSION",
-      status: "AWAITING_PRINCIPAL",
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+      decidedById: null,
     },
-    include: { initiator: { select: { name: true } }, student: { select: { name: true } } },
+    include: {
+      initiator: { select: { name: true } },
+      student:   { select: { name: true } },
+    },
     orderBy: { createdAt: "asc" },
     take: 5,
   });
@@ -3121,10 +3126,14 @@ async function PrincipalAdmissionsAwaitingBody({ fullPageHref }: WidgetBodyProps
 async function PrincipalResultsAwaitingBody({ fullPageHref }: WidgetBodyProps) {
   const results = await db.approvalRequest.findMany({
     where: {
-      type: "RESULTS_SUBMISSION",
-      status: "AWAITING_PRINCIPAL",
+      type: "RESULTS_PUBLICATION",
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
+      decidedById: null,
     },
-    include: { initiator: { select: { name: true } }, course: { select: { title: true } } },
+    include: {
+      initiator: { select: { name: true } },
+      course:    { select: { title: true } },
+    },
     orderBy: { createdAt: "asc" },
     take: 5,
   });
@@ -3164,7 +3173,7 @@ async function PrincipalAlertsBody({ fullPageHref }: WidgetBodyProps) {
     Promise.resolve(65),
     db.exam.count({
       where: {
-        startTime: { gte: new Date(), lte: new Date(Date.now() + 7 * 86400000) },
+        startWindowAt: { gte: new Date(), lte: new Date(Date.now() + 7 * 86400000) },
       },
     }),
   ]);
@@ -3265,10 +3274,10 @@ async function PrincipalEnrolmentChartBody({ fullPageHref }: WidgetBodyProps) {
 
 /* principal-class-monitor (Academics tab) */
 async function PrincipalClassMonitorBody({ fullPageHref }: WidgetBodyProps) {
-  const liveClasses = await db.class.findMany({
-    where: { status: "IN_PROGRESS" },
+  const liveClasses = await db.liveClass.findMany({
+    where: { status: "LIVE" },
     include: {
-      instructor: { select: { name: true } },
+      tutor:  { select: { name: true } },
       course: { select: { title: true } },
     },
     take: 5,
@@ -3282,8 +3291,8 @@ async function PrincipalClassMonitorBody({ fullPageHref }: WidgetBodyProps) {
   return (
     <>
       {liveClasses.map((cls) => (
-        <ListRow key={cls.id} href={`${href}/${cls.id}`} icon={<Video size={16} />}>
-          {cls.course?.title ?? "Class"} - {cls.instructor?.name ?? "No instructor"}
+        <ListRow key={cls.id} href={href} icon={<Video size={16} />}>
+          {cls.course?.title ?? "Class"} - {cls.tutor?.name ?? "No instructor"}
         </ListRow>
       ))}
     </>
@@ -3301,10 +3310,10 @@ async function PrincipalAttendanceAlertsBody({ fullPageHref }: WidgetBodyProps) 
 async function PrincipalUpcomingExamsBody({ fullPageHref }: WidgetBodyProps) {
   const upcomingExams = await db.exam.findMany({
     where: {
-      startTime: { gte: new Date(), lte: new Date(Date.now() + 14 * 86400000) },
+      startWindowAt: { gte: new Date(), lte: new Date(Date.now() + 14 * 86400000) },
     },
     include: { course: { select: { title: true } } },
-    orderBy: { startTime: "asc" },
+    orderBy: { startWindowAt: "asc" },
     take: 5,
   });
   
@@ -3318,9 +3327,9 @@ async function PrincipalUpcomingExamsBody({ fullPageHref }: WidgetBodyProps) {
       {upcomingExams.map((exam) => (
         <ListRow
           key={exam.id}
-          href={`${href}/${exam.id}`}
+          href={`${href}`}
           icon={<ClipboardCheck size={16} />}
-          date={fmtDate(exam.startTime)}
+          date={exam.startWindowAt ? fmtDate(exam.startWindowAt) : undefined}
         >
           {exam.course?.title ?? "Exam"} - {exam.title}
         </ListRow>
@@ -3362,11 +3371,11 @@ async function PrincipalDraftCoursesBody({ fullPageHref }: WidgetBodyProps) {
 
 /* principal-approval-tracking (Approvals tab) */
 async function PrincipalApprovalTrackingBody({ userId, fullPageHref }: WidgetBodyProps) {
-  // Items the Principal submitted to the Director
+  // Items the Principal forwarded to the Director (reviewer = Principal)
   const tracking = await db.approvalRequest.findMany({
     where: {
-      initiatorId: userId,
-      status: { in: ["AWAITING_DIRECTOR", "IN_REVIEW"] },
+      reviewerId: userId,
+      status: { in: ["SUBMITTED", "IN_REVIEW"] },
     },
     orderBy: { createdAt: "asc" },
     take: 5,

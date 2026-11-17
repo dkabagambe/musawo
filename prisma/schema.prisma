@@ -336,6 +336,7 @@ model User {
   approvalRequestsInitiated ApprovalRequest[] @relation("ApprovalInitiator")
   approvalRequestsDecided   ApprovalRequest[] @relation("ApprovalDecider")
   approvalRequestsReviewed  ApprovalRequest[] @relation("ApprovalReviewer")
+  approvalRequestsStudent   ApprovalRequest[] @relation("ApprovalStudent")
 
   // Break-glass
   breakGlassGrants BreakGlassGrant[]
@@ -500,9 +501,10 @@ model Course {
   certificates  Certificate[]
   assignments   Assignment[]
   announcements Announcement[]
-  forumThreads  ForumThread[]
-  gradeEntries  GradeEntry[]
-  applications  Application[]
+  forumThreads      ForumThread[]
+  gradeEntries      GradeEntry[]
+  applications      Application[]
+  approvalRequests  ApprovalRequest[] @relation("ApprovalCourse")
 
   @@map("courses")
 }
@@ -967,6 +969,7 @@ model Exam {
   block     Block?         @relation(fields: [blockId], references: [id])
   questions QuizQuestion[]
   attempts  ExamAttempt[]
+  approvalRequests ApprovalRequest[] @relation("ApprovalExam")
 
   @@map("exams")
 }
@@ -1640,6 +1643,9 @@ model ApprovalRequest {
   initiator User  @relation("ApprovalInitiator", fields: [initiatorId], references: [id])
   decidedBy User? @relation("ApprovalDecider", fields: [decidedById], references: [id])
   reviewer  User? @relation("ApprovalReviewer", fields: [reviewerId], references: [id])
+  student   User? @relation("ApprovalStudent", fields: [studentId], references: [id])
+  course    Course? @relation("ApprovalCourse", fields: [courseId], references: [id])
+  exam      Exam? @relation("ApprovalExam", fields: [examId], references: [id])
 
   @@index([status])
   @@index([initiatorId, status])
