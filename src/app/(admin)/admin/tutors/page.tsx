@@ -2,165 +2,155 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
-import InviteStaffForm from "./InviteStaffForm";
-import InviteActions from "@/components/ui/InviteActions";
-import { getAllSettings } from "@/lib/settings";
+import Image from "next/image";
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Staff - Admin" };
+export const metadata = { title: "Instructors - Admin" };
 
-export default async function AdminTutorsPage() {
+export default async function AdminInstructorsPage() {
   const session = await auth();
-  // Only Principal+ can manage staff from this portal; Admin (operations) cannot
-  if (!session?.user || !can(session.user.role, "staff.create.approve")) redirect("/403");
+  if (!session?.user || !can(session.user.role, "students.view")) redirect("/403");
 
-  const canInvite = can(session.user.role, "staff.create.initiate");
-
-  // Show instructors only (TEACHING_ASSISTANT removed in remarks.md s1)
-  const staff = await db.user.findMany({
-    where: {
-      role: { in: ["INSTRUCTOR", "ACADEMIC_REGISTRAR"] },
-    },
-    orderBy: { createdAt: "desc" },
+  const instructors = await db.user.findMany({
+    where: { role: "INSTRUCTOR" },
+    orderBy: { name: "asc" },
     select: {
       id: true,
       name: true,
       email: true,
-      role: true,
-      status: true,
-      createdAt: true,
+      phone: true,
+      avatarUrl: true,
+      _count: {
+        select: {
+          coursesTaught: true, // main tutor
+          coTutorCourses: true, // co-tutor
+          liveClasses: true, // classes held
+        },
+      },
+      coursesTaught: {
+        select: {
+          id: true,
+          title: true,
+          courseCode: true,
+        },
+        take: 5,
+      },
+      updatedAt: true,
     },
   });
 
-  const [courses, settings] = await Promise.all([
-    db.course.findMany({
-      where: { status: "PUBLISHED" },
-      select: { id: true, title: true },
-      orderBy: { title: "asc" },
+  // Get scheduled classes count for each instructor
+  const scheduledCounts = await Promise.all(
+    instructors.map(async (instructor) => {
+      const scheduled = await db.liveClass.count({
+        where: {
+          tutorId: instructor.id,
+          status: "SCHEDULED",
+        },
+      });
+      return { id: instructor.id, scheduled };
     }),
-    getAllSettings(),
-  ]);
-  const roleLabels = Object.fromEntries(
-    Object.entries(settings)
-      .filter(([key]) => key.startsWith("role.label."))
-      .map(([key, value]) => [key.slice("role.label.".length), value]),
   );
 
-  // Pending invites
-  const pendingInvites = await db.staffInvite.findMany({
-    where: { acceptedAt: null, userId: null },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      expiresAt: true,
-      createdAt: true,
-    },
-  });
+  const scheduledMap = Object.fromEntries(
+    scheduledCounts.map((s) => [s.id, s.scheduled]),
+  );
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl">Staff and tutors</h1>
+    <div className="max-w-6xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Instructors</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          View and maintain instructor records. Account creation and deactivation managed by the Principal.
+        </p>
       </div>
 
-      {canInvite && (
-        <InviteStaffForm courses={courses} roleLabels={roleLabels} />
-      )}
+      {instructors.length === 0 ? (
+        <div className="card text-center py-16">
+          <p className="text-3xl mb-3">👨‍🏫</p>
+          <p className="text-gray-500 text-sm">No instructors found.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {instructors.map((instructor) => {
+            const totalCourses = instructor._count.coursesTaught + instructor._count.coTutorCourses;
+            const held = instructor._count.liveClasses;
+            const scheduled = scheduledMap[instructor.id] || 0;
 
-      {/* Pending invites */}
-      {pendingInvites.length > 0 && (
-        <section>
-          <h2 className="font-semibold text-lg mb-3">Pending invites</h2>
-          <div className="card overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-gray-400 border-b border-border">
-                  <th className="pb-2 font-medium pr-4">Email</th>
-                  <th className="pb-2 font-medium pr-4">Role</th>
-                  <th className="pb-2 font-medium pr-4">Sent</th>
-                  <th className="pb-2 font-medium pr-4">Expires</th>
-                  <th className="pb-2 font-medium">Manage</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {pendingInvites.map((inv) => (
-                  <tr key={inv.id}>
-                    <td className="py-2 pr-4">{inv.email}</td>
-                    <td className="py-2 pr-4 text-gray-500">
-                      {roleLabels[inv.role] ?? inv.role}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-400 text-xs">
-                      {new Date(inv.createdAt).toLocaleDateString("en-UG")}
-                    </td>
-                    <td className="py-2 text-gray-400 text-xs">
-                      {new Date(inv.expiresAt).toLocaleDateString("en-UG")}
-                    </td>
-                    <td className="py-2">
-                      {canInvite ? <InviteActions inviteId={inv.id} /> : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+            return (
+              <div key={instructor.id} className="card">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
+                    {instructor.avatarUrl ? (
+                      <Image
+                        src={instructor.avatarUrl}
+                        alt={instructor.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-gray-400">
+                        {instructor.name.split(" ").map((n) => n[0]).join("")}
+                      </div>
+                    )}
+                  </div>
 
-      {/* Active staff */}
-      <section>
-        <h2 className="font-semibold text-lg mb-3">Active staff</h2>
-        {staff.length === 0 ? (
-          <div className="card text-center py-10">
-            <p className="text-gray-500 text-sm">
-              No staff yet. Use the invite form above to add tutors or
-              lecturers.
-            </p>
-          </div>
-        ) : (
-          <div className="card overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-gray-400 border-b border-border">
-                  <th className="pb-2 font-medium pr-4">Name</th>
-                  <th className="pb-2 font-medium pr-4">Email</th>
-                  <th className="pb-2 font-medium pr-4">Role</th>
-                  <th className="pb-2 font-medium pr-4">Status</th>
-                  <th className="pb-2 font-medium pr-4">Courses</th>
-                  <th className="pb-2 font-medium">Joined</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {staff.map((t) => (
-                  <tr key={t.id}>
-                    <td className="py-2 pr-4 font-medium">{t.name}</td>
-                    <td className="py-2 pr-4 text-gray-500">
-                      {t.email ?? "-"}
-                    </td>
-                    <td className="py-2 pr-4 text-gray-400 text-xs">
-                      {roleLabels[t.role] ?? t.role}
-                    </td>
-                    <td className="py-2 pr-4">
-                      {t.status === "ACTIVE" ? (
-                        <span className="badge badge-success">Active</span>
-                      ) : (
-                        <span className="badge badge-danger">{t.status}</span>
-                      )}
-                    </td>
-                    <td className="py-2 pr-4">
-                      <span className="text-gray-400 text-xs">-</span>
-                    </td>
-                    <td className="py-2 text-gray-400 text-xs">
-                      {new Date(t.createdAt).toLocaleDateString("en-UG")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-lg">{instructor.name}</h2>
+                    <p className="text-sm text-gray-500">{instructor.email}</p>
+                    {instructor.phone && (
+                      <p className="text-sm text-gray-500">{instructor.phone}</p>
+                    )}
+
+                    {instructor.coursesTaught.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-400 mb-1">Courses taught:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {instructor.coursesTaught.map((course) => (
+                            <span
+                              key={course.id}
+                              className="text-xs px-2 py-1 rounded bg-accent/10 text-accent"
+                            >
+                              {course.courseCode || course.title}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+                      <div>
+                        <span className="font-medium">{totalCourses}</span> courses
+                      </div>
+                      <div>
+                        <span className="font-medium">{held}</span> classes held
+                      </div>
+                      <div>
+                        <span className="font-medium">{scheduled}</span> scheduled
+                      </div>
+                      <div>
+                        Last active:{" "}
+                        {new Date(instructor.updatedAt).toLocaleDateString("en-UG")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 flex-shrink-0">
+                    <Link
+                      href={`/admin/tutors/${instructor.id}`}
+                      className="btn btn-sm btn-secondary"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

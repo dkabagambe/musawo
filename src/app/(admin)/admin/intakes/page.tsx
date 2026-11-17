@@ -5,12 +5,12 @@ import { can } from "@/lib/rbac";
 export const dynamic = "force-dynamic";
 
 
-export const metadata = { title: "Academic Years & Semesters - Admin" };
+export const metadata = { title: "Terms and Intakes - Admin" };
 
 export default async function AdminIntakesPage() {
   const session = await auth();
-  // Principal+ manages intakes/academic-years; Admin (operations) is excluded
-  if (!session?.user || !can(session.user.role, "courses.publish"))
+  // Admin can view and maintain intake periods (A4.4)
+  if (!session?.user || !can(session.user.role, "students.view"))
     redirect("/403");
 
   const courses = await db.course.findMany({
@@ -24,7 +24,12 @@ export default async function AdminIntakesPage() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl">Intakes</h1>
+        <div>
+          <h1 className="text-2xl">Terms and Intakes</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            View and maintain intake periods. Prepare storage clearing when an intake closes.
+          </p>
+        </div>
       </div>
 
       {courses.every((c) => c.intakes.length === 0) && (
