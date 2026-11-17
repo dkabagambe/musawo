@@ -363,6 +363,9 @@ model User {
   // Student documents uploaded by this staff member
   uploadedStudentDocs StudentDocument[] @relation("StudentDocUploader")
 
+  // Department head assignment
+  departmentHeadOf Department[] @relation("DepartmentHead")
+
   @@index([role, status])
   @@map("users")
 }
@@ -505,8 +508,36 @@ model Course {
   gradeEntries      GradeEntry[]
   applications      Application[]
   approvalRequests  ApprovalRequest[] @relation("ApprovalCourse")
+  departments       CourseDepartment[]
 
   @@map("courses")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?  @db.Text
+  headId      String? // optional department head (must be INSTRUCTOR or PRINCIPAL role)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  head    User?   @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
+  courses CourseDepartment[]
+
+  @@map("departments")
+}
+
+model CourseDepartment {
+  id           String @id @default(cuid())
+  courseId     String
+  departmentId String
+
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, departmentId])
+  @@map("course_departments")
 }
 
 // Per-course-per-year sequence for student registration numbers.

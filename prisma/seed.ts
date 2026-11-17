@@ -810,6 +810,37 @@ async function main() {
     },
   ];
 
+  // ── Departments ────────────────────────────────────────────────
+  const DEPARTMENT_DEFS = [
+    {
+      name: "Home Care",
+      description: "Courses covering home-based patient care, caregiver skills and patient support.",
+    },
+    {
+      name: "Child Care and Safety",
+      description: "Child development, safeguarding, early childhood education and nutrition.",
+    },
+    {
+      name: "Mental Health",
+      description: "Psychosocial support, counselling fundamentals and community mental health.",
+    },
+    {
+      name: "Emergency and Life Support",
+      description: "First aid, basic life support, emergency response and triage procedures.",
+    },
+  ];
+
+  const departments: Record<string, { id: string; name: string }> = {};
+  for (const dd of DEPARTMENT_DEFS) {
+    const dept = await prisma.department.upsert({
+      where: { name: dd.name },
+      update: { description: dd.description, isActive: true },
+      create: { ...dd, isActive: true },
+    });
+    departments[dd.name] = dept;
+  }
+  console.log(`  ✓ Departments (${DEPARTMENT_DEFS.length})`);
+
   for (const cd of COURSE_DEFS) {
     courses[cd.slug] = await prisma.course.upsert({
       where: { slug: cd.slug },
