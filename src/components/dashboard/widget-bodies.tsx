@@ -28,6 +28,9 @@ import {
   Settings,
   FileSearch,
   MessageSquare,
+  Wrench,
+  Mail,
+  CreditCard,
 } from "lucide-react";
 import type { UserRole, Prisma, ApprovalRequestType } from "@prisma/client";
 
@@ -2023,6 +2026,268 @@ async function AdminOperationsOverviewBody({ fullPageHref }: WidgetBodyProps) {
         {formatCount(missingEquipment, "practical session")} need equipment
       </ListRow>
       {notice && (
+        <ListRow href="/admin/notices" icon={<ClipboardCheck size={16} />}>
+          Latest notice: {notice.title}
+        </ListRow>
+      )}
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADMIN WIDGETS (admin.md A2) - Placeholders for full implementation
+// ══════════════════════════════════════════════════════════════════
+
+// General Tab
+async function AdminNeedsAttentionBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/admissions" icon={<Users size={16} />}>
+        Placeholder: Applications to process
+      </ListRow>
+      <ListRow href="/admin/invites" icon={<Mail size={16} />}>
+        Placeholder: Invitations not accepted
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminTodayBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/timetable" icon={<Calendar size={16} />}>
+        Placeholder: Today&apos;s classes
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/timetable"}>View timetable</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminAdmissionsPendingBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/admissions" icon={<Users size={16} />}>
+        Placeholder: Admissions awaiting Principal
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/admissions"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminPaymentProofsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/payments/proofs" icon={<CreditCard size={16} />}>
+        Placeholder: Payment proofs in progress
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/payments/proofs"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminPracticalSessionsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/equipment" icon={<Wrench size={16} />}>
+        Placeholder: Practical sessions needing equipment
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/equipment"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+// Students Tab
+async function AdminRecentStudentsBody({ fullPageHref }: WidgetBodyProps) {
+  const students = await db.user.findMany({
+    where: { role: "STUDENT", status: "ACTIVE" },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { id: true, name: true, createdAt: true },
+  });
+  if (students.length === 0) return <Empty>No recent students.</Empty>;
+  return (
+    <>
+      {students.map((s) => (
+        <ListRow key={s.id} href={`/admin/students/${s.id}`} icon={<Users size={16} />}>
+          {s.name}
+        </ListRow>
+      ))}
+      <ViewMoreLink href={fullPageHref ?? "/admin/students"}>View all students</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminPendingInvitationsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/invites" icon={<Mail size={16} />}>
+        Placeholder: Pending invitations
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/invites"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminMissingDocumentsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/documents" icon={<FileText size={16} />}>
+        Placeholder: Missing documents
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/documents"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminPaymentHoldsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/students" icon={<AlertCircle size={16} />}>
+        Placeholder: Students on payment hold
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/students"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminAttendanceBelowMinBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/attendance" icon={<AlertCircle size={16} />}>
+        Placeholder: Attendance below minimum
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/attendance"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+// Timetable Tab
+async function AdminTimetableTodayBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/timetable" icon={<Calendar size={16} />}>
+        Placeholder: Today&apos;s timetable
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/timetable"}>View full timetable</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminTimetableWeekBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/timetable" icon={<Calendar size={16} />}>
+        Placeholder: This week by instructor
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/timetable"}>View timetable</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminTimetableConflictsBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/timetable" icon={<AlertCircle size={16} />}>
+        Placeholder: Timetable conflicts
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/timetable"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminRescheduledClassesBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/timetable" icon={<Calendar size={16} />}>
+        Placeholder: Rescheduled classes
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/timetable"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+// Finance Tab
+async function AdminCollectionsMonthBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/payments" icon={<CreditCard size={16} />}>
+        Placeholder: Collections this month
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/payments"}>View details</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminFeeStatusesBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/payments" icon={<CreditCard size={16} />}>
+        Placeholder: Fee statuses by phase
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/payments"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminProofsWaitingBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/payments/proofs" icon={<FileText size={16} />}>
+        Placeholder: Proofs waiting at each step
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/payments/proofs"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminOutstandingBalancesBody({ fullPageHref }: WidgetBodyProps) {
+  return (
+    <>
+      <ListRow href="/admin/payments" icon={<AlertCircle size={16} />}>
+        Placeholder: Outstanding balances
+      </ListRow>
+      <ViewMoreLink href={fullPageHref ?? "/admin/payments"}>View all</ViewMoreLink>
+    </>
+  );
+}
+
+async function AdminOperationsOverviewBodyOld({ fullPageHref }: WidgetBodyProps) {
+  const now = new Date();
+  const [venueCount, bookingCount, practicals, notice] = await Promise.all([
+    db.venue.count({ where: { active: true } }),
+    db.venueBooking.count({
+      where: { startsAt: { gte: now }, status: "CONFIRMED" },
+    }),
+    db.practicalSession.findMany({
+      where: { startsAt: { gte: now } },
+      include: { equipment: true },
+      orderBy: { startsAt: "asc" },
+      take: 10,
+    }),
+    db.operationalNotice.findFirst({
+      orderBy: { sentAt: "desc" },
+      select: { title: true, sentAt: true },
+    }),
+  ]);
+  const missingEquipment = practicals.filter((session) =>
+    session.equipment.some((item) => item.available < item.needed),
+  ).length;
+  return (
+    <>
+      <ListRow
+        href={fullPageHref ?? "/admin/timetable"}
+        icon={<Calendar size={16} />}
+      >
+        {formatCount(venueCount, "venue")} available
+      </ListRow>
+      <ListRow href="/admin/timetable" icon={<ClipboardList size={16} />}>
+        {formatCount(bookingCount, "room booking")} upcoming
+      </ListRow>
+      <ListRow href="/admin/equipment" icon={<ClipboardCheck size={16} />}>
+        {formatCount(missingEquipment, "practical session")} need equipment
+      </ListRow>
+      {notice && (
         <ListRow
           href="/admin/notices"
           icon={<FileText size={16} />}
@@ -2957,6 +3222,25 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "hr-todos": HrTodosBody,
   "admin-operations-todos": AdminOperationsTodosBody,
   "admin-operations-overview": AdminOperationsOverviewBody,
+  // New Admin widgets (admin.md A2)
+  "admin-needs-attention": AdminNeedsAttentionBody,
+  "admin-today": AdminTodayBody,
+  "admin-admissions-pending": AdminAdmissionsPendingBody,
+  "admin-payment-proofs": AdminPaymentProofsBody,
+  "admin-practical-sessions": AdminPracticalSessionsBody,
+  "admin-recent-students": AdminRecentStudentsBody,
+  "admin-pending-invitations": AdminPendingInvitationsBody,
+  "admin-missing-documents": AdminMissingDocumentsBody,
+  "admin-payment-holds": AdminPaymentHoldsBody,
+  "admin-attendance-below-min": AdminAttendanceBelowMinBody,
+  "admin-timetable-today": AdminTimetableTodayBody,
+  "admin-timetable-week": AdminTimetableWeekBody,
+  "admin-timetable-conflicts": AdminTimetableConflictsBody,
+  "admin-rescheduled-classes": AdminRescheduledClassesBody,
+  "admin-collections-month": AdminCollectionsMonthBody,
+  "admin-fee-statuses": AdminFeeStatusesBody,
+  "admin-proofs-waiting": AdminProofsWaitingBody,
+  "admin-outstanding-balances": AdminOutstandingBalancesBody,
   "leave-list": LeaveListBody,
   "access-review-summary": AccessReviewSummaryBody,
   "system-todos": SystemTodosBody,

@@ -9,11 +9,9 @@ export const dynamic = "force-dynamic";
 
 const VALID_TABS = new Set<string>([
   "general",
-  "staff",
-  "leave",
-  "support",
+  "students",
   "timetable",
-  "operations",
+  "finance",
 ]);
 
 export default async function AdminDashboardPage({

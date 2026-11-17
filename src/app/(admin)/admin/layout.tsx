@@ -10,8 +10,6 @@ import {
   Users,
   GraduationCap,
   Calendar,
-  Settings,
-  Search,
   MapPinned,
   Wrench,
   Bell,
@@ -21,33 +19,36 @@ import {
   Layers,
   CheckSquare,
   ClipboardCheck,
-  BarChart,
-  FileText,
   BarChart2,
+  FileText,
   Megaphone,
   User,
   CreditCard,
   LifeBuoy,
   Mail,
-  Globe,
-  InboxIcon,
+  FileCheck,
+  UserPlus,
 } from "lucide-react";
 
+// Admin sidebar structure per admin.md A2.2
 const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
-  // ── Spec tabs (section 4) ──────────────────────────────────────────
+  // ── Overview ──────────────────────────────────────────────────────
   {
     item: {
       href: "/admin",
       label: "Dashboard",
       icon: <LayoutDashboard className="w-4 h-4" />,
+      group: "Overview",
     },
     permission: "reports.operational",
   },
+  // ── People ────────────────────────────────────────────────────────
   {
     item: {
       href: "/admin/students",
-      label: "Student Lookup",
+      label: "Students",
       icon: <Users className="w-4 h-4" />,
+      group: "People",
     },
     permission: "students.view",
   },
@@ -55,7 +56,8 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
     item: {
       href: "/admin/admissions",
       label: "Admissions",
-      icon: <ClipboardList className="w-4 h-4" />,
+      icon: <UserPlus className="w-4 h-4" />,
+      group: "People",
     },
     permission: "applications.view",
   },
@@ -64,14 +66,26 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       href: "/admin/tutors",
       label: "Instructors",
       icon: <GraduationCap className="w-4 h-4" />,
+      group: "People",
     },
-    permission: "staff.create.approve",
+    permission: "staff.view",
   },
+  {
+    item: {
+      href: "/admin/documents",
+      label: "Student Documents",
+      icon: <FileText className="w-4 h-4" />,
+      group: "People",
+    },
+    permission: "student.documents.manage",
+  },
+  // ── Academics ─────────────────────────────────────────────────────
   {
     item: {
       href: "/admin/programmes",
       label: "Academic Programmes",
       icon: <Library className="w-4 h-4" />,
+      group: "Academics",
     },
     permission: "courses.view",
   },
@@ -80,30 +94,35 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       href: "/admin/courses",
       label: "Courses",
       icon: <BookOpen className="w-4 h-4" />,
+      group: "Academics",
     },
     permission: "courses.create",
   },
   {
     item: {
       href: "/admin/classes",
-      label: "Classes & Groups",
+      label: "Classes and Groups",
       icon: <Layers className="w-4 h-4" />,
+      group: "Academics",
     },
     permission: "classes.view",
   },
   {
     item: {
       href: "/admin/intakes",
-      label: "Academic Years & Semesters",
+      label: "Terms",
       icon: <Calendar className="w-4 h-4" />,
+      group: "Academics",
     },
     permission: "courses.publish",
   },
+  // ── Teaching ──────────────────────────────────────────────────────
   {
     item: {
       href: "/admin/timetable",
       label: "Timetable",
       icon: <MapPinned className="w-4 h-4" />,
+      group: "Teaching",
     },
     permission: "venues.manage",
   },
@@ -112,6 +131,7 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       href: "/admin/attendance",
       label: "Attendance",
       icon: <CheckSquare className="w-4 h-4" />,
+      group: "Teaching",
     },
     permission: "attendance.view",
   },
@@ -120,154 +140,113 @@ const NAV: Array<{ item: NavItem; permission: Parameters<typeof can>[1] }> = [
       href: "/admin/examinations",
       label: "Examinations",
       icon: <ClipboardCheck className="w-4 h-4" />,
+      group: "Teaching",
     },
     permission: "exams.create",
   },
   {
     item: {
       href: "/admin/results",
-      label: "Results & Grading",
-      icon: <BarChart className="w-4 h-4" />,
+      label: "Results and Grading",
+      icon: <FileCheck className="w-4 h-4" />,
+      group: "Teaching",
     },
     permission: "grades.view",
   },
   {
     item: {
-      href: "/admin/reports",
-      label: "Reports",
-      icon: <BarChart2 className="w-4 h-4" />,
+      href: "/admin/certificates",
+      label: "Certificate Lists",
+      icon: <ClipboardList className="w-4 h-4" />,
+      group: "Teaching",
     },
-    permission: "reports.view",
+    permission: "certificates.view",
   },
+  // ── Finance ───────────────────────────────────────────────────────
+  {
+    item: {
+      href: "/admin/payments",
+      label: "Payments",
+      icon: <CreditCard className="w-4 h-4" />,
+      group: "Finance",
+    },
+    permission: "finance.totals.view",
+  },
+  {
+    item: {
+      href: "/admin/payments/proofs",
+      label: "Payment Proofs",
+      icon: <FileText className="w-4 h-4" />,
+      group: "Finance",
+    },
+    permission: "finance.proof.collect",
+  },
+  // ── Operations ────────────────────────────────────────────────────
+  {
+    item: {
+      href: "/admin/equipment",
+      label: "Equipment",
+      icon: <Wrench className="w-4 h-4" />,
+      group: "Operations",
+    },
+    permission: "equipment.manage",
+  },
+  // ── Communication ─────────────────────────────────────────────────
   {
     item: {
       href: "/admin/announcements",
       label: "Announcements",
       icon: <Megaphone className="w-4 h-4" />,
+      group: "Communication",
     },
     permission: "announcements.manage",
-  },
-  {
-    item: {
-      href: "/admin/notifications",
-      label: "Notifications",
-      icon: <Bell className="w-4 h-4" />,
-    },
-    permission: "students.view",
   },
   {
     item: {
       href: "/admin/messages",
       label: "Messages",
       icon: <Mail className="w-4 h-4" />,
+      group: "Communication",
     },
     permission: "students.view",
+  },
+  {
+    item: {
+      href: "/admin/notifications",
+      label: "Notifications",
+      icon: <Bell className="w-4 h-4" />,
+      group: "Communication",
+    },
+    permission: "students.view",
+  },
+  // ── Reports ───────────────────────────────────────────────────────
+  {
+    item: {
+      href: "/admin/reports",
+      label: "Reports",
+      icon: <BarChart2 className="w-4 h-4" />,
+      group: "Reports",
+    },
+    permission: "reports.view",
+  },
+  // ── Support and Account ───────────────────────────────────────────
+  {
+    item: {
+      href: "/admin/support",
+      label: "Support",
+      icon: <LifeBuoy className="w-4 h-4" />,
+      group: "Support and Account",
+    },
+    permission: "support.submit",
   },
   {
     item: {
       href: "/admin/profile",
       label: "Profile",
       icon: <User className="w-4 h-4" />,
+      group: "Support and Account",
     },
     permission: "students.view",
-  },
-  // ── ADD items (meeting notes) ─────────────────────────────────────
-  {
-    item: {
-      href: "/admin/payments",
-      label: "Payments",
-      icon: <CreditCard className="w-4 h-4" />,
-    },
-    permission: "finance.totals.view",
-  },
-  {
-    item: {
-      href: "/admin/equipment",
-      label: "Equipment",
-      icon: <Wrench className="w-4 h-4" />,
-    },
-    permission: "equipment.manage",
-  },
-  {
-    item: {
-      href: "/admin/support",
-      label: "Support",
-      icon: <LifeBuoy className="w-4 h-4" />,
-    },
-    permission: "support.submit",
-  },
-  {
-    item: {
-      href: "/admin/documents",
-      label: "Student Documents",
-      icon: <FileText className="w-4 h-4" />,
-    },
-    permission: "student.documents.manage",
-  },
-  {
-    item: {
-      href: "/admin/email-queue",
-      label: "Email Queue",
-      icon: <InboxIcon className="w-4 h-4" />,
-    },
-    permission: "reports.view",
-  },
-  // ── Extra tabs (operations, not in spec but useful) ────────────────
-  {
-    item: {
-      href: "/admin/invites",
-      label: "Invites",
-      icon: <Mail className="w-4 h-4" />,
-    },
-    permission: "invites.resend",
-  },
-  {
-    item: {
-      href: "/admin/leave",
-      label: "Leave",
-      icon: <Calendar className="w-4 h-4" />,
-    },
-    permission: "staff.view",
-  },
-  {
-    item: {
-      href: "/admin/access-review",
-      label: "Access Review",
-      icon: <Search className="w-4 h-4" />,
-    },
-    permission: "staff.view",
-  },
-  {
-    item: {
-      href: "/admin/notices",
-      label: "Notices",
-      icon: <Bell className="w-4 h-4" />,
-    },
-    permission: "operational_notices.manage",
-  },
-  {
-    item: {
-      href: "/admin/settings",
-      label: "Settings",
-      icon: <Settings className="w-4 h-4" />,
-    },
-    permission: "settings.edit.operational",
-  },
-  {
-    item: {
-      href: "/admin/partner-pages",
-      label: "Partner Pages",
-      icon: <Globe className="w-4 h-4" />,
-    },
-    permission: "settings.edit.operational",
-  },
-  {
-    item: {
-      href: "/admin/audit",
-      label: "Audit Log",
-      icon: <Search className="w-4 h-4" />,
-    },
-    permission: "audit.view.full",
   },
 ];
 
@@ -294,14 +273,12 @@ export default async function AdminLayout({
     where: { id: session.user.id },
     select: { avatarUrl: true },
   });
+  // Admin dashboard tabs per admin.md A2.3: General, Students, Timetable, Finance
   const tabs: DashboardTab[] = [
     "general",
-    ...(can(session.user.role, "staff.view") ? (["staff", "leave"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "support.submit") ? (["support"] as DashboardTab[]) : []),
-    ...(can(session.user.role, "bookings.manage") || can(session.user.role, "equipment.manage")
-      ? (["timetable"] as DashboardTab[])
-      : []),
-    ...(can(session.user.role, "reports.operational") ? (["operations"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "students.view") ? (["students"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "venues.manage") ? (["timetable"] as DashboardTab[]) : []),
+    ...(can(session.user.role, "finance.totals.view") ? (["finance"] as DashboardTab[]) : []),
   ];
   return (
     <AppShell
