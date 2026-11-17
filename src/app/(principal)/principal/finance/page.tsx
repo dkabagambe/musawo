@@ -4,13 +4,15 @@ import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
 import FeeRequestForm from "./FeeRequestForm";
+import StudentFeeStatus from "./StudentFeeStatus";
+import PaymentProofActions from "./PaymentProofActions";
 export const dynamic = "force-dynamic";
 
 
 export const metadata = { title: "Finance - Principal" };
 
 interface Props {
-  searchParams: { tab?: string; page?: string };
+  searchParams: { tab?: string; page?: string; search?: string };
 }
 
 export default async function PrincipalFinancePage({ searchParams }: Props) {
@@ -20,6 +22,7 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
 
   const tab = searchParams.tab ?? "payment-proofs";
   const page = Math.max(1, Number(searchParams.page ?? 1));
+  const search = searchParams.search ?? "";
   const take = 25;
   const skip = (page - 1) * take;
 
@@ -72,10 +75,29 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
   });
 
   const TABS = [
+    { value: "student-fees",   label: "Student Fee Status" },
     { value: "payment-proofs", label: `Payment Proofs (${paymentProofsTotal})` },
     { value: "payments",       label: "All Payments" },
     { value: "fee-approvals",  label: `Fee Requests (${feeApprovals.length})` },
   ];
+
+  // Student fee status data
+  const studentEnrolments = tab === "student-fees" ? await db.enrolment.findMany({
+    where: search ? {
+      OR: [
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { user: { studentNumber: { contains: search, mode: "insensitive" } } },
+        { course: { title: { contains: search, mode: "insensitive" } } },
+      ],
+    } : undefined,
+    orderBy: { createdAt: "desc" },
+    take,
+    skip,
+    include: {
+      user: { select: { id: true, name: true, studentNumber: true, email: true } },
+      course: { select: { title: true } },
+    },
+  }) : [];
 
   const statusColors: Record<string, string> = {
     COMPLETED:        "badge-success",
@@ -128,6 +150,30 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
         ))}
       </div>
 
+      {tab === "student-fees" && (
+        <>
+          <div className="mb-4">
+            <form method="get" className="flex gap-2">
+              <input type="hidden" name="tab" value="student-fees" />
+              <input
+                type="search"
+                name="search"
+                placeholder="Search by student name, number, or course..."
+                className="input flex-1"
+                defaultValue={search}
+              />
+              <button type="submit" className="btn-primary">
+                Search
+              </button>
+            </form>
+          </div>
+          <StudentFeeStatus enrolments={studentEnrolments.map((e) => ({
+            ...e,
+            createdAt: e.createdAt.toISOString(),
+          }))} />
+        </>
+      )}
+
       {tab === "payment-proofs" && (
         <>
           {paymentProofsPending.length === 0 ? (
@@ -138,12 +184,8 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
           ) : (
             <div className="space-y-3">
               {paymentProofsPending.map((r) => (
-                <Link
-                  key={r.id}
-                  href={`/principal/approvals-inbox/${r.id}`}
-                  className="card block hover:shadow-md transition-shadow no-underline"
-                >
-                  <div className="flex items-start justify-between gap-4">
+                <div key={r.id} className="card">
+                  <div className="flex items-start justify-between gap-4 mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="badge badge-warning text-xs">
@@ -156,9 +198,16 @@ export default async function PrincipalFinancePage({ searchParams }: Props) {
                         {new Date(r.createdAt).toLocaleDateString("en-UG")}
                       </p>
                     </div>
-                    <span className="text-xs text-accent flex-shrink-0">Review &rarr;</span>
                   </div>
-                </Link>
+                  {r.status === "SUBMITTED" && r.initiatorId !== session.user.id && (
+                    <PaymentProofActions proofId={r.id} initiatorName={r.initiator.name} />
+                  )}
+                  {r.initiatorId === session.user.id && (
+                    <p className="text-xs text-amber-700 bg-warning/10 px-3 py-2 rounded-xl mt-3">
+                      You cannot review your own submission.
+                    </p>
+                  )}
+                </div>
               ))}
             </div>
           )}
