@@ -2,9 +2,9 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
+import Link from "next/link";
+
 export const dynamic = "force-dynamic";
-
-
 export const metadata = { title: "Students - Principal" };
 
 interface Props {
@@ -56,6 +56,12 @@ export default async function PrincipalStudentsPage({ searchParams }: Props) {
           <h1 className="text-2xl font-bold text-primary">Students</h1>
           <p className="text-sm text-gray-500 mt-0.5">{total.toLocaleString()} total</p>
         </div>
+        <Link
+          href="/principal/students/new"
+          className="btn-primary text-sm no-underline"
+        >
+          + New Student
+        </Link>
       </div>
 
       <form method="GET" className="flex gap-3">
@@ -79,30 +85,48 @@ export default async function PrincipalStudentsPage({ searchParams }: Props) {
               <tr className="text-left text-xs text-gray-400 border-b border-border">
                 <th className="pb-2 font-medium pr-4">Student #</th>
                 <th className="pb-2 font-medium pr-4">Name</th>
+                <th className="pb-2 font-medium pr-4">Email</th>
                 <th className="pb-2 font-medium pr-4">Status</th>
-                <th className="pb-2 font-medium pr-4">Current course</th>
-                <th className="pb-2 font-medium">Joined</th>
+                <th className="pb-2 font-medium pr-4">Enrolment</th>
+                <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody>
               {students.map((s) => (
-                <tr key={s.id} className="hover:bg-surface/50 transition-colors">
-                  <td className="py-2.5 pr-4 font-mono text-xs text-gray-400">{s.studentNumber ?? "-"}</td>
-                  <td className="py-2.5 pr-4 font-medium text-primary">{s.name}</td>
-                  <td className="py-2.5 pr-4">
-                    {s.status === "ACTIVE" ? (
-                      <span className="badge badge-success text-xs">Active</span>
-                    ) : s.status === "SUSPENDED" ? (
-                      <span className="badge badge-danger text-xs">Suspended</span>
-                    ) : (
-                      <span className="badge badge-warning text-xs">Pending</span>
-                    )}
+                <tr key={s.id} className="border-b border-border last:border-0">
+                  <td className="py-3 pr-4">
+                    <Link
+                      href={`/principal/students/${s.id}`}
+                      className="text-accent hover:underline no-underline font-mono text-xs"
+                    >
+                      {s.studentNumber ?? "-"}
+                    </Link>
                   </td>
-                  <td className="py-2.5 pr-4 text-xs text-gray-500 max-w-[180px] truncate">
-                    {s.enrolments[0]?.course.title ?? "-"}
+                  <td className="py-3 pr-4 font-medium">{s.name}</td>
+                  <td className="py-3 pr-4 text-gray-500">{s.email ?? "-"}</td>
+                  <td className="py-3 pr-4">
+                    <span
+                      className={`badge text-xs ${
+                        s.status === "ACTIVE"
+                          ? "badge-success"
+                          : s.status === "SUSPENDED"
+                          ? "badge-danger"
+                          : "badge-warning"
+                      }`}
+                    >
+                      {s.status.replace(/_/g, " ")}
+                    </span>
                   </td>
-                  <td className="py-2.5 text-xs text-gray-400">
-                    {new Date(s.createdAt).toLocaleDateString("en-UG")}
+                  <td className="py-3 pr-4 text-gray-500">
+                    {s.enrolments[0]?.course.title ?? "None"}
+                  </td>
+                  <td className="py-3">
+                    <Link
+                      href={`/principal/students/${s.id}`}
+                      className="text-accent hover:underline text-xs no-underline"
+                    >
+                      View →
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -112,13 +136,25 @@ export default async function PrincipalStudentsPage({ searchParams }: Props) {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <p className="text-xs text-gray-400">Page {page} of {totalPages}</p>
+            <p className="text-xs text-gray-400">
+              Page {page} of {totalPages}
+            </p>
             <div className="flex gap-2">
               {page > 1 && (
-                <a href={`/principal/students?q=${q}&page=${page - 1}`} className="btn-outline text-xs px-3 py-1.5 no-underline">Previous</a>
+                <a
+                  href={`/principal/students?q=${q}&page=${page - 1}`}
+                  className="btn-outline text-xs px-3 py-1.5 no-underline"
+                >
+                  Previous
+                </a>
               )}
               {page < totalPages && (
-                <a href={`/principal/students?q=${q}&page=${page + 1}`} className="btn-primary text-xs px-3 py-1.5 no-underline">Next</a>
+                <a
+                  href={`/principal/students?q=${q}&page=${page + 1}`}
+                  className="btn-primary text-xs px-3 py-1.5 no-underline"
+                >
+                  Next
+                </a>
               )}
             </div>
           </div>
