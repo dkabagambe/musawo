@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import ApprovalRequestForm from "../ApprovalRequestForm";
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 
@@ -64,7 +65,12 @@ export default async function PrincipalCoursesPage() {
               {courses.map((c) => (
                 <tr key={c.id} className="hover:bg-surface/50 transition-colors">
                   <td className="py-2.5 pr-4">
-                    <p className="font-medium text-primary">{c.title}</p>
+                    <Link
+                      href={`/principal/courses/${c.id}`}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {c.title}
+                    </Link>
                     <p className="text-xs text-gray-400">/{c.slug}</p>
                   </td>
                   <td className="py-2.5 pr-4 text-sm text-gray-600">{c.tutor.name}</td>
