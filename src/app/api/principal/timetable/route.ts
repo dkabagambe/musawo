@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
-import { auditLog } from "@/lib/audit";
 import { z } from "zod";
 
 const createSchema = z.object({

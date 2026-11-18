@@ -18,7 +18,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { can, DELEGATABLE_TO_DEPUTY, type Permission } from "@/lib/rbac";
-import { audit } from "@/lib/audit";
 import { z } from "zod";
 
 function canManageDelegation(role: string) {
