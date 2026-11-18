@@ -33,6 +33,8 @@ import {
   CreditCard,
 } from "lucide-react";
 import type { UserRole, Prisma, ApprovalRequestType } from "@prisma/client";
+// Import system health widgets
+import * as SystemWidgets from "@/components/dashboard/system-widgets";
 
 export interface WidgetBodyProps {
   userId: string;
@@ -3282,6 +3284,23 @@ export const WIDGET_COMPONENTS: Record<string, WidgetBodyComponent> = {
   "principal-approval-tracking": PrincipalApprovalTrackingBody,
   "principal-quick-exports": PrincipalQuickExportsBody,
   "principal-saved-reports": PrincipalSavedReportsBody,
+  // IT Admin system health widgets (I2)
+  "system-health-overview": SystemWidgets.SystemHealthOverview,
+  "system-critical-alerts": SystemWidgets.SystemCriticalAlerts,
+  "system-recent-deployments": SystemWidgets.SystemRecentDeployments,
+  "system-backup-status": SystemWidgets.SystemBackupStatus,
+  "system-job-failures": SystemWidgets.SystemJobFailures,
+  "system-load-metrics": SystemWidgets.SystemLoadMetrics,
+  "system-performance-metrics": SystemWidgets.SystemPerformanceMetrics,
+  "system-error-rates": SystemWidgets.SystemErrorRates,
+  "system-resource-usage": SystemWidgets.SystemResourceUsage,
+  "system-database-health": SystemWidgets.SystemDatabaseHealth,
+  "system-api-health": SystemWidgets.SystemApiHealth,
+  "system-error-log": SystemWidgets.SystemErrorLog,
+  "system-security-events": SystemWidgets.SystemSecurityEvents,
+  "system-job-runs": SystemWidgets.SystemJobRuns,
+  "system-deployment-log": SystemWidgets.SystemDeploymentLog,
+  "system-integration-logs": SystemWidgets.SystemIntegrationLogs,
 };
 
 /* ═══════════════════════════════════════════════

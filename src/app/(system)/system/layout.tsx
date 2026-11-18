@@ -1,21 +1,8 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
-import AppShell, { NavItem } from "@/components/ui/AppShell";
 import { can } from "@/lib/rbac";
 import { db } from "@/lib/db";
-import { Monitor, Settings, FileSearch, LifeBuoy, User, Mail, Bell, Megaphone, InboxIcon } from "lucide-react";
-
-const NAV: NavItem[] = [
-  { href: "/system",               label: "System Health",  icon: <Monitor className="w-4 h-4" /> },
-  { href: "/system/support",        label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" /> },
-  { href: "/system/email-queue",    label: "Email Queue",    icon: <InboxIcon className="w-4 h-4" /> },
-  { href: "/system/settings",       label: "Settings",       icon: <Settings className="w-4 h-4" /> },
-  { href: "/system/audit",          label: "System Logs",    icon: <FileSearch className="w-4 h-4" /> },
-  { href: "/system/announcements",  label: "Announcements",  icon: <Megaphone className="w-4 h-4" /> },
-  { href: "/system/notifications",  label: "Notifications",   icon: <Bell className="w-4 h-4" /> },
-  { href: "/system/messages",       label: "Messages",       icon: <Mail className="w-4 h-4" /> },
-  { href: "/system/profile",        label: "Profile",        icon: <User className="w-4 h-4" /> },
-];
+import ITAdminSidebar from "./ITAdminSidebar";
 
 const TABS = ["general", "system", "logs"] as const;
 
@@ -27,17 +14,16 @@ export default async function SystemLayout({ children }: { children: React.React
     where: { id: session.user.id },
     select: { avatarUrl: true },
   });
+  
   return (
-    <AppShell
-      nav={NAV}
-      role="IT Admin"
-      permissionRole={session.user.role}
-      userName={name}
-      userInitial={name.charAt(0).toUpperCase()}
-      userAvatarUrl={dbUser?.avatarUrl ?? null}
-      tabs={[...TABS]}
-    >
-      {children}
-    </AppShell>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* IT Admin Custom Sidebar */}
+      <ITAdminSidebar userName={name} userAvatarUrl={dbUser?.avatarUrl ?? null} />
+      
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
+    </div>
   );
 }
