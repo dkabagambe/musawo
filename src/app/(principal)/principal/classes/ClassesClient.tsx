@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 interface User {
   id: string;
@@ -223,15 +224,31 @@ export default function ClassesClient({ courses, students, instructors, canEdit 
                               </div>
                               <div className="flex gap-2 items-center">
                                 {canEdit && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAssignStudents(course.id, intake.id);
-                                    }}
-                                    className="btn-ghost text-xs"
-                                  >
-                                    + Assign Students
-                                  </button>
+                                  <>
+                                    <Link
+                                      href={`/principal/intakes/${intake.id}/roster`}
+                                      className="btn-ghost text-xs"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      View Roster
+                                    </Link>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAssignStudents(course.id, intake.id);
+                                      }}
+                                      className="btn-ghost text-xs"
+                                    >
+                                      + Assign
+                                    </button>
+                                    <Link
+                                      href={`/principal/intakes/${intake.id}/groups`}
+                                      className="btn-ghost text-xs"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Groups
+                                    </Link>
+                                  </>
                                 )}
                                 <button className="btn-ghost text-sm">
                                   {isIntakeExpanded ? "▼" : "▶"}
