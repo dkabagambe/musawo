@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
 import Link from "next/link";
-import PaymentProofSubmit from "./PaymentProofSubmit";
 export const dynamic = "force-dynamic";
 
 
@@ -21,8 +20,8 @@ interface Props {
 
 export default async function AdminPaymentsPage({ searchParams }: Props) {
   const session = await auth();
-  // Finance overview is Principal+ only; Admin (operations) uses /admin/admissions for proof-of-payment
-  if (!session?.user || !can(session.user.role, "finance.totals.view"))
+  // Admin has VIEW-ONLY access to payments - no edit, verify, or delete
+  if (!session?.user || !can(session.user.role, "finance.view"))
     redirect("/403");
 
   const page = Math.max(1, Number(searchParams.page ?? 1));
@@ -65,21 +64,30 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl">Payments</h1>
-        <div className="flex gap-2">
-          <Link
-            href="/admin/payments/pending"
-            className="btn-outline text-sm no-underline"
-          >
-            Bank approvals
-          </Link>
-          <a
-            href="/api/admin/payments/export"
-            className="btn-outline text-sm no-underline"
-          >
-            Export CSV
-          </a>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold">Payments</h1>
+          <div className="flex gap-2">
+            <Link
+              href="/admin/payments/proofs"
+              className="btn-primary text-sm no-underline"
+            >
+              Submit Payment Proof
+            </Link>
+            <a
+              href="/api/admin/payments/export"
+              className="btn-outline text-sm no-underline"
+              download
+            >
+              Export CSV
+            </a>
+          </div>
+        </div>
+        <p className="text-sm text-gray-500">
+          View-only access to payment records. Submit payment proofs for approval.
+        </p>
+        <div className="mt-2 px-3 py-2 bg-warning/10 border border-warning/30 rounded-xl text-sm text-gray-700">
+          <strong>Note:</strong> Admin cannot edit, verify, or delete payments. All proof submissions go through Principal and Director approval.
         </div>
       </div>
 
@@ -174,7 +182,6 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
               <th className="pb-2 font-medium pr-4">Gateway</th>
               <th className="pb-2 font-medium pr-4">Status</th>
               <th className="pb-2 font-medium">Date</th>
-              <th className="pb-2 font-medium">Proof</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -213,16 +220,6 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
                 </td>
                 <td className="py-2 text-xs text-gray-400">
                   {new Date(p.createdAt).toLocaleDateString("en-UG")}
-                </td>
-                <td className="py-2">
-                  {p.status === "COMPLETED" || p.status === "PENDING_APPROVAL" ? (
-                    <PaymentProofSubmit
-                      paymentId={p.id}
-                      studentName={p.enrolment.user.name}
-                      amount={p.amount}
-                      courseName={p.enrolment.course.title}
-                    />
-                  ) : null}
                 </td>
               </tr>
             ))}
