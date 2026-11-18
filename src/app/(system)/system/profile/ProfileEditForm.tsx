@@ -191,20 +191,6 @@ export default function SystemProfileEditForm({
           {pwSaving ? "Updating..." : "Change password"}
         </button>
       </form>
-
-      {/* 2FA status */}
-      <div className="pt-6 border-t border-border">
-        <h2 className="font-semibold text-sm text-gray-600 uppercase tracking-wide mb-3">
-          Two-Factor Authentication
-        </h2>
-        {totpEnabled ? (
-          <p className="text-sm text-success font-medium">2FA is enabled on your account.</p>
-        ) : (
-          <p className="text-sm text-warning font-medium">
-            2FA is not enabled. Set it up via the two-factor setup link in your security settings.
-          </p>
-        )}
-      </div>
     </div>
   );
 }

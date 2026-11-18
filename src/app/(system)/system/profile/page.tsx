@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import AvatarUpload from "@/components/ui/AvatarUpload";
 import SystemProfileEditForm from "./ProfileEditForm";
+import TwoFactorSetup from "./TwoFactorSetup";
+import ActiveSessions from "./ActiveSessions";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
@@ -39,8 +41,8 @@ export default async function SystemProfilePage() {
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           Back to dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Profile</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your account details</p>
+        <h1 className="text-2xl font-bold text-primary">Profile & Security</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Manage your account details and security settings</p>
       </div>
 
       <div className="card">
@@ -75,6 +77,13 @@ export default async function SystemProfilePage() {
           email={user.email ?? ""}
           totpEnabled={user.totpEnabled}
         />
+
+        <TwoFactorSetup 
+          totpEnabled={user.totpEnabled}
+          email={user.email ?? ""}
+        />
+
+        <ActiveSessions />
       </div>
     </div>
   );
