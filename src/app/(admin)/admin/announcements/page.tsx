@@ -1,91 +1,65 @@
-import { auth } from "@/lib/auth/server";
+/**
+ * /admin/announcements
+ *
+ * Unified page for administrative announcements and operational notices.
+ * - Operational notices (class moved, room changed, office closed): sent immediately
+ * - Institution-wide announcements: require Principal approval
+ */
+
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { auth } from "@/lib/auth/server";
 import { can } from "@/lib/rbac";
+import { db } from "@/lib/db";
+import PageHeader from "@/components/ui/PageHeader";
+import AnnouncementsClient from "./AnnouncementsClient";
+
+export const metadata: Metadata = {
+  title: "Announcements - Admin",
+};
+
 export const dynamic = "force-dynamic";
-
-
-export const metadata = { title: "Announcements - Admin" };
 
 export default async function AdminAnnouncementsPage() {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "announcements.manage"))
-    redirect("/admin");
+  if (!session?.user || !can(session.user.role, "announcements.create"))
+    redirect("/403");
 
-  const announcements = await db.announcement.findMany({
-    where: {
-      OR: [
-        { courseId: null }, // institution-wide
-        { authorId: session.user.id }, // own announcements
-      ],
-    },
-    include: {
-      author: { select: { name: true, role: true } },
-      course: { select: { title: true } },
-    },
-    orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
-    take: 50,
-  });
-
-  const roleLabels: Record<string, string> = {
-    DIRECTOR: "Director",
-    PRINCIPAL: "Principal",
-    ADMIN: "Admin",
-    INSTRUCTOR: "Instructor",
-    SYSTEM_IT: "IT Admin",
-  };
+  // Fetch courses and intakes for targeting
+  const [courses, intakes, announcements] = await Promise.all([
+    db.course.findMany({
+      where: { status: "ACTIVE" },
+      select: { id: true, title: true, code: true },
+      orderBy: { code: "asc" },
+    }),
+    db.intake.findMany({
+      where: { current: true },
+      select: { id: true, year: true, semester: true },
+      orderBy: [{ year: "desc" }, { semester: "desc" }],
+    }),
+    db.announcement.findMany({
+      where: { createdById: session.user.id },
+      include: {
+        createdBy: { select: { name: true } },
+        targetCourse: { select: { code: true } },
+        targetIntake: { select: { year: true, semester: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    }),
+  ]);
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Announcements</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Administrative announcements. Institution-wide announcements require Principal approval.
-        </p>
-      </div>
-
-      {announcements.length === 0 ? (
-        <div className="card text-center py-16">
-          <p className="text-3xl mb-3">📢</p>
-          <p className="text-gray-500 text-sm">No announcements yet.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {announcements.map((a) => (
-            <div
-              key={a.id}
-              className={`card ${a.pinned ? "border-l-4 border-l-primary" : ""}`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    {a.pinned && (
-                      <span className="badge badge-accent text-xs">Pinned</span>
-                    )}
-                    <p className="font-semibold text-sm">{a.title}</p>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                    {a.body}
-                  </p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-xs text-gray-400">
-                      {a.author?.name ?? "Unknown"} ({roleLabels[a.author?.role ?? ""] ?? a.author?.role ?? "?"})
-                    </span>
-                    {a.course && (
-                      <span className="text-xs text-gray-400">
-                        {a.course.title}
-                      </span>
-                    )}
-                    <span className="text-xs text-gray-400">
-                      {new Date(a.createdAt).toLocaleDateString("en-UG")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="max-w-5xl mx-auto space-y-6">
+      <PageHeader
+        title="Announcements"
+        subtitle="Create administrative announcements and operational notices"
+      />
+      <AnnouncementsClient
+        courses={courses}
+        intakes={intakes}
+        initialAnnouncements={announcements}
+      />
     </div>
   );
 }

@@ -218,6 +218,7 @@ enum ApprovalRequestType {
   EQUIPMENT_REQUEST // Admin prepares; Principal or Director approves
   STORAGE_CLEARING // Admin prepares; Principal confirms; Director notified
   ROLE_ASSIGNMENT // Director assigns Director/Principal; Principal assigns others
+  INSTITUTION_ANNOUNCEMENT // Admin creates; Principal approves for institution-wide announcements
 }
 
 enum ApprovalRequestStatus {
@@ -301,9 +302,10 @@ model User {
   gradedSubmissions     AssignmentSubmission[] @relation("GraderSubmissions")
 
   // Announcements & forum
-  announcements Announcement[]
-  forumThreads  ForumThread[]
-  forumReplies  ForumReply[]
+  announcements         Announcement[]
+  createdAnnouncements  Announcement[] @relation("AnnouncementCreatedBy")
+  forumThreads          ForumThread[]
+  forumReplies          ForumReply[]
 
   // Groups
   classGroupMemberships ClassGroupMember[]
@@ -664,10 +666,11 @@ model Intake {
   isOpen    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrolments   Enrolment[]
-  applications Application[]
-  groups       IntakeGroup[]
+  course               Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolments           Enrolment[]
+  applications         Application[]
+  groups               IntakeGroup[]
+  targetedAnnouncements Announcement[]
 
   @@map("intakes")
 }
@@ -1393,22 +1396,30 @@ enum SubmissionStatus {
 // ─────────────────────────────────────────────
 
 model Announcement {
-  id          String   @id @default(cuid())
-  courseId    String? // null = site-wide
-  liveClassId String? // optional: scope to a specific class
-  authorId    String
-  title       String
-  body        String   @db.Text
-  pinned      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  courseId       String? // null = site-wide
+  liveClassId    String? // optional: scope to a specific class
+  targetIntakeId String? // for intake-specific announcements
+  authorId       String
+  createdById    String? // Admin who created it (for approval workflow)
+  title          String
+  body           String   @db.Text
+  audienceType   String   @default("ALL") // STAFF, STUDENTS, COURSE, INTAKE, ALL
+  status         String   @default("PUBLISHED") // DRAFT, PENDING_APPROVAL, PUBLISHED, REJECTED
+  pinned         Boolean  @default(false)
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  course    Course?    @relation(fields: [courseId], references: [id])
-  liveClass LiveClass? @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
-  author    User       @relation(fields: [authorId], references: [id])
+  course       Course?    @relation(fields: [courseId], references: [id])
+  liveClass    LiveClass? @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
+  targetIntake Intake?    @relation(fields: [targetIntakeId], references: [id])
+  author       User       @relation(fields: [authorId], references: [id])
+  createdBy    User?      @relation("AnnouncementCreatedBy", fields: [createdById], references: [id])
 
   @@index([courseId, createdAt])
   @@index([pinned, createdAt])
+  @@index([status, audienceType])
   @@map("announcements")
 }
 
