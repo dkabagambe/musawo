@@ -116,35 +116,3 @@ Read this whole file first. It covers ONLY the ADMIN role (Rahiima Nakiyimba in 
 5. Update docs/ADMIN-STATUS.md with one honest table (section, status, evidence).
 
 START WITH A1 ONLY. Stop after A1 and wait for "next".
-
-<!--
-1. Fix the skipped A4 tests (get them working)
- ✅ 2. Work on remaining Principal features (P5.4, P5.5, P6 remaining parts)
-  3. Work on Student portal features
-  4. Work on Director features
-
-  Since you just said "next", let me ask what you'd like to focus on:
-
-  Options for Next Work:
-
-  Option 1: Fix A4 Tests ✅
-
-  Get the A4 admin tests working properly (fix the login automation issue)
-
-  Option 2: Complete Principal P5 📚
-
-  Finish P5.4 (Classes and Groups) and P5.5 (Terms/Intakes CRUD) - these are partially done
-
-  Option 3: Work on Student Portal 🎓
-
-  Build out remaining student features (S5, S6, S7, S8 areas)
-
-  Option 4: Director Features 👔
-
-  Work on Director portal features (D1-D9)
-
-  Option 5: Something Specific 🎯
-
-  Tell me what specific feature or area you want to work on
-
-  Which direction would you like to go? -->
