@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -48,9 +48,30 @@ export default function GroupsClient({ intake }: Props) {
   const [groups, setGroups] = useState<Group[]>([]);
   const [groupSize, setGroupSize] = useState(5);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [showManualDialog, setShowManualDialog] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+
+  // Load existing groups on mount
+  useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const res = await fetch(`/api/principal/intakes/${intake.id}/groups`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.groups && data.groups.length > 0) {
+            setGroups(data.groups);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load groups:", error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadGroups();
+  }, [intake.id]);
 
   const getInitials = (name: string) => {
     return name
@@ -130,6 +151,16 @@ export default function GroupsClient({ intake }: Props) {
 
   const assignedStudents = new Set(groups.flatMap((g) => g.members));
   const unassignedStudents = intake.enrolments.filter((e) => !assignedStudents.has(e.userId));
+
+  if (initialLoading) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="card text-center py-16">
+          <p className="text-gray-500">Loading groups...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto">

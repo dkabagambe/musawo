@@ -667,8 +667,34 @@ model Intake {
   course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   enrolments   Enrolment[]
   applications Application[]
+  groups       IntakeGroup[]
 
   @@map("intakes")
+}
+
+model IntakeGroup {
+  id        String   @id @default(cuid())
+  intakeId  String
+  name      String // e.g. "Group 1", "Advanced Practice Group"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  intake  Intake             @relation(fields: [intakeId], references: [id], onDelete: Cascade)
+  members IntakeGroupMember[]
+
+  @@map("intake_groups")
+}
+
+model IntakeGroupMember {
+  id      String @id @default(cuid())
+  groupId String
+  userId  String
+
+  group IntakeGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@map("intake_group_members")
 }
 
 model CalendarEvent {
