@@ -13,7 +13,7 @@ interface Props {
 
 export default async function DirectorExaminationsPage({ searchParams }: Props) {
   const session = await auth();
-  if (!session?.user || !can(session.user.role, "grades.view")) redirect("/login");
+  if (!session?.user || !can(session.user.role, "exams.release")) redirect("/login");
 
   const courseFilter = searchParams.course ?? "";
   const statusFilter = searchParams.status ?? "";
