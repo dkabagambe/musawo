@@ -15,7 +15,7 @@ The IT Admin portal has **core monitoring infrastructure** in place. Current sta
 | **I3** Support Desk | 🟡 PARTIAL | 40% | Basic queue exists; needs SLA, filters, canned replies | HIGH |
 | **I4** Monitoring | ✅ COMPLETE | 95% | Health checks, performance metrics, alerts, scheduled jobs | CRITICAL |
 | **I5** Data Safety | ✅ COMPLETE | 90% | Backups, database diagnostics, storage oversight, RUNBOOK | CRITICAL |
-| **I6** Configuration | 🔴 NOT STARTED | 10% | Basic settings exist; needs integrations, feature flags | HIGH |
+| **I6** Configuration | 🟡 PARTIAL | 40% | Settings exists, integrations partial, maintenance/flags missing | HIGH |
 | **I7** Account Support | 🔴 NOT STARTED | 0% | No account lookup, security events, or break-glass | HIGH |
 | **I8** Releases & Runbook | 🔴 NOT STARTED | 0% | No release tracking, runbook, or data protection requests | MEDIUM |
 | **I9** Speed, Security, Proof | 🔴 NOT STARTED | 0% | Click audit, security tests, cross-role proof pending | HIGH |
