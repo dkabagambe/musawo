@@ -23,7 +23,8 @@ const HOW_HEARD_OPTIONS = [
   "Village Health Teams (VHT)",
   "Friend or family",
   "Social media",
-  "Radio or TV",
+  "Radio",
+  "TV",
   "Poster or flyer",
   "Other (please specify)",
 ];
@@ -222,7 +223,6 @@ export default function ApplyForm({ courses, intakeLabel, preselectedSlug }: Pro
                 <option value="">Select</option>
                 <option value="Female">Female</option>
                 <option value="Male">Male</option>
-                <option value="Prefer not to say">Prefer not to say</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
             </div>

@@ -115,7 +115,7 @@ const EXTRA_STUDENTS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DISTRICTS = ["Kampala","Wakiso","Mukono","Jinja","Mbale","Gulu","Mbarara","Masaka","Lira","Soroti"];
-const HOW_HEARD = ["Community Health Workers (CHW)","Village Health Teams (VHT)","Friend or family","Social media","Radio or TV","Poster or flyer","Other"];
+const HOW_HEARD = ["Community Health Workers (CHW)","Village Health Teams (VHT)","Friend or family","Social media","Radio","TV","Poster or flyer","Other"];
 const QUALIFICATIONS = ["O-Level Certificate","A-Level Certificate","Diploma in Nursing","Bachelor of Science Nursing","Certificate in Clinical Medicine"];
 const GENDERS = ["Female","Male"];
 

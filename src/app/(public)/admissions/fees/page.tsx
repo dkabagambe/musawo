@@ -18,7 +18,7 @@ const ADMISSIONS_NAV = [
 
 const INCLUDED_ALL = [
   "Full course access on all devices",
-  "Hybrid and online classes with hands-on practicals in our skills lab",
+  "Hybrid classes with hands-on practicals in our skills lab",
   "All assessments and examinations",
   "Job placement support",
 ];

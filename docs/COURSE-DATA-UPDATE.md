@@ -21,8 +21,8 @@ Updated all course names, fees (UGX and USD), and durations across the entire sy
 3. **"Certificate in Advanced First Aid"** → **"Certificate in First Aid"**
    - Removed "Advanced" prefix
 
-4. **"Basic Certificate in Care of Older Persons and Persons with Disability"** → **"Basic Certificate in care of Older persons and persons with Disability (Geriatric)"**
-   - Updated capitalization and added (Geriatric) suffix
+4. **"Basic Certificate in Care of elderly and Persons with Disability (diatric)"**
+   - Updated capitalization and terminology
 
 ### Fee Updates (UGX / USD)
 

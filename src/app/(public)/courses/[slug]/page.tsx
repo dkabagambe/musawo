@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: c.title,
     description: c.shortDescription
-      ? `${c.shortDescription} Hybrid and online with 70% hands-on practicals. November 2026 intake.`
+      ? `${c.shortDescription} Hybrid classes with 70% hands-on practicals. November 2026 intake.`
       : `${c.title} at Musawo Training Center. November 2026 intake.`,
   };
 }
@@ -87,14 +87,14 @@ export default async function CourseDetailPage({ params }: Props) {
   type StaticCourse = { id: string; title: string; slug: string; shortDescription: string | null; description: string | null; thumbnailUrl: string | null; fullFeeUgx: number | null; internationalFeeUgx: number | null; feeContactOnly: boolean; durationMonths: number | null; durationWeeks: number | null; instalmentCount: number; category: string; targetAudience: string | null; eligibilityText: string | null; intakeLabel: string | null; contentNote?: string | null; accreditationText?: string | null; blocks: StaticBlock[]; tutor: { name: string; avatarUrl: string | null } };
   // Import from the courses page static list
   const STATIC: Record<string, StaticCourse> = {
-    "medical-home-caregiver": { id: "static-mhc", title: "Certificate in Medical Home Care", slug: "medical-home-caregiver", shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.", description: "This three-month certificate course is designed for health professionals including nurses, midwives, clinical officers, and other healthcare providers. Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "PROFESSIONAL", targetAudience: "Nurses, midwives, clinical officers and other healthcare providers", eligibilityText: "Applicants must hold a professional nursing, midwifery or clinical officer qualification and provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Advanced patient assessment", order: 1, lessons: [{ id: "l1", title: "Assessment in the home setting", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Medication management", order: 2, lessons: [{ id: "l2", title: "Medication administration", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Wound care and post-operative nursing", order: 3, lessons: [{ id: "l3", title: "Wound care techniques", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Palliative care at home", order: 4, lessons: [{ id: "l4", title: "End-of-life care principles", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Documentation and accountability", order: 5, lessons: [{ id: "l5", title: "Professional documentation", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "basic-home-caregiver": { id: "static-bhc", title: "Certificate in Basic Home Care", slug: "basic-home-caregiver", shortDescription: "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care.", description: "This three-month certificate course is designed for non-health professionals aged 18 and above. Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Introduction to patient care", order: 1, lessons: [{ id: "l1", title: "Patient care and professional ethics", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Personal hygiene and mobility", order: 2, lessons: [{ id: "l2", title: "Hygiene, feeding and mobility assistance", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Infection prevention", order: 3, lessons: [{ id: "l3", title: "Infection prevention and basic safety", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Recognising health changes", order: 4, lessons: [{ id: "l4", title: "Recognising and responding to health changes", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Communication", order: 5, lessons: [{ id: "l5", title: "Communication with patients and families", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "babysitting-childcare-safety": { id: "static-bcs", title: "Basic Certificate in Babysitting, childcare, and Safety management", slug: "babysitting-childcare-safety", shortDescription: "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters.", description: "This two-month certificate course is designed for non-health professionals aged 18 and above. Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 500000, internationalFeeUgx: 166, feeContactOnly: false, durationMonths: 2, durationWeeks: null, instalmentCount: 2, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Child development stages", order: 1, lessons: [{ id: "l1", title: "Child development and age-appropriate care", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Daily routines", order: 2, lessons: [{ id: "l2", title: "Feeding, hygiene, sleep and play", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: First aid for children", order: 3, lessons: [{ id: "l3", title: "First aid for infants and children", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Signs of illness and abuse", order: 4, lessons: [{ id: "l4", title: "Recognising illness, abuse or neglect", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Safety management", order: 5, lessons: [{ id: "l5", title: "Home and environment safety management", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "mental-health-support-advocacy": { id: "static-mha", title: "Certificate in Mental Health Support and Advocacy", slug: "mental-health-support-advocacy", shortDescription: "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health and advocate for people living with mental health conditions in Uganda.", description: "This three-month certificate course is designed for health professionals and non-health professionals aged 18 and above. Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Health professionals and non-health professionals aged 18 and above", eligibilityText: "Open to health professionals and non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Understanding mental health", order: 1, lessons: [{ id: "l1", title: "Mental health and common conditions", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Listening and first response", order: 2, lessons: [{ id: "l2", title: "Listening and first response skills", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Crisis recognition", order: 3, lessons: [{ id: "l3", title: "Crisis recognition and de-escalation", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Referral pathways", order: 4, lessons: [{ id: "l4", title: "Referral pathways and community resources", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Stigma and advocacy", order: 5, lessons: [{ id: "l5", title: "Stigma, advocacy and rights-based approaches", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Self-care for helpers", order: 6, lessons: [{ id: "l6", title: "Self-care practices", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "care-older-persons-disability": { id: "static-cop", title: "Basic Certificate in care of Older persons and persons with Disability (Geriatric)", slug: "care-older-persons-disability", shortDescription: "Equips participants with the basic knowledge and practical skills to provide safe, dignified and skilled care to older persons and adults with disabilities.", description: "This three-month certificate course is designed for non-health professionals aged 18 and above. Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Ageing and disability", order: 1, lessons: [{ id: "l1", title: "Ageing, disability and the Ugandan context", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Mobility assistance", order: 2, lessons: [{ id: "l2", title: "Mobility, fall prevention and rehabilitation", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Dementia care", order: 3, lessons: [{ id: "l3", title: "Dementia and cognitive impairment care", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Personal care and nutrition", order: 4, lessons: [{ id: "l4", title: "Personal care, nutrition and medication", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Assistive devices", order: 5, lessons: [{ id: "l5", title: "Assistive devices and adaptive environments", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "basic-life-support-first-aid": { id: "static-bls", title: "Certificate in Basic Life Support", slug: "basic-life-support-first-aid", shortDescription: "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies.", description: "This one-month short course is designed for health professionals to develop the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies. Hybrid and online classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 350000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "PROFESSIONAL", targetAudience: "Health professionals", eligibilityText: "Designed for health professionals. Applicants must provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Recognising emergencies", order: 1, lessons: [{ id: "l1", title: "Recognising a life-threatening emergency", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: CPR and AED", order: 2, lessons: [{ id: "l2", title: "CPR and AED use for adults, children and infants", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Choking, bleeding and burns", order: 3, lessons: [{ id: "l3", title: "Choking, bleeding and burns management", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Medical emergencies", order: 4, lessons: [{ id: "l4", title: "Stroke, seizure and diabetic emergencies", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Practical assessment", order: 5, lessons: [{ id: "l5", title: "Skills lab practical assessment", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "advanced-life-support": { id: "static-als", title: "Certificate in Advanced Life Support", slug: "advanced-life-support", shortDescription: "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies.", description: "This one-month professional short course strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical emergencies. Hybrid and online classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 600000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "PROFESSIONAL", targetAudience: "Eligible healthcare professionals", eligibilityText: "Applicants must hold a professional medical, nursing or clinical officer qualification, demonstrate current BLS competence, and provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Advanced airway management", order: 1, lessons: [{ id: "l1", title: "Advanced airway management", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: ACLS algorithms", order: 2, lessons: [{ id: "l2", title: "Advanced cardiac life support (ACLS) algorithms", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Paediatric advanced life support", order: 3, lessons: [{ id: "l3", title: "Paediatric advanced life support (PALS)", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Trauma and obstetric emergencies", order: 4, lessons: [{ id: "l4", title: "Trauma and obstetric emergencies", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Team leadership", order: 5, lessons: [{ id: "l5", title: "Team leadership in resuscitation", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Megacode scenarios", order: 6, lessons: [{ id: "l6", title: "Practical megacode scenarios in the skills lab", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
-    "advanced-first-aid": { id: "static-afa", title: "Certificate in First Aid", slug: "advanced-first-aid", shortDescription: "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies and respond appropriately before professional medical help arrives.", description: "This one-month short course equips non-health professionals aged 18 and above with essential first aid knowledge and practical skills. Hybrid and online classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 350000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above", eligibilityText: "Open to all aged 18 and above with an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Scene safety", order: 1, lessons: [{ id: "l1", title: "Scene safety and emergency response", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Primary assessment", order: 2, lessons: [{ id: "l2", title: "Primary assessment and calling for help", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Bleeding and burns", order: 3, lessons: [{ id: "l3", title: "Bleeding, burns, fractures and shock", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Practical scenarios", order: 4, lessons: [{ id: "l4", title: "Practical first aid scenarios in the skills lab", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "medical-home-caregiver": { id: "static-mhc", title: "Certificate in Medical Home Care", slug: "medical-home-caregiver", shortDescription: "For registered health professionals. Equips nurses, midwives, clinical officers and other healthcare providers with the medical knowledge and practical skills to deliver competent, safe and compassionate home-based care.", description: "This three-month certificate course is designed for health professionals including nurses, midwives, clinical officers, and other healthcare providers. Hybrid classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "PROFESSIONAL", targetAudience: "Nurses, midwives, clinical officers and other healthcare providers", eligibilityText: "Applicants must hold a professional nursing, midwifery or clinical officer qualification and provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Advanced patient assessment", order: 1, lessons: [{ id: "l1", title: "Assessment in the home setting", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Medication management", order: 2, lessons: [{ id: "l2", title: "Medication administration", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Wound care and post-operative nursing", order: 3, lessons: [{ id: "l3", title: "Wound care techniques", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Palliative care at home", order: 4, lessons: [{ id: "l4", title: "End-of-life care principles", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Documentation and accountability", order: 5, lessons: [{ id: "l5", title: "Professional documentation", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "basic-home-caregiver": { id: "static-bhc", title: "Certificate in Basic Home Care", slug: "basic-home-caregiver", shortDescription: "For non-health professionals aged 18 and above. Equips participants with the basic knowledge and practical skills to provide safe, competent and compassionate home care.", description: "This three-month certificate course is designed for non-health professionals aged 18 and above. Hybrid classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Introduction to patient care", order: 1, lessons: [{ id: "l1", title: "Patient care and professional ethics", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Personal hygiene and mobility", order: 2, lessons: [{ id: "l2", title: "Hygiene, feeding and mobility assistance", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Infection prevention", order: 3, lessons: [{ id: "l3", title: "Infection prevention and basic safety", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Recognising health changes", order: 4, lessons: [{ id: "l4", title: "Recognising and responding to health changes", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Communication", order: 5, lessons: [{ id: "l5", title: "Communication with patients and families", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "babysitting-childcare-safety": { id: "static-bcs", title: "Basic Certificate in Babysitting, childcare, and Safety management", slug: "babysitting-childcare-safety", shortDescription: "Equips participants with the basic knowledge and practical skills to provide childcare in homes, childcare settings or as professional babysitters.", description: "This two-month certificate course is designed for non-health professionals aged 18 and above. Hybrid classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 500000, internationalFeeUgx: 166, feeContactOnly: false, durationMonths: 2, durationWeeks: null, instalmentCount: 2, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Child development stages", order: 1, lessons: [{ id: "l1", title: "Child development and age-appropriate care", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Daily routines", order: 2, lessons: [{ id: "l2", title: "Feeding, hygiene, sleep and play", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: First aid for children", order: 3, lessons: [{ id: "l3", title: "First aid for infants and children", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Signs of illness and abuse", order: 4, lessons: [{ id: "l4", title: "Recognising illness, abuse or neglect", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Safety management", order: 5, lessons: [{ id: "l5", title: "Home and environment safety management", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "mental-health-support-advocacy": { id: "static-mha", title: "Certificate in Mental Health Support and Advocacy", slug: "mental-health-support-advocacy", shortDescription: "Equips learners with the knowledge, practical skills and professional attitudes to promote mental health and advocate for people living with mental health conditions in Uganda.", description: "This three-month certificate course is designed for health professionals and non-health professionals aged 18 and above. Hybrid classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Health professionals and non-health professionals aged 18 and above", eligibilityText: "Open to health professionals and non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Understanding mental health", order: 1, lessons: [{ id: "l1", title: "Mental health and common conditions", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Listening and first response", order: 2, lessons: [{ id: "l2", title: "Listening and first response skills", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Crisis recognition", order: 3, lessons: [{ id: "l3", title: "Crisis recognition and de-escalation", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Referral pathways", order: 4, lessons: [{ id: "l4", title: "Referral pathways and community resources", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Stigma and advocacy", order: 5, lessons: [{ id: "l5", title: "Stigma, advocacy and rights-based approaches", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Self-care for helpers", order: 6, lessons: [{ id: "l6", title: "Self-care practices", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "care-older-persons-disability": { id: "static-cop", title: "Basic Certificate in care of Older persons and persons with Disability (Geriatric)", slug: "care-older-persons-disability", shortDescription: "Equips participants with the basic knowledge and practical skills to provide safe, dignified and skilled care to older persons and adults with disabilities.", description: "This three-month certificate course is designed for non-health professionals aged 18 and above. Hybrid classes with 70% hands-on practicals in our skills lab. Taught by doctors, nurses and clinicians. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 1800000, internationalFeeUgx: 638, feeContactOnly: false, durationMonths: 3, durationWeeks: null, instalmentCount: 3, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate", eligibilityText: "Open to non-health professionals aged 18 years and above who hold an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Ageing and disability", order: 1, lessons: [{ id: "l1", title: "Ageing, disability and the Ugandan context", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Mobility assistance", order: 2, lessons: [{ id: "l2", title: "Mobility, fall prevention and rehabilitation", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Dementia care", order: 3, lessons: [{ id: "l3", title: "Dementia and cognitive impairment care", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Personal care and nutrition", order: 4, lessons: [{ id: "l4", title: "Personal care, nutrition and medication", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Assistive devices", order: 5, lessons: [{ id: "l5", title: "Assistive devices and adaptive environments", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Practical sessions", order: 6, lessons: [{ id: "l6", title: "Skills lab practicals", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "basic-life-support-first-aid": { id: "static-bls", title: "Certificate in Basic Life Support", slug: "basic-life-support-first-aid", shortDescription: "For health professionals. Develops the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies.", description: "This one-month short course is designed for health professionals to develop the knowledge, practical skills and professional behaviours required to recognise cardiac arrest and other immediate life-threatening emergencies. Hybrid classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 350000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "PROFESSIONAL", targetAudience: "Health professionals", eligibilityText: "Designed for health professionals. Applicants must provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Recognising emergencies", order: 1, lessons: [{ id: "l1", title: "Recognising a life-threatening emergency", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: CPR and AED", order: 2, lessons: [{ id: "l2", title: "CPR and AED use for adults, children and infants", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Choking, bleeding and burns", order: 3, lessons: [{ id: "l3", title: "Choking, bleeding and burns management", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Medical emergencies", order: 4, lessons: [{ id: "l4", title: "Stroke, seizure and diabetic emergencies", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Practical assessment", order: 5, lessons: [{ id: "l5", title: "Skills lab practical assessment", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "advanced-life-support": { id: "static-als", title: "Certificate in Advanced Life Support", slug: "advanced-life-support", shortDescription: "Strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical cardiopulmonary emergencies.", description: "This one-month professional short course strengthens the ability of eligible healthcare professionals to recognise and manage adult cardiac arrest and other time-critical emergencies. Hybrid classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 600000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "PROFESSIONAL", targetAudience: "Eligible healthcare professionals", eligibilityText: "Applicants must hold a professional medical, nursing or clinical officer qualification, demonstrate current BLS competence, and provide their professional title and registration number.", intakeLabel: "November 2026", tutor: { name: "Dr. Mathias Senyondo", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Advanced airway management", order: 1, lessons: [{ id: "l1", title: "Advanced airway management", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: ACLS algorithms", order: 2, lessons: [{ id: "l2", title: "Advanced cardiac life support (ACLS) algorithms", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Paediatric advanced life support", order: 3, lessons: [{ id: "l3", title: "Paediatric advanced life support (PALS)", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Trauma and obstetric emergencies", order: 4, lessons: [{ id: "l4", title: "Trauma and obstetric emergencies", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b5", title: "Module 5: Team leadership", order: 5, lessons: [{ id: "l5", title: "Team leadership in resuscitation", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b6", title: "Module 6: Megacode scenarios", order: 6, lessons: [{ id: "l6", title: "Practical megacode scenarios in the skills lab", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
+    "advanced-first-aid": { id: "static-afa", title: "Certificate in First Aid", slug: "advanced-first-aid", shortDescription: "Equips non-health professionals with essential first aid knowledge and practical skills to recognize emergencies and respond appropriately before professional medical help arrives.", description: "This one-month short course equips non-health professionals aged 18 and above with essential first aid knowledge and practical skills. Hybrid classes with 70% hands-on practicals in our skills lab. November 2026 intake.", thumbnailUrl: null, fullFeeUgx: 350000, internationalFeeUgx: 138, feeContactOnly: false, durationMonths: 1, durationWeeks: null, instalmentCount: 1, category: "OPEN", targetAudience: "Non-health professionals aged 18 and above", eligibilityText: "Open to all aged 18 and above with an O-Level or A-Level certificate.", intakeLabel: "November 2026", tutor: { name: "Mirembe Joel", avatarUrl: null }, blocks: [{ id: "b1", title: "Module 1: Scene safety", order: 1, lessons: [{ id: "l1", title: "Scene safety and emergency response", type: "VIDEO", isFree: true, isFreePreview: true, durationSec: null }] }, { id: "b2", title: "Module 2: Primary assessment", order: 2, lessons: [{ id: "l2", title: "Primary assessment and calling for help", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b3", title: "Module 3: Bleeding and burns", order: 3, lessons: [{ id: "l3", title: "Bleeding, burns, fractures and shock", type: "NOTES", isFree: false, isFreePreview: false, durationSec: null }] }, { id: "b4", title: "Module 4: Practical scenarios", order: 4, lessons: [{ id: "l4", title: "Practical first aid scenarios in the skills lab", type: "VIDEO", isFree: false, isFreePreview: false, durationSec: null }] }] },
   };
 
   let course: StaticCourse | null = null;
@@ -257,7 +257,7 @@ export default async function CourseDetailPage({ params }: Props) {
                 <h2 className="text-xl font-bold text-primary mb-4">Delivery and teaching</h2>
                 <ul className="space-y-3 list-none text-sm text-gray-700">
                   {[
-                    "Hybrid and online classes with 70% hands-on practicals in our skills lab",
+                    "Hybrid classes with 70% hands-on practicals in our skills lab",
                     "Taught by licensed doctors, nurses, midwives and other healthcare professionals",
                     `${course.intakeLabel ?? "November 2026"} intake`,
                     "Job placement support in Uganda",
@@ -265,7 +265,225 @@ export default async function CourseDetailPage({ params }: Props) {
                     "We do not provide accommodation",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
+                      <CheckCircle className="w-4 h-4 text-primary" aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AnimateIn>
+
+            {/* Target audience and eligibility */}
+            {course.targetAudience && (
+              <AnimateIn delay={0.09}>
+                <h2 className="text-xl font-bold text-primary mb-3">Who is this for?</h2>
+                <p className="text-gray-600 mb-3">{course.targetAudience}</p>
+                {course.eligibilityText && !isProfessional && (
+                  <div className="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <strong>Eligibility:</strong> {course.eligibilityText}
+                  </div>
+                )}
+              </AnimateIn>
+            )}
+
+            {/* Accreditation */}
+            {course.accreditationText && (
+              <AnimateIn delay={0.11}>
+                <div className="bg-success/5 border border-success/20 rounded-2xl p-4 text-sm text-success">
+                  <CheckCircle className="w-5 h-5 inline mr-2" aria-hidden="true" />
+                  {course.accreditationText}
+                </div>
+              </AnimateIn>
+            )}
+
+            {/* Course content preview */}
+            <AnimateIn delay={0.13}>
+              <h2 className="text-xl font-bold text-primary mb-4">Course content</h2>
+              <div className="space-y-4">
+                {course.blocks.map((block, idx) => (
+                  <details
+                    key={block.id}
+                    className="bg-white border border-border rounded-2xl overflow-hidden group"
+                    open={idx === 0}
+                  >
+                    <summary className="flex items-center justify-between px-4 py-3 cursor-pointer select-none hover:bg-surface transition-colors">
+                      <span className="text-sm font-bold text-primary">
+                        {block.title}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {block.lessons.length} lesson{block.lessons.length !== 1 && "s"}
+                      </span>
+                    </summary>
+                    <div className="px-4 pb-3 space-y-1.5">
+                      {block.description && (
+                        <p className="text-xs text-gray-600 mb-2">
+                          {block.description}
+                        </p>
+                      )}
+                      {block.lessons.map((lesson) => (
+                        <div
+                          key={lesson.id}
+                          className="flex items-center gap-2 text-xs text-gray-700 py-1.5"
+                        >
+                          <LessonIcon type={lesson.type} />
+                          <span className="flex-1">{lesson.title}</span>
+                          {lesson.durationSec && (
+                            <span className="text-gray-400">
+                              {Math.ceil(lesson.durationSec / 60)}m
+                            </span>
+                          )}
+                          {(lesson.isFree || lesson.isFreePreview) && (
+                            <span className="text-success text-xs font-semibold">
+                              Preview
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </AnimateIn>
+
+            {/* Preview lessons */}
+            {previewLessons.length > 0 && (
+              <AnimateIn delay={0.15}>
+                <h2 className="text-xl font-bold text-primary mb-3">
+                  Preview available
+                </h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Get a taste of the course content. Watch these lessons before
+                  you enroll.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {previewLessons.map((lesson) => (
+                    <Link
+                      key={lesson.id}
+                      href={`/courses/${course.slug}/preview/${lesson.id}`}
+                      className="flex items-start gap-3 bg-white border border-border rounded-xl p-3 hover:border-primary hover:shadow-sm transition-all no-underline"
+                    >
+                      <LessonIcon type={lesson.type} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-primary line-clamp-1">
+                          {lesson.title}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {lesson.type === "VIDEO"
+                            ? "Video lesson"
+                            : lesson.type === "NOTES"
+                              ? "Reading material"
+                              : "Activity"}
+                        </p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                    </Link>
+                  ))}
+                </div>
+              </AnimateIn>
+            )}
+
+          </div>
+
+          {/* Sidebar */}
+          <aside className="lg:sticky lg:top-6 lg:self-start">
+            <AnimateIn delay={0.17}>
+              <div className="bg-white border border-border rounded-2xl p-6 space-y-5 shadow-sm">
+
+                {/* Tutor */}
+                <div className="flex items-center gap-3 pb-5 border-b border-border">
+                  {course.tutor.avatarUrl ? (
+                    <img
+                      src={course.tutor.avatarUrl}
+                      alt={course.tutor.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-primary" aria-hidden="true" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-gray-500">Lead instructor</p>
+                    <p className="font-bold text-primary">{course.tutor.name}</p>
+                  </div>
+                </div>
+
+                {/* Fee & seats */}
+                <div className="space-y-3">
+                  {course.feeContactOnly ? (
+                    <>
+                      <p className="text-2xl font-bold text-primary">
+                        Fee: contact admissions
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Email{" "}
+                        <a href={`mailto:${contact.admissionsEmail}`} className="text-accent font-bold underline">
+                          {contact.admissionsEmail}
+                        </a>{" "}
+                        or call{" "}
+                        <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className="text-accent font-bold underline">
+                          {contact.phone}
+                        </a>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Fee</p>
+                        <p className="text-2xl font-bold text-accent">
+                          UGX {course.fullFeeUgx?.toLocaleString()}
+                        </p>
+                        {course.internationalFeeUgx && (
+                          <p className="text-sm text-gray-500 mt-0.5">
+                            International: USD {course.internationalFeeUgx}
+                          </p>
+                        )}
+                      </div>
+                      {instalment && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Instalments:</strong> Pay UGX{" "}
+                          {instalment.toLocaleString()} x {course.instalmentCount}{" "}
+                          times
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        We do not provide accommodation.
+                      </p>
+                    </>
+                  )}
+
+                  {seatsRemaining !== null && (
+                    <p className="text-sm font-semibold text-primary">
+                      {seatsRemaining > 0
+                        ? `${seatsRemaining} seat${seatsRemaining !== 1 ? "s" : ""} remaining`
+                        : "Intake full"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Apply button */}
+                <Link
+                  href={`/apply?course=${course.slug}`}
+                  className="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  Apply now
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+
+                {/* Quick info */}
+                <div className="pt-5 border-t border-border space-y-3 text-sm">
+                  {duration && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="w-4 h-4 text-primary" aria-hidden="true" />
+                      {duration}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <BookOpen className="w-4 h-4 text-primary" aria-hidden="true" />
+                    {totalLessons} lessons
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-hidden="true" />
                       {item}
                     </li>
                   ))}

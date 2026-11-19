@@ -11,7 +11,7 @@ import type { CourseItem } from "./CoursesClient";
 export const metadata: Metadata = {
   title: "Courses",
   description:
-    "Browse healthcare training courses from Musawo Training Center, Uganda. Hybrid and online classes with 70% hands-on practicals in our skills lab. November 2026 intake.",
+    "Browse healthcare training courses from Musawo Training Center, Uganda. Hybrid classes with 70% hands-on practicals in our skills lab. November 2026 intake.",
 };
 
 const FALLBACK: Record<string, string> = {
@@ -234,7 +234,7 @@ export default async function CoursesPage() {
         image="/assets/images/hero-courses.webp"
         imageAlt="Healthcare students in a Musawo Training Center skills lab session"
         title="Our Courses"
-        description="Hybrid and online classes with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Eight programmes across nursing, childcare, mental health and life support."
+        description="Hybrid classes with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Eight programmes across nursing, childcare, mental health and life support."
         breadcrumbs={[{ label: "Courses" }]}
         cta={{ label: "Apply now", href: "/apply" }}
         boxSide="left"
@@ -249,7 +249,7 @@ export default async function CoursesPage() {
               className="w-4 h-4 text-success flex-shrink-0"
               aria-hidden="true"
             />
-            Hybrid and online classes
+            Hybrid classes
           </div>
           <div
             className="hidden sm:block w-px h-5 bg-border"

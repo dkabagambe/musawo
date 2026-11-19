@@ -9,7 +9,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Apply Now | Musawo Training Center",
   description:
-    "Apply for a healthcare training course at Musawo Training Center. November 2026 intake. Hybrid and online classes with 70% hands-on practicals.",
+    "Apply for a healthcare training course at Musawo Training Center. November 2026 intake. Hybrid classes with 70% hands-on practicals.",
 };
 
 export default async function ApplyPage({

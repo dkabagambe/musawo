@@ -10,6 +10,7 @@ export interface ContactInfo {
   email: string;
   phone: string;
   phone2: string;
+  phone3: string;
   admissionsEmail: string;
   whatsappNumber: string; // digits only, e.g. "256709184468"
   whatsappUrl: string;
@@ -22,13 +23,14 @@ export interface ContactInfo {
 
 export async function getContactInfo(): Promise<ContactInfo> {
   const [
-    email, admissionsEmail, phone, phone2, whatsappNumber,
+    email, admissionsEmail, phone, phone2, phone3, whatsappNumber,
     address, instagramUrl, tiktokUrl, tagline, websiteUrl,
   ] = await Promise.all([
     getSetting("site.supportEmail",    "info@mtc.ac.ug"),
     getSetting("site.admissionsEmail", "admissions@mtc.ac.ug"),
     getSetting("site.supportPhone",    "+256709184468"),
     getSetting("site.supportPhone2",   ""),
+    getSetting("site.supportPhone3",   ""),
     getSetting("site.whatsappNumber",  "256709184468"),
     getSetting(
       "site.address",
@@ -45,6 +47,7 @@ export async function getContactInfo(): Promise<ContactInfo> {
     admissionsEmail,
     phone,
     phone2,
+    phone3,
     whatsappNumber,
     whatsappUrl: `https://wa.me/${whatsappNumber}`,
     address,

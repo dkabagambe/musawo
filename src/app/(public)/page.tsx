@@ -183,7 +183,7 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
 /* ─── Constants ───────────────────────────────────────────────── */
 
 const FACTS = [
-  { icon: Video, label: "Hybrid and online classes with hands-on practicals" },
+  { icon: Video, label: "Hybrid classes with hands-on practicals" },
   { icon: Banknote, label: "Pay with MTN MoMo or Airtel Money" },
   { icon: Users, label: "Taught by licensed doctors, nurses, midwives and other healthcare professionals" },
   { icon: Briefcase, label: "Job placement support included" },
@@ -294,7 +294,7 @@ export default async function HomePage() {
               Healthcare training courses
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
-              Hybrid and online classes with hands-on practicals in our
+              Hybrid classes with hands-on practicals in our
               skills lab. Taught by licensed doctors, nurses, midwives and
               other healthcare professionals. Courses
               across nursing, childcare, mental health and life

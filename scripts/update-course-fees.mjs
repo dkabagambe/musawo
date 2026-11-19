@@ -32,7 +32,7 @@ async function main() {
     },
     {
       slug: 'care-older-persons-disability',
-      title: 'Basic Certificate in care of Older persons and persons with Disability (Geriatric)',
+      title: 'Basic Certificate in Care of elderly and Persons with Disability (diatric)',
       fullFeeUgx: 1800000,
       internationalFeeUgx: 638,
     },

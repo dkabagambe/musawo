@@ -233,6 +233,34 @@ export default async function PublicFooter() {
                     +256 709 184 468
                   </a>
                 </li>
+                {contact.phone2 && (
+                  <li>
+                    <a
+                      href={`tel:${contact.phone2.replace(/\s/g, "")}`}
+                      className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
+                    >
+                      <Phone
+                        className="w-4 h-4 flex-shrink-0 mt-0.5"
+                        aria-hidden="true"
+                      />
+                      {contact.phone2}
+                    </a>
+                  </li>
+                )}
+                {contact.phone3 && (
+                  <li>
+                    <a
+                      href={`tel:${contact.phone3.replace(/\s/g, "")}`}
+                      className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
+                    >
+                      <Phone
+                        className="w-4 h-4 flex-shrink-0 mt-0.5"
+                        aria-hidden="true"
+                      />
+                      {contact.phone3}
+                    </a>
+                  </li>
+                )}
               </ul>
             </div>
 

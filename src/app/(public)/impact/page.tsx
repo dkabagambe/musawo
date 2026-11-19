@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 };
 
 const BENEFITS = [
-  "Trained caregivers bring safe, dignified care directly to patients and families at home.",
-  "Graduates gain a recognised professional qualification that opens career paths in Uganda and abroad.",
-  "Our hybrid model makes quality healthcare training accessible outside major hospitals.",
-  "We connect graduates with healthcare employers and support job placement after graduation.",
+  "We connect graduates to employers.",
+  "Hybrid model allows working and non-working individuals to enroll.",
+  "Hybrid training courses ensure that trainees acquire knowledge flexibility while ensuring that they develop hands-on competence.",
+  "Provision of community first aid mass communication.",
 ];
 
 const FOLLOW_UP = [

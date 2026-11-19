@@ -14,7 +14,7 @@ Read this whole file first. It covers ONLY the STUDENT role. It sits beside tuto
 9. Use the shared dashboard components. If a fix belongs in a shared component, fix it there and check that the other roles still render.
 
 ## Reference data (use everywhere, seed and UI)
-- The 8 courses (codes in brackets): Certificate in Medical Home Care Course (MHC); Certificate in Basic Home Care (BHC); Basic Certificate in Babysitting, Child Care and Safety Management (BCS); Certificate in Mental Health Support and Advocacy (MHA); Basic Certificate in Care of Older Persons and Persons with Disability (COP); Certificate in Basic Life Support (BLS); Certificate in Advanced Life Support (ALS); Certificate in Advanced First Aid (AFA). Remove old names such as "CNA Final Certification Exam".
+- The 8 courses (codes in brackets): Certificate in Medical Home Care Course (MHC); Certificate in Basic Home Care (BHC); Basic Certificate in Babysitting, Child Care and Safety Management (BCS); Certificate in Mental Health Support and Advocacy (MHA); Basic Certificate in Care of elderly and Persons with Disability (diatric) (COP); Certificate in Basic Life Support (BLS); Certificate in Advanced Life Support (ALS); Certificate in Advanced First Aid (AFA). Remove old names such as "CNA Final Certification Exam".
 - Registration numbers: per course, for example 2026/MHC/005.
 - Payment phases: 50 percent before reporting, then 25, then 25. Access: 50 percent starts the course, 75 percent opens the next phase and practical booking, 100 percent opens the final exam and certificate. Locked items show the exact reason ("Pay 25 percent more to unlock the final exam").
 - Times are Africa/Kampala (EAT).

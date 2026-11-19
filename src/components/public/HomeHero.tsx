@@ -71,7 +71,7 @@ function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
           lineHeight: 1.6,
         }}
       >
-        Hybrid and online classes with 70% hands-on practicals in our skills lab.
+        Hybrid classes with 70% hands-on practicals in our skills lab.
         Taught by licensed doctors, nurses, midwives and other healthcare professionals.
       </p>
 
