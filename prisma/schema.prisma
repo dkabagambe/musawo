@@ -1534,26 +1534,37 @@ model ForumReply {
 // ─────────────────────────────────────────────
 
 model SupportTicket {
-  id         String         @id @default(cuid())
-  userId     String
-  subject    String
-  body       String         @db.Text
-  fileS3Key  String? // optional file attachment (S3 key)
-  category   String         @default("GENERAL")
-  status     TicketStatus   @default(OPEN)
-  priority   TicketPriority @default(NORMAL)
-  assignedTo String?
-  resolvedAt DateTime?
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id                         String         @id @default(cuid())
+  userId                     String
+  subject                    String
+  body                       String         @db.Text
+  fileS3Key                  String? // optional file attachment (S3 key)
+  category                   String         @default("GENERAL")
+  status                     TicketStatus   @default(OPEN)
+  priority                   TicketPriority @default(NORMAL)
+  assignedTo                 String?
+  resolvedAt                 DateTime?
+  firstResponseAt            DateTime?
+  firstResponseTargetMinutes Int?           @default(240) // 4 hours default SLA
+  resolutionSummary          String?        @db.Text
+  closedAt                   DateTime?
+  mergedIntoId               String?
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
 
-  user     User           @relation(fields: [userId], references: [id])
-  assignee User?          @relation("AssignedTickets", fields: [assignedTo], references: [id])
-  replies  SupportReply[]
+  user          User            @relation(fields: [userId], references: [id])
+  assignee      User?           @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  replies       SupportReply[]
+  mergedInto    SupportTicket?  @relation("MergedTickets", fields: [mergedIntoId], references: [id], onDelete: SetNull)
+  mergedTickets SupportTicket[] @relation("MergedTickets")
 
   @@index([userId, status])
   @@index([status])
   @@index([assignedTo])
+  @@index([firstResponseAt])
+  @@index([mergedIntoId])
+  @@index([category])
+  @@index([priority])
   @@map("support_tickets")
 }
 
@@ -1638,17 +1649,32 @@ model OperationalNotice {
 }
 
 model SupportReply {
-  id        String   @id @default(cuid())
-  ticketId  String
-  authorId  String
-  body      String   @db.Text
-  isStaff   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  ticketId   String
+  authorId   String
+  body       String   @db.Text
+  isStaff    Boolean  @default(false)
+  isInternal Boolean  @default(false) // Internal notes not visible to ticket creator
+  createdAt  DateTime @default(now())
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   author User          @relation(fields: [authorId], references: [id])
 
   @@map("support_replies")
+}
+
+model CannedReply {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @db.Text
+  category  String? // Optional category filter (GENERAL, ACADEMIC, etc.)
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, category])
+  @@map("canned_replies")
 }
 
 enum TicketStatus {

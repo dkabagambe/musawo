@@ -81,7 +81,7 @@ const nextConfig = {
   },
 
   experimental: {
-    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma", "sharp", "@img/sharp-linux-x64", "@img/sharp-linuxmusl-x64"],
+    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma", "sharp", "@img/sharp-linux-x64", "@img/sharp-linuxmusl-x64", "otplib"],
     serverActions: {
       // 10 MB limit for server action bodies (file uploads go through the upload API, not actions)
       bodySizeLimit: "10mb",

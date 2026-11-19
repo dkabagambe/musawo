@@ -360,6 +360,16 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     value: "900",
     description: "Window in seconds for per-IP failure counting (default 15 min)",
   },
+  {
+    key: "support.slaFirstResponseHours",
+    value: "4",
+    description: "SLA target: first response within this many hours (IT Admin)",
+  },
+  {
+    key: "support.ticketCategories",
+    value: "GENERAL,ACADEMIC,TECHNICAL,ENROLMENT,TIMETABLE,ACCOUNT_ACCESS,FRONT_DESK,ATTENDANCE,OTHER",
+    description: "Comma-separated list of valid support ticket categories",
+  },
 ];
 
 // ─── Student profiles ─────────────────────────────────────────────
@@ -2998,6 +3008,58 @@ async function main() {
     });
 
     console.log("  ✓ Support tickets (3)");
+  }
+
+  // ── Canned Replies ──────────────────────────────────────────────
+  const existingCanned = await prisma.cannedReply.count();
+  if (existingCanned === 0) {
+    await prisma.cannedReply.createMany({
+      data: [
+        {
+          title: "Account access issue",
+          body: "Thank you for reaching out. To help you regain access to your account, please try resetting your password using the \"Forgot password\" link on the login page. If the problem continues, reply to this ticket with your registration number and the email address you used to sign up.",
+          category: "ACCOUNT_ACCESS",
+          sortOrder: 1,
+        },
+        {
+          title: "Payment confirmation in progress",
+          body: "Thank you for your message. We have received your payment details and will confirm the transaction within one working day. Please ensure you have your Mobile Money transaction ID ready. If you have not received confirmation within 24 hours, please reply to this ticket.",
+          category: "GENERAL",
+          sortOrder: 2,
+        },
+        {
+          title: "Class timetable update",
+          body: "Thank you for your enquiry. The updated class timetable is available on your student dashboard under \"My Timetable\". If you cannot see your session, please let us know your programme and intake and we will check for you.",
+          category: "TIMETABLE",
+          sortOrder: 3,
+        },
+        {
+          title: "Attendance correction request",
+          body: "Thank you for bringing this to our attention. We have forwarded your attendance query to your instructor for review. Corrections are processed within two working days. You will be notified once the record has been updated.",
+          category: "ATTENDANCE",
+          sortOrder: 4,
+        },
+        {
+          title: "Technical issue - escalating",
+          body: "We have noted the technical issue you reported and are investigating it. If you need to continue your coursework in the meantime, please try using a different browser or device. We will update you as soon as the issue is resolved.",
+          category: "TECHNICAL",
+          sortOrder: 5,
+        },
+        {
+          title: "Documents and certificates",
+          body: "Certificates are issued after all required examinations have been passed and fees are fully settled. If you believe you meet these requirements and have not received your certificate, please reply with your full name and registration number and we will check your record.",
+          category: "GENERAL",
+          sortOrder: 6,
+        },
+        {
+          title: "Closing - resolved",
+          body: "We are glad we could help. This ticket is now being closed. If you have any further questions, please open a new support ticket from your dashboard.",
+          category: null,
+          sortOrder: 10,
+        },
+      ],
+    });
+    console.log("  ✓ Canned replies (7)");
   }
 
   // ── Resources ──────────────────────────────────────────────────
