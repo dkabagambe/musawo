@@ -63,7 +63,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/system/support", label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" />, available: true },
       { href: "/system/jobs", label: "Scheduled Jobs", icon: <Clock className="w-4 h-4" />, available: true },
-      { href: "/system/email-queue", label: "Email and SMS Queue", icon: <Mail className="w-4 h-4" />, available: true },
+      { href: "/system/email-sms-queue", label: "Email and SMS Queue", icon: <Mail className="w-4 h-4" />, available: true },
     ],
   },
   {
@@ -87,8 +87,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/system/settings", label: "Settings", icon: <Settings className="w-4 h-4" />, available: true },
       { href: "/system/integrations", label: "Integrations", icon: <Plug className="w-4 h-4" />, available: true },
-      { href: "/system/maintenance", label: "Maintenance Mode", icon: <Power className="w-4 h-4" />, available: false },
-      { href: "/system/feature-flags", label: "Feature Flags", icon: <Flag className="w-4 h-4" />, available: false },
+      { href: "/system/maintenance", label: "Maintenance Mode", icon: <Power className="w-4 h-4" />, available: true },
+      { href: "/system/feature-flags", label: "Feature Flags", icon: <Flag className="w-4 h-4" />, available: true },
     ],
   },
   {
