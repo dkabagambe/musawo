@@ -86,7 +86,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Configuration",
     items: [
       { href: "/system/settings", label: "Settings", icon: <Settings className="w-4 h-4" />, available: true },
-      { href: "/system/integrations", label: "Integrations", icon: <Plug className="w-4 h-4" />, available: false },
+      { href: "/system/integrations", label: "Integrations", icon: <Plug className="w-4 h-4" />, available: true },
       { href: "/system/maintenance", label: "Maintenance Mode", icon: <Power className="w-4 h-4" />, available: false },
       { href: "/system/feature-flags", label: "Feature Flags", icon: <Flag className="w-4 h-4" />, available: false },
     ],
