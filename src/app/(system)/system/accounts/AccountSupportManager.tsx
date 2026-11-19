@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Loader2, AlertCircle, CheckCircle, Unlock, Mail, LogOut, Ban, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui';
+import { useSearchParams } from 'next/navigation';
 
 interface UserAccount {
   id: string;
@@ -17,16 +18,25 @@ interface UserAccount {
 }
 
 export default function AccountSupportManager() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('query') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searching, setSearching] = useState(false);
   const [account, setAccount] = useState<UserAccount | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const searchUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  // Auto-search if query param is present
+  useEffect(() => {
+    if (initialQuery) {
+      performSearch(initialQuery);
+    }
+  }, [initialQuery]);
+
+  const performSearch = async (query: string) => {
+    if (!query.trim()) return;
 
     setSearching(true);
     setNotFound(false);
@@ -34,7 +44,7 @@ export default function AccountSupportManager() {
     setResult(null);
 
     try {
-      const response = await fetch(`/api/system/accounts/lookup?query=${encodeURIComponent(searchQuery.trim())}`);
+      const response = await fetch(`/api/system/accounts/lookup?query=${encodeURIComponent(query.trim())}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -54,6 +64,11 @@ export default function AccountSupportManager() {
     } finally {
       setSearching(false);
     }
+  };
+
+  const searchUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch(searchQuery);
   };
 
   const performAction = async (action: string, accountId: string) => {
