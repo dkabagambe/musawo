@@ -69,9 +69,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Data Safety",
     items: [
-      { href: "/system/backups", label: "Backups", icon: <Database className="w-4 h-4" />, available: false },
-      { href: "/system/database", label: "Database", icon: <Database className="w-4 h-4" />, available: false },
-      { href: "/system/storage", label: "Storage", icon: <HardDrive className="w-4 h-4" />, available: false },
+      { href: "/system/backups", label: "Backups", icon: <Database className="w-4 h-4" />, available: true },
+      { href: "/system/database", label: "Database", icon: <Database className="w-4 h-4" />, available: true },
+      { href: "/system/storage", label: "Storage", icon: <HardDrive className="w-4 h-4" />, available: true },
     ],
   },
   {
