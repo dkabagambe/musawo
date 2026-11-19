@@ -78,7 +78,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Security",
     items: [
       { href: "/system/security-events", label: "Security Events", icon: <Shield className="w-4 h-4" />, available: false },
-      { href: "/system/accounts", label: "Account Support", icon: <Users className="w-4 h-4" />, available: false },
+      { href: "/system/accounts", label: "Account Support", icon: <Users className="w-4 h-4" />, available: true },
       { href: "/system/break-glass", label: "Break-glass Requests", icon: <Key className="w-4 h-4" />, available: false },
     ],
   },
