@@ -52,8 +52,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Overview",
     defaultOpen: true,
     items: [
-      { href: "/system", label: "System Health", icon: <Monitor className="w-4 h-4" />, available: true },
-      { href: "/system/alerts", label: "Alerts", icon: <AlertTriangle className="w-4 h-4" />, badge: 0, available: false },
+      { href: "/system/health", label: "System Health", icon: <Monitor className="w-4 h-4" />, available: true },
+      { href: "/system/performance", label: "Performance", icon: <Monitor className="w-4 h-4" />, available: true },
+      { href: "/system/alerts", label: "Alerts", icon: <AlertTriangle className="w-4 h-4" />, available: true },
     ],
   },
   {
@@ -61,7 +62,7 @@ const NAV_GROUPS: NavGroup[] = [
     defaultOpen: true,
     items: [
       { href: "/system/support", label: "Support Tickets", icon: <LifeBuoy className="w-4 h-4" />, available: true },
-      { href: "/system/jobs", label: "Scheduled Jobs", icon: <Clock className="w-4 h-4" />, available: false },
+      { href: "/system/jobs", label: "Scheduled Jobs", icon: <Clock className="w-4 h-4" />, available: true },
       { href: "/system/email-queue", label: "Email and SMS Queue", icon: <Mail className="w-4 h-4" />, available: true },
     ],
   },
@@ -100,7 +101,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Logs",
     items: [
-      { href: "/system/audit", label: "System Logs", icon: <FileText className="w-4 h-4" />, available: true },
+      { href: "/system/audit", label: "Audit Events", icon: <FileText className="w-4 h-4" />, available: true },
+      { href: "/system/logs", label: "System Logs", icon: <FileText className="w-4 h-4" />, available: true },
     ],
   },
   {

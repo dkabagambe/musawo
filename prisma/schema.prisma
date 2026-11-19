@@ -2047,3 +2047,108 @@ model GradingSystemSetting {
 
   @@map("grading_system_settings")
 }
+
+// ─────────────────────────────────────────────
+// MONITORING: SYSTEM LOGS
+// Structured application log entries (WARN, ERROR, key events).
+// Retained for 30 days. No personal data or secrets in log lines.
+// ─────────────────────────────────────────────
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // INFO | WARN | ERROR
+  source    String   // e.g. "api", "cron", "auth", "storage"
+  route     String?  // request path, if applicable
+  requestId String?  // per-request correlation id
+  message   String   @db.Text
+  metadata  Json?    // structured extras (no personal data, no secrets)
+  createdAt DateTime @default(now())
+
+  @@index([level, createdAt])
+  @@index([source, createdAt])
+  @@index([createdAt])
+  @@map("system_logs")
+}
+
+// ─────────────────────────────────────────────
+// MONITORING: ALERTS
+// ─────────────────────────────────────────────
+
+model AlertItem {
+  id          String   @id @default(cuid())
+  ruleKey     String   // e.g. "backup_overdue", "error_rate_high"
+  severity    String   @default("WARNING") // WARNING | CRITICAL
+  title       String
+  description String   @db.Text
+  status      String   @default("OPEN")   // OPEN | ACKNOWLEDGED | RESOLVED
+  metadata    Json?
+  acknowledgedById String?
+  acknowledgedAt   DateTime?
+  resolvedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([ruleKey, createdAt])
+  @@map("alert_items")
+}
+
+// ─────────────────────────────────────────────
+// MONITORING: PERFORMANCE METRICS
+// Lightweight request metrics for performance monitoring.
+// No personal data. Retention: 7 days.
+// ─────────────────────────────────────────────
+
+model RequestMetric {
+  id         String   @id @default(cuid())
+  route      String   // request path (e.g. "/api/learning/courses")
+  method     String   // HTTP method
+  status     Int      // HTTP status code
+  durationMs Int      // request duration in milliseconds
+  timestamp  DateTime @default(now())
+
+  @@index([route, timestamp])
+  @@index([timestamp])
+  @@index([status, timestamp])
+  @@map("request_metrics")
+}
+
+// ─────────────────────────────────────────────
+// MONITORING: SCHEDULED JOBS
+// ─────────────────────────────────────────────
+
+model JobDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique  // e.g. "nightly-backup"
+  label       String
+  description String?  @db.Text
+  schedule    String   // cron expression
+  runnable    Boolean  @default(true)  // can be triggered manually
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  runs JobRun[]
+
+  @@map("job_definitions")
+}
+
+model JobRun {
+  id           String    @id @default(cuid())
+  jobKey       String
+  startedAt    DateTime  @default(now())
+  finishedAt   DateTime?
+  status       String    @default("RUNNING") // RUNNING | SUCCESS | FAILED | SKIPPED
+  durationMs   Int?
+  output       String?   @db.Text
+  error        String?   @db.Text
+  triggeredBy  String    @default("scheduler") // "scheduler" | "manual:<userId>"
+  createdAt    DateTime  @default(now())
+
+  definition JobDefinition? @relation(fields: [jobKey], references: [key], onDelete: SetNull)
+
+  @@index([jobKey, startedAt])
+  @@index([status, startedAt])
+  @@index([startedAt])
+  @@map("job_runs")
+}

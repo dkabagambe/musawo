@@ -4260,6 +4260,225 @@ async function main() {
   }
 
 
+  // ── Monitoring: Job Definitions ──────────────────────────────
+  const existingJobs = await prisma.jobDefinition.count();
+  if (existingJobs === 0) {
+    await prisma.jobDefinition.createMany({
+      data: [
+        {
+          key: "nightly-backup",
+          label: "Nightly database backup",
+          description: "Compress and upload a pg_dump to S3. Keeps 30 daily and 12 monthly copies.",
+          schedule: "0 2 * * *",
+          runnable: false,
+          active: true,
+        },
+        {
+          key: "email-retry",
+          label: "Retry failed emails",
+          description: "Re-send emails in the failed_emails table with status PENDING and fewer than 3 attempts.",
+          schedule: "*/15 * * * *",
+          runnable: true,
+          active: true,
+        },
+        {
+          key: "log-retention",
+          label: "System log retention",
+          description: "Delete system_logs entries older than 30 days.",
+          schedule: "0 3 * * *",
+          runnable: true,
+          active: true,
+        },
+        {
+          key: "metrics-retention",
+          label: "Metrics retention cleanup",
+          description: "Delete request_metrics entries older than 7 days.",
+          schedule: "0 4 * * *",
+          runnable: true,
+          active: true,
+        },
+        {
+          key: "alert-checker",
+          label: "Alert rules checker",
+          description: "Check all alert rules (backup overdue, error rate, p95 latency, etc.) and raise alerts.",
+          schedule: "*/10 * * * *",
+          runnable: true,
+          active: true,
+        },
+        {
+          key: "class-reminders",
+          label: "Live class reminders",
+          description: "Send 24h and 1h email and SMS reminders for upcoming live classes.",
+          schedule: "0 * * * *",
+          runnable: false,
+          active: true,
+        },
+        {
+          key: "health-check",
+          label: "System health heartbeat",
+          description: "Ping all services and raise alerts if any are unreachable.",
+          schedule: "*/5 * * * *",
+          runnable: true,
+          active: true,
+        },
+        {
+          key: "storage-retention",
+          label: "Storage retention cleanup",
+          description: "Execute confirmed storage cleanup jobs after the 14-day trash window.",
+          schedule: "0 4 * * *",
+          runnable: false,
+          active: true,
+        },
+        {
+          key: "integrity-check",
+          label: "Paid percent integrity check",
+          description: "Verify that every enrolment's paid percentage matches its ledger entries and status.",
+          schedule: "0 1 * * *",
+          runnable: true,
+          active: true,
+        },
+      ],
+    });
+
+    // Seed some demo job runs
+    const jobs = await prisma.jobDefinition.findMany();
+    const jobMap = Object.fromEntries(jobs.map((j) => [j.key, j]));
+    if (jobMap["nightly-backup"]) {
+      await prisma.jobRun.createMany({
+        data: [
+          {
+            jobKey: "nightly-backup",
+            startedAt: daysAgo(1),
+            finishedAt: new Date(daysAgo(1).getTime() + 42000),
+            status: "SUCCESS",
+            durationMs: 42000,
+            output: "Backup complete: 42 MB, stored as backup-2026-11-18.sql.gz",
+            triggeredBy: "scheduler",
+          },
+          {
+            jobKey: "nightly-backup",
+            startedAt: daysAgo(2),
+            finishedAt: new Date(daysAgo(2).getTime() + 38000),
+            status: "SUCCESS",
+            durationMs: 38000,
+            output: "Backup complete: 39 MB, stored as backup-2026-11-17.sql.gz",
+            triggeredBy: "scheduler",
+          },
+        ],
+      });
+    }
+    if (jobMap["email-retry"]) {
+      await prisma.jobRun.createMany({
+        data: [
+          {
+            jobKey: "email-retry",
+            startedAt: daysAgo(0),
+            finishedAt: new Date(Date.now() - 3000),
+            status: "SUCCESS",
+            durationMs: 3000,
+            output: "No pending emails to retry.",
+            triggeredBy: "scheduler",
+          },
+        ],
+      });
+    }
+    if (jobMap["paid-integrity"]) {
+      await prisma.jobRun.createMany({
+        data: [
+          {
+            jobKey: "paid-integrity",
+            startedAt: daysAgo(1),
+            finishedAt: new Date(daysAgo(1).getTime() + 1200),
+            status: "SUCCESS",
+            durationMs: 1200,
+            output: "Checked 35 enrolments. No discrepancies found.",
+            triggeredBy: "scheduler",
+          },
+        ],
+      });
+    }
+    console.log("  ✓ Job definitions (7) with demo runs");
+  }
+
+  // ── Monitoring: System Logs ───────────────────────────────────
+  const existingLogs = await prisma.systemLog.count();
+  if (existingLogs === 0) {
+    await prisma.systemLog.createMany({
+      data: [
+        {
+          level: "INFO",
+          source: "cron",
+          message: "Nightly backup completed successfully. 42 MB, 42s.",
+          createdAt: daysAgo(1),
+        },
+        {
+          level: "INFO",
+          source: "auth",
+          message: "User login: role=SYSTEM_IT (IT Admin).",
+          createdAt: daysAgo(0),
+        },
+        {
+          level: "WARN",
+          source: "storage",
+          message: "Storage bucket health check: response time 1420ms (threshold 1000ms).",
+          createdAt: daysAgo(0),
+        },
+        {
+          level: "INFO",
+          source: "cron",
+          message: "Email retry job: no pending emails.",
+          createdAt: daysAgo(0),
+        },
+        {
+          level: "INFO",
+          source: "cron",
+          message: "Paid-percent integrity check: 35 enrolments, 0 discrepancies.",
+          createdAt: daysAgo(1),
+        },
+        {
+          level: "ERROR",
+          source: "email",
+          message: "Failed to deliver email: SMTP connection timeout. Will retry.",
+          createdAt: daysAgo(3),
+        },
+      ],
+    });
+    console.log("  ✓ System logs (6 demo entries)");
+  }
+
+  // ── Monitoring: Demo Alerts ───────────────────────────────────
+  const existingAlerts = await prisma.alertItem.count();
+  if (existingAlerts === 0) {
+    await prisma.alertItem.createMany({
+      data: [
+        {
+          ruleKey: "storage_unconfigured",
+          severity: "WARNING",
+          title: "Storage not configured",
+          description: "S3_ENDPOINT is not set. File uploads are disabled in demo mode.",
+          status: "OPEN",
+        },
+        {
+          ruleKey: "email_demo_mode",
+          severity: "WARNING",
+          title: "Email in demo mode",
+          description: "RESEND_API_KEY is a demo key. Emails are logged to /dev/mail and not delivered.",
+          status: "ACKNOWLEDGED",
+          acknowledgedAt: daysAgo(1),
+        },
+        {
+          ruleKey: "job_failed_storage",
+          severity: "WARNING",
+          title: "Storage health check slow",
+          description: "Storage bucket response exceeded threshold (1420ms vs 1000ms threshold).",
+          status: "RESOLVED",
+          resolvedAt: daysAgo(0),
+        },
+      ],
+    });
+    console.log("  ✓ Demo alerts (3)");
+  }
+
   console.log("\n" + "=".repeat(62));
   console.log("  DEMO SEED COMPLETE");
   console.log("=".repeat(62));
