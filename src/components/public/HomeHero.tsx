@@ -138,7 +138,7 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
 
   return (
     <section
-      className="hero-section relative overflow-hidden w-full"
+      className="relative overflow-hidden w-full"
       aria-label="Welcome to Musawo Training Center"
       style={{ backgroundColor: "#0c2c3a", minHeight: "clamp(320px, 44vh, 480px)" }}
     >

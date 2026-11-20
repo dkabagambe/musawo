@@ -14,7 +14,8 @@ export const metadata: Metadata = {
     "Browse healthcare training courses from Musawo Training Center, Uganda. Hybrid classes with 70% hands-on practicals in our skills lab. November 2026 intake.",
 };
 
-const FALLBACK: Record<string, string> = {
+// Authoritative course image mapping — ensures images are always correct
+const COURSE_IMAGES: Record<string, string> = {
   "medical-home-caregiver": "/assets/images/hero-medical-home-care-1.jpg",
   "basic-home-caregiver": "/assets/images/hero-basic-home-care-1.jpg",
   "babysitting-childcare-safety": "/assets/images/hero-childcare-1.jpg",
@@ -220,7 +221,7 @@ export default async function CoursesPage() {
         tutorName: c.tutor.name,
         lessonCount: c.blocks.reduce((s, b) => s + b._count.lessons, 0),
         enrolmentCount: c._count.enrolments,
-        img: c.thumbnailUrl ?? FALLBACK[c.slug] ?? "/assets/training-session.webp",
+        img: COURSE_IMAGES[c.slug] ?? "/assets/training-session.webp",
         category: c.category,
       }));
     }
