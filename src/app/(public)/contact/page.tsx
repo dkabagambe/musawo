@@ -63,13 +63,15 @@ export default async function ContactPage() {
             <h2 className="text-2xl font-bold text-primary mb-4">Follow Us</h2>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <a
-                href={contact.instagramUrl}
+                href={contact.twitterUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-14 h-14 bg-white hover:bg-accent/10 border border-border hover:border-accent rounded-xl flex items-center justify-center no-underline transition-all group"
-                aria-label="Musawo on Instagram"
+                aria-label="Musawo on Twitter/X"
               >
-                <Instagram className="w-6 h-6 text-gray-600 group-hover:text-accent transition-colors" aria-hidden="true" />
+                <div className="text-gray-600 group-hover:text-accent transition-colors">
+                  <TwitterIcon />
+                </div>
               </a>
               <a
                 href={contact.tiktokUrl}
@@ -83,15 +85,13 @@ export default async function ContactPage() {
                 </div>
               </a>
               <a
-                href={contact.twitterUrl}
+                href={contact.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-14 h-14 bg-white hover:bg-accent/10 border border-border hover:border-accent rounded-xl flex items-center justify-center no-underline transition-all group"
-                aria-label="Musawo on Twitter/X"
+                aria-label="Musawo on Instagram"
               >
-                <div className="text-gray-600 group-hover:text-accent transition-colors">
-                  <TwitterIcon />
-                </div>
+                <Instagram className="w-6 h-6 text-gray-600 group-hover:text-accent transition-colors" aria-hidden="true" />
               </a>
             </div>
           </div>

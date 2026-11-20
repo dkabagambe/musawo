@@ -24,6 +24,18 @@ const TikTokIcon = () => (
   </svg>
 );
 
+/* Twitter/X icon (not in Lucide) */
+const TwitterIcon = () => (
+  <svg
+    className="w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.514l-5.106-6.677-5.829 6.677h-3.328l7.697-8.795-8.212-10.705h6.522l4.827 6.383 5.388-6.383zM16.6 19.5h1.832L7.974 4.07H6.01l10.59 15.43z" />
+  </svg>
+);
+
 /* Section heading with amber underline accent */
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -91,13 +103,13 @@ export default async function PublicFooter() {
             {/* Social icons */}
             <div className="flex items-center gap-3 mb-4">
               <a
-                href={contact.instagramUrl}
+                href={contact.twitterUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-white/15 hover:bg-accent rounded-lg flex items-center justify-center no-underline transition-colors"
-                aria-label="Musawo on Instagram"
+                aria-label="Musawo on Twitter/X"
               >
-                <Instagram className="w-4 h-4" aria-hidden="true" />
+                <TwitterIcon />
               </a>
               <a
                 href={contact.tiktokUrl}
@@ -107,6 +119,15 @@ export default async function PublicFooter() {
                 aria-label="Musawo on TikTok"
               >
                 <TikTokIcon />
+              </a>
+              <a
+                href={contact.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 bg-white/15 hover:bg-accent rounded-lg flex items-center justify-center no-underline transition-colors"
+                aria-label="Musawo on Instagram"
+              >
+                <Instagram className="w-4 h-4" aria-hidden="true" />
               </a>
             </div>
           </div>
