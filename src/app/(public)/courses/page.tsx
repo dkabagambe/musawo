@@ -16,14 +16,14 @@ export const metadata: Metadata = {
 
 // Authoritative course image mapping — ensures images are always correct
 const COURSE_IMAGES: Record<string, string> = {
-  "medical-home-caregiver": "/assets/images/hero-medical-home-care-1.jpg",
-  "basic-home-caregiver": "/assets/images/hero-basic-home-care-1.jpg",
-  "babysitting-childcare-safety": "/assets/images/hero-childcare-1.jpg",
-  "mental-health-support-advocacy": "/assets/images/hero-mental-health-1.jpg",
-  "care-older-persons-disability": "/assets/images/hero-geriatric-care-1.jpg",
-  "basic-life-support-first-aid": "/assets/images/hero-life-support-1.jpg",
-  "advanced-life-support": "/assets/images/hero-life-support-2.jpg",
-  "advanced-first-aid": "/assets/images/hero-first-aid-1.jpg",
+  "medical-home-caregiver": "/assets/images/hero-medical-home-care-1.jpg?v=2",
+  "basic-home-caregiver": "/assets/images/hero-basic-home-care-1.jpg?v=2",
+  "babysitting-childcare-safety": "/assets/images/hero-childcare-1.jpg?v=2",
+  "mental-health-support-advocacy": "/assets/images/hero-mental-health-1.jpg?v=2",
+  "care-older-persons-disability": "/assets/images/hero-geriatric-care-1.jpg?v=2",
+  "basic-life-support-first-aid": "/assets/images/hero-life-support-1.jpg?v=2",
+  "advanced-life-support": "/assets/images/hero-life-support-2.jpg?v=2",
+  "advanced-first-aid": "/assets/images/hero-first-aid-1.jpg?v=2",
 };
 
 // Static fallback courses used when the DB is unreachable at build/cold-start time
