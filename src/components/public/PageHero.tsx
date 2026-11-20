@@ -70,7 +70,7 @@ export default function PageHero({
   return (
     <section
       className="relative overflow-hidden"
-      style={{ minHeight: "clamp(320px, 44vh, 480px)", backgroundColor: "#0c2c3a" }}
+      style={{ minHeight: "clamp(400px, 80vh, 700px)", backgroundColor: "#0c2c3a" }}
       aria-label={`${title} page hero`}
     >
       {/* Full-width photo with slow-zoom animation */}
