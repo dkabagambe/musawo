@@ -55,7 +55,7 @@ export default async function ContactPage() {
         objectPosition="center right"
       />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 space-y-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 space-y-12">
 
         {/* Social Media Links */}
         <AnimateIn>

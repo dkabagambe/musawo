@@ -40,7 +40,7 @@ export default async function ApplyPage({
         objectPosition="center"
       />
 
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {/* Important note */}
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 mb-8">
           <h2 className="text-base font-bold text-primary mb-2">How applications work</h2>
