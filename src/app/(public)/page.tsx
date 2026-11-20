@@ -212,8 +212,8 @@ const HOW_STEPS = [
   {
     n: "03",
     icon: Video,
-    title: "Learn and attend practicals",
-    body: "Study online lessons on any device, then attend hands-on sessions in our skills lab. Most of your learning is hands-on and practical.",
+    title: "Attend physical sessions",
+    body: "Participate in hands-on practical training in our skills lab. Get direct mentorship from healthcare professionals and gain real-world experience.",
   },
   {
     n: "04",
