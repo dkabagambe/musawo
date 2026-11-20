@@ -306,8 +306,8 @@ export default async function HomePage() {
             {courses.map((c, idx) => {
               const badge = CATEGORY_BADGE[c.category] ?? CATEGORY_BADGE.OPEN;
               const img =
-                c.thumbnailUrl ??
                 COURSE_IMAGES[c.slug] ??
+                c.thumbnailUrl ??
                 "/assets/training-session.webp";
               const duration = c.durationMonths
                 ? `${c.durationMonths} month${c.durationMonths > 1 ? "s" : ""}`
