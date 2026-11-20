@@ -109,16 +109,6 @@ export default async function PublicFooter() {
                 <TikTokIcon />
               </a>
             </div>
-
-            <a
-              href="https://www.musawo.ug"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white/90 no-underline transition-colors"
-            >
-              Visit musawo.ug{" "}
-              <ExternalLink className="w-3 h-3" aria-hidden="true" />
-            </a>
           </div>
 
           {/* Quick Links */}
@@ -233,20 +223,6 @@ export default async function PublicFooter() {
                     +256 709 184 468
                   </a>
                 </li>
-                {contact.phone2 && (
-                  <li>
-                    <a
-                      href={`tel:${contact.phone2.replace(/\s/g, "")}`}
-                      className="flex items-start gap-2.5 text-white/85 hover:text-accent no-underline transition-colors"
-                    >
-                      <Phone
-                        className="w-4 h-4 flex-shrink-0 mt-0.5"
-                        aria-hidden="true"
-                      />
-                      {contact.phone2}
-                    </a>
-                  </li>
-                )}
                 {contact.phone3 && (
                   <li>
                     <a
