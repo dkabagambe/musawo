@@ -49,7 +49,7 @@ export default async function FeesPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/hero-about.webp"
+        image="/assets/images/hero-healthcare-training-1.jpg"
         imageAlt="Musawo Training Center skills lab"
         title="Fees and Instalments"
         description="Contact admissions for current course fees. All courses use the same flexible three-phase payment plan."

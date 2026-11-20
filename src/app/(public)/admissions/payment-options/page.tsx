@@ -70,7 +70,7 @@ export default async function PaymentOptionsPage() {
   return (
     <div>
       <PageHero
-        image="/assets/training-session.webp"
+        image="/assets/images/hero-practical-training-1.jpg"
         imageAlt="Mobile money payment for Musawo Training Center course fees"
         title="Payment Options"
         description="Pay with MTN MoMo or Airtel Money. No bank account or card needed. Your place is confirmed as soon as payment is received."

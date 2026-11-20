@@ -35,7 +35,7 @@ export default async function AccreditationPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/hero-about.webp"
+        image="/assets/images/hero-professional-training-1.jpg"
         imageAlt="Musawo Training Center accreditation documents"
         title="Accreditation"
         description={accreditationText}

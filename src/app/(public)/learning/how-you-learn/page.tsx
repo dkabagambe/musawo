@@ -92,7 +92,7 @@ export default async function HowYouLearnPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/training-session.webp"
+        image="/assets/images/hero-online-learning-1.jpg"
         imageAlt="Musawo Training Center student learning on a mobile phone"
         title="How You Will Learn"
         description="Our courses are designed for Ugandans with busy lives. Study on your phone, at your own pace, from anywhere."

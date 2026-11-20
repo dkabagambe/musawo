@@ -41,7 +41,7 @@ export default async function AboutPage() {
   return (
     <div className="bg-surface">
       <PageHero
-        image="/assets/images/hero-about.webp"
+        image="/assets/images/hero-professional-training-1.jpg"
         imageAlt="Musawo Training Center staff and skills lab"
         title="About Musawo Training Center"
         breadcrumbs={[{ label: "About" }]}

@@ -31,7 +31,7 @@ export default async function ApplyPage({
   return (
     <div className="bg-surface">
       <PageHero
-        image="/assets/training-session.webp"
+        image="/assets/images/hero-skills-development-1.jpg"
         imageAlt="Healthcare training session at Musawo Training Center skills lab"
         title="Apply Now"
         description={`Submit your application for the ${intakeLabel} intake. Our Academic Registrar will review your application and send you a secure account link within 3 to 5 working days.`}

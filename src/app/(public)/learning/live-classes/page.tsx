@@ -37,7 +37,7 @@ export default async function LiveClassesPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/training-session.webp"
+        image="/assets/images/hero-teaching-session-1.jpg"
         imageAlt="Live video class at Musawo Training Center"
         title="Live Classes"
         description="Join twice-weekly live video sessions with your tutor. Ask questions, practise skills, and connect with fellow students."

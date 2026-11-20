@@ -49,7 +49,7 @@ export default async function ExamsPage() {
   return (
     <div>
       <PageHero
-        image="/assets/healthcare-services.webp"
+        image="/assets/images/hero-classroom-discussion-1.jpg"
         imageAlt="Musawo Training Center student completing their certificate"
         title="Exams and Certificates"
         description="Clear assessment structure and a certificate issued on completion that you can share with employers."

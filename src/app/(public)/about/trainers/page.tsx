@@ -38,7 +38,7 @@ export default async function TrainersPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/musawo-staff.webp"
+        image="/assets/images/hero-teaching-professionals-1.jpg"
         imageAlt="Musawo Training Center clinical educators and trainers"
         title="Our Trainers"
         description="Licensed doctors, nurses, midwives and other healthcare professionals who teach from real clinical experience."

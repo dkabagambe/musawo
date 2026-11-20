@@ -20,6 +20,7 @@ const NAV: NavItem[] = [
   { label: "About MTC",    href: "/about" },
   { label: "How to Enrol", href: "/admissions/how-to-enrol" },
   { label: "Impact",       href: "/impact" },
+  { label: "Contact",      href: "/contact" },
 ];
 
 /* ─────────────────────────────────────────────

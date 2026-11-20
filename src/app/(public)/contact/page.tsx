@@ -34,7 +34,7 @@ export default async function ContactPage() {
     <div className="bg-surface">
       {/* Hero Image */}
       <PageHero
-        image="/assets/images/hero-contact.webp"
+        image="/assets/images/hero-classroom-session-1.jpg"
         imageAlt="Musawo Training Center skills lab and offices"
         title="Contact Us"
         description="Questions about courses, payments, or admissions? Our team is ready to help."
