@@ -10,20 +10,20 @@ import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 const SLIDES = [
   {
     id: 1,
-    src: "/assets/images/hero-training.jpg",
-    alt: "Nursing care assistant in a clinical setting at Musawo Training Center skills lab",
-    pos: "right 20%",
+    src: "/assets/images/hero-skills-development-1.jpg",
+    alt: "Skills development at Musawo Training Center healthcare training",
+    pos: "center 50%",
   },
   {
     id: 2,
-    src: "/assets/images/musawo-session.webp",
-    alt: "Musawo Training Center students in a hands-on practical training session",
+    src: "/assets/images/hero-classroom-session-1.jpg",
+    alt: "Classroom session at Musawo Training Center skills lab",
     pos: "center 30%",
   },
   {
     id: 3,
-    src: "/assets/images/graduates-clinic.jpg",
-    alt: "Musawo Training Center graduates working in a clinical environment",
+    src: "/assets/images/hero-care-support-1.jpg",
+    alt: "Healthcare care and support training at Musawo Training Center",
     pos: "center 25%",
   },
 ];
