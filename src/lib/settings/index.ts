@@ -7,17 +7,23 @@ const CACHE_TTL = 60; // 1 minute
 export type Settings = Record<string, string>;
 
 export async function getAllSettings(): Promise<Settings> {
-  const cached = await redis.get(CACHE_KEY);
-  if (cached) return JSON.parse(cached) as Settings;
+  try {
+    const cached = await redis.get(CACHE_KEY);
+    if (cached) return JSON.parse(cached) as Settings;
 
-  const rows = await db.siteSetting.findMany();
-  const settings: Settings = {};
-  for (const row of rows) {
-    settings[row.key] = row.value;
+    const rows = await db.siteSetting.findMany();
+    const settings: Settings = {};
+    for (const row of rows) {
+      settings[row.key] = row.value;
+    }
+
+    await redis.set(CACHE_KEY, JSON.stringify(settings), "EX", CACHE_TTL);
+    return settings;
+  } catch (error) {
+    // During static generation or if DB/Redis is unavailable, return empty settings
+    // Pages will fall back to hardcoded defaults via the fallback parameter
+    return {};
   }
-
-  await redis.set(CACHE_KEY, JSON.stringify(settings), "EX", CACHE_TTL);
-  return settings;
 }
 
 export async function getSetting(key: string, fallback = ""): Promise<string> {
