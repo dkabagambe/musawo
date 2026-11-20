@@ -28,8 +28,8 @@ const SLIDES = [
   },
 ];
 
-const HOLD_MS = 5000;
-const FADE_MS = 700;
+const HOLD_MS = 5000; // 5 seconds per slide
+const FADE_MS = 500;  // 0.5s fade transition
 
 /* ─── Hero card ─────────────────────────────────────────────── */
 function HeroCard({ intakeLabel }: { intakeLabel?: string }) {
@@ -140,7 +140,7 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
     <section
       className="hero-section relative overflow-hidden w-full"
       aria-label="Welcome to Musawo Training Center"
-      style={{ backgroundColor: "#0c2c3a" }}
+      style={{ backgroundColor: "#0c2c3a", minHeight: "clamp(320px, 44vh, 480px)" }}
     >
       {SLIDES.map((s, i) => (
         <div
