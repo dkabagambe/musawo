@@ -213,7 +213,7 @@ const HOW_STEPS = [
     n: "03",
     icon: Video,
     title: "Attend physical sessions",
-    body: "Participate in hands-on practical training in our skills lab. Get direct mentorship from healthcare professionals and gain real-world experience.",
+    body: "",
   },
   {
     n: "04",
