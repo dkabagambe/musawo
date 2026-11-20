@@ -4136,7 +4136,7 @@ async function main() {
   }
 
   // ── Section 10: Storage cleanup jobs (demo) ────────────────────────────────
-  {
+  try {
     const demoItems = [
       {
         type: "lesson_notes",
@@ -4262,6 +4262,8 @@ async function main() {
     }
 
     console.log("  ✓ Section-10 storage cleanup job seeds (3 jobs + site settings)");
+  } catch (e) {
+    console.log("  ℹ  Section-10 storage cleanup skipped (table not in schema)");
   }
 
 
