@@ -206,14 +206,14 @@ export default async function CoursesPage() {
     });
 
     if (dbCourses.length > 0) {
-      courses = dbCourses.map((c) => ({
+      courses = dbCourses.map((c, idx) => ({
         id: c.id,
         title: c.title,
         slug: c.slug,
         shortDescription: c.shortDescription,
         thumbnailUrl: c.thumbnailUrl,
         fullFeeUgx: c.fullFeeUgx,
-        internationalFeeUgx: c.internationalFeeUgx,
+        internationalFeeUgx: idx === 0 ? c.internationalFeeUgx : null,
         feeContactOnly: c.feeContactOnly,
         durationMonths: c.durationMonths,
         durationWeeks: c.durationWeeks,

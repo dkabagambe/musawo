@@ -174,7 +174,14 @@ async function getPublicCourses(): Promise<PublicCourse[]> {
       take: 8,
     });
     // Fall back to static list if DB returned nothing (build-time, cold start)
-    return rows.length > 0 ? rows : STATIC_COURSES;
+    if (rows.length > 0) {
+      // Ensure only first course has international fee
+      return rows.map((course, idx) => ({
+        ...course,
+        internationalFeeUgx: idx === 0 ? course.internationalFeeUgx : null,
+      }));
+    }
+    return STATIC_COURSES;
   } catch {
     return STATIC_COURSES;
   }
@@ -365,7 +372,7 @@ export default async function HomePage() {
                             </p>
                             {c.internationalFeeUgx && (
                               <p className="text-xs text-gray-400 mt-1">
-                                International: USD {c.internationalFeeUgx.toLocaleString()}
+                                International students: USD {c.internationalFeeUgx.toLocaleString()}
                               </p>
                             )}
                           </>
