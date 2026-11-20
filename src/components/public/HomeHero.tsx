@@ -140,7 +140,7 @@ export default function HomeHero({ intakeLabel }: HomeHeroProps) {
     <section
       className="relative overflow-hidden w-full"
       aria-label="Welcome to Musawo Training Center"
-      style={{ backgroundColor: "#0c2c3a", minHeight: "clamp(320px, 44vh, 480px)" }}
+      style={{ backgroundColor: "#0c2c3a", minHeight: "clamp(600px, 100vh, 100vh)" }}
     >
       {SLIDES.map((s, i) => (
         <div
