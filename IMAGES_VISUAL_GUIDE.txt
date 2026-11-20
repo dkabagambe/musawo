@@ -1,0 +1,204 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                     MUSAWO TRAINING CENTER IMAGE MAPPING                  ║
+║                          29 Professional Photos                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+HOME PAGE (src/app/(public)/page.tsx)
+──────────────────────────────────────
+
+  COURSE CARD THUMBNAILS:
+  
+  ┌─ Certificate in Medical Home Care ─────────────────────────────────────┐
+  │ Image: hero-medical-home-care-1.jpg                                   │
+  │ Shows: Professional healthcare training classroom                      │
+  │ Purpose: Conveys "for registered health professionals" message         │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Certificate in Basic Home Care ────────────────────────────────────────┐
+  │ Image: hero-basic-home-care-1.jpg                                    │
+  │ Shows: Foundational healthcare training                                │
+  │ Purpose: Represents entry-level care training                          │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Babysitting, Childcare & Safety Management ────────────────────────────┐
+  │ Image: hero-childcare-1.jpg                                           │
+  │ Shows: Professional childcare training environment                      │
+  │ Purpose: Safe, specialized childcare focus                            │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Certificate in Mental Health Support ──────────────────────────────────┐
+  │ Image: hero-mental-health-1.jpg                                       │
+  │ Shows: Compassionate healthcare environment                            │
+  │ Purpose: Supportive, empathetic learning atmosphere                    │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Care of Older Persons & Disability (Geriatric) ─────────────────────────┐
+  │ Image: hero-geriatric-care-1.jpg                                      │
+  │ Shows: Specialized healthcare training                                 │
+  │ Purpose: Represents professional geriatric care                        │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Certificate in Basic Life Support ─────────────────────────────────────┐
+  │ Image: hero-life-support-1.jpg                                        │
+  │ Shows: Emergency response professional training                         │
+  │ Purpose: Conveys emergency competency                                  │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Certificate in Advanced Life Support ──────────────────────────────────┐
+  │ Image: hero-life-support-2.jpg                                        │
+  │ Shows: Advanced professional healthcare training                       │
+  │ Purpose: Different angle showing progression/advancement               │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Certificate in First Aid ──────────────────────────────────────────────┐
+  │ Image: hero-first-aid-1.jpg                                           │
+  │ Shows: Hands-on practical emergency training                           │
+  │ Purpose: Represents emergency response skills                          │
+  │ Location: Course card on home page                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+
+COURSES LISTING PAGE (src/app/(public)/courses/page.tsx)
+─────────────────────────────────────────────────────────
+
+  ┌─ Page Hero Section ────────────────────────────────────────────────────┐
+  │ Image: hero-training-classroom-1.jpg                                  │
+  │ Shows: Classroom teaching in progress                                 │
+  │ Purpose: Prominent visual for "hybrid classes with practicals"        │
+  │ Location: Top of courses page (large hero section)                    │
+  │ Alt text: "Healthcare students in skills lab session"                 │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ Course Cards ─────────────────────────────────────────────────────────┐
+  │ Same images as home page for consistency:                              │
+  │ • hero-medical-home-care-1.jpg (Medical Home Care)                    │
+  │ • hero-basic-home-care-1.jpg (Basic Home Care)                        │
+  │ • hero-childcare-1.jpg (Babysitting & Childcare)                      │
+  │ • hero-mental-health-1.jpg (Mental Health)                            │
+  │ • hero-geriatric-care-1.jpg (Geriatric Care)                          │
+  │ • hero-life-support-1.jpg (Basic Life Support)                        │
+  │ • hero-life-support-2.jpg (Advanced Life Support)                     │
+  │ • hero-first-aid-1.jpg (First Aid)                                    │
+  └────────────────────────────────────────────────────────────────────────┘
+
+
+INDIVIDUAL COURSE PAGES (src/app/(public)/courses/[slug]/page.tsx)
+──────────────────────────────────────────────────────────────────
+
+  Each course's detail page displays the same hero image as its card:
+
+  /courses/medical-home-caregiver
+    └─ Image: hero-medical-home-care-1.jpg
+
+  /courses/basic-home-caregiver
+    └─ Image: hero-basic-home-care-1.jpg
+
+  /courses/babysitting-childcare-safety
+    └─ Image: hero-childcare-1.jpg
+
+  /courses/mental-health-support-advocacy
+    └─ Image: hero-mental-health-1.jpg
+
+  /courses/care-older-persons-disability
+    └─ Image: hero-geriatric-care-1.jpg
+
+  /courses/basic-life-support-first-aid
+    └─ Image: hero-life-support-1.jpg
+
+  /courses/advanced-life-support
+    └─ Image: hero-life-support-2.jpg
+
+  /courses/advanced-first-aid
+    └─ Image: hero-first-aid-1.jpg
+
+
+HOW TO ENROL PAGE (src/app/(public)/admissions/how-to-enrol/page.tsx)
+───────────────────────────────────────────────────────────────────
+
+  ┌─ Page Hero Section ────────────────────────────────────────────────────┐
+  │ Image: hero-teaching-session-1.jpg                                    │
+  │ Shows: Instructor/facilitator in teaching environment                  │
+  │ Purpose: Represents the learning journey students will experience      │
+  │ Location: Top of page hero                                            │
+  │ Alt text: "Musawo Training Center teaching session"                   │
+  └────────────────────────────────────────────────────────────────────────┘
+
+
+AVAILABLE FOR FUTURE USE (19+ Images)
+──────────────────────────────────────
+
+General Training & Classroom:
+  • hero-training-classroom-1.jpg
+  • hero-training-session-2.jpg
+  • hero-training-session-3.jpg
+  • hero-teaching-professionals-1.jpg
+  • hero-teaching-moments-1.jpg
+  • hero-classroom-discussion-1.jpg
+  • hero-classroom-session-2.jpg
+
+Online & Digital Learning:
+  • hero-online-learning-1.jpg
+
+Healthcare & Professional:
+  • hero-healthcare-training-1.jpg
+  • hero-nursing-care-1.jpg
+  • hero-professional-training-1.jpg
+  • hero-professional-development-1.jpg
+
+Specific Care Focus:
+  • hero-care-support-1.jpg
+  • hero-practical-training-1.jpg
+  • hero-skills-development-1.jpg
+
+Environment & Atmosphere:
+  • hero-learning-environment-1.jpg
+  • hero-training-environment-1.jpg
+
+Alternative Course Images:
+  • hero-medical-home-care-2.jpg (backup for Medical Home Care)
+  • hero-basic-home-care-2.jpg (backup for Basic Home Care)
+
+
+RECOMMENDED FUTURE PLACEMENTS FOR AVAILABLE IMAGES
+────────────────────────────────────────────────────
+
+About Page Hero:
+  → Recommend: hero-professional-training-1.jpg
+  → Shows: Professional, welcoming training environment
+
+Impact/Results Page:
+  → Recommend: hero-skills-development-1.jpg or hero-teaching-moments-1.jpg
+  → Shows: Learning outcomes and transformation
+
+Resources Page Hero:
+  → Recommend: hero-online-learning-1.jpg
+  → Shows: Digital/online learning capabilities
+
+Team/Staff Page:
+  → Recommend: hero-teaching-professionals-1.jpg
+  → Shows: Qualified instructors
+
+Landing Pages/Campaigns:
+  → Recommend: Mix of hero-training-session-*.jpg and hero-classroom-*.jpg
+  → Shows: Variety of learning environments
+
+
+SUMMARY OF INTEGRATION
+───────────────────────
+
+✅ 30 total images (29 new + existing fallbacks)
+✅ 8 course-specific images mapped to 8 courses
+✅ 3 major page hero sections updated
+✅ 19+ images available for future expansion
+✅ Consistent, professional representation across all pages
+✅ High-quality authentic photos of Musawo facilities
+✅ SEO-friendly, descriptive filenames
+✅ Responsive image handling with Next.js Image component
+

@@ -15,14 +15,14 @@ export const metadata: Metadata = {
 };
 
 const FALLBACK: Record<string, string> = {
-  "medical-home-caregiver": "/assets/images/cna-course.webp",
-  "basic-home-caregiver": "/assets/images/basic-nursing.webp",
-  "babysitting-childcare-safety": "/assets/images/first-aid-child-safety.jpg",
-  "mental-health-support-advocacy": "/assets/community-outreach.webp",
-  "care-older-persons-disability": "/assets/clinical-training.webp",
-  "basic-life-support-first-aid": "/assets/training-session.webp",
-  "advanced-life-support": "/assets/healthcare-services.webp",
-  "advanced-first-aid": "/assets/training-session.webp",
+  "medical-home-caregiver": "/assets/images/hero-medical-home-care-1.jpg",
+  "basic-home-caregiver": "/assets/images/hero-basic-home-care-1.jpg",
+  "babysitting-childcare-safety": "/assets/images/hero-childcare-1.jpg",
+  "mental-health-support-advocacy": "/assets/images/hero-mental-health-1.jpg",
+  "care-older-persons-disability": "/assets/images/hero-geriatric-care-1.jpg",
+  "basic-life-support-first-aid": "/assets/images/hero-life-support-1.jpg",
+  "advanced-life-support": "/assets/images/hero-life-support-2.jpg",
+  "advanced-first-aid": "/assets/images/hero-first-aid-1.jpg",
 };
 
 // Static fallback courses used when the DB is unreachable at build/cold-start time
@@ -231,7 +231,7 @@ export default async function CoursesPage() {
   return (
     <div className="bg-surface">
       <PageHero
-        image="/assets/images/hero-courses.webp"
+        image="/assets/images/hero-training-classroom-1.jpg"
         imageAlt="Healthcare students in a Musawo Training Center skills lab session"
         title="Our Courses"
         description="Hybrid classes with 70% hands-on practicals in our skills lab. Taught by licensed doctors, nurses, midwives and other healthcare professionals. Eight programmes across nursing, childcare, mental health and life support."

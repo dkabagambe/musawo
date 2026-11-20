@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s | Musawo Training Center",
   },
   description:
-    "Hybrid and online healthcare training with 70% hands-on practicals in our skills lab. Courses in nursing care, childcare, mental health and life support. November 2026 intake now open.",
+    "Hybrid healthcare training with 70% hands-on practicals in our skills lab. Courses in nursing care, childcare, mental health and life support. November 2026 intake now open.",
   keywords: [
     "healthcare training Uganda",
     "nursing care certificate Uganda",

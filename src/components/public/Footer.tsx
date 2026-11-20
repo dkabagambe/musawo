@@ -83,7 +83,7 @@ export default async function PublicFooter() {
             </p>
 
             <p className="text-white/85 text-sm leading-relaxed mb-6 max-w-xs">
-              Hybrid and online healthcare training with 70% hands-on
+              Hybrid healthcare training with 70% hands-on
               practicals. Taught by licensed doctors, nurses, midwives and
               other healthcare professionals. Serving Uganda since 2018.
             </p>

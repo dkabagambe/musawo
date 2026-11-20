@@ -58,14 +58,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // Per-course hero images -- use different photos for each course
 const HERO_IMAGES: Record<string, string> = {
-  "medical-home-caregiver":         "/assets/images/cna-course.webp",
-  "basic-home-caregiver":           "/assets/images/basic-nursing.webp",
-  "babysitting-childcare-safety":   "/assets/images/first-aid-child-safety.jpg",
-  "mental-health-support-advocacy": "/assets/community-outreach.webp",
-  "care-older-persons-disability":  "/assets/clinical-training.webp",
-  "basic-life-support-first-aid":   "/assets/training-session.webp",
-  "advanced-life-support":          "/assets/healthcare-services.webp",
-  "advanced-first-aid":             "/assets/training-session.webp",
+  "medical-home-caregiver":         "/assets/images/hero-medical-home-care-1.jpg",
+  "basic-home-caregiver":           "/assets/images/hero-basic-home-care-1.jpg",
+  "babysitting-childcare-safety":   "/assets/images/hero-childcare-1.jpg",
+  "mental-health-support-advocacy": "/assets/images/hero-mental-health-1.jpg",
+  "care-older-persons-disability":  "/assets/images/hero-geriatric-care-1.jpg",
+  "basic-life-support-first-aid":   "/assets/images/hero-life-support-1.jpg",
+  "advanced-life-support":          "/assets/images/hero-life-support-2.jpg",
+  "advanced-first-aid":             "/assets/images/hero-first-aid-1.jpg",
 };
 
 function LessonIcon({ type }: { type: string }) {
@@ -581,7 +581,7 @@ export default async function CourseDetailPage({ params }: Props) {
                     <p className="font-bold text-primary">{course.tutor.name}</p>
                     <p className="text-sm text-gray-500">Musawo Training Center Faculty</p>
                     <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                      Qualified healthcare professional and experienced trainer delivering hybrid and online instruction with skills lab practicals.
+                      Qualified healthcare professional and experienced trainer delivering hybrid instruction with skills lab practicals.
                     </p>
                   </div>
                 </div>

@@ -71,7 +71,7 @@ export default async function HowToEnrolPage() {
   return (
     <div>
       <PageHero
-        image="/assets/images/hero-courses.webp"
+        image="/assets/images/hero-teaching-session-1.jpg"
         imageAlt="Students attending a Musawo Training Center skills lab session"
         title="How to Enrol"
         description="Applying to Musawo Training Center takes a few minutes. Follow these four steps to secure your place in the November 2026 intake."

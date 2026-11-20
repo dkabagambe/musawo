@@ -23,7 +23,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Musawo Training Center | Healthcare Training in Uganda",
   description:
-    "Hybrid and online healthcare training with 70% hands-on practicals. Courses in nursing care, childcare, mental health, life support and more. November 2026 intake now open.",
+    "Hybrid healthcare training with 70% hands-on practicals. Courses in nursing care, childcare, mental health, life support and more. November 2026 intake now open.",
   keywords:
     "healthcare training Uganda, nursing care certificate, caregiver course Kampala, Musawo Training Center",
 };
@@ -225,14 +225,14 @@ const CATEGORY_BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 const COURSE_IMAGES: Record<string, string> = {
-  "medical-home-caregiver": "/assets/images/cna-course.webp",
-  "basic-home-caregiver": "/assets/images/basic-nursing.webp",
-  "babysitting-childcare-safety": "/assets/images/first-aid-child-safety.jpg",
-  "mental-health-support-advocacy": "/assets/community-outreach.webp",
-  "care-older-persons-disability": "/assets/clinical-training.webp",
-  "basic-life-support-first-aid": "/assets/training-session.webp",
-  "advanced-life-support": "/assets/healthcare-services.webp",
-  "advanced-first-aid": "/assets/training-session.webp",
+  "medical-home-caregiver": "/assets/images/hero-medical-home-care-1.jpg",
+  "basic-home-caregiver": "/assets/images/hero-basic-home-care-1.jpg",
+  "babysitting-childcare-safety": "/assets/images/hero-childcare-1.jpg",
+  "mental-health-support-advocacy": "/assets/images/hero-mental-health-1.jpg",
+  "care-older-persons-disability": "/assets/images/hero-geriatric-care-1.jpg",
+  "basic-life-support-first-aid": "/assets/images/hero-life-support-1.jpg",
+  "advanced-life-support": "/assets/images/hero-life-support-2.jpg",
+  "advanced-first-aid": "/assets/images/hero-first-aid-1.jpg",
 };
 
 /* ─── Page ────────────────────────────────────────────────────── */
