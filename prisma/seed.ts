@@ -86,11 +86,7 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
     value: "+256709184468",
     description: "Primary phone (display, E.164 format)",
   },
-  {
-    key: "site.supportPhone2",
-    value: "+256790192270",
-    description: "Secondary phone (display) - leave blank if not in use",
-  },
+
   {
     key: "site.supportPhone3",
     value: "+256772795991",
@@ -129,8 +125,13 @@ const SETTINGS: Array<{ key: string; value: string; description?: string }> = [
   },
   {
     key: "site.tiktokUrl",
-    value: "https://www.tiktok.com/@musawoadfa",
+    value: "https://www.tiktok.com/@mtc.trainingcenter",
     description: "TikTok URL",
+  },
+  {
+    key: "site.twitterUrl",
+    value: "https://x.com/MTCKampala",
+    description: "Twitter/X URL",
   },
   {
     key: "site.tagline",

@@ -20,6 +20,18 @@ const TikTokIcon = () => (
   </svg>
 );
 
+/* Twitter/X icon (not in Lucide) */
+const TwitterIcon = () => (
+  <svg
+    className="w-5 h-5"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.514l-5.106-6.677-5.829 6.677h-3.328l7.697-8.795-8.212-10.705h6.522l4.827 6.383 5.388-6.383zM16.6 19.5h1.832L7.974 4.07H6.01l10.59 15.43z" />
+  </svg>
+);
+
 export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with Musawo Training Center - course enquiries, payments, admissions and more.",
@@ -49,7 +61,7 @@ export default async function ContactPage() {
         <AnimateIn>
           <div className="text-center">
             <h2 className="text-2xl font-bold text-primary mb-4">Follow Us</h2>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
               <a
                 href={contact.instagramUrl}
                 target="_blank"
@@ -68,6 +80,17 @@ export default async function ContactPage() {
               >
                 <div className="text-gray-600 group-hover:text-accent transition-colors">
                   <TikTokIcon />
+                </div>
+              </a>
+              <a
+                href={contact.twitterUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-14 h-14 bg-white hover:bg-accent/10 border border-border hover:border-accent rounded-xl flex items-center justify-center no-underline transition-all group"
+                aria-label="Musawo on Twitter/X"
+              >
+                <div className="text-gray-600 group-hover:text-accent transition-colors">
+                  <TwitterIcon />
                 </div>
               </a>
             </div>
@@ -115,14 +138,6 @@ export default async function ContactPage() {
                   >
                     {contact.phone}
                   </a>
-                  {contact.phone2 && (
-                    <a
-                      href={`tel:${contact.phone2.replace(/\s/g, "")}`}
-                      className="text-gray-600 hover:text-accent text-base no-underline transition-colors block"
-                    >
-                      {contact.phone2}
-                    </a>
-                  )}
                   {contact.phone3 && (
                     <a
                       href={`tel:${contact.phone3.replace(/\s/g, "")}`}
