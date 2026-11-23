@@ -153,14 +153,14 @@ function dashboardGroup(href: string, root: string): DashboardTab {
     },
     "/director": {
       approvals: "approvals",
-      finance:   "finance",
-      staff:     "staff",
-      roles:     "staff",
+      finance: "finance",
+      staff: "staff",
+      roles: "staff",
       "access-review": "staff",
       graduates: "academics",
-      policies:  "reports",
-      audit:     "reports",
-      admin:     "staff",
+      policies: "reports",
+      audit: "reports",
+      admin: "staff",
     },
     "/board": { reports: "reports", policies: "audit", graduates: "academics" },
     "/auditor": {
@@ -176,15 +176,15 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 
 /** Override display names for sidebar group headers (separate from tab labels). */
 const SIDEBAR_GROUP_NAMES: Record<string, string> = {
-  general:       "Overview",
-  overview:      "Overview",
-  people:        "People",
-  academics:     "Academics",
-  assessment:    "Teaching and Assessment",
-  operations:    "Operations",
-  governance:    "Governance",
+  general: "Overview",
+  overview: "Overview",
+  people: "People",
+  academics: "Academics",
+  assessment: "Teaching and Assessment",
+  operations: "Operations",
+  governance: "Governance",
   communication: "Communication",
-  account:       "Account",
+  account: "Account",
 };
 
 const TAB_LABELS: Record<DashboardTab, string> = {
@@ -292,7 +292,7 @@ export function Sidebar({
 }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
-  
+
   const grouped = useMemo(() => {
     const map = new Map<string, NavItem[]>();
     nav.forEach((item) => {
@@ -318,7 +318,9 @@ export function Sidebar({
 
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => {
     // Initially collapse all groups except the active one
-    return grouped.map(([group]) => group).filter((group) => group !== activeGroup);
+    return grouped
+      .map(([group]) => group)
+      .filter((group) => group !== activeGroup);
   });
 
   return (
@@ -376,7 +378,9 @@ export function Sidebar({
                   {groupIcon(group)}
                 </span>
                 <span className="portal-nav-label">
-                  {SIDEBAR_GROUP_NAMES[group] ?? TAB_LABELS[group as DashboardTab] ?? group}
+                  {SIDEBAR_GROUP_NAMES[group] ??
+                    TAB_LABELS[group as DashboardTab] ??
+                    group}
                 </span>
                 <ChevronRight
                   className={`portal-nav-parent-chevron ${collapsedGroups.includes(group) ? "" : "is-expanded"}`}
@@ -455,13 +459,11 @@ export function Sidebar({
         >
           <span className="portal-avatar" aria-hidden="true">
             {userAvatarUrl && !avatarError ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={userAvatarUrl}
                 alt=""
-                width={32}
-                height={32}
                 className="w-full h-full object-cover rounded-full"
-                unoptimized
                 onError={() => setAvatarError(true)}
               />
             ) : (
@@ -533,16 +535,25 @@ export function Topbar({
         <ThemeToggle className="portal-topbar-theme-toggle" />
         {/* Unread messages badge in topbar */}
         {(() => {
-          const messagesHref = nav.find((item) => /messages/i.test(item.label))?.href;
+          const messagesHref = nav.find((item) =>
+            /messages/i.test(item.label),
+          )?.href;
           return messagesHref ? (
             <Link
               href={messagesHref}
               className="portal-icon-button relative"
-              aria-label={unreadMessages > 0 ? `Messages (${unreadMessages} unread)` : "Messages"}
+              aria-label={
+                unreadMessages > 0
+                  ? `Messages (${unreadMessages} unread)`
+                  : "Messages"
+              }
             >
               <Mail size={19} />
               {unreadMessages > 0 && (
-                <span className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none" aria-hidden="true">
+                <span
+                  className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none"
+                  aria-hidden="true"
+                >
                   {unreadMessages > 99 ? "99+" : unreadMessages}
                 </span>
               )}
@@ -554,11 +565,18 @@ export function Topbar({
           <Link
             href={notifications}
             className="portal-icon-button relative"
-            aria-label={unreadNotifications > 0 ? `Notifications (${unreadNotifications} unread)` : "Notifications"}
+            aria-label={
+              unreadNotifications > 0
+                ? `Notifications (${unreadNotifications} unread)`
+                : "Notifications"
+            }
           >
             <Bell size={19} />
             {unreadNotifications > 0 && (
-              <span className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none" aria-hidden="true">
+              <span
+                className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-0.5 leading-none"
+                aria-hidden="true"
+              >
                 {unreadNotifications > 99 ? "99+" : unreadNotifications}
               </span>
             )}
@@ -611,12 +629,20 @@ export function Topbar({
 // ── Bottom navigation (mobile only, ≤767px) ──────────────────────────────────
 // Groups the full nav into 5 primary tabs: Dashboard, Classes, Learn, Fees, More.
 // "More" opens the existing side drawer so all pages remain reachable.
-const BOTTOM_NAV_GROUPS: { label: string; groupKey: string; icon: React.ReactNode }[] = [
-  { label: "Dashboard", groupKey: "general",       icon: <LayoutDashboardIcon size={22} /> },
-  { label: "Classes",   groupKey: "classes",        icon: <CalendarDays size={22} /> },
-  { label: "Learn",     groupKey: "learning",       icon: <BookOpen size={22} /> },
-  { label: "Fees",      groupKey: "finance",        icon: <Wallet size={22} /> },
-  { label: "More",      groupKey: "__more__",       icon: <MoreHorizontal size={22} /> },
+const BOTTOM_NAV_GROUPS: {
+  label: string;
+  groupKey: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    label: "Dashboard",
+    groupKey: "general",
+    icon: <LayoutDashboardIcon size={22} />,
+  },
+  { label: "Classes", groupKey: "classes", icon: <CalendarDays size={22} /> },
+  { label: "Learn", groupKey: "learning", icon: <BookOpen size={22} /> },
+  { label: "Fees", groupKey: "finance", icon: <Wallet size={22} /> },
+  { label: "More", groupKey: "__more__", icon: <MoreHorizontal size={22} /> },
 ];
 
 function BottomNav({
@@ -635,7 +661,12 @@ function BottomNav({
   };
 
   const isGroupActive = (groupKey: string) =>
-    nav.some((n) => n.group === groupKey && (n.href === pathname || (n.href !== nav[0]?.href && pathname.startsWith(`${n.href}/`))));
+    nav.some(
+      (n) =>
+        n.group === groupKey &&
+        (n.href === pathname ||
+          (n.href !== nav[0]?.href && pathname.startsWith(`${n.href}/`))),
+    );
 
   return (
     <nav className="portal-bottom-nav" aria-label="Bottom navigation">
@@ -649,7 +680,9 @@ function BottomNav({
               onClick={onMore}
               aria-label="More navigation options"
             >
-              <span className="portal-bottom-nav-icon" aria-hidden="true">{icon}</span>
+              <span className="portal-bottom-nav-icon" aria-hidden="true">
+                {icon}
+              </span>
               <span className="portal-bottom-nav-label">More</span>
             </button>
           );
@@ -664,7 +697,9 @@ function BottomNav({
             className={`portal-bottom-nav-item${active ? " is-active" : ""}`}
             aria-current={active ? "page" : undefined}
           >
-            <span className="portal-bottom-nav-icon" aria-hidden="true">{icon}</span>
+            <span className="portal-bottom-nav-icon" aria-hidden="true">
+              {icon}
+            </span>
             <span className="portal-bottom-nav-label">{label}</span>
           </Link>
         );
