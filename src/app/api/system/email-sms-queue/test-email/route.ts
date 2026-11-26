@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
-import { auditLog } from '@/lib/audit';
+import { audit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     // In a real implementation, this would send a test email using the configured provider
     // For now, just simulate success and audit log
     
-    await auditLog({
+    await audit({
       userId: session.user.id,
       action: 'test_email_sent',
       details: {

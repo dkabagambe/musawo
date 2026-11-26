@@ -1865,6 +1865,42 @@ async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
+/* finance-todos (Finance/Admin dashboard) */
+async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
+  // Finance/Admin dashboard shows pending payment proofs and fee requests
+  const [pendingProofs, pendingFeeRequests] = await Promise.all([
+    db.approvalRequest.count({
+      where: {
+        type: "PAYMENT_PROOF",
+        status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] },
+      },
+    }),
+    db.approvalRequest.count({
+      where: {
+        type: { in: ["FEE_CHANGE" as const, "WAIVER" as const, "REFUND" as const] },
+        status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] },
+      },
+    }),
+  ]);
+  const allClear = pendingProofs === 0 && pendingFeeRequests === 0;
+  const href = fullPageHref ?? "/admin/finance";
+  if (allClear) return <Empty>All finance items processed.</Empty>;
+  return (
+    <>
+      {pendingProofs > 0 && (
+        <ListRow href={href} icon={<Receipt size={16} />}>
+          {formatCount(pendingProofs, "payment proof")} awaiting verification
+        </ListRow>
+      )}
+      {pendingFeeRequests > 0 && (
+        <ListRow href={href} icon={<Wallet size={16} />}>
+          {formatCount(pendingFeeRequests, "fee request")} pending review
+        </ListRow>
+      )}
+    </>
+  );
+}
+
 /* director-todos  (Director) */
 async function DirectorTodosBody({ fullPageHref }: WidgetBodyProps) {
   // Director decides: programme/course changes, results publication, certificate

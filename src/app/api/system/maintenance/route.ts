@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
 import { db } from '@/lib/db';
-import { auditLog } from '@/lib/audit';
+import { audit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     // Audit log the change
-    await auditLog({
+    await audit({
       userId: session.user.id,
       action: 'maintenance_mode_changed',
       details: {

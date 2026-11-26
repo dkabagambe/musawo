@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
-import { auditLog } from '@/lib/audit';
+import { audit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     
     const count = 0; // Would be actual count of messages
 
-    await auditLog({
+    await audit({
       userId: session.user.id,
       action: 'messages_retry_all',
       details: {

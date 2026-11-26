@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
 import { db } from '@/lib/db';
-import { auditLog } from '@/lib/audit';
-import { rateLimit } from '@/lib/auth/rate-limit';
+import { audit } from '@/lib/audit';
+import { checkRateLimit } from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,10 +97,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limit: 3 requests per hour
-    const rateLimitResult = await rateLimit({
+    const rateLimitResult = await checkRateLimit({
       key: `break-glass:${session.user.id}`,
-      limit: 3,
-      window: 3600,
+      maxRequests: 3,
+      windowSeconds: 3600,
     });
 
     if (!rateLimitResult.allowed) {
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
     const requestId = `bg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     // Audit log the request
-    await auditLog({
+    await audit({
       userId: session.user.id,
       action: 'break_glass_requested',
       details: {

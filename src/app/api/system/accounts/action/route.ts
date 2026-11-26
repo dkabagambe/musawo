@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
 import { db } from '@/lib/db';
-import { auditLog } from '@/lib/audit';
-import { rateLimit } from '@/lib/auth/rate-limit';
+import { audit } from '@/lib/audit';
+import { checkRateLimit, recordFailure } from '@/lib/auth/rate-limit';
 import { redis } from '@/lib/db/redis';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +17,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limit: 10 actions per minute
-    const rateLimitResult = await rateLimit({
+    const rateLimitResult = await checkRateLimit({
       key: `account-action:${session.user.id}`,
-      limit: 10,
-      window: 60,
+      maxRequests: 10,
+      windowSeconds: 60,
     });
 
     if (!rateLimitResult.allowed) {
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        await auditLog({
+        await audit({
           userId: session.user.id,
           action: 'account_unlocked',
           details: {
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        await auditLog({
+        await audit({
           userId: session.user.id,
           action: 'password_reset_sent',
           details: {
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
           where: { userId: accountId },
         });
 
-        await auditLog({
+        await audit({
           userId: session.user.id,
           action: 'force_signout_all',
           details: {
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
           where: { userId: accountId },
         });
 
-        await auditLog({
+        await audit({
           userId: session.user.id,
           action: 'emergency_disable',
           details: {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { UserRole } from '@prisma/client';
-import { auditLog } from '@/lib/audit';
+import { audit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // 3. Update the retry count
     
     // For now, just audit log the action
-    await auditLog({
+    await audit({
       userId: session.user.id,
       action: 'message_retry',
       details: {
