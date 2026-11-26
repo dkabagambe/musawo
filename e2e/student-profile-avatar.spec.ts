@@ -238,6 +238,43 @@ test.describe("Student Profile & Avatar (S1)", () => {
     await expect(page.locator("#main-content h1").filter({ hasText: /my profile/i })).toBeVisible({ timeout: 8_000 });
     await expect(page.locator('input[type="email"]')).toHaveValue(STUDENT_EMAIL);
     await expect(page.locator('input[id="name"]')).not.toHaveValue("Hacker Name");
+
+    // Verify dateOfBirth and gender are also locked in UI
+    const dobInput = page.locator('input[id="dob"]');
+    const genderSelect = page.locator('select[id="gender"]');
+    await expect(dobInput).toBeDisabled();
+    await expect(genderSelect).toBeDisabled();
+
+    // Test that API also rejects dateOfBirth and gender changes for students
+    const dobResponse = await page.request.patch(`${BASE}/api/profile`, {
+      headers: { "Content-Type": "application/json" },
+      data: {
+        dateOfBirth: "2000-01-01",
+      },
+    });
+    expect(dobResponse.status()).toBe(403);
+
+    const genderResponse = await page.request.patch(`${BASE}/api/profile`, {
+      headers: { "Content-Type": "application/json" },
+      data: {
+        gender: "male",
+      },
+    });
+    expect(genderResponse.status()).toBe(403);
+  });
+
+  // ── 5b. Gender field has only Male and Female options ───────────────
+  test("5b. Gender field has only Male and Female options", async ({ page }) => {
+    await goToProfile(page);
+
+    const genderSelect = page.locator('select[id="gender"]');
+    const options = await genderSelect.locator('option').allTextContents();
+    
+    // Should have: "- Select -", "Female", "Male" (in that order)
+    expect(options).toContain("Female");
+    expect(options).toContain("Male");
+    expect(options).not.toContain("Other");
+    expect(options).not.toContain("Prefer not to say");
   });
 
   // ── 6. Password change requires the current password ────────────────

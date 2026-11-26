@@ -8,7 +8,7 @@ const BaseSchema = z.object({
   // name is locked for ALL users - only Admin can change it
   phone: z.string().min(9).max(20).optional(),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  gender: z.string().max(30).optional(),
+  gender: z.enum(["male", "female"]).optional(),
   district: z.string().max(100).optional(),
   countryCode: z.string().length(2).optional(),
   highestQualification: z.string().max(100).optional(),
@@ -30,7 +30,7 @@ export async function PATCH(req: NextRequest) {
   const isStudentOrInstructor =
     session.user.role === "STUDENT" || session.user.role === "INSTRUCTOR";
   if (isStudentOrInstructor) {
-    const LOCKED_FIELDS = ["name", "email", "studentNumber", "registrationNumber"];
+    const LOCKED_FIELDS = ["name", "email", "studentNumber", "registrationNumber", "dateOfBirth", "gender"];
     const attemptedLocked = LOCKED_FIELDS.filter(
       (f) => f in body && body[f] !== undefined,
     );

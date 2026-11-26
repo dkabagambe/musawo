@@ -23,7 +23,8 @@ interface Props {
   };
   /**
    * When true the Full name field is editable (for staff roles).
-   * Students leave this false: their name is locked and set by the Admin.
+   * When true, dateOfBirth and gender are also editable.
+   * Students leave this false: their name, dateOfBirth, and gender are locked and set by the Admin.
    */
   allowNameEdit?: boolean;
 }
@@ -116,8 +117,8 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
         body: JSON.stringify({
           ...(allowNameEdit ? { name: form.name.trim() } : {}),
           phone: form.phone.trim() || undefined,
-          dateOfBirth: form.dateOfBirth || undefined,
-          gender: form.gender || undefined,
+          ...(allowNameEdit ? { dateOfBirth: form.dateOfBirth || undefined } : {}),
+          ...(allowNameEdit ? { gender: form.gender || undefined } : {}),
           district: form.district || undefined,
           countryCode: form.countryCode || "UG",
           highestQualification: form.highestQualification || undefined,
@@ -292,22 +293,44 @@ export default function ProfileForm({ user, allowNameEdit = false }: Props) {
               onChange={set("phone")} className="input" placeholder="+256 700 000000" />
           </div>
 
-          {/* Date of birth - editable */}
+          {/* Date of birth - locked for students, editable for staff */}
           <div className="mb-4">
             <label htmlFor="dob" className="label">Date of birth</label>
-            <input id="dob" type="date" value={form.dateOfBirth}
-              onChange={set("dateOfBirth")} className="input" />
+            {allowNameEdit ? (
+              <input id="dob" type="date" value={form.dateOfBirth}
+                onChange={set("dateOfBirth")} className="input" />
+            ) : (
+              <>
+                <input id="dob" type="date" disabled value={form.dateOfBirth || ""}
+                  className="input opacity-60 cursor-not-allowed" aria-describedby="dob-hint" />
+                <p id="dob-hint" className="text-xs text-gray-400 mt-1">
+                  {LOCKED_HINT}
+                </p>
+              </>
+            )}
           </div>
 
-          {/* Gender - editable */}
+          {/* Gender - locked for students, editable for staff */}
           <div className="mb-4">
             <label htmlFor="gender" className="label">Gender</label>
-            <select id="gender" value={form.gender} onChange={set("gender")} className="input">
-              <option value="">- Select -</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other / Prefer not to say</option>
-            </select>
+            {allowNameEdit ? (
+              <select id="gender" value={form.gender} onChange={set("gender")} className="input">
+                <option value="">- Select -</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            ) : (
+              <>
+                <select id="gender" disabled value={form.gender || ""} className="input opacity-60 cursor-not-allowed" aria-describedby="gender-hint">
+                  <option value="">- Select -</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+                <p id="gender-hint" className="text-xs text-gray-400 mt-1">
+                  {LOCKED_HINT}
+                </p>
+              </>
+            )}
           </div>
 
           {/* District / address - editable */}
