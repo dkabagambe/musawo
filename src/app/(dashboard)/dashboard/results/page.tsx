@@ -2,252 +2,121 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { ClipboardList, CheckCircle2, XCircle, Clock, FileText, Printer } from "lucide-react";
+import { CheckCircle2, XCircle, Clock } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "My Results" };
 
-/** Map a percentage to a letter grade (Ugandan academic scale). */
-function letterGrade(pct: number | null): string | null {
-  if (pct == null) return null;
-  if (pct >= 80) return "A";
-  if (pct >= 70) return "B";
-  if (pct >= 60) return "C";
-  if (pct >= 50) return "D";
-  return "F";
-}
-
-export default async function ResultsPage() {
+export default async function MyResultsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  // Official results: only published entries (releasedAt IS NOT NULL)
-  const released = await db.gradeEntry.findMany({
-    where: { userId: session.user.id, releasedAt: { not: null } },
-    include: { course: { select: { title: true } } },
-    orderBy: { releasedAt: "desc" },
-  });
-
-  // In-progress or submitted attempts (useful info to show separately)
-  const inProgress = await db.examAttempt.findMany({
-    where: { userId: session.user.id, status: "IN_PROGRESS" },
-    include: { exam: { include: { course: { select: { title: true } } } } },
-  });
-
-  // Pending review (SUBMITTED but not yet MARKED) - for short-answer exams
-  const pendingReview = await db.examAttempt.findMany({
-    where: { userId: session.user.id, status: "SUBMITTED" },
-    include: { exam: { include: { course: { select: { title: true } } } } },
+  const attempts = await db.examAttempt.findMany({
+    where: { userId: session.user.id },
+    include: {
+      exam: {
+        select: {
+          id: true,
+          title: true,
+          course: { select: { title: true } },
+          block: { select: { order: true, title: true } },
+        },
+      },
+    },
     orderBy: { submittedAt: "desc" },
   });
 
-  // Group released results by course
-  const byCourse: Record<
-    string,
-    { courseTitle: string; entries: typeof released }
-  > = {};
-  for (const entry of released) {
-    const key = entry.courseId;
-    if (!byCourse[key]) {
-      byCourse[key] = { courseTitle: entry.course.title, entries: [] };
-    }
-    byCourse[key].entries.push(entry);
-  }
-
-  const hasReleasedResults = released.length > 0;
-  const empty = !hasReleasedResults && inProgress.length === 0 && pendingReview.length === 0;
+  const results = attempts.map((attempt) => ({
+    id: attempt.id,
+    examId: attempt.exam.id,
+    examTitle: attempt.exam.title,
+    courseTitle: attempt.exam.course?.title || "Unknown Course",
+    blockOrder: attempt.exam.block?.order || 0,
+    blockTitle: attempt.exam.block?.title || "Unknown Block",
+    attemptNumber: attempt.number,
+    score: attempt.score,
+    maxScore: attempt.maxScore,
+    percentage: attempt.score && attempt.maxScore ? Math.round((attempt.score / attempt.maxScore) * 100) : 0,
+    status: attempt.status,
+    passed: attempt.passed,
+    submittedAt: attempt.submittedAt,
+  }));
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">My Results</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Results are published by the Principal and approved by the Director.
-          </p>
-        </div>
-        {hasReleasedResults && (
-          <Link
-            href="/api/results/statement"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary no-underline hover:underline flex-shrink-0 mt-1"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            Print results statement
-          </Link>
-        )}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">My Results</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          {results.length} exam result{results.length !== 1 ? "s" : ""}
+        </p>
       </div>
 
-      {/* In progress */}
-      {inProgress.length > 0 && (
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">In Progress</h2>
-          <div className="space-y-3">
-            {inProgress.map((att) => (
-              <div
-                key={att.id}
-                className="bg-warning/5 border border-warning/25 rounded-2xl p-4 flex items-center gap-4"
-              >
-                <div className="w-10 h-10 bg-warning/15 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-5 h-5 text-amber-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-primary">{att.exam.title}</p>
-                  <p className="text-xs text-gray-400">{att.exam.course.title}</p>
-                </div>
-                <Link
-                  href={`/dashboard/exams/${att.examId}`}
-                  className="btn-primary text-xs px-4 py-2 no-underline flex-shrink-0"
-                >
-                  Continue
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Pending tutor review */}
-      {pendingReview.length > 0 && (
-        <section>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Awaiting Review</h2>
-          <div className="space-y-3">
-            {pendingReview.map((att) => (
-              <div
-                key={att.id}
-                className="bg-surface border border-border rounded-2xl p-4 flex items-center gap-4"
-              >
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-primary/60" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-primary">{att.exam.title}</p>
-                  <p className="text-xs text-gray-400">{att.exam.course.title}</p>
-                  <p className="text-xs text-amber-600 mt-0.5">
-                    Submitted {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString("en-UG") : ""} - awaiting tutor review
+      {results.length === 0 ? (
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <p className="text-gray-600 dark:text-gray-400">No exam results yet. Complete an exam to see your results here.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {results.map((result) => (
+            <div
+              key={result.id}
+              className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-lg">{result.examTitle}</h3>
+                    {result.status === "MARKED" && result.passed && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> PASSED
+                      </span>
+                    )}
+                    {result.status === "MARKED" && !result.passed && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-red-500/10 text-red-700 dark:text-red-400 flex items-center gap-1">
+                        <XCircle className="w-3 h-3" /> FAILED
+                      </span>
+                    )}
+                    {result.status === "SUBMITTED" && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> PENDING REVIEW
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {result.courseTitle} • Block {result.blockOrder}: {result.blockTitle}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Attempt {result.attemptNumber}</p>
+                  {result.submittedAt && (
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      Submitted: {new Date(result.submittedAt).toLocaleDateString()} at{" "}
+                      {new Date(result.submittedAt).toLocaleTimeString()}
+                    </p>
+                  )}
                 </div>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-warning/10 text-amber-700 flex-shrink-0">
-                  Under review
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* Empty state */}
-      {empty && (
-        <div className="bg-white rounded-2xl border border-border p-12 text-center">
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ClipboardList className="w-7 h-7 text-primary/40" />
-          </div>
-          <h2 className="font-bold text-primary mb-2">No results yet</h2>
-          <p className="text-gray-500 text-sm">
-            Results appear here once published by the Principal and approved by the Director.
-          </p>
-        </div>
-      )}
-
-      {/* Notice when attempts exist but results are not yet released */}
-      {!hasReleasedResults && (inProgress.length > 0 || pendingReview.length > 0) && (
-        <div className="bg-surface border border-border rounded-2xl p-5 text-sm text-gray-500">
-          <p>
-            Your official results will appear here after publication and approval by the Director.
-            Short-answer questions are reviewed by your tutor first.
-          </p>
-        </div>
-      )}
-
-      {/* Released results by course */}
-      {Object.entries(byCourse).map(([, { courseTitle, entries }]) => (
-        <section
-          key={courseTitle}
-          className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden"
-        >
-          <div className="px-5 py-4 border-b border-border bg-surface/50">
-            <h2 className="font-bold text-primary">{courseTitle}</h2>
-          </div>
-          <div className="divide-y divide-border">
-            {entries.map((entry) => {
-              const pct =
-                entry.percentage != null
-                  ? Math.round(entry.percentage)
-                  : entry.score != null && entry.maxScore
-                  ? Math.round((entry.score / entry.maxScore) * 100)
-                  : null;
-
-              return (
-                <div key={entry.id} className="flex items-start gap-4 px-5 py-4">
-                  {/* Score circle */}
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 font-extrabold
-                      ${
-                        entry.passed === true
-                          ? "bg-success/10 text-success"
-                          : entry.passed === false
-                          ? "bg-danger/10 text-danger"
-                          : "bg-primary/10 text-primary"
-                      }`}
+                <div className="flex flex-col items-end gap-2">
+                  {result.status === "MARKED" && (
+                    <>
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {result.percentage}%
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {result.score}/{result.maxScore}
+                      </div>
+                    </>
+                  )}
+                  <Link
+                    href={`/dashboard/results/${result.examId}`}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
-                    {pct != null ? (
-                      <>
-                        <span className="text-lg leading-none">{pct}</span>
-                        <span className="text-[10px] leading-none">%</span>
-                      </>
-                    ) : (
-                      <ClipboardList className="w-6 h-6" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm text-primary">{entry.itemTitle}</p>
-                      {pct != null && (
-                        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-surface text-gray-600">
-                          {letterGrade(pct)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {entry.gradedAt
-                        ? new Date(entry.gradedAt).toLocaleDateString("en-UG")
-                        : "-"}
-                      {entry.score != null && entry.maxScore
-                        ? ` - ${entry.score}/${entry.maxScore} marks`
-                        : ""}
-                    </p>
-                    <p className="text-xs text-gray-300 mt-0.5">
-                      Published{" "}
-                      {entry.releasedAt
-                        ? new Date(entry.releasedAt).toLocaleDateString("en-UG")
-                        : ""}
-                    </p>
-                    {entry.comments && (
-                      <p className="text-xs text-gray-600 mt-1.5 bg-surface/70 rounded-lg px-3 py-2 border border-border/50">
-                        {entry.comments}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex-shrink-0">
-                    {entry.passed === true ? (
-                      <div className="flex items-center gap-1.5 text-success">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span className="text-xs font-bold">Pass</span>
-                      </div>
-                    ) : entry.passed === false ? (
-                      <div className="flex items-center gap-1.5 text-danger">
-                        <XCircle className="w-4 h-4" />
-                        <span className="text-xs font-bold">Fail</span>
-                      </div>
-                    ) : null}
-                  </div>
+                    View Details
+                  </Link>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

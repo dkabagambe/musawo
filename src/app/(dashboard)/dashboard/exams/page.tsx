@@ -2,235 +2,273 @@ import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { ClipboardList, Lock, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
-import { getAccessLevel } from "@/lib/enrolment/access";
+import { Clock, Lock, CheckCircle2, XCircle, RotateCw } from "lucide-react";
+import { getAccessLevel, canAccess } from "@/lib/enrolment/access";
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Examinations" };
+export const metadata = { title: "My Exams" };
 
-export default async function StudentExamsPage() {
+const STATUS_BADGE: Record<string, { label: string; color: string }> = {
+  AVAILABLE: { label: "Available", color: "bg-green-500/10 text-green-700 dark:text-green-400" },
+  IN_PROGRESS: { label: "In Progress", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400" },
+  PASSED: { label: "Passed", color: "bg-green-500/10 text-green-700 dark:text-green-400" },
+  FAILED: { label: "Failed", color: "bg-red-500/10 text-red-700 dark:text-red-400" },
+  LOCKED: { label: "Locked", color: "bg-gray-500/10 text-gray-700 dark:text-gray-400" },
+  PENDING_REVIEW: { label: "Pending Review", color: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" },
+};
+
+export default async function MyExamsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
   const enrolments = await db.enrolment.findMany({
-    where: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "OVERDUE", "COMPLETED", "PENDING_PAYMENT"] } },
-    select: {
-      courseId: true,
-      status: true,
-      paidPercent: true,
-      provisionalUntil: true,
-      graceUntil: true,
-      overdueSince: true,
-    },
-  });
-
-  const courseIds = enrolments.map((e) => e.courseId);
-  const enrolmentByCourse = new Map(enrolments.map((e) => [e.courseId, e]));
-
-  const exams = await db.exam.findMany({
-    where: { courseId: { in: courseIds }, status: "PUBLISHED" },
+    where: { userId: session.user.id, status: { in: ["ACTIVE", "PARTIALLY_PAID", "COMPLETED", "OVERDUE"] } },
     include: {
-      course: { select: { title: true, slug: true } },
-      block: { select: { order: true } },
-      attempts: {
-        where: { userId: session.user.id },
-        orderBy: { number: "desc" },
-        take: 1,
+      course: {
+        select: {
+          id: true,
+          title: true,
+          blocks: {
+            orderBy: { order: "asc" },
+            select: {
+              id: true,
+              order: true,
+              title: true,
+              exams: {
+                where: { status: "PUBLISHED" },
+                orderBy: { startWindowAt: "asc" },
+              },
+            },
+          },
+        },
       },
     },
-    orderBy: [{ startWindowAt: "asc" }, { createdAt: "desc" }],
   });
 
-  const now = new Date();
+  const exams: Array<{
+    id: string;
+    title: string;
+    courseTitle: string;
+    blockOrder: number;
+    blockTitle: string;
+    status: "AVAILABLE" | "IN_PROGRESS" | "PASSED" | "FAILED" | "LOCKED" | "PENDING_REVIEW";
+    score?: number;
+    maxScore?: number;
+    percentage?: number;
+    passed?: boolean;
+    attemptNumber?: number;
+    attemptLimit: number;
+    timeLimitMin?: number;
+    access: { allowed: boolean; reason: string | null };
+  }> = [];
+
+  for (const enr of enrolments) {
+    for (const block of enr.course.blocks) {
+      for (const exam of block.exams) {
+        // Check access
+        const access = canAccess(
+          { type: "exam", blockOrder: block.order },
+          {
+            status: enr.status,
+            paidPercent: enr.paidPercent,
+            provisionalUntil: enr.provisionalUntil,
+            graceUntil: enr.graceUntil,
+            overdueSince: enr.overdueSince,
+          }
+        );
+
+        if (!access.allowed) {
+          exams.push({
+            id: exam.id,
+            title: exam.title,
+            courseTitle: enr.course.title,
+            blockOrder: block.order,
+            blockTitle: block.title,
+            status: "LOCKED",
+            attemptLimit: exam.attemptLimit,
+            timeLimitMin: exam.timeLimitMin ?? undefined,
+            access,
+          });
+          continue;
+        }
+
+        // Get latest attempt
+        const latestAttempt = await db.examAttempt.findFirst({
+          where: { examId: exam.id, userId: session.user.id },
+          orderBy: { createdAt: "desc" },
+        });
+
+        const inProgress = await db.examAttempt.findFirst({
+          where: { examId: exam.id, userId: session.user.id, status: "IN_PROGRESS" },
+        });
+
+        let status: "AVAILABLE" | "IN_PROGRESS" | "PASSED" | "FAILED" | "PENDING_REVIEW";
+        if (inProgress) {
+          status = "IN_PROGRESS";
+        } else if (latestAttempt?.status === "MARKED") {
+          status = latestAttempt.passed ? "PASSED" : "FAILED";
+        } else if (latestAttempt?.status === "SUBMITTED") {
+          status = "PENDING_REVIEW";
+        } else {
+          status = "AVAILABLE";
+        }
+
+        exams.push({
+          id: exam.id,
+          title: exam.title,
+          courseTitle: enr.course.title,
+          blockOrder: block.order,
+          blockTitle: block.title,
+          status,
+          score: latestAttempt?.score ?? undefined,
+          maxScore: latestAttempt?.maxScore ?? undefined,
+          percentage: latestAttempt?.score && latestAttempt?.maxScore 
+            ? Math.round((latestAttempt.score / latestAttempt.maxScore) * 100) 
+            : undefined,
+          passed: latestAttempt?.passed ?? undefined,
+          attemptNumber: latestAttempt?.number ?? undefined,
+          attemptLimit: exam.attemptLimit,
+          timeLimitMin: exam.timeLimitMin ?? undefined,
+          access,
+        });
+      }
+    }
+  }
+
+  exams.sort((a, b) => a.blockOrder - b.blockOrder || a.title.localeCompare(b.title));
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary">Examinations</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-3xl font-bold">My Exams</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           {exams.length} exam{exams.length !== 1 ? "s" : ""} available
         </p>
       </div>
 
       {exams.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-border p-12 text-center">
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ClipboardList className="w-7 h-7 text-primary/40" />
-          </div>
-          <h2 className="font-bold text-primary mb-2">No exams yet</h2>
-          <p className="text-gray-500 text-sm">Your scheduled exams will appear here.</p>
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <p className="text-gray-600 dark:text-gray-400">No exams available yet. Check back soon!</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {exams.map((exam) => {
-            const enrolment = enrolmentByCourse.get(exam.courseId);
-            const accessLevel = getAccessLevel(enrolment ?? null);
-            const pct = enrolment?.paidPercent ?? 0;
-            const blockOrder = exam.block?.order ?? 1;
-
-            // Exam requires 100% (final) or 75% (block exams)
-            const requiredPct = blockOrder >= 3 ? 100 : 75;
-            const isLocked =
-              accessLevel !== "FULL" &&
-              accessLevel !== "COMPLETED" &&
-              pct < requiredPct;
-
-            const lockedReason = isLocked
-              ? pct < 50
-                ? "Pay 50% to start your course and access exams"
-                : pct < 75
-                ? "Pay 25% more to unlock this exam"
-                : "Pay in full to unlock the final exam and earn your certificate"
-              : null;
-
-            const latest = exam.attempts[0];
-            const hasInProgress = latest?.status === "IN_PROGRESS";
-            const hasCompleted = latest?.status === "MARKED" || latest?.status === "SUBMITTED";
-            const attemptLimitReached = !hasInProgress && latest && latest.number >= exam.attemptLimit;
-
-            // startWindowAt: exam not open yet
-            const startsAt = exam.startWindowAt ? new Date(exam.startWindowAt) : null;
-            const notOpenYet = startsAt && startsAt > now;
-            const startsInMs = notOpenYet && startsAt ? startsAt.getTime() - now.getTime() : null;
-            const startsInMinutes = startsInMs ? Math.ceil(startsInMs / 60000) : null;
-            const startsInHours = startsInMs ? Math.ceil(startsInMs / 3600000) : null;
-            const timeLabel = startsInMinutes != null
-              ? startsInMinutes < 60
-                ? `in ${startsInMinutes} minute${startsInMinutes !== 1 ? "s" : ""}`
-                : `in ${startsInHours} hour${(startsInHours ?? 0) !== 1 ? "s" : ""}`
-              : null;
-
-            return (
-              <div
-                key={exam.id}
-                className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${
-                  isLocked ? "border-border opacity-80" : "border-border"
-                }`}
-              >
-                <div className="p-5 flex items-start gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isLocked
-                        ? "bg-gray-100"
-                        : notOpenYet
-                        ? "bg-amber-50"
-                        : hasCompleted
-                        ? latest.passed === true
-                          ? "bg-success/10"
-                          : latest.passed === false
-                          ? "bg-danger/10"
-                          : "bg-warning/10"
-                        : "bg-primary/10"
-                    }`}
-                  >
-                    {isLocked ? (
-                      <Lock className="w-5 h-5 text-gray-400" />
-                    ) : notOpenYet ? (
-                      <Clock className="w-5 h-5 text-amber-600" />
-                    ) : latest?.passed === true ? (
-                      <CheckCircle2 className="w-5 h-5 text-success" />
-                    ) : latest?.passed === false ? (
-                      <XCircle className="w-5 h-5 text-danger" />
-                    ) : (
-                      <ClipboardList className="w-5 h-5 text-primary" />
-                    )}
+        <div className="space-y-4">
+          {exams.map((exam) => (
+            <div
+              key={exam.id}
+              className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-lg">{exam.title}</h3>
+                    <span className={`text-xs px-2 py-1 rounded-full ${STATUS_BADGE[exam.status]?.color || ""}`}>
+                      {STATUS_BADGE[exam.status]?.label || exam.status}
+                    </span>
                   </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {exam.courseTitle} • Block {exam.blockOrder}: {exam.blockTitle}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                    Attempts: {exam.attemptNumber || 0} of {exam.attemptLimit}
+                  </p>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-primary">{exam.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{exam.course.title}</p>
+                  {exam.status === "LOCKED" && (
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
+                      <Lock className="w-4 h-4" />
+                      {exam.access.reason}
+                    </p>
+                  )}
 
-                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
-                      {exam.timeLimitMin && (
-                        <span>{exam.timeLimitMin} min</span>
-                      )}
-                      <span>Pass: {exam.passPercent}%</span>
-                      <span>
-                        {exam.attemptLimit} attempt{exam.attemptLimit !== 1 ? "s" : ""} allowed
-                      </span>
-                      {startsAt && (
-                        <span>
-                          {notOpenYet
-                            ? `Opens ${startsAt.toLocaleDateString("en-UG", { weekday: "short", day: "numeric", month: "short" })} at ${startsAt.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Kampala" })} EAT`
-                            : `Opened ${startsAt.toLocaleDateString("en-UG", { day: "numeric", month: "short" })}`}
-                        </span>
-                      )}
-                    </div>
+                  {exam.status === "PASSED" && exam.percentage !== undefined && (
+                    <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Scored: {exam.percentage}% ({exam.score}/{exam.maxScore})
+                    </p>
+                  )}
 
-                    {isLocked && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
-                        <Lock className="w-3 h-3" />
-                        <span>{lockedReason}</span>
-                      </div>
-                    )}
+                  {exam.status === "FAILED" && exam.percentage !== undefined && (
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
+                      <XCircle className="w-4 h-4" />
+                      Scored: {exam.percentage}% ({exam.score}/{exam.maxScore})
+                    </p>
+                  )}
 
-                    {notOpenYet && !isLocked && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
-                        <Clock className="w-3 h-3" />
-                        <span>Exam opens {timeLabel} - prepare your notes now</span>
-                      </div>
-                    )}
+                  {exam.status === "PENDING_REVIEW" && (
+                    <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-2 flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      Your tutor is reviewing this exam. Check back soon.
+                    </p>
+                  )}
 
-                    {latest?.status === "SUBMITTED" && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
-                        <AlertCircle className="w-3 h-3" />
-                        <span>Awaiting tutor review</span>
-                      </div>
-                    )}
-                  </div>
+                  {exam.timeLimitMin && (
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      Time limit: {exam.timeLimitMin} minutes
+                    </p>
+                  )}
+                </div>
 
-                  <div className="flex-shrink-0">
-                    {isLocked ? (
-                      <Link
-                        href="/dashboard/payments"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary no-underline hover:underline"
-                      >
-                        Pay now
-                      </Link>
-                    ) : notOpenYet ? (
-                      <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
-                        Not open yet
-                      </span>
-                    ) : attemptLimitReached ? (
-                      <span className="text-xs text-gray-400">Limit reached</span>
-                    ) : hasInProgress ? (
-                      <Link
-                        href={`/dashboard/exams/${exam.id}`}
-                        className="btn-primary text-xs px-4 py-2 no-underline"
-                      >
-                        Continue
-                      </Link>
-                    ) : latest?.status === "SUBMITTED" ? (
-                      <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-warning/10 text-amber-700">
-                        In review
-                      </span>
-                    ) : latest?.status === "MARKED" ? (
-                      <Link
-                        href="/dashboard/results"
-                        className="text-xs font-medium text-primary no-underline hover:underline"
-                      >
-                        View result
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/dashboard/exams/${exam.id}`}
-                        className="btn-primary text-xs px-4 py-2 no-underline"
-                      >
-                        Start exam
-                      </Link>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-2">
+                  {exam.status === "AVAILABLE" && (
+                    <Link
+                      href={`/dashboard/exams/${exam.id}`}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Start Exam
+                    </Link>
+                  )}
+                  {exam.status === "IN_PROGRESS" && (
+                    <Link
+                      href={`/dashboard/exams/${exam.id}`}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Resume Exam
+                    </Link>
+                  )}
+                  {exam.status === "FAILED" && exam.attemptNumber !== undefined && exam.attemptNumber < exam.attemptLimit && (
+                    <Link
+                      href={`/dashboard/exams/${exam.id}`}
+                      className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1 justify-center"
+                    >
+                      <RotateCw className="w-4 h-4" />
+                      Retake
+                    </Link>
+                  )}
+                  {exam.status === "PASSED" && (
+                    <Link
+                      href={`/dashboard/results/${exam.id}`}
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      View Results
+                    </Link>
+                  )}
+                  {exam.status === "FAILED" && exam.attemptNumber !== undefined && exam.attemptNumber >= exam.attemptLimit && (
+                    <button
+                      disabled
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed"
+                    >
+                      No Attempts Left
+                    </button>
+                  )}
+                  {exam.status === "LOCKED" && (
+                    <Link
+                      href="/dashboard/fees"
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Pay to Unlock
+                    </Link>
+                  )}
+                  {exam.status === "PENDING_REVIEW" && (
+                    <button disabled className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed">
+                      Under Review
+                    </button>
+                  )}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
-
-      <div className="text-xs text-gray-400 mt-4 space-y-1">
-        <p>Exams are forward-only: once you move past a question you cannot return to it.</p>
-        <p>Switching tabs during an exam is logged and your tutor is notified after repeated switches.</p>
-      </div>
     </div>
   );
 }
