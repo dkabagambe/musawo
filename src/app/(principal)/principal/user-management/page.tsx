@@ -166,8 +166,7 @@ export default async function PrincipalUserManagementPage({ searchParams }: Prop
 
       <p className="text-xs text-gray-400 mt-4">
         Role assignments for Director and Principal require Director approval.
-        Staff accounts are managed from{" "}
-        <Link href="/admin/invites" className="underline">Staff Invites</Link>.
+        Staff invitations are managed by the Admin, who sends setup links to new users.
       </p>
     </div>
   );
