@@ -683,6 +683,7 @@ async function main() {
       thumbnailUrl: "/assets/images/basic-nursing.webp",
       freePreviewPercent: 12,
       fullFeeUgx: 1800000,
+      internationalFeeUgx: 638,
       feeContactOnly: false,
       instalmentCount: 3,
       durationMonths: 3,
@@ -739,7 +740,7 @@ async function main() {
       slug: "care-older-persons-disability",
       courseCode: "COP",
       title:
-        "Basic Certificate in Care of elderly and Persons with Disability (diatric)",
+        "Basic Certificate in Care of Older Persons and Persons with Disability (Geriatric)",
       category: "OPEN",
       targetAudience: "Non-health professionals aged 18 and above with an O-Level or A-Level certificate",
       eligibilityText:
