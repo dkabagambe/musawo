@@ -64,9 +64,24 @@ Both S1 and S2 require E2E test verification:
 5. Dark theme readable (AA contrast)
 6. Course card wrap + tooltip visible
 
+### S3 - Timetable, Live Classes, Class Replays, Attendance ⚠️ ANALYZED
+**Status:** 80% implemented, identified gaps
+- ✅ Timetable: 3 view modes, color coding, filtering, detail panel, overlap detection, ICS export
+- ✅ Live Classes: Join flow, presentation viewer, roll call check-in, breakaway groups
+- ⚠️ Class Replays: Playback works; **missing resume position, mark as watched, speed for all formats**
+- ✅ Attendance: Per-class records, stats, minimum warning, dispute reporting
+
+**High-priority fixes needed:**
+1. Add resume position tracking for recordings (watchedAt, lastPlaybackPosition fields)
+2. Implement "mark as watched" checkbox
+3. Fix playback speed for S3 URLs (use HTML5 video element)
+4. Show presentation for scheduled classes (within 30 min of start)
+5. Add cancellation/reschedule notifications
+
+**Documentation:** `docs/STUDENT-S3-ANALYSIS.md`
+
 ## Remaining Sections
 
-- **S3:** Timetable, Live Classes, Class Replays, Attendance
 - **S4:** Programmes, Courses, Materials, Assignments, Forum
 - **S5:** Exams, Results, Certificates
 - **S6:** Fees and Payment Flow
@@ -77,4 +92,5 @@ Both S1 and S2 require E2E test verification:
 
 ✅ S1 complete (needs E2E test confirmation)
 ✅ S2 complete (needs E2E test confirmation)
-⏳ Awaiting direction on which section to test or implement next
+⚠️ S3 analyzed: 80% complete, 5 high-priority gaps identified
+⏳ Ready to fix S3 gaps or proceed to next section
