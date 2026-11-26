@@ -7,15 +7,50 @@ ALTER TABLE "lessons"
   ADD COLUMN IF NOT EXISTS "visibleScope" TEXT NOT NULL DEFAULT 'ENROLLED';
 -- visibleScope values: ENROLLED | FREE_PREVIEW | FREE | CLASS | GROUP | HIDDEN
 
--- Announcement: add optional class-level scope
+-- Announcement: add all missing columns
 ALTER TABLE "announcements"
+  ADD COLUMN IF NOT EXISTS "audienceType" TEXT DEFAULT 'ALL',
+  ADD COLUMN IF NOT EXISTS "status" TEXT DEFAULT 'PUBLISHED',
+  ADD COLUMN IF NOT EXISTS "pinned" BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS "publishedAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "targetIntakeId" TEXT,
+  ADD COLUMN IF NOT EXISTS "createdById" TEXT,
   ADD COLUMN IF NOT EXISTS "liveClassId" TEXT;
 
-ALTER TABLE "announcements"
-  ADD CONSTRAINT "announcements_liveClassId_fkey"
-  FOREIGN KEY ("liveClassId") REFERENCES "live_classes"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE
-  DEFERRABLE INITIALLY DEFERRED;
+-- Add foreign key constraints if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints 
+    WHERE table_name = 'announcements' AND constraint_name = 'announcements_liveClassId_fkey'
+  ) THEN
+    ALTER TABLE "announcements"
+      ADD CONSTRAINT "announcements_liveClassId_fkey"
+      FOREIGN KEY ("liveClassId") REFERENCES "live_classes"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE
+      DEFERRABLE INITIALLY DEFERRED;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints 
+    WHERE table_name = 'announcements' AND constraint_name = 'announcements_targetIntakeId_fkey'
+  ) THEN
+    ALTER TABLE "announcements"
+      ADD CONSTRAINT "announcements_targetIntakeId_fkey"
+      FOREIGN KEY ("targetIntakeId") REFERENCES "intakes"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints 
+    WHERE table_name = 'announcements' AND constraint_name = 'announcements_createdById_fkey'
+  ) THEN
+    ALTER TABLE "announcements"
+      ADD CONSTRAINT "announcements_createdById_fkey"
+      FOREIGN KEY ("createdById") REFERENCES "users"("id")
+      ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
 -- SupportTicket: add file attachment
 ALTER TABLE "support_tickets"
