@@ -12,11 +12,11 @@ export default async function PaymentClaimPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  // Load enrolments that still need payment
+  // Load enrolments that still need payment (including OVERDUE students who owe fees)
   const enrolments = await db.enrolment.findMany({
     where: {
       userId: session.user.id,
-      status: { in: ["PENDING_PAYMENT", "PARTIALLY_PAID"] },
+      status: { in: ["PENDING_PAYMENT", "PARTIALLY_PAID", "OVERDUE"] },
     },
     include: { course: { select: { id: true, title: true, fullFeeUgx: true } } },
     orderBy: { createdAt: "desc" },

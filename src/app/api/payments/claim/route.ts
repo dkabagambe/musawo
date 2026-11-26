@@ -100,12 +100,13 @@ export async function POST(req: NextRequest) {
   }
   if (
     enrolment.status !== "PENDING_PAYMENT" &&
-    enrolment.status !== "PARTIALLY_PAID"
+    enrolment.status !== "PARTIALLY_PAID" &&
+    enrolment.status !== "OVERDUE"
   ) {
     return NextResponse.json(
       {
         error:
-          "Claims can only be submitted for enrolments in PENDING_PAYMENT or PARTIALLY_PAID status.",
+          "Claims can only be submitted for enrolments that have outstanding fees.",
       },
       { status: 400 },
     );

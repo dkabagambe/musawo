@@ -86,7 +86,7 @@ export default async function StudentClassesPage() {
               {date.toLocaleTimeString("en-UG", { hour: "2-digit", minute: "2-digit" })} EAT &middot; {cls.durationMin} min &middot; {cls.tutor.name}
             </p>
           </div>
-          <StudentJoinClass classId={cls.id} isLive={isLive} />
+          <StudentJoinClass classId={cls.id} isLive={isLive} scheduledAt={cls.scheduledAt.toISOString()} />
         </div>
         {isLive && <div className="mt-2 px-1"><PresentationViewer classId={cls.id} /></div>}
         {isLive && <div className="mt-2 px-1"><MyGroupCard classId={cls.id} courseId={cls.course?.id ?? ""} /></div>}

@@ -66,7 +66,7 @@ function notificationHref(n: Notification): string | null {
     case "EXAM_RESULT":
     case "EXAM_AVAILABLE":
     case "EXAM_REVIEW":
-      return typeof meta.examId === "string" ? `/dashboard/exams` : "/dashboard/exams";
+      return typeof meta.examId === "string" ? `/dashboard/exams/${meta.examId}` : "/dashboard/exams";
     case "ASSIGNMENT_DUE":
     case "ASSIGNMENT_GRADED":
       return "/dashboard/assignments";

@@ -273,7 +273,7 @@ function StudentDetailPanel({
           {/* Live: Join button */}
           {isLive && (
             <div className="border-t border-border pt-4">
-              <StudentJoinClass classId={cls.id} isLive={true} />
+              <StudentJoinClass classId={cls.id} isLive={true} scheduledAt={cls.scheduledAt} />
             </div>
           )}
 
@@ -285,9 +285,11 @@ function StudentDetailPanel({
             </div>
           )}
 
-          {/* Scheduled: hint */}
-          {cls.status === "SCHEDULED" && (
-            <p className="text-xs text-gray-400 text-center">Link appears when class starts</p>
+          {/* Scheduled: show near-live indicator if starting within 30 minutes, otherwise static hint */}
+          {!isLive && cls.status === "SCHEDULED" && (
+            <div className="border-t border-border pt-4">
+              <StudentJoinClass classId={cls.id} isLive={false} scheduledAt={cls.scheduledAt} />
+            </div>
           )}
         </div>
       </div>

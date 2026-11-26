@@ -357,8 +357,18 @@ export default function CoursePlayerClient({
                 <div className="mb-4">
                   {notesUrl ? (
                     <div>
-                      <div className="relative rounded-2xl overflow-hidden border border-border" style={{ height: "65vh" }} onContextMenu={(e) => e.preventDefault()}>
-                        <iframe src={notesUrl} className="w-full h-full" title={`Notes: ${activeLesson.title}`} referrerPolicy="same-origin" />
+                      <div
+                        className="relative rounded-2xl overflow-hidden border border-border select-none"
+                        style={{ height: "65vh" }}
+                        onContextMenu={(e) => e.preventDefault()}
+                      >
+                        <iframe
+                          src={notesUrl}
+                          className="w-full h-full"
+                          title={`Notes: ${activeLesson.title}`}
+                          referrerPolicy="same-origin"
+                          sandbox="allow-same-origin allow-scripts"
+                        />
                         <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-[0.12] grid place-items-center">
                           <span className="rotate-[-28deg] text-gray-900 text-xl font-bold whitespace-nowrap">
                             {viewerName} {studentNumber && `· ${studentNumber}`} · {new Date().toLocaleDateString("en-UG")}
