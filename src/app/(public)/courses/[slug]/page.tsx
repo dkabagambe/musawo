@@ -10,6 +10,8 @@ import PageHero from "@/components/public/PageHero";
 import AnimateIn from "@/components/public/AnimateIn";
 import StaggerGrid from "@/components/public/StaggerGrid";
 import type { Metadata } from "next";
+export const revalidate = false;
+export const dynamic = "force-dynamic";
 
 interface Props { params: { slug: string } }
 

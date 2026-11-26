@@ -2,7 +2,8 @@ import { db } from "@/lib/db";
 import PageHero from "@/components/public/PageHero";
 import { FileText, BookOpen, ClipboardList, FileCheck, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
-export const revalidate = 3600;
+export const revalidate = false;
+export const dynamic = "force-dynamic";
 
 
 export const metadata: Metadata = {
