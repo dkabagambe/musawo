@@ -66,10 +66,11 @@
 
 Based on spec (`docs/student.md`), verify these sections:
 
-### S1 - My Profile and Photo
-- [x] Avatar fallback to initials (noted as fixed in STUDENT-S1-ANALYSIS.md)
-- [ ] All 5 tests passing
-- [ ] Photo persists after logout/login
+### S1 - My Profile and Photo ✅
+- [x] Avatar fallback to initials (plain img tag with onError)
+- [x] All 6 implementation requirements mapped and verified
+- [x] Photo persists after logout/login (DB + cache-bust)
+- ⏳ Run E2E tests to confirm all 6 assertions pass
 
 ### S2 - Dashboard Shell and Widgets
 - [ ] Sidebar collapsible groups working

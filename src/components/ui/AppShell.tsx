@@ -178,6 +178,9 @@ function dashboardGroup(href: string, root: string): DashboardTab {
 const SIDEBAR_GROUP_NAMES: Record<string, string> = {
   general: "Overview",
   overview: "Overview",
+  learning: "Learning",
+  classes: "Classes",
+  finance: "Finance",
   people: "People",
   academics: "Academics",
   assessment: "Teaching and Assessment",
