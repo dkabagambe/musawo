@@ -299,10 +299,10 @@ export default function RosterClient({ intake, canEdit }: Props) {
                     </div>
                   </td>
                   <td className="font-mono text-sm">
-                    {enrolment.user.studentNumber || "—"}
+                    {enrolment.user.studentNumber || "-"}
                   </td>
-                  <td className="text-sm">{enrolment.user.email || "—"}</td>
-                  <td className="text-sm">{enrolment.user.phone || "—"}</td>
+                  <td className="text-sm">{enrolment.user.email || "-"}</td>
+                  <td className="text-sm">{enrolment.user.phone || "-"}</td>
                   <td>
                     <span className={`badge text-xs ${getStatusColor(enrolment.user.status)}`}>
                       {enrolment.user.status.replace(/_/g, " ")}

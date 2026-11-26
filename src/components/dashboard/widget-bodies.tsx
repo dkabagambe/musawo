@@ -1821,11 +1821,23 @@ async function DeputyTodosBody({ fullPageHref }: WidgetBodyProps) {
   );
 }
 
-/* principal-todos  (principal general) */
 async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
+  // Principal decides: admissions, marks changes, storage clearing.
+  // Also reviews (and may forward to Director): payment proofs, results, certificates.
+  // May approve or forward: equipment requests.
+  const PRINCIPAL_TYPES: ApprovalRequestType[] = [
+    "ADMISSION", "MARKS_CHANGE", "PAYMENT_PROOF",
+    "RESULTS_PUBLICATION", "EQUIPMENT_REQUEST", "STORAGE_CLEARING",
+    "CERTIFICATE_ISSUANCE",
+  ];
   const [pendingResults, pendingApprovals, draftCourses] = await Promise.all([
     db.examAttempt.count({ where: { status: "SUBMITTED" } }),
-    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
+    db.approvalRequest.count({
+      where: {
+        status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] },
+        type: { in: PRINCIPAL_TYPES },
+      },
+    }),
     db.course.count({ where: { status: "DRAFT" } }),
   ]);
   const allClear =
@@ -1840,47 +1852,13 @@ async function PrincipalTodosBody({ fullPageHref }: WidgetBodyProps) {
         </ListRow>
       )}
       {pendingApprovals > 0 && (
-        <ListRow href="/director/approvals" icon={<ShieldCheck size={16} />}>
+        <ListRow href="/principal/approvals-inbox" icon={<ShieldCheck size={16} />}>
           {formatCount(pendingApprovals, "approval")} pending your decision
         </ListRow>
       )}
       {draftCourses > 0 && (
         <ListRow href="/principal/courses" icon={<FileText size={16} />}>
           {formatCount(draftCourses, "course")} in draft awaiting review
-        </ListRow>
-      )}
-    </>
-  );
-}
-
-/* finance-todos  (finance general) */
-async function FinanceTodosBody({ fullPageHref }: WidgetBodyProps) {
-  const [pendingClaims, pendingPayments, pendingApprovals] = await Promise.all([
-    db.manualPaymentClaim.count({
-      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
-    }),
-    db.payment.count({ where: { status: "PENDING_APPROVAL" } }),
-    db.approvalRequest.count({ where: { status: { in: ["SUBMITTED" as const, "IN_REVIEW" as const] } } }),
-  ]);
-  const allClear =
-    pendingClaims === 0 && pendingPayments === 0 && pendingApprovals === 0;
-  const href = fullPageHref ?? "/finance/payments";
-  if (allClear) return <Empty>All caught up. No pending actions.</Empty>;
-  return (
-    <>
-      {pendingClaims > 0 && (
-        <ListRow href={href} icon={<Receipt size={16} />}>
-          {formatCount(pendingClaims, "manual payment claim")} to verify
-        </ListRow>
-      )}
-      {pendingPayments > 0 && (
-        <ListRow href={href} icon={<Wallet size={16} />}>
-          {formatCount(pendingPayments, "payment")} awaiting approval
-        </ListRow>
-      )}
-      {pendingApprovals > 0 && (
-        <ListRow href="/finance/approvals" icon={<ShieldCheck size={16} />}>
-          {formatCount(pendingApprovals, "approval request")} pending
         </ListRow>
       )}
     </>
