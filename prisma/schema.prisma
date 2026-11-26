@@ -968,6 +968,10 @@ model Attendance {
   isPresenter          Boolean         @default(false)
   speakStatus          SpeakStatus     @default(LISTEN_ONLY)
   markedPresent        Boolean         @default(false)
+  // S3 fixes: recording playback tracking
+  watchedAt            DateTime?       // when the student watched the recording
+  lastPlaybackPosition Int             @default(0) // seconds into the video
+  isWatched            Boolean         @default(false) // mark as watched checkbox
   createdAt            DateTime        @default(now())
 
   liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)

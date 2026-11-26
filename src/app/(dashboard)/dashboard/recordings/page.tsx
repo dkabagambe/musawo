@@ -155,6 +155,7 @@ export default async function RecordingsPage({
                 <RecordingViewer
                   title={item.title}
                   url={item.recordingUrl!}
+                  classId={item.id}
                   studentName={session.user.name ?? "Student"}
                   studentNumber={studentNumber}
                 />

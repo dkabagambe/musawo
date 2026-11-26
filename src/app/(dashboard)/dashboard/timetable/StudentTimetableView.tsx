@@ -154,6 +154,12 @@ function StudentDetailPanel({
   const end = getEndTime(cls);
   const statusInfo = STATUS_LABEL[cls.status] ?? { label: cls.status, cls: "badge" };
   const isLive = cls.status === "LIVE";
+  
+  // Calculate if scheduled class is starting within 30 minutes
+  const msUntilStart = new Date(cls.scheduledAt).getTime() - Date.now();
+  const isNearlyLive = !isLive && cls.status === "SCHEDULED" && msUntilStart < 30 * 60 * 1000 && msUntilStart > 0;
+  const canShowPresentation = isLive || isNearlyLive;
+  
   const att = cls.attendance;
 
   return (
@@ -278,9 +284,9 @@ function StudentDetailPanel({
           )}
 
           {/* Live: Presentation panel */}
-          {isLive && (
+          {canShowPresentation && (
             <div className="border-t border-border pt-4">
-              <p className="text-xs font-semibold text-gray-500 mb-2">Presentation slides</p>
+              <p className="text-xs font-semibold text-gray-500 mb-2">Presentation slides {isNearlyLive && "(Pre-class preview)"}</p>
               <PresentationViewer classId={cls.id} />
             </div>
           )}

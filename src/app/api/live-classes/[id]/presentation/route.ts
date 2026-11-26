@@ -42,13 +42,18 @@ export async function GET(
 
   const liveClass = await db.liveClass.findUnique({
     where: { id: params.id },
-    select: { id: true, courseId: true, status: true, tutorId: true },
+    select: { id: true, courseId: true, status: true, tutorId: true, scheduledAt: true },
   });
   if (!liveClass) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Students can only see presentations when class is LIVE or COMPLETED
+  // Students can see presentations when:
+  // 1. Class is LIVE or COMPLETED
+  // 2. Class is SCHEDULED and starts within 30 minutes (pre-class preview)
   if (isStudent && !isInstructor) {
-    if (!["LIVE", "COMPLETED"].includes(liveClass.status)) {
+    const msUntilStart = new Date(liveClass.scheduledAt).getTime() - Date.now();
+    const isNearlyLive = liveClass.status === "SCHEDULED" && msUntilStart < 30 * 60 * 1000 && msUntilStart > 0;
+    
+    if (!["LIVE", "COMPLETED"].includes(liveClass.status) && !isNearlyLive) {
       return NextResponse.json({ presentations: [] });
     }
     // Check enrolment

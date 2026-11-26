@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { can } from "@/lib/rbac";
+import { audit } from "@/lib/audit";
+import { notifyClassCancellation, notifyClassReschedule } from "@/lib/notifications";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -60,12 +62,12 @@ export async function POST(req: NextRequest) {
     });
 
     // Audit log
-    await auditLog({
+    await audit({
+      actorId: session.user.id,
       action: "CREATE",
-      resource: "live_class",
-      resourceId: liveClass.id,
-      userId: session.user.id,
-      details: {
+      entityType: "LiveClass",
+      entityId: liveClass.id,
+      metadata: {
         title: liveClass.title,
         course: liveClass.course.title,
         tutor: liveClass.tutor.name,
@@ -74,9 +76,6 @@ export async function POST(req: NextRequest) {
         venue: liveClass.venue,
       },
     });
-
-    // TODO: Send notifications to instructor and enrolled students
-    // This would typically create notification records and/or send emails
 
     return NextResponse.json(liveClass, { status: 201 });
   } catch (error) {
@@ -153,12 +152,12 @@ export async function PATCH(req: NextRequest) {
     });
 
     // Audit log
-    await auditLog({
+    await audit({
+      actorId: session.user.id,
       action: "UPDATE",
-      resource: "live_class",
-      resourceId: updated.id,
-      userId: session.user.id,
-      details: {
+      entityType: "LiveClass",
+      entityId: updated.id,
+      metadata: {
         title: updated.title,
         isReschedule,
         originalTime: existing.scheduledAt.toISOString(),
@@ -171,9 +170,18 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    // TODO: Send notifications about the change
+    // Send reschedule notifications if the time changed
     if (isReschedule) {
-      // Notify instructor and students about reschedule
+      await notifyClassReschedule({
+        liveClassId: updated.id,
+        courseId: updated.courseId,
+        classTitle: updated.title,
+        originalScheduledAt: existing.scheduledAt,
+        newScheduledAt: updated.scheduledAt,
+        rescheduleReason: data.description,
+      }).catch((error) => {
+        console.error("Failed to send reschedule notifications:", error);
+      });
     }
 
     return NextResponse.json(updated);
@@ -238,12 +246,12 @@ export async function DELETE(req: NextRequest) {
     });
 
     // Audit log
-    await auditLog({
+    await audit({
+      actorId: session.user.id,
       action: "DELETE",
-      resource: "live_class",
-      resourceId: cancelled.id,
-      userId: session.user.id,
-      details: {
+      entityType: "LiveClass",
+      entityId: cancelled.id,
+      metadata: {
         title: cancelled.title,
         course: cancelled.course.title,
         tutor: cancelled.tutor.name,
@@ -253,7 +261,15 @@ export async function DELETE(req: NextRequest) {
       },
     });
 
-    // TODO: Send cancellation notifications to instructor and enrolled students
+    // Send cancellation notifications to enrolled students
+    await notifyClassCancellation({
+      liveClassId: cancelled.id,
+      courseId: cancelled.courseId,
+      classTitle: cancelled.title,
+      cancelReason: data.cancelReason,
+    }).catch((error) => {
+      console.error("Failed to send cancellation notifications:", error);
+    });
 
     return NextResponse.json({ success: true, cancelled });
   } catch (error) {
