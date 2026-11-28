@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 npx prisma generate && SKIP_ENV_VALIDATION=1 next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=3072' npx prisma generate && next build --experimental-build-mode=compile",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
