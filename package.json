@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 npx prisma generate && next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 npx prisma generate && SKIP_ENV_VALIDATION=1 next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",

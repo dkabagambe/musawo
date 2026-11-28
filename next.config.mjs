@@ -36,7 +36,7 @@ const nextConfig = {
           "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
           "font-src 'self' https://fonts.gstatic.com",
-          "img-src 'self' data: blob: https://musawo.ug https://*.musawo.ug https://learn.musawotraining.ug https://*.onrender.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+          "img-src 'self' data: blob: https://musawo.ug https://*.musawo.ug https://learn.musawotraining.ug https://*.vercel.app https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
           "media-src 'self' https://iframe.mediadelivery.net https://video.bunnycdn.com",
           "frame-src https://iframe.mediadelivery.net https://www.openstreetmap.org",
           "connect-src 'self'",
