@@ -201,7 +201,7 @@ BUNNY_SIGNING_KEY=
 BUNNY_CDN_HOSTNAME=iframe.mediadelivery.net
 
 # Resend Email (copy from your .env)
-RESEND_API_KEY=re_hLMkmXF5_7wypJpHuRDMoqKta5oGQLrkT
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # SMS / WhatsApp (copy from your .env)
 AT_API_KEY=
