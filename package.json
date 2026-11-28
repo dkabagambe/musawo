@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "26.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -47,7 +47,6 @@
     "@types/qrcode": "1.5.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "argon2": "0.41.1",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "eslint": "^8",

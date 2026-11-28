@@ -35,12 +35,12 @@ import {
   TicketStatus,
   TicketPriority,
 } from "@prisma/client";
-import { hash } from "argon2";
+import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { formatStudentNumber } from "../src/lib/students/number-format";
 
 const prisma = new PrismaClient();
-const ARGON2_OPTIONS = { type: 2 as const, memoryCost: 65536, timeCost: 3, parallelism: 1 };
+const BCRYPT_SALT_ROUNDS = 10;
 const DEMO_PW = "Demo1234!";
 
 const now = new Date();
@@ -49,7 +49,7 @@ const daysFrom = (d: number) => new Date(now.getTime() + d * 86_400_000);
 const hoursAgo = (h: number) => new Date(now.getTime() - h * 3_600_000);
 const hoursFrom = (h: number) => new Date(now.getTime() + h * 3_600_000);
 
-async function pw() { return hash(DEMO_PW, ARGON2_OPTIONS); }
+async function pw() { return hash(DEMO_PW, BCRYPT_SALT_ROUNDS); }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS

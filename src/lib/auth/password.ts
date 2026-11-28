@@ -1,22 +1,17 @@
-import { hash, verify, argon2id } from "argon2";
+import { hash, compare } from "bcryptjs";
 
-const ARGON2_OPTIONS = {
-  type: argon2id,
-  memoryCost: 65536,
-  timeCost: 3,
-  parallelism: 1,
-} as const;
+const BCRYPT_SALT_ROUNDS = 10;
 
 export async function hashPassword(password: string): Promise<string> {
-  return hash(password, ARGON2_OPTIONS);
+  return hash(password, BCRYPT_SALT_ROUNDS);
 }
 
 export async function verifyPassword(
   password: string,
-  hash: string
+  hashedPassword: string
 ): Promise<boolean> {
   try {
-    return await verify(hash, password);
+    return await compare(password, hashedPassword);
   } catch {
     return false;
   }

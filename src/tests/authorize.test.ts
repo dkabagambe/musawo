@@ -80,8 +80,8 @@ async function simulateAuthorize(
   return { ok: true, userId: user.id };
 }
 
-// argon2 is intentionally slow; allow up to 15 s per check (first call pays JIT warm-up cost)
-const ARGON2_TIMEOUT_MS = 15_000;
+// bcryptjs is fast; allow 5 seconds per check
+const BCRYPT_TIMEOUT_MS = 5_000;
 
 describe("authorize() — all demo accounts sign in with Demo1234!", () => {
   it.each(DEMO_EMAILS)("signs in %s", async (email) => {
@@ -90,7 +90,7 @@ describe("authorize() — all demo accounts sign in with Demo1234!", () => {
       result,
       `${email} authorize failed: ${!result.ok ? result.reason : ""}`,
     ).toMatchObject({ ok: true });
-  }, ARGON2_TIMEOUT_MS);
+  }, BCRYPT_TIMEOUT_MS);
 
   it("rejects a wrong password", async () => {
     const result = await simulateAuthorize("director@mtc.ac.ug", "WrongPass1!");

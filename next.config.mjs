@@ -81,7 +81,7 @@ const nextConfig = {
   },
 
   experimental: {
-    serverComponentsExternalPackages: ["argon2", "@prisma/client", "prisma", "sharp", "@img/sharp-linux-x64", "@img/sharp-linuxmusl-x64", "otplib"],
+    serverComponentsExternalPackages: ["@prisma/client", "prisma", "sharp", "@img/sharp-linux-x64", "@img/sharp-linuxmusl-x64", "otplib"],
     serverActions: {
       // 10 MB limit for server action bodies (file uploads go through the upload API, not actions)
       bodySizeLimit: "10mb",
@@ -101,12 +101,9 @@ const nextConfig = {
     };
 
     if (isServer) {
-      // argon2 uses native bindings; keep it as an external for the server bundle
+      // bcryptjs is a pure JS implementation; no need to externalize
       const existing = config.externals ?? [];
-      config.externals = [
-        ...(Array.isArray(existing) ? existing : [existing]),
-        "argon2",
-      ];
+      config.externals = Array.isArray(existing) ? existing : [existing];
     } else {
       // Prevent webpack from trying to bundle Node built-ins for the browser
       config.resolve.fallback = {

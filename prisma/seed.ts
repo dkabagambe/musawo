@@ -26,17 +26,12 @@ import {
   TicketPriority,
   SubmissionStatus,
 } from "@prisma/client";
-import { hash } from "argon2";
+import { hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { formatStudentNumber } from "../src/lib/students/number-format";
 
 const prisma = new PrismaClient();
-const ARGON2_OPTIONS = {
-  type: 2 as const,
-  memoryCost: 65536,
-  timeCost: 3,
-  parallelism: 1,
-};
+const BCRYPT_SALT_ROUNDS = 10;
 const IS_DEMO_MODE = process.env.DEMO_MODE === "true";
 
 // ─── Date helpers ─────────────────────────────────────────────────
@@ -51,7 +46,7 @@ const monthsAgo = (m: number) => daysAgo(m * 30);
 const DEMO_PW = "Demo1234!";
 
 async function pw(plain: string) {
-  return hash(plain, ARGON2_OPTIONS);
+  return hash(plain, BCRYPT_SALT_ROUNDS);
 }
 
 // ─── Site Settings ────────────────────────────────────────────────

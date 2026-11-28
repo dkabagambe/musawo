@@ -2,7 +2,7 @@
  * TOTP backup codes.
  *
  * Backup codes are 10 single-use alphanumeric codes (8 chars each) generated
- * at 2FA setup time. They are shown once, hashed with argon2, and stored
+ * at 2FA setup time. They are shown once, hashed with bcryptjs, and stored
  * encrypted in user.totpBackupCodes as a JSON array.
  *
  * Format stored (after encryption):
@@ -13,15 +13,10 @@
  */
 
 import { randomBytes } from "crypto";
-import { hash as argon2Hash, verify as argon2Verify } from "argon2";
+import { hash as bcryptHash, compare as bcryptCompare } from "bcryptjs";
 import { encryptSecret, decryptSecret } from "./index";
 
-const ARGON2_OPTIONS = {
-  type: 2 as const,  // argon2id
-  memoryCost: 65536,
-  timeCost: 2,
-  parallelism: 1,
-};
+const BCRYPT_SALT_ROUNDS = 10;
 
 export interface BackupCodeRecord {
   hash:   string;
@@ -46,7 +41,7 @@ export async function generateBackupCodes(count: number): Promise<{
   const plainCodes = Array.from({ length: count }, generateRawCode);
   const records: BackupCodeRecord[] = await Promise.all(
     plainCodes.map(async (code) => ({
-      hash:   await argon2Hash(code, ARGON2_OPTIONS),
+      hash:   await bcryptHash(code, BCRYPT_SALT_ROUNDS),
       usedAt: null,
     }))
   );
@@ -82,13 +77,13 @@ export async function redeemBackupCode(
     records.map(async (rec) => {
       if (!redeemed && rec.usedAt === null) {
         try {
-          const match = await argon2Verify(rec.hash, normalized);
+          const match = await bcryptCompare(normalized, rec.hash);
           if (match) {
             redeemed = true;
             return { ...rec, usedAt: new Date().toISOString() };
           }
         } catch {
-          // argon2 verify error -- skip
+          // bcrypt compare error -- skip
         }
       }
       return rec;
