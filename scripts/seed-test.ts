@@ -15,7 +15,7 @@
  */
 
 import { PrismaClient, UserRole, EnrolmentStatus, LiveClassStatus } from "@prisma/client";
-import { hash } from "argon2";
+import { hash } from "bcryptjs";
 import { formatStudentNumber } from "../src/lib/students/number-format";
 
 const prisma = new PrismaClient();
@@ -34,7 +34,7 @@ async function main() {
 
   console.log("\n[seed:test] Creating test seed data (35 students, 1 class of 30)...\n");
 
-  const hashedPw = await hash(TEST_PASSWORD);
+  const hashedPw = await hash(TEST_PASSWORD, 10);
   const year = new Date().getFullYear();
 
   // Find or create a course to enroll students in

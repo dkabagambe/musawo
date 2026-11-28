@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { authenticator } from "otplib";
 import crypto from "crypto";
-import argon2 from "argon2";
+import { hash as bcryptHash } from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     for (let i = 0; i < 10; i++) {
       const code = crypto.randomBytes(4).toString("hex").toUpperCase();
       backupCodes.push(code);
-      const hash = await argon2.hash(code);
+      const hash = await bcryptHash(code, 10);
       hashedBackupCodes.push({ hash, usedAt: null });
     }
 
